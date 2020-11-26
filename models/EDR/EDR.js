@@ -6,6 +6,18 @@ const edrSchema = new mongoose.Schema({
 		type: mongoose.Schema.ObjectId,
 		ref: 'patientfhir',
 	},
+	productionArea: {
+		type: mongoose.Schema.ObjectId,
+		ref: 'productionArea',
+	},
+	carStream: {
+		type: mongoose.Schema.ObjectId,
+		ref: 'careStream',
+	},
+	chiefComplaint: {
+		type: mongoose.Schema.ObjectId,
+		ref: 'chiefComplaint',
+	},
 	requestNo: {
 		type: String,
 	},
@@ -84,7 +96,11 @@ const edrSchema = new mongoose.Schema({
 	pharmacyRequest: [
 		{
 			type: mongoose.Schema.ObjectId,
-			ref: 'ReplenishmentRequestBU',
+			ref: 'pharmacyRequest',
+			requester: {
+				type: mongoose.Schema.ObjectId,
+				ref: 'staff',
+			},
 		},
 	],
 	labRequest: [

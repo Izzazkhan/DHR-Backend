@@ -73,7 +73,7 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
 	}
 });
 
-exports.getEDR = asyncHandler(async (req, res, next) => {
+exports.getEDRById = asyncHandler(async (req, res, next) => {
 	const edr = await EDR.findById(req.params.id).populate('patientId');
 	if (!edr) {
 		return next(new ErrorResponse('No Edr found for this patient', 404));
@@ -81,5 +81,15 @@ exports.getEDR = asyncHandler(async (req, res, next) => {
 	res.status(200).json({
 		success: true,
 		data: edr,
+	});
+});
+
+exports.getEDRs = asyncHandler(async (req, res, next) => {
+	const Edrs = await EDR.find()
+		.populate('patientId')
+		.populate('pharmacyRequest');
+	res.status(201).json({
+		success: true,
+		data: Edrs,
 	});
 });

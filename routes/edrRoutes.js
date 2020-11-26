@@ -1,9 +1,13 @@
 const express = require('express');
-const { generateEDR, getEDR } = require('../controllers/edrController');
+const {
+	generateEDR,
+	getEDRs,
+	getEDRById,
+} = require('../controllers/edrController');
 
 const router = express.Router();
 
-router.route('/').post(generateEDR);
-router.route('/:id').get(getEDR);
+router.route('/').post(generateEDR).get(getEDRs);
+router.route('/:id').get(getEDRById);
 
 module.exports = router;

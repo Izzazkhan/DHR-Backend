@@ -105,4 +105,4 @@ const PharmacyRequestSchema = new mongoose.Schema({
 });
 
 PharmacyRequestSchema.plugin(mongoosePaginate);
-module.exports = mongoose.model('PharmacyRequest', PharmacyRequestSchema);
+module.exports = mongoose.model('pharmacyRequest', PharmacyRequestSchema);

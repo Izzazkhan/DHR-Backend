@@ -2,6 +2,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const errorHandler = require('./middleware/error');
+const http = require('http');
+const socketIO = require('socket.io');
+const cors = require('cors');
 
 // Router Files
 const patientRouter = require('./routes/patientRoutes');
@@ -22,9 +25,10 @@ dotenv.config({ path: './config/config.env' });
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(cors());
 
 // Mounting Routes
-app.use('/api/patient', patientRouter);
+app.use('/api/dhrPatient', patientRouter);
 app.use('/api/edr', edrRouter);
 app.use('/api/pharm', pharmRouter);
 app.use('/api/room', roomRouter);
@@ -42,7 +46,7 @@ mongoose
 	.then(() => console.log('DataBase connected Successfully'));
 
 const PORT = process.env.PORT || 8080;
-// const port = 4001;
+const portChat = 4001;
 
 const server = app.listen(PORT, () =>
 	console.log(
@@ -50,6 +54,22 @@ const server = app.listen(PORT, () =>
 	)
 );
 
+const socketServer = http.createServer(app);
+const io = socketIO(socketServer);
+io.origins('*:*');
+
+io.on('connection', socket => {
+	console.log('chat user connected');
+	socket.on('disconnect', () => {
+		console.log('chat user disconnected');
+	});
+});
+
+global.globalVariable = { io: io };
+
+socketServer.listen(portChat, () =>
+	console.log(`Socket for chat is listening on : ${portChat}`)
+);
 // Handling unhandled Rejections
 process.on('unhandledRejection', err => {
 	console.log('Unhandled Rejection, Shutting Down...');
