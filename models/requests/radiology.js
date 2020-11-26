@@ -1,11 +1,12 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
+
 const RadiologyRequestSchema = new mongoose.Schema({
   requestNo: {
     type: String,
   },
   patientId: {
     type: mongoose.Schema.ObjectId,
-    ref: "patient",
+    ref: 'patient',
   },
   requester: {
     type: mongoose.Schema.ObjectId,
@@ -37,7 +38,7 @@ const RadiologyRequestSchema = new mongoose.Schema({
       },
       serviceId: {
         type: mongoose.Schema.ObjectId,
-        ref: "RadiologyService",
+        ref: 'RadiologyService',
       },
       requesterName: {
         type: String,
@@ -53,7 +54,7 @@ const RadiologyRequestSchema = new mongoose.Schema({
       },
       requester: {
         type: mongoose.Schema.ObjectId,
-        ref: "staff",
+        ref: 'staff',
       },
       results: {
         type: String,
@@ -93,4 +94,4 @@ const RadiologyRequestSchema = new mongoose.Schema({
     default: Date.now,
   },
 });
-module.exports = mongoose.model("RadiologyRequest", RadiologyRequestSchema);
+module.exports = mongoose.model('RadiologyRequest', RadiologyRequestSchema);

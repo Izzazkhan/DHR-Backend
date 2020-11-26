@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const taskSchema = new mongoose.Schema({
   condition: {
@@ -9,11 +9,11 @@ const taskSchema = new mongoose.Schema({
   },
   patient: {
     type: mongoose.Schema.ObjectId,
-    ref: "patient",
+    ref: 'patient',
   },
   productionArea: {
     type: mongoose.Schema.ObjectId,
-    ref: "Rooms",
+    ref: 'Rooms',
   },
   createdAt: {
     type: Date,
@@ -25,4 +25,4 @@ const taskSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("task", taskSchema);
+module.exports = mongoose.model('task', taskSchema);

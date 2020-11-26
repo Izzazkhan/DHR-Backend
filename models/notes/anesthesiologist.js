@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const AnesthesiologistSchema = new mongoose.Schema({
   date: {
@@ -9,14 +9,14 @@ const AnesthesiologistSchema = new mongoose.Schema({
   },
   anesthesiologistRef: {
     type: mongoose.Schema.ObjectId,
-    ref: "staff",
+    ref: 'staff',
   },
   voiceNotes: {
     type: String,
   },
   status: {
     type: String,
-    enum: ["Pending", "Completed"],
+    enum: ['Pending', 'Completed'],
   },
   createdAt: {
     type: Date,
@@ -28,4 +28,4 @@ const AnesthesiologistSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("Anesthesiologist", AnesthesiologistSchema);
+module.exports = mongoose.model('Anesthesiologist', AnesthesiologistSchema);

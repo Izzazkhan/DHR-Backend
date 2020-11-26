@@ -1,6 +1,6 @@
 const period = {
-    start:  Date,
-    end:    Date
+  start: Date,
+  end: Date,
 };
 
-module.exports = {period};
+module.exports = { period };

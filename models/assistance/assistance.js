@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const assistanceRequestSchema = new mongoose.Schema({
   requestCategory: {
@@ -11,4 +11,4 @@ const assistanceRequestSchema = new mongoose.Schema({
   reason: String,
 });
 
-module.exports = mongoose.model("assistanceRequest", assistanceRequestSchema);
+module.exports = mongoose.model('assistanceRequest', assistanceRequestSchema);

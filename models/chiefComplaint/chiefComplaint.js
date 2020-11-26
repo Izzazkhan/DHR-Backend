@@ -1,4 +1,5 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
+
 const ChiefComplaintSchema = new mongoose.Schema(
   {
     id: {
@@ -9,15 +10,15 @@ const ChiefComplaintSchema = new mongoose.Schema(
     },
     patient: {
       type: mongoose.Schema.ObjectId,
-      ref: "patient",
+      ref: 'patient',
     },
     productionArea: {
       type: mongoose.Schema.ObjectId,
-      ref: "ProductionArea",
+      ref: 'ProductionArea',
     },
   },
   {
     timestamps: true,
-  },
+  }
 );
-module.exports = mongoose.model("ChiefComplaint", ChiefComplaintSchema);
+module.exports = mongoose.model('ChiefComplaint', ChiefComplaintSchema);

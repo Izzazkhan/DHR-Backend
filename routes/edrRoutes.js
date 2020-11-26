@@ -1,8 +1,8 @@
 const express = require('express');
 const {
-	generateEDR,
-	getEDRs,
-	getEDRById,
+  generateEDR,
+  getEDRs,
+  getEDRById,
 } = require('../controllers/edrController');
 
 const router = express.Router();
