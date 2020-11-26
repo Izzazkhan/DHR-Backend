@@ -1,8 +1,8 @@
 const express = require('express');
 
 const {
-	createPharmRequest,
-	getPharmRequest,
+  createPharmRequest,
+  getPharmRequest,
 } = require('../controllers/pharmController');
 
 const router = express.Router();

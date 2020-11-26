@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const CustomerSurveySchema = new mongoose.Schema({
   survey: [
@@ -21,4 +21,4 @@ const CustomerSurveySchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("CustomerSurvey", CustomerSurveySchema);
+module.exports = mongoose.model('CustomerSurvey', CustomerSurveySchema);

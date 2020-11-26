@@ -1,13 +1,14 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
+
 const FlagMgntSchema = new mongoose.Schema(
   {
     patient: {
       type: mongoose.Schema.ObjectId,
-      ref: "patient",
+      ref: 'patient',
     },
     staff: {
       type: mongoose.Schema.ObjectId,
-      ref: "staff",
+      ref: 'staff',
     },
     reason: {
       type: String,
@@ -17,11 +18,11 @@ const FlagMgntSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["Progress", "InProgress", "Completed"],
+      enum: ['Progress', 'InProgress', 'Completed'],
     },
   },
   {
     timestamps: true,
-  },
+  }
 );
-module.exports = mongoose.model("FlagMgnt", FlagMgntSchema);
+module.exports = mongoose.model('FlagMgnt', FlagMgntSchema);

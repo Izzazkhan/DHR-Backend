@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const reimbursementClaimSchema = new mongoose.Schema({
   requestNo: {
@@ -6,15 +6,15 @@ const reimbursementClaimSchema = new mongoose.Schema({
   },
   generatedBy: {
     type: mongoose.Schema.ObjectId,
-    ref: "staff",
+    ref: 'staff',
   },
   patient: {
     type: mongoose.Schema.ObjectId,
-    ref: "patient",
+    ref: 'patient',
   },
   insurer: {
     type: mongoose.Schema.ObjectId,
-    ref: "insurance",
+    ref: 'insurance',
   },
   status: {
     type: String,
@@ -40,4 +40,4 @@ const reimbursementClaimSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("ReimbursementClaim", reimbursementClaimSchema);
+module.exports = mongoose.model('ReimbursementClaim', reimbursementClaimSchema);

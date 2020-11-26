@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const TOCSchema = new mongoose.Schema({
   id: {
@@ -9,15 +9,19 @@ const TOCSchema = new mongoose.Schema({
   },
   productionArea: {
     type: mongoose.Schema.ObjectId,
-    ref: "ProductionArea",
+    ref: 'ProductionArea',
   },
   patient: {
     type: mongoose.Schema.ObjectId,
-    ref: "patient",
+    ref: 'patient',
+  },
+  staff: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'patient',
   },
   status: {
     type: String,
-    enum: ["Pending", "InProgress"],
+    enum: ['Pending', 'InProgress'],
   },
   createdAt: {
     type: Date,
@@ -29,4 +33,4 @@ const TOCSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("TransferOfCare", TOCSchema);
+module.exports = mongoose.model('TransferOfCare', TOCSchema);

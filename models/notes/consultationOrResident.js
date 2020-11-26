@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const ConsultationSchema = new mongoose.Schema({
   consultationNo: {
@@ -33,12 +33,12 @@ const ConsultationSchema = new mongoose.Schema({
   },
   performer: {
     type: mongoose.Schema.ObjectId,
-    ref: "staff",
+    ref: 'staff',
   },
   consultant: {
     type: mongoose.Schema.ObjectId,
-    ref: "staff",
+    ref: 'staff',
   },
 });
 
-module.exports = mongoose.model("consultation", ConsultationSchema);
+module.exports = mongoose.model('consultation', ConsultationSchema);
