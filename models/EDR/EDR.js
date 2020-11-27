@@ -6,10 +6,6 @@ const edrSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'patientfhir',
   },
-  productionArea: {
-    type: mongoose.Schema.ObjectId,
-    ref: 'productionArea',
-  },
   careStream: {
     type: mongoose.Schema.ObjectId,
     ref: 'careStream',

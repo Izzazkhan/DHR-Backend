@@ -13,11 +13,11 @@ const {
 
 router.get('/pendingRegistration', getPendingRegistration);
 router.get('/approvedRegistration', getApprovedRegistration);
-router.route('/').post(registerPatient).get(getAllPatients);
+router.route('/registerPatient').post(registerPatient).get(getAllPatients);
 router
   .route('/:patientId')
-  .delete(deletePatient)
-  .get(getPatient)
-  .patch(updatePatient);
+  // .delete(deletePatient)
+  .get(getPatient);
+// .patch(updatePatient);
 
 module.exports = router;
