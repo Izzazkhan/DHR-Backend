@@ -1,5 +1,5 @@
 const requestNoFormat = require('dateformat');
-const EDR = require('../models/visit/visit');
+const EDR = require('../models/EDR/EDR');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 
