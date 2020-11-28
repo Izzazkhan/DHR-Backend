@@ -120,6 +120,7 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
 });
 
 exports.getPatient = asyncHandler(async (req, res, next) => {
+  console.log(req.params.patientId);
   const patient = await patientFHIR.findById(req.params.patientId);
   if (!patient) {
     return next(new ErrorResponse('No patient Found with this id', 404));
