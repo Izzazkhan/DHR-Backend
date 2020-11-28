@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
-const humanName = require('../patient/humanName');
+const name = require('../patient/humanName');
 const telecom = require('../patient/contactPoint');
 const address = require('../patient/address');
-const attachment = require('../patient/attachment');
+const photo = require('../patient/attachment');
+const period = require('../patient/common/period');
 
 const practitionerSchema = new mongoose.Schema({
   identifier: [
@@ -30,5 +31,26 @@ const practitionerSchema = new mongoose.Schema({
         value: { type: String },
       },
     ],
+    code: {
+      text: {
+        type: String,
+        // Required:true
+        // Plain text representation of the qualification
+      },
+    },
+    period: period.period,
+    // Period during which the qualification is valid
+    issuer: {
+      // Organization that regulates and issues the qualification
+      type: String,
+    },
+  },
+  communication: {
+    text: {
+      type: String,
+      //   Language of Communication
+    },
   },
 });
+
+module.exports = mongoose.model('Practitioner', practitionerSchema);
