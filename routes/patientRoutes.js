@@ -1,7 +1,9 @@
 const express = require('express');
-const PATH = './uploads';
 const multer = require('multer');
-var storage = multer.diskStorage({
+
+const PATH = './uploads';
+
+const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, PATH);
   },
@@ -27,7 +29,7 @@ router.get('/getPatient/:patientId', getPatient);
 router.get('/pendingRegistration', getPendingRegistration);
 router.get('/approvedRegistration', getApprovedRegistration);
 router.post('/registerPatient', upload.single('file'), registerPatient);
-// get(getAllPatients);
+router.get('getAllPatients', getAllPatients);
 router.get('/searchPatient/:keyword', getPatientByKeyword);
 // .delete(deletePatient)
 // .patch(updatePatient);
