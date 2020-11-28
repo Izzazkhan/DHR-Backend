@@ -153,3 +153,47 @@ exports.getApprovedRegistration = asyncHandler(async (req, res, next) => {
     data: approvedPatients,
   });
 });
+
+exports.getPatientByKeyword = asyncHandler(async (req, res, next) => {
+  const patient = await patientFHIR
+    .aggregate([
+      {
+        $project: {
+          name: 1,
+          age: 1,
+          gender: 1,
+          identifier: 1,
+          nationalID: 1,
+          telecom: 1,
+        },
+      },
+      {
+        $match: {
+          $or: [
+            {
+              'name.given': { $regex: req.params.keyword, $options: 'i' },
+            },
+            {
+              'name.family': { $regex: req.params.keyword, $options: 'i' },
+            },
+            {
+              'identifier.value': { $regex: req.params.keyword, $options: 'i' },
+            },
+            { nationalID: { $regex: req.params.keyword, $options: 'i' } },
+            {
+              'telecom.value': {
+                $regex: req.params.keyword,
+                $options: 'i',
+              },
+            },
+          ],
+        },
+      },
+    ])
+    .limit(50);
+  // console.log(patient);
+  res.status(201).json({
+    success: true,
+    data: patient,
+  });
+});
