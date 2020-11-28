@@ -4,7 +4,7 @@ const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 
 exports.registerPatient = asyncHandler(async (req, res) => {
-  // console.log(req.body);
+  // console.log(req.file);
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
   const diff =
@@ -192,6 +192,9 @@ exports.getPatientByKeyword = asyncHandler(async (req, res, next) => {
     ])
     .limit(50);
   // console.log(patient);
+  if (!patient) {
+    return next(new ErrorResponse('No Data Found With this keyword', 404));
+  }
   res.status(201).json({
     success: true,
     data: patient,
