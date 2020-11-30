@@ -15,6 +15,12 @@ const storage = multer.diskStorage({
   },
 });
 const upload = multer({ storage: storage });
+const cpUpload = upload.fields([
+  { name: 'file', maxCount: 1 },
+  { name: 'front', maxCount: 1 },
+  { name: 'back', maxCount: 1 },
+  { name: 'insuranceCard', maxCount: 1 },
+]);
 const {
   registerPatient,
   getPatient,
@@ -29,7 +35,7 @@ const router = express.Router();
 router.get('/getPatient/:patientId', getPatient);
 router.get('/pendingRegistration', getPendingRegistration);
 router.get('/approvedRegistration', getApprovedRegistration);
-router.post('/registerPatient', upload.single('file'), registerPatient);
+router.post('/registerPatient', cpUpload, registerPatient);
 router.get('getAllPatients', getAllPatients);
 router.get('/searchPatient/:keyword', getPatientByKeyword);
 router.get('/approvedPatient/:keyword', getPatientByKeyword);

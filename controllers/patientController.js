@@ -4,7 +4,7 @@ const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 
 exports.registerPatient = asyncHandler(async (req, res) => {
-  // console.log(req.file);
+  console.log(req.files);
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
   const diff =
@@ -50,42 +50,81 @@ exports.registerPatient = asyncHandler(async (req, res) => {
     status,
   } = req.body;
 
-  const newPatient = await patientFHIR.create({
-    identifier: MRN,
-    nationalID,
-    name,
-    gender,
-    birthDate,
-    age,
-    height,
-    weight,
-    telecom,
-    address,
-    country,
-    city,
-    nationality,
-    blood,
-    photo,
-    idCardFront,
-    idCardBack,
-    otherDetails,
-    contact,
-    paymentMethod,
-    insuranceNumber,
-    insuranceVendor,
-    coverageTerms,
-    coPayment,
-    coveredFamilyMember,
-    coverageDetails,
-    insuranceDetails,
-    insuranceCard,
-    claimed,
-    status,
-  });
-  res.status(201).json({
-    success: true,
-    data: newPatient,
-  });
+  if (req.file) {
+    const newPatient = await patientFHIR.create({
+      identifier: MRN,
+      nationalID,
+      name,
+      gender,
+      birthDate,
+      age,
+      height,
+      weight,
+      telecom,
+      address,
+      country,
+      city,
+      nationality,
+      blood,
+      photo: req.files.file.path,
+      idCardFront: req.files.front.path,
+      idCardBack: req.files.back.path,
+      otherDetails,
+      contact,
+      paymentMethod,
+      insuranceNumber,
+      insuranceVendor,
+      coverageTerms,
+      coPayment,
+      coveredFamilyMember,
+      coverageDetails,
+      insuranceDetails,
+      insuranceCard: req.files.insuranceCard.path,
+      claimed,
+      status,
+    });
+    res.status(201).json({
+      success: true,
+      data: newPatient,
+    });
+  } else {
+    const newPatient = await patientFHIR.create({
+      identifier: MRN,
+      nationalID,
+      name,
+      gender,
+      birthDate,
+      age,
+      height,
+      weight,
+      telecom,
+      address,
+      country,
+      city,
+      nationality,
+      blood,
+      photo,
+      idCardFront,
+      idCardBack,
+      otherDetails,
+      contact,
+      paymentMethod,
+      insuranceNumber,
+      insuranceVendor,
+      coverageTerms,
+      coPayment,
+      coveredFamilyMember,
+      coverageDetails,
+      insuranceDetails,
+      insuranceCard,
+      claimed,
+      status,
+    });
+    res.status(201).json({
+      success: true,
+      data: newPatient,
+    });
+  }
 });
 
 // exports.deletePatient = asyncHandler(async (req, res, next) => {
@@ -182,14 +221,12 @@ exports.getPatientByKeyword = asyncHandler(async (req, res, next) => {
           identifier: 1,
           nationalID: 1,
           telecom: 1,
+          createdAt: 1,
         },
       },
       {
         $match: {
           $or: [
-            {
-              _id: { $regex: req.params.keyword, $options: 'i' },
-            },
             {
               'name.given': { $regex: req.params.keyword, $options: 'i' },
             },
