@@ -23,7 +23,7 @@ exports.registerPatient = asyncHandler(async (req, res) => {
   if (req.files.file.length > 0 || req.files.front.length > 0 || req.files.back.length > 0 || req.files.insuranceCard.length > 0) 
   {
     parsed.photo[0].url = req.files.file[0].path
-    
+
     const newPatient = await patientFHIR.create({
       identifier: MRN,
       nationalID: parsed.nationalID,
@@ -76,9 +76,6 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       city: parsed.city,
       nationality: parsed.nationality,
       blood: parsed.blood,
-      // photo:parsed.photo,
-      // idCardFront: req.files.front[0].path,
-      // idCardBack: req.files.back[0].path,
       otherDetails: parsed.otherDetails,
       contact: parsed.contact,
       paymentMethod: parsed.paymentMethod,
@@ -89,7 +86,6 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       coveredFamilyMember: parsed.coveredFamilyMember,
       coverageDetails: parsed.coverageDetails,
       insuranceDetails: parsed.insuranceDetails,
-      // insuranceCard: req.files.insuranceCard[0].path,
       // claimed,
       // status,
     });
