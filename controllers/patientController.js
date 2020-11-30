@@ -188,6 +188,9 @@ exports.getPatientByKeyword = asyncHandler(async (req, res, next) => {
         $match: {
           $or: [
             {
+              _id: { $regex: req.params.keyword, $options: 'i' },
+            },
+            {
               'name.given': { $regex: req.params.keyword, $options: 'i' },
             },
             {
