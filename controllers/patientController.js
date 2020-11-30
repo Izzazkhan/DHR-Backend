@@ -155,6 +155,22 @@ exports.getApprovedRegistration = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.getApprovedPatientById = asyncHandler(async (req, res, next) => {
+  const patient = await patientFHIR.findOne({
+    _id: req.params.patientId,
+    status: 'approved',
+  });
+
+  if (!patient) {
+    return next(new ErrorResponse('No patient found with this id', 404));
+  }
+
+  res.status(200).json({
+    success: true,
+    data: patient,
+  });
+});
+
 exports.getPatientByKeyword = asyncHandler(async (req, res, next) => {
   const patient = await patientFHIR
     .aggregate([

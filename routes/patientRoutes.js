@@ -22,6 +22,7 @@ const {
   getPendingRegistration,
   getApprovedRegistration,
   getPatientByKeyword,
+  getApprovedPatientById,
 } = require('../controllers/patientController');
 
 const router = express.Router();
@@ -31,6 +32,7 @@ router.get('/approvedRegistration', getApprovedRegistration);
 router.post('/registerPatient', upload.single('file'), registerPatient);
 router.get('getAllPatients', getAllPatients);
 router.get('/searchPatient/:keyword', getPatientByKeyword);
+router.get('/approvedPatient/:patientId', getApprovedPatientById);
 // .delete(deletePatient)
 // .patch(updatePatient);
 
