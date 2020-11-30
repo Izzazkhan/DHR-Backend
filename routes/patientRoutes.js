@@ -32,7 +32,7 @@ router.get('/approvedRegistration', getApprovedRegistration);
 router.post('/registerPatient', upload.single('file'), registerPatient);
 router.get('getAllPatients', getAllPatients);
 router.get('/searchPatient/:keyword', getPatientByKeyword);
-router.get('/approvedPatient/:patientId', getApprovedPatientById);
+router.get('/approvedPatient/:keyword', getPatientByKeyword);
 // .delete(deletePatient)
 // .patch(updatePatient);
 
