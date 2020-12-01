@@ -4,6 +4,7 @@ const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 
 exports.registerPatient = asyncHandler(async (req, res) => {
+  console.log(req.body);
   console.log(req.files);
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
@@ -50,7 +51,7 @@ exports.registerPatient = asyncHandler(async (req, res) => {
     status,
   } = req.body;
 
-  if (req.file) {
+  if (req.files) {
     const newPatient = await patientFHIR.create({
       identifier: MRN,
       nationalID,
@@ -66,9 +67,9 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       city,
       nationality,
       blood,
-      photo: req.files.file.path,
-      idCardFront: req.files.front.path,
-      idCardBack: req.files.back.path,
+      // photo: req.files.file[0].path,
+      idCardFront: req.files.front[0].path,
+      idCardBack: req.files.back[0].path,
       otherDetails,
       contact,
       paymentMethod,
@@ -79,7 +80,7 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       coveredFamilyMember,
       coverageDetails,
       insuranceDetails,
-      insuranceCard: req.files.insuranceCard.path,
+      insuranceCard: req.files.insuranceCard[0].path,
       claimed,
       status,
     });

@@ -28,7 +28,7 @@ const {
   getPendingRegistration,
   getApprovedRegistration,
   getPatientByKeyword,
-  getApprovedPatientById,
+  // getApprovedPatientById,
 } = require('../controllers/patientController');
 
 const router = express.Router();
