@@ -49,10 +49,11 @@ const patientSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'managingOrganization',
   },
-  status: {
+  registrationStatus: {
     type: String,
-    default: 'pending',
+    // default: 'pending',
   },
+  assignedStatus: [{ type: String }],
   paymentMethod: [payment.payment],
   nationalID: { type: String },
   age: { type: Number },
