@@ -4,6 +4,7 @@ const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 
 exports.registerPatient = asyncHandler(async (req, res) => {
+  // console.log(req.body);
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
   const diff =
@@ -18,11 +19,15 @@ exports.registerPatient = asyncHandler(async (req, res) => {
     },
   ];
 
-  var parsed = JSON.parse(req.body.data);
+  const parsed = JSON.parse(req.body.data);
 
-  if (req.files.file.length > 0 || req.files.front.length > 0 || req.files.back.length > 0 || req.files.insuranceCard.length > 0) 
-  {
-    parsed.photo[0].url = req.files.file[0].path
+  if (
+    req.files.file.length > 0 ||
+    req.files.front.length > 0 ||
+    req.files.back.length > 0 ||
+    req.files.insuranceCard.length > 0
+  ) {
+    parsed.photo[0].url = req.files.file[0].path;
 
     const newPatient = await patientFHIR.create({
       identifier: MRN,
@@ -179,22 +184,27 @@ exports.getApprovedPatientById = asyncHandler(async (req, res, next) => {
   });
 });
 
-exports.getPatientByKeyword = asyncHandler(async (req, res, next) => {
+exports.getApprovedPatientByKeyword = asyncHandler(async (req, res, next) => {
   const patient = await patientFHIR
     .aggregate([
+      // {
+      //   $project: {
+      //     name: 1,
+      //     age: 1,
+      //     gender: 1,
+      //     identifier: 1,
+      //     nationalID: 1,
+      //     telecom: 1,
+      //     createdAt: 1,
+      //   },
+      // },
+
       {
-        $project: {
-          name: 1,
-          age: 1,
-          gender: 1,
-          identifier: 1,
-          nationalID: 1,
-          telecom: 1,
-          createdAt: 1,
-        },
+        $match: { status: 'approved' },
       },
       {
         $match: {
+          // status: 'approved',
           $or: [
             {
               'name.given': { $regex: req.params.keyword, $options: 'i' },
@@ -219,9 +229,46 @@ exports.getPatientByKeyword = asyncHandler(async (req, res, next) => {
     .limit(50);
   // console.log(patient);
   if (!patient) {
+    return next(new ErrorResponse('No Patient Found With this keyword', 404));
+  }
+  res.status(200).json({
+    success: true,
+    data: patient,
+  });
+});
+
+exports.getPatientByKeyword = asyncHandler(async (req, res, next) => {
+  const patient = await patientFHIR
+    .aggregate([
+      {
+        $match: {
+          $or: [
+            {
+              'name.given': { $regex: req.params.keyword, $options: 'i' },
+            },
+            {
+              'name.family': { $regex: req.params.keyword, $options: 'i' },
+            },
+            {
+              'identifier.value': { $regex: req.params.keyword, $options: 'i' },
+            },
+            { nationalID: { $regex: req.params.keyword, $options: 'i' } },
+            {
+              'telecom.value': {
+                $regex: req.params.keyword,
+                $options: 'i',
+              },
+            },
+          ],
+        },
+      },
+    ])
+    .limit(50);
+  if (!patient) {
     return next(new ErrorResponse('No Data Found With this keyword', 404));
   }
-  res.status(201).json({
+
+  res.status(200).json({
     success: true,
     data: patient,
   });

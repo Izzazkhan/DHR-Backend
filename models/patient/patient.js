@@ -51,7 +51,7 @@ const patientSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    // 	default: 'pending',
+    default: 'pending',
   },
   paymentMethod: [payment.payment],
   nationalID: { type: String },
