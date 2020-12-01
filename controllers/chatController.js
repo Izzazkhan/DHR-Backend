@@ -15,6 +15,6 @@ exports.createChat = asyncHandler(async (req, res, next) => {
     participant1: { $in: [req.body.sender, req.body.receiver] },
     participant2: { $in: [req.body.sender, req.body.receiver] },
   });
-  if (checkChat) {
-  }
+  // if (checkChat) {
+  // }
 });

@@ -21,7 +21,12 @@ exports.registerPatient = asyncHandler(async (req, res) => {
 
   const parsed = JSON.parse(req.body.data);
 
-  if (req.files.file || req.files.front || req.files.back || req.files.insuranceCard) {
+  if (
+    req.files.file ||
+    req.files.front ||
+    req.files.back ||
+    req.files.insuranceCard
+  ) {
     if (
       req.files.file.length > 0 ||
       req.files.front.length > 0 ||
