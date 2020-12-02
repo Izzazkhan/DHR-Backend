@@ -20,6 +20,9 @@ const staffSchema = new mongoose.Schema(
     gender: {
       type: String,
     },
+    age: {
+      type: Number,
+    },
     birthDate: {
       type: Date,
     },
@@ -29,28 +32,10 @@ const staffSchema = new mongoose.Schema(
     nationality: {
       type: String,
     },
+    staffType: {
+      type: String,
+    },
     photo: [photo.attachment],
-    // qualification: {
-    //   // Certification, licenses, or training pertaining to the provision of care
-    //   identifier: [
-    //     {
-    //       value: { type: String },
-    //     },
-    //   ],
-    //   code: {
-    //     text: {
-    //       type: String,
-    //       // Required:true
-    //       // Plain text representation of the qualification
-    //     },
-    //   },
-    //   period: period.period,
-    //   // Period during which the qualification is valid
-    //   issuer: {
-    //     // Organization that regulates and issues the qualification
-    //     type: String,
-    //   },
-    // },
     education: [
       {
         institution: {
@@ -96,7 +81,7 @@ const staffSchema = new mongoose.Schema(
     ],
 
     accountInformation: {
-      userName: {
+      email: {
         type: String,
       },
       password: {

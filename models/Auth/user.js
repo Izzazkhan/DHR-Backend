@@ -1,4 +1,4 @@
-// const crypto = require('crypto');
+const crypto = require('crypto');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -22,11 +22,11 @@ const UserSchema = new mongoose.Schema({
     required: [true, 'Please add a password'],
     minlength: 6,
   },
-  staffTypeId: {
-    type: mongoose.Schema.ObjectId,
-    ref: 'staffType',
-    required: [true, 'Please select Staff type'],
-  },
+  // staffTypeId: {
+  //   type: mongoose.Schema.ObjectId,
+  //   ref: 'staffType',
+  //   required: [true, 'Please select Staff type'],
+  // },
   staffId: {
     type: mongoose.Schema.ObjectId,
     ref: 'staff',
@@ -39,6 +39,9 @@ const UserSchema = new mongoose.Schema({
   updatedAt: {
     type: Date,
     default: Date.now,
+  },
+  role: {
+    type: String,
   },
 });
 
