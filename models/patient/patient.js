@@ -75,13 +75,18 @@ const patientSchema = new mongoose.Schema({
   insuranceCard: { type: String },
   time: [
     {
-      startTime: {
+      processStartTime: {
         type: Date,
-        default: Date.now,
       },
-      endTime: {
+      processEndTime: {
         type: Date,
-        default: Date.now,
+      },
+      role: {
+        type: String,
+      },
+      senderID: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'Staff',
       },
     },
   ],

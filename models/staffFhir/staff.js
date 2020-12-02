@@ -80,13 +80,11 @@ const staffSchema = new mongoose.Schema(
       },
     ],
 
-    accountInformation: {
-      email: {
-        type: String,
-      },
-      password: {
-        type: String,
-      },
+    email: {
+      type: String,
+    },
+    password: {
+      type: String,
     },
     communication: {
       text: {
