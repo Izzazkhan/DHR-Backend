@@ -207,7 +207,7 @@ exports.getApprovedPatientByKeyword = asyncHandler(async (req, res, next) => {
       // },
 
       {
-        $match: { status: 'approved' },
+        $match: { status: 'completed' },
       },
       {
         $match: {

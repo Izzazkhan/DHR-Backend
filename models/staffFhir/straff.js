@@ -4,7 +4,7 @@ const telecom = require('../patient/contactPoint');
 const address = require('../patient/address');
 const photo = require('../patient/attachment');
 
-const practitionerSchema = new mongoose.Schema(
+const staffSchema = new mongoose.Schema(
   {
     identifier: [
       {
@@ -115,4 +115,4 @@ const practitionerSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model('Practitioner', practitionerSchema);
+module.exports = mongoose.model('staff', staffSchema);

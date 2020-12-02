@@ -73,14 +73,26 @@ const patientSchema = new mongoose.Schema({
   coverageDetails: { type: String },
   insuranceDetails: { type: String },
   insuranceCard: { type: String },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now,
-  },
+  time: [
+    {
+      startTime: {
+        type: Date,
+        default: Date.now,
+      },
+      endTime: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
+  // createdAt: {
+  //   type: Date,
+  //   default: Date.now,
+  // },
+  // updatedAt: {
+  //   type: Date,
+  //   default: Date.now,
+  // },
 });
 
 patientSchema.plugin(mongoosePaginate);
