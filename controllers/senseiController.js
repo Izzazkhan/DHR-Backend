@@ -3,6 +3,6 @@ const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 
 exports.getPharmacyRequests = asyncHandler(async (req, res, next) => {
-	const pharmacyRequests = await Pharm.find();
-	console.log(pharmacyRequests);
+  const pharmacyRequests = await Pharm.find();
+  console.log(pharmacyRequests);
 });

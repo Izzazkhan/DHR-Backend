@@ -1,10 +1,10 @@
+const moment = require('moment');
 const requestNoFormat = require('dateformat');
 const patientFHIR = require('../models/patient/patient');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 
 exports.registerPatient = asyncHandler(async (req, res) => {
-  // console.log(req.body);
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
   const diff =
@@ -18,9 +18,7 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       value: 'khmc' + day + requestNoFormat(new Date(), 'yyHHMMss'),
     },
   ];
-
   const parsed = JSON.parse(req.body.data);
-
   if (
     req.files.file ||
     req.files.front ||
@@ -34,7 +32,6 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       req.files.insuranceCard.length > 0
     ) {
       parsed.photo[0].url = req.files.file[0].path;
-
       const newPatient = await patientFHIR.create({
         identifier: MRN,
         nationalID: parsed.nationalID,
@@ -64,6 +61,7 @@ exports.registerPatient = asyncHandler(async (req, res) => {
         coverageDetails: parsed.coverageDetails,
         insuranceDetails: parsed.insuranceDetails,
         insuranceCard: req.files.insuranceCard[0].path,
+        processTime: parsed.time,
         // claimed,
         // status,
       });
@@ -98,6 +96,7 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       coveredFamilyMember: parsed.coveredFamilyMember,
       coverageDetails: parsed.coverageDetails,
       insuranceDetails: parsed.insuranceDetails,
+      processTime: parsed.time,
       // claimed,
       // status,
     });
@@ -106,6 +105,26 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       data: newPatient,
     });
   }
+});
+
+exports.averageRegistrationTAT = asyncHandler(async (req, res, next) => {
+  const currentTime = moment().utc().toDate();
+  const sixHours = moment().subtract(6, 'hours').utc().toDate();
+  const patients = await patientFHIR.find({
+    $and: [
+      { 'processTime.processStartTime': { $gte: sixHours } },
+      { 'processTime.processEndTime': { $lte: currentTime } },
+    ],
+  });
+  const averageRegistrationTime = 360 / patients.length;
+  res.status(200).json({
+    success: true,
+    data: averageRegistrationTime,
+  });
+
+  // console.log(patients.length);
+  // console.log(time);
+  // console.log(averageRegistrationTime);
 });
 
 // exports.deletePatient = asyncHandler(async (req, res, next) => {
@@ -122,9 +141,11 @@ exports.registerPatient = asyncHandler(async (req, res) => {
 exports.updatePatient = asyncHandler(async (req, res, next) => {
   const parsed = JSON.parse(req.body.data);
 
-  var patient = await patientFHIR.findById(parsed._id);
+  let patient = await patientFHIR.findById(parsed._id);
   if (!patient) {
-    return next(new ErrorResponse(`Patient not found with id of ${parsed._id}`, 404));
+    return next(
+      new ErrorResponse(`Patient not found with id of ${parsed._id}`, 404)
+    );
   }
 
   if (
@@ -149,25 +170,21 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
       await patientFHIR.findOneAndUpdate(
         { _id: parsed._id },
         {
-          $set:
-          {
+          $set: {
             photo: parsed.photo,
             idCardFront: req.files.front[0].path,
             idCardBack: req.files.back[0].path,
-            insuranceCard: req.files.insuranceCard[0].path
-          }
+            insuranceCard: req.files.insuranceCard[0].path,
+          },
         },
         { new: true }
       );
       res.status(200).json({ success: true, data: patient });
     }
-  }
-  else {
-    patient = await patientFHIR.findOneAndUpdate(
-      { _id: parsed._id },
-      parsed,
-      { new: true }
-    );
+  } else {
+    patient = await patientFHIR.findOneAndUpdate({ _id: parsed._id }, parsed, {
+      new: true,
+    });
     res.status(200).json({ success: true, data: patient });
   }
 });

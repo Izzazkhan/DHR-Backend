@@ -1,10 +1,12 @@
-const passwordGenerator = require('password-generator');
+const generatePassword = require('password-generator');
+const nodemailer = require('nodemailer');
 const Staff = require('../models/staffFhir/staff');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 
 // register a staff
 exports.registerStaff = asyncHandler(async (req, res, next) => {
+  // const pass = generatePassword();
   const parsed = JSON.parse(req.body.data);
   if (req.file) {
     parsed.photo[0].url = req.file.path;
