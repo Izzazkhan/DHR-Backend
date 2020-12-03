@@ -1,6 +1,6 @@
 const express = require('express');
-
 const multer = require('multer');
+const { protect } = require('../controllers/authController');
 
 const PATH = './uploads';
 
@@ -21,6 +21,6 @@ const { registerStaff } = require('../controllers/staffController');
 const router = express.Router();
 
 const upload = multer({ storage: storage });
-router.post('/registerStaff', upload.single('file'), registerStaff);
+router.post('/registerStaff', protect, upload.single('file'), registerStaff);
 
 module.exports = router;

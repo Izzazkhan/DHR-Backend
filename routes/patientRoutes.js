@@ -30,6 +30,7 @@ const {
   getApprovedRegistration,
   getPatientByKeyword,
   getApprovedPatientByKeyword,
+  averageRegistrationTAT,
 } = require('../controllers/patientController');
 
 const router = express.Router();
@@ -41,5 +42,6 @@ router.get('getAllPatients', getAllPatients);
 router.get('/searchPatient/:keyword', getPatientByKeyword);
 router.get('/approvedPatient/:keyword', getApprovedPatientByKeyword);
 router.put('/updatePatient', cpUpload, updatePatient);
+router.get('/averageRegistrationTAT', averageRegistrationTAT);
 // .delete(deletePatient)
 module.exports = router;

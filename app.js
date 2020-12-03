@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 const http = require('http');
 const socketIO = require('socket.io');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const errorHandler = require('./middleware/error');
 
 // Router Files
@@ -27,6 +28,7 @@ dotenv.config({ path: './config/config.env' });
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
 app.use(cors());
 app.use('/uploads', express.static('uploads'));
 
