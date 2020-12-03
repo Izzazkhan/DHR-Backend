@@ -1,3 +1,4 @@
+const passwordGenerator = require('password-generator');
 const Staff = require('../models/staffFhir/staff');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
@@ -22,7 +23,8 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
       communication: parsed.communication,
       education: parsed.education,
       experience: parsed.experience,
-      accountInformation: parsed.accountInformation,
+      email: parsed.email,
+      password: parsed.password,
     });
     res.status(201).json({
       success: true,
@@ -43,7 +45,8 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
       communication: parsed.communication,
       education: parsed.education,
       experience: parsed.experience,
-      accountInformation: parsed.accountInformation,
+      email: parsed.email,
+      password: parsed.password,
     });
     res.status(201).json({
       success: true,
