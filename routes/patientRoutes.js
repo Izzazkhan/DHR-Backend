@@ -23,6 +23,7 @@ const cpUpload = upload.fields([
 ]);
 const {
   registerPatient,
+  updatePatient,
   getPatient,
   getAllPatients,
   getPendingRegistration,
@@ -39,7 +40,6 @@ router.post('/registerPatient', cpUpload, registerPatient);
 router.get('getAllPatients', getAllPatients);
 router.get('/searchPatient/:keyword', getPatientByKeyword);
 router.get('/approvedPatient/:keyword', getApprovedPatientByKeyword);
+router.put('/updatePatient', cpUpload, updatePatient);
 // .delete(deletePatient)
-// .patch(updatePatient);
-
 module.exports = router;

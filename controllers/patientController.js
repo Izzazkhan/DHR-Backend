@@ -120,23 +120,56 @@ exports.registerPatient = asyncHandler(async (req, res) => {
 // });
 
 exports.updatePatient = asyncHandler(async (req, res, next) => {
-  const newPatient = await patientFHIR.findByIdAndUpdate(
-    req.params.patientId,
-    req.body,
-    {
-      runValidators: true,
-      new: true,
-    }
-  );
+  const parsed = JSON.parse(req.body.data);
 
-  if (!newPatient) {
-    return next(new ErrorResponse('No patient Found with this id', 404));
+  var patient = await patientFHIR.findById(parsed._id);
+  if (!patient) {
+    return next(new ErrorResponse(`Patient not found with id of ${parsed._id}`, 404));
   }
 
-  res.status(200).json({
-    success: true,
-    data: newPatient,
-  });
+  if (
+    req.files.file ||
+    req.files.front ||
+    req.files.back ||
+    req.files.insuranceCard
+  ) {
+    if (
+      req.files.file.length > 0 ||
+      req.files.front.length > 0 ||
+      req.files.back.length > 0 ||
+      req.files.insuranceCard.length > 0
+    ) {
+      parsed.photo[0].url = req.files.file[0].path;
+
+      patient = await patientFHIR.findOneAndUpdate(
+        { _id: parsed._id },
+        parsed,
+        { new: true }
+      );
+      await patientFHIR.findOneAndUpdate(
+        { _id: parsed._id },
+        {
+          $set:
+          {
+            photo: parsed.photo,
+            idCardFront: req.files.front[0].path,
+            idCardBack: req.files.back[0].path,
+            insuranceCard: req.files.insuranceCard[0].path
+          }
+        },
+        { new: true }
+      );
+      res.status(200).json({ success: true, data: patient });
+    }
+  }
+  else {
+    patient = await patientFHIR.findOneAndUpdate(
+      { _id: parsed._id },
+      parsed,
+      { new: true }
+    );
+    res.status(200).json({ success: true, data: patient });
+  }
 });
 
 exports.getPatient = asyncHandler(async (req, res, next) => {
