@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const mongoosePaginate = require('mongoose-paginate-v2');
 const jwt = require('jsonwebtoken');
 const name = require('../patient/humanName');
 const telecom = require('../patient/contactPoint');
@@ -8,6 +9,10 @@ const photo = require('../patient/attachment');
 
 const staffSchema = new mongoose.Schema(
   {
+    staffTypeId: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'staffType',
+    },
     identifier: [
       {
         value: { type: String },
@@ -35,6 +40,9 @@ const staffSchema = new mongoose.Schema(
       type: String,
     },
     staffType: {
+      type: String,
+    },
+    subType: {
       type: String,
     },
     photo: [photo.attachment],
@@ -96,11 +104,14 @@ const staffSchema = new mongoose.Schema(
       required: [true, 'Please add a password'],
       minlength: 6,
     },
-    communication: {
-      text: {
+    communication: [
+      {
         type: String,
-        //   Language of Communication
       },
+    ],
+    addedBy: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'staffType',
     },
   },
   {
@@ -109,7 +120,7 @@ const staffSchema = new mongoose.Schema(
 );
 
 staffSchema.pre('save', async function (next) {
-  console.log('Pre Save');
+  // console.log('Pre Save');
   if (!this.isModified('password')) {
     next();
   }
@@ -130,4 +141,5 @@ staffSchema.methods.getSignedJwtToken = function () {
   });
 };
 
+staffSchema.plugin(mongoosePaginate);
 module.exports = mongoose.model('staff', staffSchema);

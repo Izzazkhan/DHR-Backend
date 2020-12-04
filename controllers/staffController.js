@@ -7,6 +7,11 @@ const ErrorResponse = require('../utils/errorResponse');
 // register a staff
 exports.registerStaff = asyncHandler(async (req, res, next) => {
   // const pass = generatePassword();
+  // const staff = await Staff.create(req.body);
+  // res.status(201).json({
+  //   success: true,
+  //   data: staff,
+  // });
   const parsed = JSON.parse(req.body.data);
   if (req.file) {
     parsed.photo[0].url = req.file.path;
@@ -55,4 +60,12 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
       data: staff,
     });
   }
+});
+
+exports.getAllStaff = asyncHandler(async (req, res, next) => {
+  const staff = await Staff.paginate();
+  res.status(200).json({
+    success: true,
+    data: staff,
+  });
 });

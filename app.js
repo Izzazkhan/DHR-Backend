@@ -14,6 +14,7 @@ const pharmRouter = require('./routes/pharmRoutes');
 const roomRouter = require('./routes/roomsRoutes');
 const authRouter = require('./routes/authRoutes');
 const staffRouter = require('./routes/staffRoutes');
+const carStreamRouter = require('./routes/careStreamRoutes');
 
 const app = express();
 
@@ -39,7 +40,7 @@ app.use('/api/pharm', pharmRouter);
 app.use('/api/room', roomRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/staff', staffRouter);
-
+app.use('/api/careStream', carStreamRouter);
 app.use(errorHandler);
 
 const DB = process.env.MONGO_URI;

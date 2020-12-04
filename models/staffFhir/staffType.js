@@ -10,11 +10,11 @@ const staffTypeSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Please add description'],
     },
-    accessLevelId: {
-      type: mongoose.Schema.ObjectId,
-      ref: 'accessLevel',
-      required: [true, 'Please select Access Level'],
-    },
+    // accessLevelId: {
+    //   type: mongoose.Schema.ObjectId,
+    //   ref: 'accessLevel',
+    //   required: [true, 'Please select Access Level'],
+    // },
     status: {
       type: String,
       required: [true, 'Please add status'],
@@ -29,4 +29,5 @@ const staffTypeSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
 module.exports = mongoose.model('staffType', staffTypeSchema);

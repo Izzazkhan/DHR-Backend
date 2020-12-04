@@ -81,12 +81,16 @@ const patientSchema = new mongoose.Schema({
       processEndTime: {
         type: Date,
       },
-      role: {
-        type: String,
-      },
+      // role: {
+      //   type: String,
+      // },
       senderID: {
         type: mongoose.Schema.ObjectId,
         ref: 'Staff',
+      },
+      processName: {
+        type: String,
+        enum: ['registration', 'sensie', 'paramedics'],
       },
     },
   ],

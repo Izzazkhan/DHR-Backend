@@ -111,6 +111,7 @@ exports.averageRegistrationTAT = asyncHandler(async (req, res, next) => {
   const currentTime = moment().utc().toDate();
   const sixHours = moment().subtract(6, 'hours').utc().toDate();
   const patients = await patientFHIR.find({
+    'process.processName': 'registration',
     $and: [
       { 'processTime.processStartTime': { $gte: sixHours } },
       { 'processTime.processEndTime': { $lte: currentTime } },
@@ -126,17 +127,6 @@ exports.averageRegistrationTAT = asyncHandler(async (req, res, next) => {
   // console.log(time);
   // console.log(averageRegistrationTime);
 });
-
-// exports.deletePatient = asyncHandler(async (req, res, next) => {
-// 	const patient = await patientFHIR.findByIdAndRemove(req.params.patientId);
-// 	if (!patient) {
-// 		return next(new ErrorResponse('No patient Found with this id', 404));
-// 	}
-// 	res.status(204).json({
-// 		status: 'Success',
-// 		data: null,
-// 	});
-// });
 
 exports.updatePatient = asyncHandler(async (req, res, next) => {
   const parsed = JSON.parse(req.body.data);
@@ -330,3 +320,14 @@ exports.getPatientByKeyword = asyncHandler(async (req, res, next) => {
     data: patient,
   });
 });
+
+// exports.deletePatient = asyncHandler(async (req, res, next) => {
+// 	const patient = await patientFHIR.findByIdAndRemove(req.params.patientId);
+// 	if (!patient) {
+// 		return next(new ErrorResponse('No patient Found with this id', 404));
+// 	}
+// 	res.status(204).json({
+// 		status: 'Success',
+// 		data: null,
+// 	});
+// });
