@@ -16,11 +16,15 @@ const storage = multer.diskStorage({
   },
 });
 
-const { registerStaff } = require('../controllers/staffController');
+const {
+  registerStaff,
+  getAllStaff,
+} = require('../controllers/staffController');
 
 const router = express.Router();
 
 const upload = multer({ storage: storage });
-router.post('/registerStaff', protect, upload.single('file'), registerStaff);
+router.post('/registerStaff', upload.single('file'), registerStaff);
+router.get('/getAllStaff', getAllStaff);
 
 module.exports = router;

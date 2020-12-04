@@ -5,13 +5,7 @@ const CareStreamSchema = new mongoose.Schema(
     name: {
       type: String,
     },
-    inclusionCriteria: [
-      {
-        name: {
-          type: String,
-        },
-      },
-    ],
+    inclusionCriteria: [{ type: String }],
     exclusionCriteria: [
       {
         name: {
@@ -19,14 +13,14 @@ const CareStreamSchema = new mongoose.Schema(
         },
       },
     ],
-    investigation: [
+    investigations: [
       {
         name: {
           type: String,
         },
       },
     ],
-    precaution: [
+    precautions: [
       {
         name: {
           type: String,
@@ -37,6 +31,9 @@ const CareStreamSchema = new mongoose.Schema(
       {
         name: {
           type: String,
+          subType: {
+            type: String,
+          },
         },
       },
     ],
@@ -58,20 +55,23 @@ const CareStreamSchema = new mongoose.Schema(
       {
         name: {
           type: String,
+          subType: {
+            type: String,
+          },
         },
       },
     ],
     status: {
       type: String,
     },
-    productionArea: {
-      type: mongoose.Schema.ObjectId,
-      ref: 'ProductionArea',
-    },
-    patient: {
-      type: mongoose.Schema.ObjectId,
-      ref: 'patient',
-    },
+    // productionArea: {
+    //   type: mongoose.Schema.ObjectId,
+    //   ref: 'ProductionArea',
+    // },
+    // patient: {
+    //   type: mongoose.Schema.ObjectId,
+    //   ref: 'patient',
+    // },
   },
   {
     timestamps: true,
