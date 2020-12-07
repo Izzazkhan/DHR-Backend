@@ -5,60 +5,43 @@ const CareStreamSchema = new mongoose.Schema(
     name: {
       type: String,
     },
+    identifier: [
+      {
+        value: { type: String },
+      },
+    ],
     inclusionCriteria: [{ type: String }],
-    exclusionCriteria: [
-      {
-        name: {
-          type: String,
-        },
-      },
-    ],
-    investigations: [
-      {
-        name: {
-          type: String,
-        },
-      },
-    ],
-    precautions: [
-      {
-        name: {
-          type: String,
-        },
-      },
-    ],
+    exclusionCriteria: [{ type: String }],
+    investigations: [{ type: String }],
+    precautions: [{ type: String }],
     treatmentOrders: [
       {
-        name: {
-          type: String,
-          subType: {
+        name: String,
+        subType: [
+          {
             type: String,
           },
-        },
+        ],
       },
     ],
     fluidsIV: [
       {
-        name: {
-          type: String,
-        },
+        type: String,
       },
     ],
     medications: [
       {
-        name: {
-          type: String,
-        },
+        type: String,
       },
     ],
     mdNotification: [
       {
-        name: {
-          type: String,
-          subType: {
+        name: String,
+        subType: [
+          {
             type: String,
           },
-        },
+        ],
       },
     ],
     status: {

@@ -43,5 +43,4 @@ router.get('/searchPatient/:keyword', getPatientByKeyword);
 router.get('/approvedPatient/:keyword', getApprovedPatientByKeyword);
 router.put('/updatePatient', cpUpload, updatePatient);
 router.get('/averageRegistrationTAT', averageRegistrationTAT);
-// .delete(deletePatient)
 module.exports = router;

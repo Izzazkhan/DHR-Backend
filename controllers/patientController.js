@@ -208,7 +208,7 @@ exports.getPendingRegistration = asyncHandler(async (req, res, next) => {
 });
 
 exports.getApprovedRegistration = asyncHandler(async (req, res, next) => {
-  const approvedPatients = await patientFHIR.paginate();
+  const approvedPatients = await patientFHIR.paginate({ status: 'completed' });
   res.status(200).json({
     success: true,
     data: approvedPatients,
