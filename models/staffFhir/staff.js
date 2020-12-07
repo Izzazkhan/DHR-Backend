@@ -18,8 +18,12 @@ const staffSchema = new mongoose.Schema(
         value: { type: String },
       },
     ],
+    staffId: {
+      type: String,
+    },
     active: {
       type: Boolean,
+      default: true,
     },
     name: [name.humanName],
     telecom: [telecom.contactPoint],
@@ -92,17 +96,17 @@ const staffSchema = new mongoose.Schema(
 
     email: {
       type: String,
-      required: [true, 'Please add an email'],
-      unique: true,
-      match: [
-        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-        'Please add a valid email',
-      ],
+      // required: [true, 'Please add an email'],
+      // unique: true,
+      // match: [
+      //   /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+      //   'Please add a valid email',
+      // ],
     },
     password: {
       type: String,
-      required: [true, 'Please add a password'],
-      minlength: 6,
+      // required: [true, 'Please add a password'],
+      // minlength: 6,
     },
     communication: [
       {
