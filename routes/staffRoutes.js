@@ -19,6 +19,7 @@ const storage = multer.diskStorage({
 const {
   registerStaff,
   getAllStaff,
+  activeStaff,
 } = require('../controllers/staffController');
 
 const router = express.Router();
@@ -26,5 +27,6 @@ const router = express.Router();
 const upload = multer({ storage: storage });
 router.post('/registerStaff', upload.single('file'), registerStaff);
 router.get('/getAllStaff', getAllStaff);
+router.patch('/activeStaff/:id', activeStaff);
 
 module.exports = router;
