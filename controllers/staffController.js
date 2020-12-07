@@ -16,6 +16,7 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
   const oneDay = 1000 * 60 * 60 * 24;
   const day = Math.floor(diff / oneDay);
   const parsed = JSON.parse(req.body.data);
+  // console.log(parsed);
   let profileId;
   switch (parsed.staffType) {
     case 'Doctor':
@@ -121,7 +122,7 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
 });
 
 exports.getAllStaff = asyncHandler(async (req, res, next) => {
-  const staff = await Staff.paginate();
+  const staff = await Staff.paginate({}, { limit: 100 });
   res.status(200).json({
     success: true,
     data: staff,
