@@ -21,10 +21,24 @@ const staffSchema = new mongoose.Schema(
     staffId: {
       type: String,
     },
-    active: {
+    availability: {
       type: Boolean,
-      default: true,
     },
+    active: [
+      {
+        active: {
+          type: Boolean,
+          default: true,
+        },
+        reason: {
+          type: String,
+        },
+        changedBy: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'staff',
+        },
+      },
+    ],
     name: [name.humanName],
     telecom: [telecom.contactPoint],
     address: [address.address],
@@ -113,10 +127,28 @@ const staffSchema = new mongoose.Schema(
         type: String,
       },
     ],
-    addedBy: {
-      type: mongoose.Schema.ObjectId,
-      ref: 'staffType',
+    createdAt: {
+      type: Date,
+      default: Date.now,
     },
+    createdBy: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'Staff',
+    },
+    updateRecord: [
+      {
+        updatedAt: {
+          type: Date,
+        },
+        updatedBy: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'Staff',
+        },
+        reason: {
+          type: String,
+        },
+      },
+    ],
   },
   {
     timestamps: true,

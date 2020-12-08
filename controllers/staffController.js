@@ -16,7 +16,7 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
   const oneDay = 1000 * 60 * 60 * 24;
   const day = Math.floor(diff / oneDay);
   const parsed = JSON.parse(req.body.data);
-  // console.log(parsed);
+  console.log(parsed.staffType);
   let profileId;
   switch (parsed.staffType) {
     case 'Doctor':
@@ -61,15 +61,17 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
     default:
       profileId = 'St' + day + requestNoFormat(new Date(), 'yyHHMMss');
   }
+  // console.log(profileId);
   const staffId = [
     {
       value: profileId,
     },
   ];
+  // console.log(staffId);
   if (req.file) {
     parsed.photo[0].url = req.file.path;
     const staff = await Staff.create({
-      Identifier: staffId,
+      identifier: staffId,
       name: parsed.name,
       gender: parsed.gender,
       birthDate: parsed.birthDate,
@@ -138,4 +140,41 @@ exports.activeStaff = asyncHandler(async (req, res, next) => {
     success: true,
     data: staff,
   });
+});
+
+exports.updateStaff = asyncHandler(async (req, res, next) => {
+  const parsed = JSON.parse(req.body.data);
+  // console.log(parsed.photo);
+
+  let staff = await Staff.findById(parsed._id);
+  if (!staff) {
+    return next(
+      new ErrorResponse(`staff not found with id of ${parsed._id}`, 404)
+    );
+  }
+
+  if (req.photo) {
+    if (req.photo.length > 0) {
+      parsed.photo[0].url = req.photo.path;
+
+      staff = await Staff.findOneAndUpdate({ _id: parsed._id }, parsed, {
+        new: true,
+      });
+      await Staff.findOneAndUpdate(
+        { _id: parsed._id },
+        {
+          $set: {
+            photo: parsed.photo,
+          },
+        },
+        { new: true }
+      );
+      res.status(200).json({ success: true, data: staff });
+    }
+  } else {
+    staff = await Staff.findOneAndUpdate({ _id: parsed._id }, parsed, {
+      new: true,
+    });
+    res.status(200).json({ success: true, data: staff });
+  }
 });

@@ -47,6 +47,25 @@ const CareStreamSchema = new mongoose.Schema(
     status: {
       type: String,
     },
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
+    createdBy: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'Staff',
+    },
+    updateRocord: [
+      {
+        updatedAt: {
+          type: Date,
+        },
+        updatedBy: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'Staff',
+        },
+      },
+    ],
     // productionArea: {
     //   type: mongoose.Schema.ObjectId,
     //   ref: 'ProductionArea',

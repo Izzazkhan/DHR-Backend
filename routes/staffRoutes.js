@@ -15,18 +15,19 @@ const storage = multer.diskStorage({
     );
   },
 });
+const upload = multer({ storage: storage });
 
 const {
   registerStaff,
   getAllStaff,
   activeStaff,
+  updateStaff,
 } = require('../controllers/staffController');
 
 const router = express.Router();
-
-const upload = multer({ storage: storage });
 router.post('/registerStaff', upload.single('file'), registerStaff);
 router.get('/getAllStaff', getAllStaff);
-router.patch('/activeStaff/:id', activeStaff);
+router.put('/activeStaff/:id', activeStaff);
+router.put('/updateStaff', upload.single('file'), updateStaff);
 
 module.exports = router;
