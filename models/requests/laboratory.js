@@ -1,11 +1,12 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
+
 const LaboratoryRequestSchema = new mongoose.Schema({
   requestNo: {
     type: String,
   },
   patientId: {
     type: mongoose.Schema.ObjectId,
-    ref: "patient",
+    ref: 'patient',
   },
 
   reasonCode: [
@@ -21,9 +22,6 @@ const LaboratoryRequestSchema = new mongoose.Schema({
       type: String,
     },
   ],
-  name: {
-    type: String,
-  },
   price: {
     type: Number,
   },
@@ -49,7 +47,7 @@ const LaboratoryRequestSchema = new mongoose.Schema({
       },
       serviceId: {
         type: mongoose.Schema.ObjectId,
-        ref: "LaboratoryService",
+        ref: 'LaboratoryService',
       },
       requesterName: {
         type: String,
@@ -65,7 +63,6 @@ const LaboratoryRequestSchema = new mongoose.Schema({
       },
       requester: {
         type: mongoose.Schema.ObjectId,
-        reg,
       },
       results: {
         type: String,
@@ -107,4 +104,4 @@ const LaboratoryRequestSchema = new mongoose.Schema({
     },
   ],
 });
-module.exports = mongoose.model("LaboratoryRequest", LaboratoryRequestSchema);
+module.exports = mongoose.model('LaboratoryRequest', LaboratoryRequestSchema);

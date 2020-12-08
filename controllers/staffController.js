@@ -133,9 +133,18 @@ exports.getAllStaff = asyncHandler(async (req, res, next) => {
 
 // Disable staff
 exports.activeStaff = asyncHandler(async (req, res, next) => {
-  const staff = await Staff.findByIdAndUpdate(req.params.id, {
-    avtive: req.params.active,
-  });
+  const staff = await Staff.findByIdAndUpdate(
+    req.params.id,
+    {
+      avtive: req.body.active,
+      reason: req.body.reason,
+      changedBy: req.body.changedBy,
+      changedAt: req.body.changedAt,
+    },
+    {
+      new: true,
+    }
+  );
   res.status(200).json({
     success: true,
     data: staff,

@@ -100,7 +100,6 @@ const patientSchema = new mongoose.Schema({
   },
   updatedAt: {
     type: Date,
-    default: Date.now,
   },
 });
 
