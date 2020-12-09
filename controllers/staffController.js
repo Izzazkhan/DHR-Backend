@@ -7,7 +7,6 @@ const ErrorResponse = require('../utils/errorResponse');
 
 // register a staff
 exports.registerStaff = asyncHandler(async (req, res, next) => {
-  
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
   const diff =
@@ -169,13 +168,12 @@ exports.updateStaff = asyncHandler(async (req, res, next) => {
       new ErrorResponse(`staff not found with id of ${parsed._id}`, 404)
     );
   }
-   if (req.file) {
-      parsed.photo[0].url = req.file.path;
-      staff = await Staff.findOneAndUpdate({ _id: parsed._id }, parsed, {
-        new: true,
-      });
-      res.status(200).json({ success: true, data: staff });
-
+  if (req.file) {
+    parsed.photo[0].url = req.file.path;
+    staff = await Staff.findOneAndUpdate({ _id: parsed._id }, parsed, {
+      new: true,
+    });
+    res.status(200).json({ success: true, data: staff });
   } else {
     staff = await Staff.findOneAndUpdate({ _id: parsed._id }, parsed, {
       new: true,
