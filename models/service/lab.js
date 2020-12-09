@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const mongoosePaginate = require('mongoose-paginate-v2');
 
 const LaboratoryServiceSchema = new mongoose.Schema({
   identifier: [
@@ -21,6 +22,9 @@ const LaboratoryServiceSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
+  },
+  addedBy: {
+    type: mongoose.Schema.ObjectId,
   },
   updateRocord: [
     {
@@ -55,4 +59,6 @@ const LaboratoryServiceSchema = new mongoose.Schema({
     },
   ],
 });
+
+LaboratoryServiceSchema.plugin(mongoosePaginate);
 module.exports = mongoose.model('LaboratoryService', LaboratoryServiceSchema);

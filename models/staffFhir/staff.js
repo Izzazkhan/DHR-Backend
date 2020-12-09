@@ -35,7 +35,7 @@ const staffSchema = new mongoose.Schema(
         },
         changedBy: {
           type: mongoose.Schema.ObjectId,
-          ref: 'staff',
+          // ref: 'staff',
         },
       },
     ],
@@ -142,7 +142,7 @@ const staffSchema = new mongoose.Schema(
         },
         updatedBy: {
           type: mongoose.Schema.ObjectId,
-          ref: 'staff',
+          // ref: 'staff',
         },
         reason: {
           type: String,
