@@ -1,17 +1,19 @@
 const mongoose = require('mongoose');
 
 const LaboratoryServiceSchema = new mongoose.Schema({
-  serviceNo: {
-    type: String,
-  },
+  identifier: [
+    {
+      value: { type: String },
+    },
+  ],
   name: {
     type: String,
   },
-  description: {
+  type: {
     type: String,
   },
   price: {
-    type: Number,
+    type: String,
   },
   status: {
     type: String,
@@ -20,9 +22,37 @@ const LaboratoryServiceSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  updatedAt: {
-    type: Date,
-    default: Date.now,
-  },
+  updateRocord: [
+    {
+      updatedAt: {
+        type: Date,
+      },
+      updatedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'Staff',
+      },
+      reason: {
+        type: String,
+      },
+    },
+  ],
+  active: [
+    {
+      active: {
+        type: Boolean,
+        default: true,
+      },
+      reason: {
+        type: String,
+      },
+      changedAt: {
+        type: Date,
+      },
+      changedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+    },
+  ],
 });
 module.exports = mongoose.model('LaboratoryService', LaboratoryServiceSchema);

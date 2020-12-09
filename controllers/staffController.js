@@ -1,5 +1,5 @@
-const generatePassword = require('password-generator');
-const nodemailer = require('nodemailer');
+// const generatePassword = require('password-generator');
+// const nodemailer = require('nodemailer');
 const requestNoFormat = require('dateformat');
 const Staff = require('../models/staffFhir/staff');
 const asyncHandler = require('../middleware/async');
@@ -90,6 +90,7 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
       experience: parsed.experience,
       email: parsed.email,
       password: parsed.password,
+      addedBy: parsed.addedBy,
     });
     res.status(201).json({
       success: true,
@@ -115,6 +116,7 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
       experience: parsed.experience,
       email: parsed.email,
       password: parsed.password,
+      addedBy: parsed.addedBy,
     });
     res.status(201).json({
       success: true,
@@ -124,7 +126,17 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
 });
 
 exports.getAllStaff = asyncHandler(async (req, res, next) => {
-  const staff = await Staff.paginate({}, { limit: 100 });
+  const options = {
+    populate: [
+      {
+        path: 'addedBy',
+        select: ['name'],
+      },
+    ],
+
+    limit: 100,
+  };
+  const staff = await Staff.paginate({}, options);
   res.status(200).json({
     success: true,
     data: staff,
@@ -186,4 +198,54 @@ exports.updateStaff = asyncHandler(async (req, res, next) => {
     });
     res.status(200).json({ success: true, data: staff });
   }
+});
+
+exports.getDoctorSubTypes = asyncHandler(async (req, res, next) => {
+  const subtypes = [
+    'Internal',
+    'External',
+    'Anesthesiologist',
+    'ED Doctor',
+    'Rad Doctor',
+  ];
+  res.status(200).json({
+    success: true,
+    data: subtypes,
+  });
+});
+
+exports.getNurseSubTypes = asyncHandler(async (req, res, next) => {
+  const subtypes = ['ED Nurse', 'EOU Nurse', 'Nurse Technician'];
+  res.status(200).json({
+    success: true,
+    data: subtypes,
+  });
+});
+
+exports.getDoctorSpecialty = asyncHandler(async (req, res, next) => {
+  const specialties = [
+    'Eye Specialist',
+    'Skin Specialist',
+    'Ent Specialist',
+    'Dentist',
+    'Dermatologists',
+  ];
+  res.status(200).json({
+    success: true,
+    data: specialties,
+  });
+});
+
+exports.getNurseSpecialty = asyncHandler(async (req, res, next) => {
+  const specialties = [
+    'General Nurse',
+    'Clinical Nurse',
+    'Psychiatric Nurse',
+    'Criritcal Care Nurse',
+    'Nursing Administrator',
+  ];
+  res.status(200).json({
+    success: true,
+    data: specialties,
+  });
 });

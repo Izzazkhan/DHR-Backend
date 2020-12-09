@@ -131,9 +131,9 @@ const staffSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
-    createdBy: {
+    addedBy: {
       type: mongoose.Schema.ObjectId,
-      ref: 'Staff',
+      ref: 'User',
     },
     updateRecord: [
       {
@@ -142,7 +142,7 @@ const staffSchema = new mongoose.Schema(
         },
         updatedBy: {
           type: mongoose.Schema.ObjectId,
-          ref: 'Staff',
+          ref: 'staff',
         },
         reason: {
           type: String,
