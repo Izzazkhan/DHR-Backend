@@ -51,18 +51,18 @@ const staffSchema = new mongoose.Schema(
     birthDate: {
       type: Date,
     },
-    specialty: {
+    specialty: [{
       type: String,
-    },
+    }],
     nationality: {
       type: String,
     },
     staffType: {
       type: String,
     },
-    subType: {
+    subType: [{
       type: String,
-    },
+    }],
     photo: [photo.attachment],
     education: [
       {
