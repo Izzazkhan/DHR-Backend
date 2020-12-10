@@ -1,17 +1,20 @@
 const mongoose = require('mongoose');
+const mongoosePaginate = require('mongoose-paginate-v2');
 
 const LaboratoryServiceSchema = new mongoose.Schema({
-  serviceNo: {
-    type: String,
-  },
+  identifier: [
+    {
+      value: { type: String },
+    },
+  ],
   name: {
     type: String,
   },
-  description: {
+  type: {
     type: String,
   },
   price: {
-    type: Number,
+    type: String,
   },
   status: {
     type: String,
@@ -20,9 +23,42 @@ const LaboratoryServiceSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  updatedAt: {
-    type: Date,
-    default: Date.now,
+  addedBy: {
+    type: mongoose.Schema.ObjectId,
   },
+  updateRocord: [
+    {
+      updatedAt: {
+        type: Date,
+      },
+      updatedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'Staff',
+      },
+      reason: {
+        type: String,
+      },
+    },
+  ],
+  active: [
+    {
+      active: {
+        type: Boolean,
+        default: true,
+      },
+      reason: {
+        type: String,
+      },
+      changedAt: {
+        type: Date,
+      },
+      changedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+    },
+  ],
 });
+
+LaboratoryServiceSchema.plugin(mongoosePaginate);
 module.exports = mongoose.model('LaboratoryService', LaboratoryServiceSchema);

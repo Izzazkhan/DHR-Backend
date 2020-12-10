@@ -1,5 +1,5 @@
-const generatePassword = require('password-generator');
-const nodemailer = require('nodemailer');
+// const generatePassword = require('password-generator');
+// const nodemailer = require('nodemailer');
 const requestNoFormat = require('dateformat');
 const Staff = require('../models/staffFhir/staff');
 const asyncHandler = require('../middleware/async');
@@ -16,13 +16,12 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
   const oneDay = 1000 * 60 * 60 * 24;
   const day = Math.floor(diff / oneDay);
   const parsed = JSON.parse(req.body.data);
-  console.log(parsed.staffType);
   let profileId;
   switch (parsed.staffType) {
     case 'Doctor':
       profileId = 'Dr' + day + requestNoFormat(new Date(), 'yyHHMMss');
       break;
-    case 'Sensie':
+    case 'Sensei':
       profileId = 'Se' + day + requestNoFormat(new Date(), 'yyHHMMss');
       break;
     case 'Nurse':
@@ -61,13 +60,11 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
     default:
       profileId = 'St' + day + requestNoFormat(new Date(), 'yyHHMMss');
   }
-  // console.log(profileId);
   const staffId = [
     {
       value: profileId,
     },
   ];
-  // console.log(staffId);
   if (req.file) {
     parsed.photo[0].url = req.file.path;
     const staff = await Staff.create({
@@ -90,6 +87,7 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
       experience: parsed.experience,
       email: parsed.email,
       password: parsed.password,
+      addedBy: parsed.addedBy,
     });
     res.status(201).json({
       success: true,
@@ -115,6 +113,7 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
       experience: parsed.experience,
       email: parsed.email,
       password: parsed.password,
+      addedBy: parsed.addedBy,
     });
     res.status(201).json({
       success: true,
@@ -124,7 +123,17 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
 });
 
 exports.getAllStaff = asyncHandler(async (req, res, next) => {
-  const staff = await Staff.paginate({}, { limit: 100 });
+  const options = {
+    populate: [
+      {
+        path: 'addedBy',
+        select: ['name'],
+      },
+    ],
+
+    limit: 100,
+  };
+  const staff = await Staff.paginate({}, options);
   res.status(200).json({
     success: true,
     data: staff,
@@ -153,37 +162,72 @@ exports.activeStaff = asyncHandler(async (req, res, next) => {
 
 exports.updateStaff = asyncHandler(async (req, res, next) => {
   const parsed = JSON.parse(req.body.data);
-  // console.log(parsed.photo);
-
   let staff = await Staff.findById(parsed._id);
   if (!staff) {
     return next(
       new ErrorResponse(`staff not found with id of ${parsed._id}`, 404)
     );
   }
-
-  if (req.photo) {
-    if (req.photo.length > 0) {
-      parsed.photo[0].url = req.photo.path;
-
-      staff = await Staff.findOneAndUpdate({ _id: parsed._id }, parsed, {
-        new: true,
-      });
-      await Staff.findOneAndUpdate(
-        { _id: parsed._id },
-        {
-          $set: {
-            photo: parsed.photo,
-          },
-        },
-        { new: true }
-      );
-      res.status(200).json({ success: true, data: staff });
-    }
+  if (req.file) {
+    parsed.photo[0].url = req.file.path;
+    staff = await Staff.findOneAndUpdate({ _id: parsed._id }, parsed, {
+      new: true,
+    });
+    res.status(200).json({ success: true, data: staff });
   } else {
     staff = await Staff.findOneAndUpdate({ _id: parsed._id }, parsed, {
       new: true,
     });
     res.status(200).json({ success: true, data: staff });
   }
+});
+
+exports.getDoctorSubTypes = asyncHandler(async (req, res, next) => {
+  const subtypes = [
+    'Internal',
+    'External',
+    'Anesthesiologist',
+    'ED Doctor',
+    'Rad Doctor',
+  ];
+  res.status(200).json({
+    success: true,
+    data: subtypes,
+  });
+});
+
+exports.getNurseSubTypes = asyncHandler(async (req, res, next) => {
+  const subtypes = ['ED Nurse', 'EOU Nurse', 'Nurse Technician'];
+  res.status(200).json({
+    success: true,
+    data: subtypes,
+  });
+});
+
+exports.getDoctorSpecialty = asyncHandler(async (req, res, next) => {
+  const specialties = [
+    'Eye Specialist',
+    'Skin Specialist',
+    'Ent Specialist',
+    'Dentist',
+    'Dermatologists',
+  ];
+  res.status(200).json({
+    success: true,
+    data: specialties,
+  });
+});
+
+exports.getNurseSpecialty = asyncHandler(async (req, res, next) => {
+  const specialties = [
+    'General Nurse',
+    'Clinical Nurse',
+    'Psychiatric Nurse',
+    'Criritcal Care Nurse',
+    'Nursing Administrator',
+  ];
+  res.status(200).json({
+    success: true,
+    data: specialties,
+  });
 });

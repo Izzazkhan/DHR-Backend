@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const mongoosePaginate = require('mongoose-paginate-v2');
 
 const CareStreamSchema = new mongoose.Schema(
   {
@@ -55,7 +56,7 @@ const CareStreamSchema = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: 'Staff',
     },
-    updateRocord: [
+    updateRecord: [
       {
         updatedAt: {
           type: Date,
@@ -100,4 +101,5 @@ const CareStreamSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+CareStreamSchema.plugin(mongoosePaginate);
 module.exports = mongoose.model('careStream', CareStreamSchema);
