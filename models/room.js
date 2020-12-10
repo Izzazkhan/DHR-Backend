@@ -22,6 +22,7 @@ const RoomsSchema = new mongoose.Schema({
       ],
     }],
     availability:{type:Boolean},
+    disabled:{type:Boolean},
     status:{type:String},
     updateRecord: [
         {
