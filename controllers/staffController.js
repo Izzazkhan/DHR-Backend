@@ -22,7 +22,7 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
     case 'Doctor':
       profileId = 'Dr' + day + requestNoFormat(new Date(), 'yyHHMMss');
       break;
-    case 'Sensie':
+    case 'Sensei':
       profileId = 'Se' + day + requestNoFormat(new Date(), 'yyHHMMss');
       break;
     case 'Nurse':
