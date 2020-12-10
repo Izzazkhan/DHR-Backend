@@ -66,7 +66,7 @@ const CareStreamSchema = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: 'Staff',
     },
-    updateRocord: [
+    updateRecord: [
       {
         updatedAt: {
           type: Date,
