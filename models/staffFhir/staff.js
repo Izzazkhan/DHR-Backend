@@ -21,8 +21,8 @@ const staffSchema = new mongoose.Schema(
     staffId: {
       type: String,
     },
-    availability: {
-      type: Boolean,
+    staff: {
+      type: String,
     },
     active: [
       {
@@ -35,7 +35,7 @@ const staffSchema = new mongoose.Schema(
         },
         changedBy: {
           type: mongoose.Schema.ObjectId,
-          ref: 'staff',
+          // ref: 'staff',
         },
       },
     ],
@@ -51,18 +51,22 @@ const staffSchema = new mongoose.Schema(
     birthDate: {
       type: Date,
     },
-    specialty: [{
-      type: String,
-    }],
+    specialty: [
+      {
+        type: String,
+      },
+    ],
     nationality: {
       type: String,
     },
     staffType: {
       type: String,
     },
-    subType: [{
-      type: String,
-    }],
+    subType: [
+      {
+        type: String,
+      },
+    ],
     photo: [photo.attachment],
     education: [
       {
@@ -142,7 +146,7 @@ const staffSchema = new mongoose.Schema(
         },
         updatedBy: {
           type: mongoose.Schema.ObjectId,
-          ref: 'staff',
+          // ref: 'staff',
         },
         reason: {
           type: String,

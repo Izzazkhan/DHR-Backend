@@ -1,16 +1,20 @@
-const mongoose = require("mongoose");
-const RadiologyServiceSchema = new mongoose.Schema({
-  serviceNo: {
-    type: String,
-  },
+const mongoose = require('mongoose');
+const mongoosePaginate = require('mongoose-paginate-v2');
+
+const radiologyServiceSchema = new mongoose.Schema({
+  identifier: [
+    {
+      value: { type: String },
+    },
+  ],
   name: {
     type: String,
   },
-  description: {
+  type: {
     type: String,
   },
   price: {
-    type: Number,
+    type: String,
   },
   status: {
     type: String,
@@ -19,9 +23,42 @@ const RadiologyServiceSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  updatedAt: {
-    type: Date,
-    default: Date.now,
+  addedBy: {
+    type: mongoose.Schema.ObjectId,
   },
+  updateRocord: [
+    {
+      updatedAt: {
+        type: Date,
+      },
+      updatedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'Staff',
+      },
+      reason: {
+        type: String,
+      },
+    },
+  ],
+  active: [
+    {
+      active: {
+        type: Boolean,
+        default: true,
+      },
+      reason: {
+        type: String,
+      },
+      changedAt: {
+        type: Date,
+      },
+      changedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+    },
+  ],
 });
-module.exports = mongoose.model("RadiologyService", RadiologyServiceSchema);
+
+radiologyServiceSchema.plugin(mongoosePaginate);
+module.exports = mongoose.model('RadiologyService', radiologyServiceSchema);

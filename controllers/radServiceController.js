@@ -1,9 +1,9 @@
 const requestNoFormat = require('dateformat');
-const Lab = require('../models/service/lab');
+const Radiology = require('../models/service/radiology');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 
-exports.addLabService = asyncHandler(async (req, res, next) => {
+exports.addRadiologyService = asyncHandler(async (req, res, next) => {
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
   const diff =
@@ -14,11 +14,11 @@ exports.addLabService = asyncHandler(async (req, res, next) => {
   const day = Math.floor(diff / oneDay);
   const MRN = [
     {
-      value: 'LS' + day + requestNoFormat(new Date(), 'yyHHMMss'),
+      value: 'Rs' + day + requestNoFormat(new Date(), 'yyHHMMss'),
     },
   ];
   const { name, type, price, status } = req.body;
-  const lab = await Lab.create({
+  const radiology = await Radiology.create({
     identifier: MRN,
     name,
     type,
@@ -28,39 +28,40 @@ exports.addLabService = asyncHandler(async (req, res, next) => {
 
   res.status(201).json({
     success: true,
-    data: lab,
+    data: radiology,
   });
 });
 
 exports.updateLabService = asyncHandler(async (req, res, next) => {
-  const updatedLab = await Lab.findByIdAndUpdate(req.body._id, req.body, {
-    new: true,
-  });
-  if (!updatedLab) {
+  const updateRadiology = await Radiology.findByIdAndUpdate(
+    req.body._id,
+    req.body,
+    {
+      new: true,
+    }
+  );
+  if (!updateRadiology) {
     return next(
-      new ErrorResponse(
-        `No LabService found with this id: ${req.body._id}`,
-        404
-      )
+      new ErrorResponse(`No Radiology found with this id: ${req.body._id}`, 404)
     );
   }
   res.status(200).json({
     success: true,
-    data: updatedLab,
+    data: updateRadiology,
   });
 });
 
-exports.getAllLabServices = asyncHandler(async (req, res, next) => {
-  const labServices = await Lab.paginate({}, { limit: 100 });
+exports.getAllRadServices = asyncHandler(async (req, res, next) => {
+  const radServices = await Radiology.paginate({}, { limit: 100 });
   res.status(200).json({
     success: true,
-    data: labServices,
+    data: radServices,
   });
 });
 
 // / Disable Lab Service
-exports.activeLabService = asyncHandler(async (req, res, next) => {
-  const labService = await Lab.findByIdAndUpdate(
+exports.activeRadService = asyncHandler(async (req, res, next) => {
+  const radService = await Radiology.findByIdAndUpdate(
     req.body.id,
     {
       avtive: req.body.active,
@@ -74,12 +75,12 @@ exports.activeLabService = asyncHandler(async (req, res, next) => {
   );
   res.status(200).json({
     success: true,
-    data: labService,
+    data: radService,
   });
 });
 
-exports.getLabSeriviceByKeyword = asyncHandler(async (req, res, next) => {
-  const labService = await Lab.aggregate([
+exports.getRAdServiceByKeyword = asyncHandler(async (req, res, next) => {
+  const radService = await Radiology.aggregate([
     {
       $match: {
         $or: [
@@ -109,6 +110,6 @@ exports.getLabSeriviceByKeyword = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    data: labService,
+    data: radService,
   });
 });
