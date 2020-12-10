@@ -4,7 +4,7 @@ const ErrorResponse = require('../utils/errorResponse');
 const CareStream = require('../models/CareStreams/CareStreams');
 
 exports.addCareStream = asyncHandler(async (req, res, next) => {
-  // console.log(req.body);
+  console.log(req.body);
   const {
     name,
     inclusionCriteria,
@@ -53,6 +53,8 @@ exports.updateCareStream = asyncHandler(async (req, res, next) => {
   const updatedCareStream = await CareStream.findByIdAndUpdate(
     req.body._id,
     req.body,
+    { $push: { updateRecord: req.body.updateRecord } },
+
     {
       new: true,
     }
@@ -83,12 +85,7 @@ exports.getAllCareStreams = asyncHandler(async (req, res, next) => {
 exports.activeCareStream = asyncHandler(async (req, res, next) => {
   const carestream = await CareStream.findByIdAndUpdate(
     req.body.id,
-    {
-      avtive: req.body.active,
-      reason: req.body.reason,
-      changedBy: req.body.changedBy,
-      changedAt: req.body.changedAt,
-    },
+    { $push: { active: req.body.active } },
     {
       new: true,
     }

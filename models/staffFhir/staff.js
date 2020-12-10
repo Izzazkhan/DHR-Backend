@@ -26,9 +26,9 @@ const staffSchema = new mongoose.Schema(
     },
     active: [
       {
-        active: {
+        activeNow: {
           type: Boolean,
-          default: true,
+          // default: true,
         },
         reason: {
           type: String,
@@ -36,6 +36,9 @@ const staffSchema = new mongoose.Schema(
         changedBy: {
           type: mongoose.Schema.ObjectId,
           // ref: 'staff',
+        },
+        changedAt: {
+          type: Date,
         },
       },
     ],

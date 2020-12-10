@@ -1,5 +1,5 @@
-// const generatePassword = require('password-generator');
-// const nodemailer = require('nodemailer');
+const generatePassword = require('password-generator');
+const nodemailer = require('nodemailer');
 const requestNoFormat = require('dateformat');
 const Staff = require('../models/staffFhir/staff');
 const asyncHandler = require('../middleware/async');
@@ -142,14 +142,12 @@ exports.getAllStaff = asyncHandler(async (req, res, next) => {
 
 // Disable staff
 exports.activeStaff = asyncHandler(async (req, res, next) => {
+  console.log(req.body.active);
   const staff = await Staff.findByIdAndUpdate(
     req.params.id,
-    {
-      avtive: req.body.active,
-      reason: req.body.reason,
-      changedBy: req.body.changedBy,
-      changedAt: req.body.changedAt,
-    },
+
+    { $push: { active: req.body.active } },
+
     {
       new: true,
     }
@@ -170,9 +168,14 @@ exports.updateStaff = asyncHandler(async (req, res, next) => {
   }
   if (req.file) {
     parsed.photo[0].url = req.file.path;
-    staff = await Staff.findOneAndUpdate({ _id: parsed._id }, parsed, {
-      new: true,
-    });
+    staff = await Staff.findOneAndUpdate(
+      { _id: parsed._id },
+      parsed,
+      { $push: { updateRecord: parsed.updateRecord } },
+      {
+        new: true,
+      }
+    );
     res.status(200).json({ success: true, data: staff });
   } else {
     staff = await Staff.findOneAndUpdate({ _id: parsed._id }, parsed, {

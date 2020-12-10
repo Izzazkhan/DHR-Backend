@@ -4,6 +4,9 @@ const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 
 exports.addLabService = asyncHandler(async (req, res, next) => {
+  // console.log(req.body.params);
+  console.log(req.body);
+  // console.log(req.body.data);
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
   const diff =
@@ -33,9 +36,24 @@ exports.addLabService = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateLabService = asyncHandler(async (req, res, next) => {
-  const updatedLab = await Lab.findByIdAndUpdate(req.body._id, req.body, {
-    new: true,
-  });
+  console.log(req.body);
+  let updatedLab;
+  updatedLab = await Lab.findByIdAndUpdate(
+    req.body._id,
+    // req.body,
+    { $push: { updateRecord: req.body.updateRecord } },
+    {
+      new: true,
+    }
+  );
+  updatedLab = await Lab.findByIdAndUpdate(
+    req.body._id,
+    req.body,
+    // { $push: { updateRecord: req.body.updateRecord } },
+    {
+      new: true,
+    }
+  );
   if (!updatedLab) {
     return next(
       new ErrorResponse(
@@ -62,12 +80,7 @@ exports.getAllLabServices = asyncHandler(async (req, res, next) => {
 exports.activeLabService = asyncHandler(async (req, res, next) => {
   const labService = await Lab.findByIdAndUpdate(
     req.body.id,
-    {
-      avtive: req.body.active,
-      reason: req.body.reason,
-      changedBy: req.body.changedBy,
-      changedAt: req.body.changedAt,
-    },
+    { $push: { active: req.body.active } },
     {
       new: true,
     }

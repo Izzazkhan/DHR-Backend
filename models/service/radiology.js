@@ -26,7 +26,7 @@ const radiologyServiceSchema = new mongoose.Schema({
   addedBy: {
     type: mongoose.Schema.ObjectId,
   },
-  updateRocord: [
+  updateRecord: [
     {
       updatedAt: {
         type: Date,
