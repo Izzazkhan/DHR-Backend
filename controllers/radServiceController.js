@@ -33,22 +33,41 @@ exports.addRadService = asyncHandler(async (req, res, next) => {
   });
 });
 
-exports.updateLabService = asyncHandler(async (req, res, next) => {
-  const updateRadiology = await Radiology.findByIdAndUpdate(
+exports.updateRadService = asyncHandler(async (req, res, next) => {
+  console.log(req.body);
+  const updateRecord = {
+    updatedAt: Date.now(),
+    updatedBy: req.body.staffId,
+    reason: req.body.reason,
+  };
+  const body = {
+    name: req.body.name,
+    price: req.body.price,
+    type: req.body.type,
+  };
+  let updatedRad;
+  updatedRad = await Radiology.findByIdAndUpdate(
     req.body._id,
-    req.body,
+    { $push: { updateRecord } },
     {
       new: true,
     }
   );
-  if (!updateRadiology) {
+  updatedRad = await Radiology.findByIdAndUpdate(req.body._id, body, {
+    new: true,
+  });
+  console.log(updatedRad);
+  if (!updatedRad) {
     return next(
-      new ErrorResponse(`No Radiology found with this id: ${req.body._id}`, 404)
+      new ErrorResponse(
+        `No Rad Service found with this id: ${req.body._id}`,
+        404
+      )
     );
   }
   res.status(200).json({
     success: true,
-    data: updateRadiology,
+    data: updatedRad,
   });
 });
 

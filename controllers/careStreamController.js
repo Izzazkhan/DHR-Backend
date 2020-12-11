@@ -57,17 +57,58 @@ exports.getAllCareStreams = asyncHandler(async (req, res, next) => {
   });
 });
 
-// Disable CareStream
-exports.activeCareStream = asyncHandler(async (req, res, next) => {
-  const carestream = await CareStream.findByIdAndUpdate(
-    req.body.id,
-    { $push: { active: req.body.active } },
-    {
-      new: true,
-    }
-  );
-  res.status(200).json({
-    success: true,
-    data: carestream,
-  });
+exports.disableCareStream = asyncHandler(async (req, res) => {
+  console.log(req.body);
+  const careStream = await CareStream.findOne({ _id: req.params.id });
+  if (careStream.availability === false) {
+    res.status(200).json({
+      success: false,
+      data: 'CareStream not availabele for disabling',
+    });
+  } else if (careStream.disabled === true) {
+    res
+      .status(200)
+      .json({ success: false, data: 'CareStream already disabled' });
+  } else {
+    const updateRecord = {
+      updatedAt: Date.now(),
+      updatedBy: req.body.staffId,
+      reason: req.body.reason,
+    };
+    await CareStream.findOneAndUpdate(
+      { _id: req.params.id },
+      {
+        $set: { disabled: true },
+        $push: { updateRecord },
+      }
+    );
+    res
+      .status(200)
+      .json({ success: true, data: 'CareStream status changed to disable' });
+  }
+});
+
+exports.enableCareStreamService = asyncHandler(async (req, res) => {
+  const careStream = await CareStream.findOne({ _id: req.params.id });
+  if (careStream.disabled === true) {
+    const updateRecord = {
+      updatedAt: Date.now(),
+      updatedBy: req.body.staffId,
+      reason: req.body.reason,
+    };
+    await CareStream.findOneAndUpdate(
+      { _id: req.params.id },
+      {
+        $set: { disabled: false },
+        $push: { updateRecord },
+      }
+    );
+    res
+      .status(200)
+      .json({ success: true, data: 'careStream status changed to enable' });
+  } else {
+    res
+      .status(200)
+      .json({ success: false, data: 'careStream already enabled' });
+  }
 });

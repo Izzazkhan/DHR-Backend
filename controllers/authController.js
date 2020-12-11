@@ -30,7 +30,7 @@ exports.login = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
   let data;
   let user;
-    user = await Staff.findOne({ email });
+  user = await Staff.findOne({ email });
   if (!user) {
     return next(new ErrorResponse('Invalid credentials', 401));
   }

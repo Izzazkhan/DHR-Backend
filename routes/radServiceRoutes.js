@@ -3,7 +3,7 @@ const express = require('express');
 const {
   addRadService,
   getAllRadServices,
-  //   updateRadService,
+  updateRadService,
   getRadServiceByKeyword,
 } = require('../controllers/radServiceController');
 
@@ -11,7 +11,7 @@ const router = express.Router();
 router.post('/addRadService', addRadService);
 router.get('/getAllRadServices', getAllRadServices);
 
-// router.put('/updateRadService', updateRadService);
+router.put('/updateRadService', updateRadService);
 // router.put('/activeRadService', activeRadService);
 router.get('/searchRadService/:keyword', getRadServiceByKeyword);
 
