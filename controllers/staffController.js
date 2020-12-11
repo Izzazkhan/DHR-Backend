@@ -211,6 +211,11 @@ exports.enableStaff = asyncHandler(async (req, res) => {
 
 exports.updateStaff = asyncHandler(async (req, res, next) => {
   const parsed = JSON.parse(req.body.data);
+  const updateRecord = {
+    updatedAt: Date.now(),
+    updatedBy: parsed.staffId,
+    reason: parsed.reason,
+  };
   let staff = await Staff.findById(parsed._id);
   if (!staff) {
     return next(
