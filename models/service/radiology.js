@@ -26,7 +26,8 @@ const radiologyServiceSchema = new mongoose.Schema({
   addedBy: {
     type: mongoose.Schema.ObjectId,
   },
-  updateRocord: [
+  availability: { type: Boolean },
+  updateRecord: [
     {
       updatedAt: {
         type: Date,
@@ -37,24 +38,6 @@ const radiologyServiceSchema = new mongoose.Schema({
       },
       reason: {
         type: String,
-      },
-    },
-  ],
-  active: [
-    {
-      active: {
-        type: Boolean,
-        default: true,
-      },
-      reason: {
-        type: String,
-      },
-      changedAt: {
-        type: Date,
-      },
-      changedBy: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'staff',
       },
     },
   ],
