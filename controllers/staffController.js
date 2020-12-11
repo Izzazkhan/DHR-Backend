@@ -222,7 +222,6 @@ exports.updateStaff = asyncHandler(async (req, res, next) => {
     staff = await Staff.findOneAndUpdate(
       { _id: parsed._id },
       parsed,
-      { $push: { updateRecord: parsed.updateRecord } },
       {
         new: true,
       }
