@@ -81,19 +81,55 @@ exports.getAllLabServices = asyncHandler(async (req, res, next) => {
   });
 });
 
-// / Disable Lab Service
-exports.activeLabService = asyncHandler(async (req, res, next) => {
-  const labService = await Lab.findByIdAndUpdate(
-    req.body.id,
-    { $push: { active: req.body.active } },
-    {
-      new: true,
-    }
-  );
-  res.status(200).json({
-    success: true,
-    data: labService,
-  });
+exports.disableLabService = asyncHandler(async (req, res) => {
+  console.log(req.body);
+  const lab = await Lab.findOne({ _id: req.params.id });
+  if (lab.availability === false) {
+    res
+      .status(200)
+      .json({ success: false, data: 'Lab not available for disabling' });
+  } else if (lab.disabled === true) {
+    res.status(200).json({ success: false, data: 'Lab already disabled' });
+  } else {
+    const updateRecord = {
+      updatedAt: Date.now(),
+      updatedBy: req.body.staffId,
+      reason: req.body.reason,
+    };
+    await Lab.findOneAndUpdate(
+      { _id: req.params.id },
+      {
+        $set: { disabled: true },
+        $push: { updateRecord },
+      }
+    );
+    res
+      .status(200)
+      .json({ success: true, data: 'Lab status changed to disable' });
+  }
+});
+
+exports.enableLabService = asyncHandler(async (req, res) => {
+  const lab = await Lab.findOne({ _id: req.params.id });
+  if (lab.disabled === true) {
+    const updateRecord = {
+      updatedAt: Date.now(),
+      updatedBy: req.body.staffId,
+      reason: req.body.reason,
+    };
+    await Lab.findOneAndUpdate(
+      { _id: req.params.id },
+      {
+        $set: { disabled: false },
+        $push: { updateRecord },
+      }
+    );
+    res
+      .status(200)
+      .json({ success: true, data: 'Lab status changed to enable' });
+  } else {
+    res.status(200).json({ success: false, data: 'Lab already enabled' });
+  }
 });
 
 exports.getLabSeriviceByKeyword = asyncHandler(async (req, res, next) => {
@@ -114,16 +150,6 @@ exports.getLabSeriviceByKeyword = asyncHandler(async (req, res, next) => {
       },
     },
   ]).limit(50);
-  //   console.log(labService);
-  //   if (labService.length < 1) {
-  //     console.log('abc');
-  //     return next(
-  //       new ErrorResponse(
-  //         `No Data Found With this keyword: ${req.params.keyword}`,
-  //         404
-  //       )
-  //     );
-  //   }
 
   res.status(200).json({
     success: true,

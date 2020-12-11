@@ -50,7 +50,7 @@ const CareStreamSchema = new mongoose.Schema(
     //     ],
     //   },
     // ],
-    mdNotifcation: [
+    mdNotification: [
       {
         type: String,
       },
