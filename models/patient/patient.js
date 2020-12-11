@@ -86,7 +86,7 @@ const patientSchema = new mongoose.Schema({
       // },
       senderID: {
         type: mongoose.Schema.ObjectId,
-        ref: 'Staff',
+        ref: 'staff',
       },
       processName: {
         type: String,

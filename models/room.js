@@ -16,7 +16,7 @@ const RoomsSchema = new mongoose.Schema(
             },
             updatedBy: {
               type: mongoose.Schema.ObjectId,
-              ref: 'Staff',
+              ref: 'staff',
             },
             reason: {
               type: String,
@@ -35,7 +35,7 @@ const RoomsSchema = new mongoose.Schema(
         },
         updatedBy: {
           type: mongoose.Schema.ObjectId,
-          ref: 'Staff',
+          ref: 'staff',
         },
         reason: {
           type: String,

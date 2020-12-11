@@ -14,7 +14,7 @@ const notificationSchema = new mongoose.Schema({
     {
       userId: {
         type: mongoose.Schema.ObjectId,
-        ref: 'User',
+        ref: 'staff',
       },
       read: {
         type: Boolean,
