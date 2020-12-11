@@ -3,11 +3,11 @@ const mongoose = require('mongoose');
 const chatSchema = new mongoose.Schema({
   participant1: {
     type: mongoose.Schema.ObjectId,
-    ref: 'User',
+    ref: 'staff',
   },
   participant2: {
     type: mongoose.Schema.ObjectId,
-    ref: 'User',
+    ref: 'staff',
   },
   chat: [
     {
@@ -20,11 +20,11 @@ const chatSchema = new mongoose.Schema({
       },
       sender: {
         type: mongoose.Schema.ObjectId,
-        ref: 'User',
+        ref: 'staff',
       },
       receiver: {
         type: mongoose.Schema.ObjectId,
-        ref: 'User',
+        ref: 'staff',
       },
       read: {
         type: Boolean,

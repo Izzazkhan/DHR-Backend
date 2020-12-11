@@ -16,7 +16,7 @@ const PASchema = new mongoose.Schema({
           },
           updatedBy: {
             type: mongoose.Schema.ObjectId,
-            ref: 'Staff',
+            ref: 'staff',
           },
           reason: {
             type: String,
@@ -34,7 +34,7 @@ const PASchema = new mongoose.Schema({
           },
           updatedBy: {
             type: mongoose.Schema.ObjectId,
-            ref: 'Staff',
+            ref: 'staff',
           },
           reason: {
             type: String,
