@@ -50,7 +50,7 @@ exports.login = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
   let data;
   let user;
-  if (email === 'admin@dhr.com') {
+  if (email === 'admin@dhr.com' || email === 'ro@dhr.com') {
     user = await User.findOne({ email });
     data = {
       _id: user._id,

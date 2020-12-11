@@ -1,5 +1,5 @@
-// const generatePassword = require('password-generator');
-// const nodemailer = require('nodemailer');
+const generatePassword = require('password-generator');
+const nodemailer = require('nodemailer');
 const requestNoFormat = require('dateformat');
 const Staff = require('../models/staffFhir/staff');
 const asyncHandler = require('../middleware/async');
@@ -140,24 +140,73 @@ exports.getAllStaff = asyncHandler(async (req, res, next) => {
   });
 });
 
-// Disable staff
-exports.activeStaff = asyncHandler(async (req, res, next) => {
-  const staff = await Staff.findByIdAndUpdate(
-    req.params.id,
-    {
-      avtive: req.body.active,
+// // Disable staff
+// exports.activeStaff = asyncHandler(async (req, res, next) => {
+//   console.log(req.body.active);
+//   const staff = await Staff.findByIdAndUpdate(
+//     req.params.id,
+
+//     { $push: { active: req.body.active } },
+
+//     {
+//       new: true,
+//     }
+//   );
+//   res.status(200).json({
+//     success: true,
+//     data: staff,
+//   });
+// });
+
+exports.disableStaff = asyncHandler(async (req, res) => {
+  console.log(req.body);
+  const staff = await Staff.findOne({ _id: req.params.id });
+  if (staff.availability === false) {
+    res
+      .status(200)
+      .json({ success: false, data: 'staff not available for disabling' });
+  } else if (staff.disabled === true) {
+    res.status(200).json({ success: false, data: 'Staff already disabled' });
+  } else {
+    const updateRecord = {
+      updatedAt: Date.now(),
+      updatedBy: req.body.staffId,
       reason: req.body.reason,
-      changedBy: req.body.changedBy,
-      changedAt: req.body.changedAt,
-    },
-    {
-      new: true,
-    }
-  );
-  res.status(200).json({
-    success: true,
-    data: staff,
-  });
+    };
+    await Staff.findOneAndUpdate(
+      { _id: req.params.id },
+      {
+        $set: { disabled: true },
+        $push: { updateRecord: updateRecord },
+      }
+    );
+    res
+      .status(200)
+      .json({ success: true, data: 'Staff status changed to disable' });
+  }
+});
+
+exports.enableStaff = asyncHandler(async (req, res) => {
+  const staff = await Staff.findOne({ _id: req.params.id });
+  if (staff.disabled === true) {
+    const updateRecord = {
+      updatedAt: Date.now(),
+      updatedBy: req.body.staffId,
+      reason: req.body.reason,
+    };
+    await Staff.findOneAndUpdate(
+      { _id: req.params.id },
+      {
+        $set: { disabled: false },
+        $push: { updateRecord: updateRecord },
+      }
+    );
+    res
+      .status(200)
+      .json({ success: true, data: 'Staff status changed to enable' });
+  } else {
+    res.status(200).json({ success: false, data: 'Staff already enabled' });
+  }
 });
 
 exports.updateStaff = asyncHandler(async (req, res, next) => {
@@ -170,9 +219,14 @@ exports.updateStaff = asyncHandler(async (req, res, next) => {
   }
   if (req.file) {
     parsed.photo[0].url = req.file.path;
-    staff = await Staff.findOneAndUpdate({ _id: parsed._id }, parsed, {
-      new: true,
-    });
+    staff = await Staff.findOneAndUpdate(
+      { _id: parsed._id },
+      parsed,
+      { $push: { updateRecord: parsed.updateRecord } },
+      {
+        new: true,
+      }
+    );
     res.status(200).json({ success: true, data: staff });
   } else {
     staff = await Staff.findOneAndUpdate({ _id: parsed._id }, parsed, {

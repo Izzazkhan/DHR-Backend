@@ -63,12 +63,8 @@ exports.getAllRadServices = asyncHandler(async (req, res, next) => {
 exports.activeRadService = asyncHandler(async (req, res, next) => {
   const radService = await Radiology.findByIdAndUpdate(
     req.body.id,
-    {
-      avtive: req.body.active,
-      reason: req.body.reason,
-      changedBy: req.body.changedBy,
-      changedAt: req.body.changedAt,
-    },
+    { $push: { active: req.body.active } },
+
     {
       new: true,
     }

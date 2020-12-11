@@ -20,7 +20,8 @@ const upload = multer({ storage: storage });
 const {
   registerStaff,
   getAllStaff,
-  activeStaff,
+  disableStaff,
+  enableStaff,
   updateStaff,
   getDoctorSubTypes,
   getNurseSubTypes,
@@ -31,7 +32,8 @@ const {
 const router = express.Router();
 router.post('/registerStaff', upload.single('file'), registerStaff);
 router.get('/getAllStaff', getAllStaff);
-router.put('/activeStaff/:id', activeStaff);
+router.put('/disableStaff/:id', disableStaff);
+router.put('/enableStaff/:id', enableStaff);
 router.put('/updateStaff', upload.single('file'), updateStaff);
 router.get('/getDoctorSubTypes', getDoctorSubTypes);
 router.get('/getNurseSubTypes', getNurseSubTypes);
