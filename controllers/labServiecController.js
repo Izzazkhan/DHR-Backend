@@ -37,23 +37,28 @@ exports.addLabService = asyncHandler(async (req, res, next) => {
 
 exports.updateLabService = asyncHandler(async (req, res, next) => {
   console.log(req.body);
+  const updateRecord = {
+    updatedAt: Date.now(),
+    updatedBy: req.body.staffId,
+    reason: req.body.reason,
+  };
+  const body = {
+    name: req.body.name,
+    price: req.body.price,
+    type: req.body.type,
+  };
   let updatedLab;
   updatedLab = await Lab.findByIdAndUpdate(
     req.body._id,
-    // req.body,
-    { $push: { updateRecord: req.body.updateRecord } },
+    { $push: { updateRecord } },
     {
       new: true,
     }
   );
-  updatedLab = await Lab.findByIdAndUpdate(
-    req.body._id,
-    req.body,
-    // { $push: { updateRecord: req.body.updateRecord } },
-    {
-      new: true,
-    }
-  );
+  updatedLab = await Lab.findByIdAndUpdate(req.body._id, body, {
+    new: true,
+  });
+  console.log(updatedLab);
   if (!updatedLab) {
     return next(
       new ErrorResponse(

@@ -49,30 +49,6 @@ exports.addCareStream = asyncHandler(async (req, res, next) => {
   });
 });
 
-exports.updateCareStream = asyncHandler(async (req, res, next) => {
-  const updatedCareStream = await CareStream.findByIdAndUpdate(
-    req.body._id,
-    req.body,
-    { $push: { updateRecord: req.body.updateRecord } },
-
-    {
-      new: true,
-    }
-  );
-  if (!updatedCareStream) {
-    return next(
-      new ErrorResponse(
-        `No carestream found with this id: ${req.body._id}`,
-        404
-      )
-    );
-  }
-  res.status(200).json({
-    success: true,
-    data: updatedCareStream,
-  });
-});
-
 exports.getAllCareStreams = asyncHandler(async (req, res, next) => {
   const careStreams = await CareStream.paginate({}, { limit: 100 });
   res.status(200).json({

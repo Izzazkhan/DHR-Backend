@@ -66,6 +66,7 @@ const CareStreamSchema = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: 'Staff',
     },
+    availability: { type: Boolean },
     updateRecord: [
       {
         updatedAt: {
@@ -77,24 +78,6 @@ const CareStreamSchema = new mongoose.Schema(
         },
         reason: {
           type: String,
-        },
-      },
-    ],
-    active: [
-      {
-        active: {
-          type: Boolean,
-          default: true,
-        },
-        reason: {
-          type: String,
-        },
-        changedAt: {
-          type: Date,
-        },
-        changedBy: {
-          type: mongoose.Schema.ObjectId,
-          ref: 'staff',
         },
       },
     ],

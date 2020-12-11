@@ -4,13 +4,13 @@ const router = express.Router();
 
 const {
   addCareStream,
-  updateCareStream,
+  // updateCareStream,
   getAllCareStreams,
   activeCareStream,
 } = require('../controllers/careStreamController');
 
 router.post('/addCareStream', addCareStream);
-router.put('/updateCareStream', updateCareStream);
+// router.put('/updateCareStream', updateCareStream);
 router.get('/getAllCareStreams', getAllCareStreams);
 router.put('/activeCareStream', activeCareStream);
 
