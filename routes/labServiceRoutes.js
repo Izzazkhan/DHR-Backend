@@ -9,7 +9,7 @@ const {
   getLabSeriviceByKeyword,
   // disableLabService,
   enableLabService,
-} = require('../controllers/labServiecController');
+} = require('../controllers/labServiceController');
 
 router.post('/addLabService', addLabService);
 router.put('/updateLabService', updateLabService);

@@ -79,6 +79,62 @@ exports.getAllRadServices = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.disableRadService = asyncHandler(async (req, res) => {
+  console.log(req.body);
+  const rad = await Radiology.findOne({ _id: req.params.id });
+  if (rad.avairadility === false) {
+    res.status(200).json({
+      success: false,
+      data: 'Rad Service not available for disabling',
+    });
+  } else if (rad.disabled === true) {
+    res
+      .status(200)
+      .json({ success: false, data: 'Rad Service already disabled' });
+  } else {
+    const updateRecord = {
+      updatedAt: Date.now(),
+      updatedBy: req.body.staffId,
+      reason: req.body.reason,
+    };
+    await Radiology.findOneAndUpdate(
+      { _id: req.params.id },
+      {
+        $set: { disabled: true },
+        $push: { updateRecord },
+      }
+    );
+    res
+      .status(200)
+      .json({ success: true, data: 'Rad service status changed to disable' });
+  }
+});
+
+exports.enableRadService = asyncHandler(async (req, res) => {
+  const rad = await Radiology.findOne({ _id: req.params.id });
+  if (rad.disabled === true) {
+    const updateRecord = {
+      updatedAt: Date.now(),
+      updatedBy: req.body.staffId,
+      reason: req.body.reason,
+    };
+    await Radiology.findOneAndUpdate(
+      { _id: req.params.id },
+      {
+        $set: { disabled: false },
+        $push: { updateRecord },
+      }
+    );
+    res
+      .status(200)
+      .json({ success: true, data: 'rad status changed to enable' });
+  } else {
+    res
+      .status(200)
+      .json({ success: false, data: 'rad service already enabled' });
+  }
+});
+
 exports.getRadServiceByKeyword = asyncHandler(async (req, res, next) => {
   const radService = await Radiology.aggregate([
     {
