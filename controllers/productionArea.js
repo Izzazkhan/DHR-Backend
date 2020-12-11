@@ -4,7 +4,7 @@ const ErrorResponse = require('../utils/errorResponse');
 const requestNoFormat = require('dateformat');
 
 exports.getPAs = asyncHandler(async(req,res)=>{
-	const getPAs = await PA.find()
+	const getPAs = await PA.find().populate("rooms.roomId")
 	res.status(200).json({success:true, data:getPAs})
 })
 

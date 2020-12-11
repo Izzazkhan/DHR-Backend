@@ -120,8 +120,8 @@ const staffSchema = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: 'staff',
     },
-    availability: { type: Boolean },
-    disabled: { type: Boolean },
+    availability: { type: Boolean,default:true },
+    disabled: { type: Boolean,default:false },
     updateRecord: [
       {
         updatedAt: {
