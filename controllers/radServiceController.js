@@ -3,7 +3,8 @@ const Radiology = require('../models/service/radiology');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 
-exports.addRadiologyService = asyncHandler(async (req, res, next) => {
+exports.addRadService = asyncHandler(async (req, res, next) => {
+  console.log(req.body);
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
   const diff =
@@ -32,22 +33,41 @@ exports.addRadiologyService = asyncHandler(async (req, res, next) => {
   });
 });
 
-exports.updateLabService = asyncHandler(async (req, res, next) => {
-  const updateRadiology = await Radiology.findByIdAndUpdate(
+exports.updateRadService = asyncHandler(async (req, res, next) => {
+  console.log(req.body);
+  const updateRecord = {
+    updatedAt: Date.now(),
+    updatedBy: req.body.staffId,
+    reason: req.body.reason,
+  };
+  const body = {
+    name: req.body.name,
+    price: req.body.price,
+    type: req.body.type,
+  };
+  let updatedRad;
+  updatedRad = await Radiology.findByIdAndUpdate(
     req.body._id,
-    req.body,
+    { $push: { updateRecord } },
     {
       new: true,
     }
   );
-  if (!updateRadiology) {
+  updatedRad = await Radiology.findByIdAndUpdate(req.body._id, body, {
+    new: true,
+  });
+  console.log(updatedRad);
+  if (!updatedRad) {
     return next(
-      new ErrorResponse(`No Radiology found with this id: ${req.body._id}`, 404)
+      new ErrorResponse(
+        `No Rad Service found with this id: ${req.body._id}`,
+        404
+      )
     );
   }
   res.status(200).json({
     success: true,
-    data: updateRadiology,
+    data: updatedRad,
   });
 });
 
@@ -59,23 +79,7 @@ exports.getAllRadServices = asyncHandler(async (req, res, next) => {
   });
 });
 
-// / Disable Lab Service
-exports.activeRadService = asyncHandler(async (req, res, next) => {
-  const radService = await Radiology.findByIdAndUpdate(
-    req.body.id,
-    { $push: { active: req.body.active } },
-
-    {
-      new: true,
-    }
-  );
-  res.status(200).json({
-    success: true,
-    data: radService,
-  });
-});
-
-exports.getRAdServiceByKeyword = asyncHandler(async (req, res, next) => {
+exports.getRadServiceByKeyword = asyncHandler(async (req, res, next) => {
   const radService = await Radiology.aggregate([
     {
       $match: {
@@ -93,16 +97,6 @@ exports.getRAdServiceByKeyword = asyncHandler(async (req, res, next) => {
       },
     },
   ]).limit(50);
-  //   console.log(labService);
-  //   if (labService.length < 1) {
-  //     console.log('abc');
-  //     return next(
-  //       new ErrorResponse(
-  //         `No Data Found With this keyword: ${req.params.keyword}`,
-  //         404
-  //       )
-  //     );
-  //   }
 
   res.status(200).json({
     success: true,

@@ -6,14 +6,15 @@ const {
   addLabService,
   updateLabService,
   getAllLabServices,
-  activeLabService,
   getLabSeriviceByKeyword,
+  // disableLabService,
+  enableLabService,
 } = require('../controllers/labServiecController');
 
 router.post('/addLabService', addLabService);
 router.put('/updateLabService', updateLabService);
 router.get('/getAllLabServices', getAllLabServices);
-router.put('/activeLabService', activeLabService);
+router.put('/enableLabService/:id', enableLabService);
 router.get('/searchLabService/:keyword', getLabSeriviceByKeyword);
 
 module.exports = router;
