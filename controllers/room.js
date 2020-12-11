@@ -23,6 +23,7 @@ const {
     noOfBeds
 } = req.body
 const beds = []
+const room = await Room.find().countDocuments();
 for(let i=0; i<noOfBeds; i++)
 {
 	beds.push({
@@ -33,11 +34,12 @@ for(let i=0; i<noOfBeds; i++)
 }
 const createRoom = await Room.create({
 	roomId : 'RM' + day + requestNoFormat(new Date(), 'yyHHMMss'),
-    noOfBeds,
-    beds: beds,
-    availability: true,
-    disabled: false,
-    status: 'not_assigned',
+  roomNo:  room+1,
+  noOfBeds,
+  beds: beds,
+  availability: true,
+  disabled: false,
+  status: 'not_assigned',
   });
   res.status(200).json({ success: true, data: createRoom });
 });

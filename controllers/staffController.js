@@ -159,7 +159,6 @@ exports.getAllStaff = asyncHandler(async (req, res, next) => {
 // });
 
 exports.disableStaff = asyncHandler(async (req, res) => {
-  console.log(req.body);
   const staff = await Staff.findOne({ _id: req.params.id });
   if (staff.availability === false) {
     res
