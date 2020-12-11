@@ -8,6 +8,11 @@ exports.getRooms = asyncHandler(async(req,res)=>{
 	res.status(200).json({success:true, data:getRooms})
 })
 
+exports.getAvailableRooms = asyncHandler(async (req,res)=>{
+	const available = await Room.find({disabled:false, availability:true}).select({roomId:1,noOfBeds:1})
+	res.status(200).json({success:true, data:available})
+})
+
 exports.createRoom = asyncHandler(async(req,res)=>{
 const now = new Date();
 const start = new Date(now.getFullYear(), 0, 0);
