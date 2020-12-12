@@ -116,17 +116,12 @@ exports.enableChiefComplaint = asyncHandler(async (req, res) => {
 
 exports.getDoctorsWithCC = asyncHandler(async (req, res, next) => {
   const doctors = await Staff.find({
-    // staffType: 'Doctor',
+    staffType: 'Doctor',
     chiefComplaint: { $ne: [] },
-  }).countDocuments();
+  }).populate('chiefComplaint.chiefComplaintId', 'name');
 
   res.status(200).json({
     success: true,
-    // doc: doctors.length,
     data: doctors,
   });
-  // .populate('chiefComplaint')
-  // .select('name');
-
-  // console.log(doctors);
 });

@@ -112,3 +112,26 @@ exports.enableCareStreamService = asyncHandler(async (req, res) => {
       .json({ success: false, data: 'careStream already enabled' });
   }
 });
+
+exports.getMedicationsCareStreams = asyncHandler(async (req, res, next) => {
+  const careStreams = await CareStream.find().select({
+    name: 1,
+    _id: 1,
+    identifier: 1,
+    createdAt: 1,
+  });
+  res.status(200).json({
+    success: true,
+    data: careStreams,
+  });
+});
+exports.getMedicationsByIdCareStreams = asyncHandler(async (req, res, next) => {
+  const careStreams = await CareStream.findOne({ _id: req.params.id }).select({
+    medications: 1,
+    _id: 0,
+  });
+  res.status(200).json({
+    success: true,
+    data: careStreams,
+  });
+});

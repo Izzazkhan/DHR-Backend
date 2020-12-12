@@ -15,13 +15,13 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
     (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
   const oneDay = 1000 * 60 * 60 * 24;
   const day = Math.floor(diff / oneDay);
-  // console.log(req.body);
-  // const staff = await Staff.create(req.body);
-  // res.status(200).json({
-  //   success: true,
-  //   data: staff,
-  // });
-  const parsed = JSON.parse(req.body.data);
+  console.log(req.body);
+  const staff = await Staff.create(req.body);
+  res.status(200).json({
+    success: true,
+    data: staff,
+  });
+  // const parsed = JSON.parse(req.body.data);
   let profileId;
   switch (parsed.staffType) {
     case 'Doctor':
@@ -66,67 +66,67 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
     default:
       profileId = 'St' + day + requestNoFormat(new Date(), 'yyHHMMss');
   }
-  const staffId = [
-    {
-      value: profileId,
-    },
-  ];
+  // const staffId = [
+  //   {
+  //     value: profileId,
+  //   },
+  // ];
 
-  if (req.file) {
-    parsed.photo[0].url = req.file.path;
-    const staff = await Staff.create({
-      identifier: staffId,
-      name: parsed.name,
-      gender: parsed.gender,
-      birthDate: parsed.birthDate,
-      age: parsed.age,
-      telecom: parsed.telecom,
-      address: parsed.address,
-      country: parsed.country,
-      city: parsed.city,
-      staffType: parsed.staffType,
-      subType: parsed.subType,
-      nationality: parsed.nationality,
-      photo: parsed.photo,
-      specialty: parsed.specialty,
-      communication: parsed.communication,
-      education: parsed.education,
-      experience: parsed.experience,
-      email: parsed.email,
-      password: parsed.password,
-      addedBy: parsed.addedBy,
-    });
-    res.status(201).json({
-      success: true,
-      data: staff,
-    });
-  } else {
-    const staff = await Staff.create({
-      identifier: staffId,
-      name: parsed.name,
-      gender: parsed.gender,
-      birthDate: parsed.birthDate,
-      age: parsed.age,
-      telecom: parsed.telecom,
-      address: parsed.address,
-      country: parsed.country,
-      staffType: parsed.staffType,
-      subType: parsed.subType,
-      city: parsed.city,
-      nationality: parsed.nationality,
-      specialty: parsed.specialty,
-      communication: parsed.communication,
-      education: parsed.education,
-      experience: parsed.experience,
-      email: parsed.email,
-      password: parsed.password,
-      addedBy: parsed.addedBy,
-    });
-    res.status(201).json({
-      success: true,
-      data: staff,
-    });
-  }
+  // if (req.file) {
+  //   parsed.photo[0].url = req.file.path;
+  //   const staff = await Staff.create({
+  //     identifier: staffId,
+  //     name: parsed.name,
+  //     gender: parsed.gender,
+  //     birthDate: parsed.birthDate,
+  //     age: parsed.age,
+  //     telecom: parsed.telecom,
+  //     address: parsed.address,
+  //     country: parsed.country,
+  //     city: parsed.city,
+  //     staffType: parsed.staffType,
+  //     subType: parsed.subType,
+  //     nationality: parsed.nationality,
+  //     photo: parsed.photo,
+  //     specialty: parsed.specialty,
+  //     communication: parsed.communication,
+  //     education: parsed.education,
+  //     experience: parsed.experience,
+  //     email: parsed.email,
+  //     password: parsed.password,
+  //     addedBy: parsed.addedBy,
+  //   });
+  //   res.status(201).json({
+  //     success: true,
+  //     data: staff,
+  //   });
+  // } else {
+  //   const staff = await Staff.create({
+  //     identifier: staffId,
+  //     name: parsed.name,
+  //     gender: parsed.gender,
+  //     birthDate: parsed.birthDate,
+  //     age: parsed.age,
+  //     telecom: parsed.telecom,
+  //     address: parsed.address,
+  //     country: parsed.country,
+  //     staffType: parsed.staffType,
+  //     subType: parsed.subType,
+  //     city: parsed.city,
+  //     nationality: parsed.nationality,
+  //     specialty: parsed.specialty,
+  //     communication: parsed.communication,
+  //     education: parsed.education,
+  //     experience: parsed.experience,
+  //     email: parsed.email,
+  //     password: parsed.password,
+  //     addedBy: parsed.addedBy,
+  //   });
+  //   res.status(201).json({
+  //     success: true,
+  //     data: staff,
+  //   });
+  // }
 });
 
 exports.getAllStaff = asyncHandler(async (req, res, next) => {
