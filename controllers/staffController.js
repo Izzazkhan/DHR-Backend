@@ -15,12 +15,12 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
     (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
   const oneDay = 1000 * 60 * 60 * 24;
   const day = Math.floor(diff / oneDay);
-  console.log(req.body);
-  const staff = await Staff.create(req.body);
-  res.status(200).json({
-    success: true,
-    data: staff,
-  });
+  // console.log(req.body);
+  // const staff = await Staff.create(req.body);
+  // res.status(200).json({
+  //   success: true,
+  //   data: staff,
+  // });
   const parsed = JSON.parse(req.body.data);
   let profileId;
   switch (parsed.staffType) {
