@@ -27,6 +27,7 @@ const radiologyServiceSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
   },
   availability: { type: Boolean },
+  disabled: { type: Boolean },
   updateRecord: [
     {
       updatedAt: {
