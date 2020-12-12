@@ -27,6 +27,7 @@ const LaboratoryServiceSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
   },
   availability: { type: Boolean },
+  disabled: { type: Boolean },
   updateRecord: [
     {
       updatedAt: {
@@ -34,7 +35,7 @@ const LaboratoryServiceSchema = new mongoose.Schema({
       },
       updatedBy: {
         type: mongoose.Schema.ObjectId,
-        ref: 'Staff',
+        ref: 'staff',
       },
       reason: {
         type: String,

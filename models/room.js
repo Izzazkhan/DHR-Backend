@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const RoomsSchema = new mongoose.Schema(
   {
     roomId: { type: String },
+    roomNo:{type:Number},
     noOfBeds: { type: Number },
     beds: [
       {
@@ -16,7 +17,7 @@ const RoomsSchema = new mongoose.Schema(
             },
             updatedBy: {
               type: mongoose.Schema.ObjectId,
-              ref: 'Staff',
+              ref: 'staff',
             },
             reason: {
               type: String,
@@ -35,7 +36,7 @@ const RoomsSchema = new mongoose.Schema(
         },
         updatedBy: {
           type: mongoose.Schema.ObjectId,
-          ref: 'Staff',
+          ref: 'staff',
         },
         reason: {
           type: String,

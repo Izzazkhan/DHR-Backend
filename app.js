@@ -11,11 +11,13 @@ const errorHandler = require('./middleware/error');
 const patientRouter = require('./routes/patientRoutes');
 const edrRouter = require('./routes/edrRoutes');
 const pharmRouter = require('./routes/pharmRoutes');
-const roomRouter = require('./routes/room');
+const room = require('./routes/room');
+const productionArea = require('./routes/productionArea');
 const authRouter = require('./routes/authRoutes');
 const staffRouter = require('./routes/staffRoutes');
 const careStreamRouter = require('./routes/careStreamRoutes');
 const labServiceRouter = require('./routes/labServiceRoutes');
+const radServiceRouter = require('./routes/radServiceRoutes');
 
 const app = express();
 
@@ -38,11 +40,13 @@ app.use('/uploads', express.static('uploads'));
 app.use('/api/dhrPatient', patientRouter);
 app.use('/api/edr', edrRouter);
 app.use('/api/pharm', pharmRouter);
-app.use('/api/room', roomRouter);
+app.use('/api/room', room);
+app.use('/api/productionArea', productionArea);
 app.use('/api/auth', authRouter);
 app.use('/api/staff', staffRouter);
 app.use('/api/careStream', careStreamRouter);
 app.use('/api/labService', labServiceRouter);
+app.use('/api/radService', radServiceRouter);
 app.use(errorHandler);
 
 const DB = process.env.MONGO_URI;

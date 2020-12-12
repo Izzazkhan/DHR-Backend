@@ -9,10 +9,6 @@ const photo = require('../patient/attachment');
 
 const staffSchema = new mongoose.Schema(
   {
-    staffTypeId: {
-      type: mongoose.Schema.ObjectId,
-      ref: 'staffType',
-    },
     identifier: [
       {
         value: { type: String },
@@ -122,10 +118,10 @@ const staffSchema = new mongoose.Schema(
     },
     addedBy: {
       type: mongoose.Schema.ObjectId,
-      ref: 'User',
+      ref: 'staff',
     },
-    availability: { type: Boolean },
-    disabled: { type: Boolean },
+    availability: { type: Boolean,default:true },
+    disabled: { type: Boolean,default:false },
     updateRecord: [
       {
         updatedAt: {
@@ -133,7 +129,7 @@ const staffSchema = new mongoose.Schema(
         },
         updatedBy: {
           type: mongoose.Schema.ObjectId,
-          // ref: 'staff',
+          ref: 'staff',
         },
         reason: {
           type: String,

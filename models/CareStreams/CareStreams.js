@@ -50,7 +50,7 @@ const CareStreamSchema = new mongoose.Schema(
     //     ],
     //   },
     // ],
-    mdNotifcation: [
+    mdNotification: [
       {
         type: String,
       },
@@ -64,7 +64,7 @@ const CareStreamSchema = new mongoose.Schema(
     },
     createdBy: {
       type: mongoose.Schema.ObjectId,
-      ref: 'Staff',
+      ref: 'staff',
     },
     availability: { type: Boolean },
     updateRecord: [
@@ -74,7 +74,7 @@ const CareStreamSchema = new mongoose.Schema(
         },
         updatedBy: {
           type: mongoose.Schema.ObjectId,
-          ref: 'Staff',
+          ref: 'staff',
         },
         reason: {
           type: String,
