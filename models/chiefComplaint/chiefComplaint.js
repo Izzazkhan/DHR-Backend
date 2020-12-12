@@ -46,4 +46,4 @@ const ChiefComplaintSchema = new mongoose.Schema(
   }
 );
 ChiefComplaintSchema.plugin(mongoosePaginate);
-module.exports = mongoose.model('ChiefComplaint', ChiefComplaintSchema);
+module.exports = mongoose.model('chiefComplaint', ChiefComplaintSchema);

@@ -2,6 +2,7 @@ const requestNoFormat = require('dateformat');
 const ChiefComplaint = require('../models/chiefComplaint/chiefComplaint');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
+const Staff = require('../models/staffFhir/staff');
 
 exports.addChiefComplaint = asyncHandler(async (req, res, next) => {
   console.log(req.body);
@@ -111,4 +112,18 @@ exports.enableChiefComplaint = asyncHandler(async (req, res) => {
       .status(200)
       .json({ success: false, data: 'ChiefComplaint already enabled' });
   }
+});
+
+exports.getDoctorsWithCC = asyncHandler(async (req, res, next) => {
+  // const doctors = await Staff.find({
+  //   $and: [{ staffType: 'Doctor' }, { chiefComplaint: { $ne: '' } }],
+  // });
+  const doctors = await Staff.find({
+    staffType: 'Doctor',
+    chiefComplaint: { $ne: '' },
+  });
+  // .populate('chiefComplaint')
+  // .select('name');
+
+  console.log(doctors);
 });

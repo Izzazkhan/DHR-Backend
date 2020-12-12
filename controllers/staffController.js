@@ -223,13 +223,9 @@ exports.updateStaff = asyncHandler(async (req, res, next) => {
   }
   if (req.file) {
     parsed.photo[0].url = req.file.path;
-    staff = await Staff.findOneAndUpdate(
-      { _id: parsed._id },
-      parsed,
-      {
-        new: true,
-      }
-    );
+    staff = await Staff.findOneAndUpdate({ _id: parsed._id }, parsed, {
+      new: true,
+    });
     res.status(200).json({ success: true, data: staff });
   } else {
     staff = await Staff.findOneAndUpdate({ _id: parsed._id }, parsed, {
