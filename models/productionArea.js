@@ -7,22 +7,6 @@ const PASchema = new mongoose.Schema({
          type:mongoose.Schema.ObjectId,
          ref:"room"
         },
-       availability:{type:Boolean},
-       status:{type:String},
-       updateRecord: [
-        {
-          updatedAt: {
-            type: Date,
-          },
-          updatedBy: {
-            type: mongoose.Schema.ObjectId,
-            ref: 'staff',
-          },
-          reason: {
-            type: String,
-          },
-        },
-      ],
     }],
     availability:{type:Boolean},
     disabled:{type:Boolean},
