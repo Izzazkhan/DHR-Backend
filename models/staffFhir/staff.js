@@ -151,7 +151,14 @@ const staffSchema = new mongoose.Schema(
         },
       },
     ],
+    startTime: {
+      type: Date,
+    },
+    endTime: {
+      type: Date,
+    },
   },
+
   {
     timestamps: true,
   }
