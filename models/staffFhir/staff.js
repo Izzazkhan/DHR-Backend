@@ -6,7 +6,7 @@ const name = require('../patient/humanName');
 const telecom = require('../patient/contactPoint');
 const address = require('../patient/address');
 const photo = require('../patient/attachment');
-const chiefComplaint = require('../chiefComplaint/chiefComplaint');
+// const chiefComplaint = require('../chiefComplaint/chiefComplaint');
 
 const staffSchema = new mongoose.Schema(
   {

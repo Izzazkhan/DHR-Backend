@@ -170,3 +170,35 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
     data: assignedCC,
   });
 });
+
+exports.getCCDoctorByKeyword = asyncHandler(async (req, res, next) => {
+  const arr = [];
+  const doctorCC = await Staff.find({ staffType: 'Doctor' }).populate(
+    'chiefComplaint.chiefComplaintId'
+  );
+  console.log(doctorCC[0].chiefComplaint[0].chiefComplaintId.name);
+
+  for (let i = 0; i < doctorCC.length; i++) {
+    if (
+      (doctorCC[i].name[0].given[0] &&
+        doctorCC[i].name[0].given[0]
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (doctorCC[i].name[0].family &&
+        doctorCC[i].name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (doctorCC[i].chiefComplaint[0].chiefComplaintId.name &&
+        doctorCC[i].chiefComplaint[0].chiefComplaintId.name
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase()))
+    ) {
+      arr.push(doctorCC[i]);
+    }
+  }
+  // console.log(arr);
+  res.status(200).json({
+    success: true,
+    data: arr,
+  });
+});

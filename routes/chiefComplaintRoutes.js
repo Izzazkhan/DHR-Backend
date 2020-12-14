@@ -11,6 +11,7 @@ const {
   getDoctorsWithCC,
   filterChiefCompaints,
   assignCC,
+  getCCDoctorByKeyword,
 } = require('../controllers/chiefComplaintController');
 
 router.post('/addChiefComplaint', addChiefComplaint);
@@ -21,5 +22,6 @@ router.put('/enableChiefComplaint/:id', enableChiefComplaint);
 router.get('/getDoctorsWithCC', getDoctorsWithCC);
 router.get('/filterChiefComplaints', filterChiefCompaints);
 router.put('/assignCC', assignCC);
+router.get('/getCCDoctorByKeyword/:keyword', getCCDoctorByKeyword);
 
 module.exports = router;
