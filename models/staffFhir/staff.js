@@ -151,10 +151,10 @@ const staffSchema = new mongoose.Schema(
         },
       },
     ],
-    startTime: {
+    shiftStartTime: {
       type: Date,
     },
-    endTime: {
+    shiftEndTime: {
       type: Date,
     },
   },

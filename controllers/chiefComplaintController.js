@@ -4,6 +4,7 @@ const ChiefComplaint = require('../models/chiefComplaint/chiefComplaint');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const Staff = require('../models/staffFhir/staff');
+const PA = require('../models/productionArea');
 
 exports.addChiefComplaint = asyncHandler(async (req, res, next) => {
   console.log(req.body);
@@ -129,20 +130,126 @@ exports.getDoctorsWithCC = asyncHandler(async (req, res, next) => {
 
 exports.filterChiefCompaints = asyncHandler(async (req, res, next) => {
   console.log(req.body);
-  const { year, availability, shift } = req.body;
-  // let shift1 = Date.now(9);
-  const time = moment.utc().format();
-  console.log(time);
+  const {
+    year,
+    availability,
+    startTime,
+    endTime,
+    specialty,
+    chiefComplaint,
+  } = req.body;
 
-  const doctors = await Staff.find({
-    'experience.ecperience': year,
-    availability: availability,
-    startTime: { $gte: shift },
+  const startHours = new Date(startTime);
+  const endHours = new Date(endTime);
+  startHours.setSeconds(0, 0);
+  endHours.setSeconds(0, 0);
+  const startHoursISO = startHours.toISOString().split('T')[1];
+  const endHoursISO = endHours.toISOString().split('T')[1];
+  console.log(startHoursISO, endHoursISO);
+  const times = await Staff.find({ staffType: 'Doctor' }).select({
+    shiftStartTime: 1,
+    shiftEndTime: 1,
   });
-  res.status(200).json({
-    success: true,
-    data: doctors,
-  });
+  const arr = [];
+  for (let i = 0; i < times.length; i++) {
+    times[i].shiftStartTime.setSeconds(0, 0);
+    times[i].shiftEndTime.setSeconds(0, 0);
+    console.log(
+      times[i].shiftStartTime.toISOString().split('T')[1],
+      times[i].shiftEndTime.toISOString().split('T')[1]
+    );
+
+    if (
+      times[i].shiftStartTime.toISOString().split('T')[1] >= startHoursISO &&
+      times[i].shiftEndTime.toISOString().split('T')[1] <= endHoursISO
+    ) {
+      console.log('hello');
+    } else {
+      console.log('hi');
+      console.log(times[i]._id);
+    }
+    // } else {
+    //   console.log('hi');
+    // }
+
+    // arr.push(times[i]);
+  }
+  // console.log('array', arr);
+  // if (!startTime || !endTime) {
+  //   const doctors = await Staff.find({
+  //     'experience.experience': year,
+  //     availability: availability,
+  //     specialty: specialty,
+  //     chiefComplaint: chiefComplaint,
+  //   });
+  //   res.status(200).json({
+  //     success: true,
+  //     data: doctors,
+  //   });
+  // } else {
+  //   const startHours = new Date(startTime);
+  //   const endHours = new Date(endTime);
+  //   // console.log(time);
+  //   const shiftStartTime =
+  //     startHours.getHours() +
+  //     ':' +
+  //     startHours.getMinutes() +
+  //     ':' +
+  //     startHours.getSeconds();
+
+  //   const shiftEndTime =
+  //     endHours.getHours() +
+  //     ':' +
+  //     endHours.getMinutes() +
+  //     ':' +
+  //     endHours.getSeconds();
+  //   console.log(shiftStartTime);
+  //   console.log(shiftEndTime);
+  //   const times = await Staff.find({ staffType: 'Doctor' }).select({
+  //     shiftStartTime: 1,
+  //     shiftEndTime: 1,
+  //   });
+  //   console.log(times);
+  //   const arr = [];
+  //   for (let i = 0; i < times.length; i++) {
+  //     const dbStartHours = new Date(times[i].shiftStartTime);
+  //     const dbEndHours = new Date(times[i].shiftEndTime);
+  //     // console.log(time);
+  //     const dbStartTime =
+  //       dbStartHours.getHours() +
+  //       ':' +
+  //       dbStartHours.getMinutes() +
+  //       ':' +
+  //       dbStartHours.getSeconds();
+
+  //     const dbEndTime =
+  //       dbEndHours.getHours() +
+  //       ':' +
+  //       dbEndHours.getMinutes() +
+  //       ':' +
+  //       dbEndHours.getSeconds();
+  //     console.log(dbStartTime);
+  //     console.log(dbEndTime);
+  //     if (shiftStartTime >= dbStartTime && shiftEndTime <= dbEndTime) {
+  //       console.log(times[i]);
+  //       arr.push(times._id[i]);
+  //     }
+  //   }
+
+  //   const doctors = await Staff.find({
+  //     'experience.experience': year,
+  //     availability: availability,
+  //     $and: [
+  //       { shiftStartTime: { $gte: shiftStartTime } },
+  //       { shiftEndTime: { $lte: shiftEndTime } },
+  //     ],
+  //     specialty: specialty,
+  //     chiefComplaint: chiefComplaint,
+  //   });
+  //   res.status(200).json({
+  //     success: true,
+  //     data: doctors,
+  //   });
 });
 
 exports.assignCC = asyncHandler(async (req, res, next) => {
@@ -200,5 +307,82 @@ exports.getCCDoctorByKeyword = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: arr,
+  });
+});
+
+exports.assignProductionArea = asyncHandler(async (req, res, next) => {
+  const prodArea = await PA.findOne({ _id: req.body.productionAreaId });
+  if (!prodArea || prodArea.disabled === true) {
+    return next(
+      new ErrorResponse(
+        'Could not assign Chief Complaint to this Production Area',
+        400
+      )
+    );
+  }
+  const chiefComplaint = {
+    assignedBy: req.body.assignedBy,
+    chiefComplaintId: req.body.chiefComplaintId,
+    assignedTime: Date.now(),
+  };
+  const assignedPA = await Staff.findOneAndUpdate(
+    { _id: prodArea.id },
+    { $push: { chiefComplaint } },
+    {
+      new: true,
+    }
+  );
+  res.status(200).json({
+    success: true,
+    data: assignedPA,
+  });
+});
+
+exports.getAvailablePA = asyncHandler(async (req, res, next) => {
+  const prodAreas = await PA.find({ availability: true });
+  res.status(200).json({
+    success: true,
+    data: prodAreas,
+  });
+});
+
+exports.getCCandPAByKeyword = asyncHandler(async (req, res, next) => {
+  const arr = [];
+  const prodAreas = await PA.find({ chiefComplaint: { $ne: [] } }).populate(
+    'chiefComplaint.chiefComplaintId'
+  );
+  console.log(prodAreas[0].chiefComplaint[0].chiefComplaintId.name);
+
+  for (let i = 0; i < prodAreas.length; i++) {
+    if (
+      (prodAreas[i].paName &&
+        prodAreas[i].paName
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (prodAreas[i].chiefComplaint[0].chiefComplaintId.name &&
+        prodAreas[i].chiefComplaint[0].chiefComplaintId.name
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase()))
+    ) {
+      arr.push(prodAreas[i]);
+    }
+  }
+  // console.log(arr);
+  res.status(200).json({
+    success: true,
+    data: arr,
+  });
+});
+
+exports.getAvailablePAwithCC = asyncHandler(async (req, res, next) => {
+  const prodAreas = await (await PA.find({ chiefComplaint: { $ne: [] } }))
+    .populate('chiefComplaint.chiefComplaintId', 'name')
+    .select({
+      paName: 1,
+      chiefComplaintId: 1,
+    });
+  res.status(200).json({
+    success: true,
+    data: prodAreas,
   });
 });
