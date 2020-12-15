@@ -147,24 +147,6 @@ exports.getAllStaff = asyncHandler(async (req, res, next) => {
   });
 });
 
-// // Disable staff
-// exports.activeStaff = asyncHandler(async (req, res, next) => {
-//   console.log(req.body.active);
-//   const staff = await Staff.findByIdAndUpdate(
-//     req.params.id,
-
-//     { $push: { active: req.body.active } },
-
-//     {
-//       new: true,
-//     }
-//   );
-//   res.status(200).json({
-//     success: true,
-//     data: staff,
-//   });
-// });
-
 exports.disableStaff = asyncHandler(async (req, res) => {
   const staff = await Staff.findOne({ _id: req.params.id });
   if (staff.availability === false) {
@@ -217,11 +199,6 @@ exports.enableStaff = asyncHandler(async (req, res) => {
 
 exports.updateStaff = asyncHandler(async (req, res, next) => {
   const parsed = JSON.parse(req.body.data);
-  const updateRecord = {
-    updatedAt: Date.now(),
-    updatedBy: parsed.staffId,
-    reason: parsed.reason,
-  };
   let staff = await Staff.findById(parsed._id);
   if (!staff) {
     return next(

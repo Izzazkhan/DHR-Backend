@@ -9,14 +9,14 @@ const ChiefComplaintSchema = new mongoose.Schema(
     name: {
       type: String,
     },
-    patient: {
-      type: mongoose.Schema.ObjectId,
-      ref: 'patient',
-    },
-    productionArea: {
-      type: mongoose.Schema.ObjectId,
-      ref: 'ProductionArea',
-    },
+    // patient: {
+    //   type: mongoose.Schema.ObjectId,
+    //   ref: 'patient',
+    // },
+    // productionArea: {
+    //   type: mongoose.Schema.ObjectId,
+    //   ref: 'ProductionArea',
+    // },
     addedBy: {
       type: mongoose.Schema.ObjectId,
       ref: 'staff',
