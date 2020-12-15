@@ -29,7 +29,7 @@ router.put('/assignCC', assignCC);
 router.get('/getCCDoctorByKeyword/:keyword', getCCDoctorByKeyword);
 router.put('/assignCCtoPA', assignProductionArea);
 router.get('/searchCCandPA/:keyword', getCCandPAByKeyword);
-router.put('/getAvailablePA', getAvailablePA);
+router.get('/getAvailablePA', getAvailablePA);
 router.get('getAvailablePAwithCC', getAvailablePAwithCC);
 
 module.exports = router;
