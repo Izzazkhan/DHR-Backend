@@ -15,6 +15,12 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
     (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
   const oneDay = 1000 * 60 * 60 * 24;
   const day = Math.floor(diff / oneDay);
+  // console.log(req.body);
+  // const staff = await Staff.create(req.body);
+  // res.status(200).json({
+  //   success: true,
+  //   data: staff,
+  // });
   const parsed = JSON.parse(req.body.data);
   let profileId;
   switch (parsed.staffType) {
@@ -65,6 +71,7 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
       value: profileId,
     },
   ];
+
   if (req.file) {
     parsed.photo[0].url = req.file.path;
     const staff = await Staff.create({
@@ -140,24 +147,6 @@ exports.getAllStaff = asyncHandler(async (req, res, next) => {
   });
 });
 
-// // Disable staff
-// exports.activeStaff = asyncHandler(async (req, res, next) => {
-//   console.log(req.body.active);
-//   const staff = await Staff.findByIdAndUpdate(
-//     req.params.id,
-
-//     { $push: { active: req.body.active } },
-
-//     {
-//       new: true,
-//     }
-//   );
-//   res.status(200).json({
-//     success: true,
-//     data: staff,
-//   });
-// });
-
 exports.disableStaff = asyncHandler(async (req, res) => {
   const staff = await Staff.findOne({ _id: req.params.id });
   if (staff.availability === false) {
@@ -210,11 +199,6 @@ exports.enableStaff = asyncHandler(async (req, res) => {
 
 exports.updateStaff = asyncHandler(async (req, res, next) => {
   const parsed = JSON.parse(req.body.data);
-  const updateRecord = {
-    updatedAt: Date.now(),
-    updatedBy: parsed.staffId,
-    reason: parsed.reason,
-  };
   let staff = await Staff.findById(parsed._id);
   if (!staff) {
     return next(
@@ -223,13 +207,9 @@ exports.updateStaff = asyncHandler(async (req, res, next) => {
   }
   if (req.file) {
     parsed.photo[0].url = req.file.path;
-    staff = await Staff.findOneAndUpdate(
-      { _id: parsed._id },
-      parsed,
-      {
-        new: true,
-      }
-    );
+    staff = await Staff.findOneAndUpdate({ _id: parsed._id }, parsed, {
+      new: true,
+    });
     res.status(200).json({ success: true, data: staff });
   } else {
     staff = await Staff.findOneAndUpdate({ _id: parsed._id }, parsed, {

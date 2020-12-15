@@ -6,6 +6,7 @@ const name = require('../patient/humanName');
 const telecom = require('../patient/contactPoint');
 const address = require('../patient/address');
 const photo = require('../patient/attachment');
+// const chiefComplaint = require('../chiefComplaint/chiefComplaint');
 
 const staffSchema = new mongoose.Schema(
   {
@@ -120,8 +121,8 @@ const staffSchema = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: 'staff',
     },
-    availability: { type: Boolean,default:true },
-    disabled: { type: Boolean,default:false },
+    availability: { type: Boolean, default: true },
+    disabled: { type: Boolean, default: false },
     updateRecord: [
       {
         updatedAt: {
@@ -136,7 +137,28 @@ const staffSchema = new mongoose.Schema(
         },
       },
     ],
+    chiefComplaint: [
+      {
+        chiefComplaintId: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'chiefComplaint',
+        },
+        assignedBy: {
+          type: mongoose.Schema.ObjectId,
+        },
+        assignedTime: {
+          type: Date,
+        },
+      },
+    ],
+    startTime: {
+      type: Date,
+    },
+    endTime: {
+      type: Date,
+    },
   },
+
   {
     timestamps: true,
   }

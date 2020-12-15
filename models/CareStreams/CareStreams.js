@@ -15,19 +15,14 @@ const CareStreamSchema = new mongoose.Schema(
     exclusionCriteria: [{ type: String }],
     investigations: [{ type: String }],
     precautions: [{ type: String }],
-    // treatmentOrders: [
-    //   {
-    //     name: String,
-    //     subType: [
-    //       {
-    //         type: String,
-    //       },
-    //     ],
-    //   },
-    // ],
     treatmentOrders: [
       {
-        type: String,
+        name: String,
+        subType: [
+          {
+            type: String,
+          },
+        ],
       },
     ],
     fluidsIV: [
@@ -40,19 +35,14 @@ const CareStreamSchema = new mongoose.Schema(
         type: String,
       },
     ],
-    // mdNotification: [
-    //   {
-    //     name: String,
-    //     subType: [
-    //       {
-    //         type: String,
-    //       },
-    //     ],
-    //   },
-    // ],
     mdNotification: [
       {
-        type: String,
+        name: String,
+        subType: [
+          {
+            type: String,
+          },
+        ],
       },
     ],
     status: {
@@ -67,7 +57,7 @@ const CareStreamSchema = new mongoose.Schema(
       ref: 'staff',
     },
     availability: { type: Boolean },
-    disabled: { type: Boolean },
+    disabled: { type: Boolean, default: true },
     updateRecord: [
       {
         updatedAt: {
