@@ -129,7 +129,7 @@ exports.getDoctorsWithCC = asyncHandler(async (req, res, next) => {
 });
 
 exports.filterChiefCompaints = asyncHandler(async (req, res, next) => {
-  console.log(req.body);
+  // console.log(req.body);
   const {
     year,
     availability,
@@ -138,36 +138,47 @@ exports.filterChiefCompaints = asyncHandler(async (req, res, next) => {
     specialty,
     chiefComplaint,
   } = req.body;
-
+  const testS = moment(startTime).format('LT');
+  const testE = moment(endTime).format('LT');
   const startHours = new Date(startTime);
   const endHours = new Date(endTime);
   startHours.setSeconds(0, 0);
   endHours.setSeconds(0, 0);
   const startHoursISO = startHours.toISOString().split('T')[1];
   const endHoursISO = endHours.toISOString().split('T')[1];
-  console.log(startHoursISO, endHoursISO);
+  // console.log(startHoursISO, endHoursISO);
   const times = await Staff.find({ staffType: 'Doctor' }).select({
     shiftStartTime: 1,
     shiftEndTime: 1,
   });
   const arr = [];
   for (let i = 0; i < times.length; i++) {
-    times[i].shiftStartTime.setSeconds(0, 0);
-    times[i].shiftEndTime.setSeconds(0, 0);
-    console.log(
-      times[i].shiftStartTime.toISOString().split('T')[1],
-      times[i].shiftEndTime.toISOString().split('T')[1]
-    );
-
     if (
-      times[i].shiftStartTime.toISOString().split('T')[1] >= startHoursISO &&
-      times[i].shiftEndTime.toISOString().split('T')[1] <= endHoursISO
+      testS < moment(times[i].shiftEndTime).format('LT') ||
+      testE > moment(times[i].shiftStartTime).format('LT')
     ) {
-      console.log('hello');
-    } else {
-      console.log('hi');
       console.log(times[i]._id);
     }
+    // console.log(
+    //   times[i].shiftStartTime.toISOString().split('T')[1],
+    //   times[i].shiftEndTime.toISOString().split('T')[1]
+    // );
+
+    // console.log(startHoursISO);
+    // console.log(times[i].shiftEndTime.toISOString().split('T')[1]);
+    // if (
+    //   startHoursISO < times[i].shiftEndTime.toISOString().split('T')[1] ||
+    //   endHoursISO > times[i].shiftStartTime.toISOString().split('T')[1]
+    // ) {
+    //   // console.log(times[i]._id);
+    // }
+    else {
+      // console.log('not found');
+    }
+    // {
+    //   // console.log('hello');
+    //   console.log(times[i]._id);
+    // }
     // } else {
     //   console.log('hi');
     // }
@@ -311,7 +322,9 @@ exports.getCCDoctorByKeyword = asyncHandler(async (req, res, next) => {
 });
 
 exports.assignProductionArea = asyncHandler(async (req, res, next) => {
+  console.log(req.body);
   const prodArea = await PA.findOne({ _id: req.body.productionAreaId });
+  console.log(prodArea);
   if (!prodArea || prodArea.disabled === true) {
     return next(
       new ErrorResponse(
@@ -321,11 +334,11 @@ exports.assignProductionArea = asyncHandler(async (req, res, next) => {
     );
   }
   const chiefComplaint = {
-    assignedBy: req.body.assignedBy,
+    assignedBy: req.body.staffId,
     chiefComplaintId: req.body.chiefComplaintId,
     assignedTime: Date.now(),
   };
-  const assignedPA = await Staff.findOneAndUpdate(
+  const assignedPA = await PA.findOneAndUpdate(
     { _id: prodArea.id },
     { $push: { chiefComplaint } },
     {
@@ -375,7 +388,7 @@ exports.getCCandPAByKeyword = asyncHandler(async (req, res, next) => {
 });
 
 exports.getAvailablePAwithCC = asyncHandler(async (req, res, next) => {
-  const prodAreas = await (await PA.find({ chiefComplaint: { $ne: [] } }))
+  const prodAreas = await PA.find({ chiefComplaint: { $ne: [] } })
     .populate('chiefComplaint.chiefComplaintId', 'name')
     .select({
       paName: 1,
