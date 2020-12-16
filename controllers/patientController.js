@@ -15,10 +15,17 @@ exports.registerPatient = asyncHandler(async (req, res) => {
   const day = Math.floor(diff / oneDay);
   const MRN = [
     {
-      value: 'khmc' + day + requestNoFormat(new Date(), 'yyHHMMss'),
+      value: 'dhr' + day + requestNoFormat(new Date(), 'yyHHMMss'),
     },
   ];
   const parsed = JSON.parse(req.body.data);
+  console.log(parsed.photo);
+  console.log(req.files.file);
+  if (parsed.photo && parsed.photo.length > 0) {
+    parsed.photo[0].url = req.files.file[0].path;
+  } else {
+    parsed.photo = null;
+  }
   if (
     req.files.file ||
     req.files.front ||
@@ -33,7 +40,7 @@ exports.registerPatient = asyncHandler(async (req, res) => {
     // )
     // {
     // console.log(parsed);
-    // parsed.photo[0].url = req.files.file[0].path;
+
     const newPatient = await patientFHIR.create({
       identifier: MRN,
       nationalID: parsed.nationalID,
@@ -49,7 +56,7 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       city: parsed.city,
       nationality: parsed.nationality,
       blood: parsed.blood,
-      // photo: parsed.photo,
+      photo: parsed.photo,
       idCardFront: req.files.front ? req.files.front[0].path : null,
       idCardBack: req.files.back ? req.files.back[0].path : null,
       otherDetails: parsed.otherDetails,
@@ -66,7 +73,7 @@ exports.registerPatient = asyncHandler(async (req, res) => {
         ? req.files.insuranceCard[0].path
         : null,
       processTime: parsed.time,
-      registrationStatus: parsed.status,
+      registrationStatus: parsed.registrationStatus,
       // claimed,
       // status,
     });
@@ -102,7 +109,7 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       coverageDetails: parsed.coverageDetails,
       insuranceDetails: parsed.insuranceDetails,
       processTime: parsed.time,
-      registrationStatus: parsed.status,
+      registrationStatus: parsed.registrationStatus,
       // claimed,
       // status,
     });
@@ -128,10 +135,6 @@ exports.averageRegistrationTAT = asyncHandler(async (req, res, next) => {
     success: true,
     data: averageRegistrationTime,
   });
-
-  // console.log(patients.length);
-  // console.log(time);
-  // console.log(averageRegistrationTime);
 });
 
 exports.updatePatient = asyncHandler(async (req, res, next) => {
@@ -143,6 +146,11 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
       new ErrorResponse(`Patient not found with id of ${parsed._id}`, 404)
     );
   }
+  if (parsed.photo && parsed.photo.length > 0) {
+    parsed.photo[0].url = req.files.file[0].path;
+  } else {
+    parsed.photo = null;
+  }
 
   if (
     req.files.file ||
@@ -150,33 +158,33 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
     req.files.back ||
     req.files.insuranceCard
   ) {
-    if (
-      req.files.file.length > 0 ||
-      req.files.front.length > 0 ||
-      req.files.back.length > 0 ||
-      req.files.insuranceCard.length > 0
-    ) {
-      parsed.photo[0].url = req.files.file[0].path;
+    // if (
+    //   req.files.file.length > 0 ||
+    //   req.files.front.length > 0 ||
+    //   req.files.back.length > 0 ||
+    //   req.files.insuranceCard.length > 0
+    // )
+    // {
 
-      patient = await patientFHIR.findOneAndUpdate(
-        { _id: parsed._id },
-        parsed,
-        { new: true }
-      );
-      await patientFHIR.findOneAndUpdate(
-        { _id: parsed._id },
-        {
-          $set: {
-            photo: parsed.photo,
-            idCardFront: req.files.front[0].path,
-            idCardBack: req.files.back[0].path,
-            insuranceCard: req.files.insuranceCard[0].path,
-          },
+    patient = await patientFHIR.findOneAndUpdate({ _id: parsed._id }, parsed, {
+      new: true,
+    });
+    await patientFHIR.findOneAndUpdate(
+      { _id: parsed._id },
+      {
+        $set: {
+          photo: parsed.photo,
+          idCardFront: req.files.front ? req.files.front[0].path : null,
+          idCardBack: req.files.back ? req.files.back[0].path : null,
+          insuranceCard: req.files.insuranceCard
+            ? req.files.insuranceCard[0].path
+            : null,
         },
-        { new: true }
-      );
-      res.status(200).json({ success: true, data: patient });
-    }
+      },
+      { new: true }
+    );
+    res.status(200).json({ success: true, data: patient });
+    // }
   } else {
     patient = await patientFHIR.findOneAndUpdate({ _id: parsed._id }, parsed, {
       new: true,
@@ -245,18 +253,6 @@ exports.getApprovedPatientById = asyncHandler(async (req, res, next) => {
 exports.getApprovedPatientByKeyword = asyncHandler(async (req, res, next) => {
   const patient = await patientFHIR
     .aggregate([
-      // {
-      //   $project: {
-      //     name: 1,
-      //     age: 1,
-      //     gender: 1,
-      //     identifier: 1,
-      //     nationalID: 1,
-      //     telecom: 1,
-      //     createdAt: 1,
-      //   },
-      // },
-
       {
         $match: { status: 'completed' },
       },
@@ -331,14 +327,3 @@ exports.getPatientByKeyword = asyncHandler(async (req, res, next) => {
     data: patient,
   });
 });
-
-// exports.deletePatient = asyncHandler(async (req, res, next) => {
-// 	const patient = await patientFHIR.findByIdAndRemove(req.params.patientId);
-// 	if (!patient) {
-// 		return next(new ErrorResponse('No patient Found with this id', 404));
-// 	}
-// 	res.status(204).json({
-// 		status: 'Success',
-// 		data: null,
-// 	});
-// });

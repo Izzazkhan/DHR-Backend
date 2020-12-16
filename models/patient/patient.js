@@ -94,6 +94,7 @@ const patientSchema = new mongoose.Schema({
       },
     },
   ],
+
   createdAt: {
     type: Date,
     default: Date.now,
@@ -101,6 +102,20 @@ const patientSchema = new mongoose.Schema({
   updatedAt: {
     type: Date,
   },
+  updateRecord: [
+    {
+      updatedAt: {
+        type: Date,
+      },
+      updatedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      reason: {
+        type: String,
+      },
+    },
+  ],
 });
 
 patientSchema.plugin(mongoosePaginate);

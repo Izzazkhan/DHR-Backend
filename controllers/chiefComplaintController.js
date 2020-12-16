@@ -5,6 +5,7 @@ const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const Staff = require('../models/staffFhir/staff');
 const PA = require('../models/productionArea');
+const EDR = require('../models/EDR/EDR');
 
 exports.addChiefComplaint = asyncHandler(async (req, res, next) => {
   console.log(req.body);
@@ -253,7 +254,7 @@ exports.getDoctorsWithCC = asyncHandler(async (req, res, next) => {
 // });
 
 exports.filterChiefCompaints = asyncHandler(async (req, res, next) => {
-  let arr = [];
+  const arr = [];
   const { startTime, endTime } = req.body;
   const startHours = new Date(startTime);
   const endHours = new Date(endTime);
@@ -440,8 +441,9 @@ exports.assignCCtoPatient = asyncHandler(async (req, res, next) => {
     assignedBy: req.body.assignedBy,
     chiefComplaintId: req.body.chiefComplaintId,
     assignedTime: Date.now(),
+    reason: req.body.reason,
   };
-  const assignedCC = await Staff.findOneAndUpdate(
+  const assignedCC = await EDR.findOneAndUpdate(
     { _id: req.body.patientId },
     { $push: { chiefComplaint } },
     {
