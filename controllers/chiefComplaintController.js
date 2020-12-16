@@ -128,140 +128,156 @@ exports.getDoctorsWithCC = asyncHandler(async (req, res, next) => {
   });
 });
 
+// exports.filterChiefCompaints = asyncHandler(async (req, res, next) => {
+//   const startHours = new Date(startTime);
+//   const endHours = new Date(endTime);
+//   startHours.setSeconds(0, 0);
+//   endHours.setSeconds(0, 0);
+//   const startHoursISO = startHours.toISOString().split('T')[1];
+//   const endHoursISO = endHours.toISOString().split('T')[1];
+//   // console.log(startHoursISO, endHoursISO);
+//   const times = await Staff.find({ staffType: 'Doctor' }).select({
+//     shiftStartTime: 1,
+//     shiftEndTime: 1,
+//   });
+//   const arr = [];
+//   for (let i = 0; i < times.length; i++) {
+//     if (
+//       testS < moment(times[i].shiftEndTime).format('LT') ||
+//       testE > moment(times[i].shiftStartTime).format('LT')
+//     ) {
+//       console.log(times[i]._id);
+//     }
+//     // console.log(
+//     //   times[i].shiftStartTime.toISOString().split('T')[1],
+//     //   times[i].shiftEndTime.toISOString().split('T')[1]
+//     // );
+
+//     // console.log(startHoursISO);
+//     // console.log(times[i].shiftEndTime.toISOString().split('T')[1]);
+//     // if (
+//     //   startHoursISO < times[i].shiftEndTime.toISOString().split('T')[1] ||
+//     //   endHoursISO > times[i].shiftStartTime.toISOString().split('T')[1]
+//     // ) {
+//     //   // console.log(times[i]._id);
+//     // }
+//     else {
+//       // console.log('not found');
+//     }
+//     // {
+//     //   // console.log('hello');
+//     //   console.log(times[i]._id);
+//     // }
+//     // } else {
+//     //   console.log('hi');
+//     // }
+
+//     // arr.push(times[i]);
+//   }
+//   // console.log('array', arr);
+//   // if (!startTime || !endTime) {
+//   //   const doctors = await Staff.find({
+//   //     'experience.experience': year,
+//   //     availability: availability,
+//   //     specialty: specialty,
+//   //     chiefComplaint: chiefComplaint,
+//   //   });
+//   //   res.status(200).json({
+//   //     success: true,
+//   //     data: doctors,
+//   //   });
+//   // } else {
+//   //   const startHours = new Date(startTime);
+//   //   const endHours = new Date(endTime);
+//   //   // console.log(time);
+//   //   const shiftStartTime =
+//   //     startHours.getHours() +
+//   //     ':' +
+//   //     startHours.getMinutes() +
+//   //     ':' +
+//   //     startHours.getSeconds();
+
+//   //   const shiftEndTime =
+//   //     endHours.getHours() +
+//   //     ':' +
+//   //     endHours.getMinutes() +
+//   //     ':' +
+//   //     endHours.getSeconds();
+//   //   console.log(shiftStartTime);
+//   //   console.log(shiftEndTime);
+//   //   const times = await Staff.find({ staffType: 'Doctor' }).select({
+//   //     shiftStartTime: 1,
+//   //     shiftEndTime: 1,
+//   //   });
+//   //   console.log(times);
+//   //   const arr = [];
+//   //   for (let i = 0; i < times.length; i++) {
+//   //     const dbStartHours = new Date(times[i].shiftStartTime);
+//   //     const dbEndHours = new Date(times[i].shiftEndTime);
+//   //     // console.log(time);
+//   //     const dbStartTime =
+//   //       dbStartHours.getHours() +
+//   //       ':' +
+//   //       dbStartHours.getMinutes() +
+//   //       ':' +
+//   //       dbStartHours.getSeconds();
+
+//   //     const dbEndTime =
+//   //       dbEndHours.getHours() +
+//   //       ':' +
+//   //       dbEndHours.getMinutes() +
+//   //       ':' +
+//   //       dbEndHours.getSeconds();
+//   //     console.log(dbStartTime);
+//   //     console.log(dbEndTime);
+//   //     if (shiftStartTime >= dbStartTime && shiftEndTime <= dbEndTime) {
+//   //       console.log(times[i]);
+//   //       arr.push(times._id[i]);
+//   //     }
+//   //   }
+
+//   //   const doctors = await Staff.find({
+//   //     'experience.experience': year,
+//   //     availability: availability,
+//   //     $and: [
+//   //       { shiftStartTime: { $gte: shiftStartTime } },
+//   //       { shiftEndTime: { $lte: shiftEndTime } },
+//   //     ],
+//   //     specialty: specialty,
+//   //     chiefComplaint: chiefComplaint,
+//   //   });
+//   //   res.status(200).json({
+//   //     success: true,
+//   //     data: doctors,
+//   //   });
+// });
+
 exports.filterChiefCompaints = asyncHandler(async (req, res, next) => {
-  // console.log(req.body);
+  let arr = [];
   const {
-    year,
-    availability,
     startTime,
-    endTime,
-    specialty,
-    chiefComplaint,
+    endTime
   } = req.body;
-  const testS = moment(startTime).format('LT');
-  const testE = moment(endTime).format('LT');
-  const startHours = new Date(startTime);
-  const endHours = new Date(endTime);
-  startHours.setSeconds(0, 0);
-  endHours.setSeconds(0, 0);
-  const startHoursISO = startHours.toISOString().split('T')[1];
-  const endHoursISO = endHours.toISOString().split('T')[1];
-  // console.log(startHoursISO, endHoursISO);
-  const times = await Staff.find({ staffType: 'Doctor' }).select({
+const startHours = new Date(startTime);
+const endHours = new Date(endTime);
+startHours.setSeconds(0, 0);
+endHours.setSeconds(0, 0);
+const startHoursISO = startHours.toISOString().split('T')[1];
+const endHoursISO = endHours.toISOString().split('T')[1];
+const times = await Staff.find({ staffType: 'Doctor' }).select({
     shiftStartTime: 1,
     shiftEndTime: 1,
   });
-  const arr = [];
-  for (let i = 0; i < times.length; i++) {
-    if (
-      testS < moment(times[i].shiftEndTime).format('LT') ||
-      testE > moment(times[i].shiftStartTime).format('LT')
-    ) {
-      console.log(times[i]._id);
-    }
-    // console.log(
-    //   times[i].shiftStartTime.toISOString().split('T')[1],
-    //   times[i].shiftEndTime.toISOString().split('T')[1]
-    // );
-
-    // console.log(startHoursISO);
-    // console.log(times[i].shiftEndTime.toISOString().split('T')[1]);
-    // if (
-    //   startHoursISO < times[i].shiftEndTime.toISOString().split('T')[1] ||
-    //   endHoursISO > times[i].shiftStartTime.toISOString().split('T')[1]
-    // ) {
-    //   // console.log(times[i]._id);
-    // }
-    else {
-      // console.log('not found');
-    }
-    // {
-    //   // console.log('hello');
-    //   console.log(times[i]._id);
-    // }
-    // } else {
-    //   console.log('hi');
-    // }
-
-    // arr.push(times[i]);
-  }
-  // console.log('array', arr);
-  // if (!startTime || !endTime) {
-  //   const doctors = await Staff.find({
-  //     'experience.experience': year,
-  //     availability: availability,
-  //     specialty: specialty,
-  //     chiefComplaint: chiefComplaint,
-  //   });
-  //   res.status(200).json({
-  //     success: true,
-  //     data: doctors,
-  //   });
-  // } else {
-  //   const startHours = new Date(startTime);
-  //   const endHours = new Date(endTime);
-  //   // console.log(time);
-  //   const shiftStartTime =
-  //     startHours.getHours() +
-  //     ':' +
-  //     startHours.getMinutes() +
-  //     ':' +
-  //     startHours.getSeconds();
-
-  //   const shiftEndTime =
-  //     endHours.getHours() +
-  //     ':' +
-  //     endHours.getMinutes() +
-  //     ':' +
-  //     endHours.getSeconds();
-  //   console.log(shiftStartTime);
-  //   console.log(shiftEndTime);
-  //   const times = await Staff.find({ staffType: 'Doctor' }).select({
-  //     shiftStartTime: 1,
-  //     shiftEndTime: 1,
-  //   });
-  //   console.log(times);
-  //   const arr = [];
-  //   for (let i = 0; i < times.length; i++) {
-  //     const dbStartHours = new Date(times[i].shiftStartTime);
-  //     const dbEndHours = new Date(times[i].shiftEndTime);
-  //     // console.log(time);
-  //     const dbStartTime =
-  //       dbStartHours.getHours() +
-  //       ':' +
-  //       dbStartHours.getMinutes() +
-  //       ':' +
-  //       dbStartHours.getSeconds();
-
-  //     const dbEndTime =
-  //       dbEndHours.getHours() +
-  //       ':' +
-  //       dbEndHours.getMinutes() +
-  //       ':' +
-  //       dbEndHours.getSeconds();
-  //     console.log(dbStartTime);
-  //     console.log(dbEndTime);
-  //     if (shiftStartTime >= dbStartTime && shiftEndTime <= dbEndTime) {
-  //       console.log(times[i]);
-  //       arr.push(times._id[i]);
-  //     }
-  //   }
-
-  //   const doctors = await Staff.find({
-  //     'experience.experience': year,
-  //     availability: availability,
-  //     $and: [
-  //       { shiftStartTime: { $gte: shiftStartTime } },
-  //       { shiftEndTime: { $lte: shiftEndTime } },
-  //     ],
-  //     specialty: specialty,
-  //     chiefComplaint: chiefComplaint,
-  //   });
-  //   res.status(200).json({
-  //     success: true,
-  //     data: doctors,
-  //   });
-});
+for (let i = 0; i < times.length; i++) {
+  if(
+    (startHoursISO>=times[i].shiftStartTime.toISOString().split('T')[1])&&(endHoursISO<=times[i].shiftEndTime.toISOString().split('T')[1])
+  )
+{
+  arr.push(times[i]._id)
+}
+}
+  res.json({arr})
+})
 
 exports.assignCC = asyncHandler(async (req, res, next) => {
   console.log(req.body);
