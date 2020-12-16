@@ -5,6 +5,7 @@ const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const Staff = require('../models/staffFhir/staff');
 const PA = require('../models/productionArea');
+const chiefComplaint = require('../models/chiefComplaint/chiefComplaint');
 
 exports.addChiefComplaint = asyncHandler(async (req, res, next) => {
   console.log(req.body);
@@ -254,30 +255,37 @@ exports.getDoctorsWithCC = asyncHandler(async (req, res, next) => {
 
 exports.filterChiefCompaints = asyncHandler(async (req, res, next) => {
   let arr = [];
-  const {
-    startTime,
-    endTime
-  } = req.body;
-const startHours = new Date(startTime);
-const endHours = new Date(endTime);
-startHours.setSeconds(0, 0);
-endHours.setSeconds(0, 0);
-const startHoursISO = startHours.toISOString().split('T')[1];
-const endHoursISO = endHours.toISOString().split('T')[1];
-const times = await Staff.find({ staffType: 'Doctor' }).select({
+  const { startTime, endTime } = req.body;
+  const startHours = new Date(startTime);
+  const endHours = new Date(endTime);
+  startHours.setSeconds(0, 0);
+  endHours.setSeconds(0, 0);
+  const startHoursISO = startHours.toISOString().split('T')[1];
+  const endHoursISO = endHours.toISOString().split('T')[1];
+  const times = await Staff.find({ staffType: 'Doctor' }).select({
     shiftStartTime: 1,
     shiftEndTime: 1,
   });
-for (let i = 0; i < times.length; i++) {
-  if(
-    (startHoursISO>=times[i].shiftStartTime.toISOString().split('T')[1])&&(endHoursISO<=times[i].shiftEndTime.toISOString().split('T')[1])
-  )
-{
-  arr.push(times[i]._id)
-}
-}
-  res.json({arr})
-})
+  for (let i = 0; i < times.length; i++) {
+    console.log(
+      startHoursISO,
+      times[i].shiftStartTime.toISOString().split('T')[1],
+      'start'
+    );
+    console.log(
+      endHoursISO,
+      times[i].shiftEndTime.toISOString().split('T')[1],
+      'end'
+    );
+    if (
+      startHoursISO >= times[i].shiftStartTime.toISOString().split('T')[1] &&
+      endHoursISO <= times[i].shiftEndTime.toISOString().split('T')[1]
+    ) {
+      arr.push(times[i]._id);
+    }
+  }
+  res.json({ arr });
+});
 
 exports.assignCC = asyncHandler(async (req, res, next) => {
   console.log(req.body);
@@ -368,7 +376,7 @@ exports.assignProductionArea = asyncHandler(async (req, res, next) => {
 });
 
 exports.getAvailablePA = asyncHandler(async (req, res, next) => {
-  const prodAreas = await PA.find({ availability: true });
+  const prodAreas = await PA.find({ availability: true, disabled: false });
   res.status(200).json({
     success: true,
     data: prodAreas,
@@ -376,20 +384,26 @@ exports.getAvailablePA = asyncHandler(async (req, res, next) => {
 });
 
 exports.getCCandPAByKeyword = asyncHandler(async (req, res, next) => {
+  // console.log(req.body);
   const arr = [];
-  const prodAreas = await PA.find({ chiefComplaint: { $ne: [] } }).populate(
-    'chiefComplaint.chiefComplaintId'
-  );
-  console.log(prodAreas[0].chiefComplaint[0].chiefComplaintId.name);
+  const prodAreas = await PA.find({
+    chiefComplaint: { $ne: [] },
+    disabled: false,
+  }).populate('chiefComplaint.chiefComplaintId');
+  // console.log(prodAreas[0].chiefComplaint.length);
+  console.log(prodAreas);
 
   for (let i = 0; i < prodAreas.length; i++) {
+    // console.log(prodAreas[i].chiefComplaint);
+    const index = prodAreas[i].chiefComplaint.length - 1;
+    console.log(index);
     if (
       (prodAreas[i].paName &&
         prodAreas[i].paName
           .toLowerCase()
           .startsWith(req.params.keyword.toLowerCase())) ||
-      (prodAreas[i].chiefComplaint[0].chiefComplaintId.name &&
-        prodAreas[i].chiefComplaint[0].chiefComplaintId.name
+      (prodAreas[i].chiefComplaint[index].chiefComplaintId.name &&
+        prodAreas[i].chiefComplaint[index].chiefComplaintId.name
           .toLowerCase()
           .startsWith(req.params.keyword.toLowerCase()))
     ) {
