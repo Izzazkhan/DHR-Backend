@@ -25,52 +25,53 @@ exports.registerPatient = asyncHandler(async (req, res) => {
     req.files.back ||
     req.files.insuranceCard
   ) {
-    // if (
-    //   req.files.file.length > 0 ||
-    //   req.files.front.length > 0 ||
-    //   req.files.back.length > 0 ||
-    //   req.files.insuranceCard.length > 0
-    // )
-    // {
-    parsed.photo[0].url = req.files.file[0].path;
-    const newPatient = await patientFHIR.create({
-      identifier: MRN,
-      nationalID: parsed.nationalID,
-      name: parsed.name,
-      gender: parsed.gender,
-      birthDate: parsed.birthDate,
-      age: parsed.age,
-      height: parsed.height,
-      weight: parsed.weight,
-      telecom: parsed.telecom,
-      address: parsed.address,
-      country: parsed.country,
-      city: parsed.city,
-      nationality: parsed.nationality,
-      blood: parsed.blood,
-      photo: parsed.photo,
-      idCardFront: req.files.front[0].path,
-      idCardBack: req.files.back[0].path,
-      otherDetails: parsed.otherDetails,
-      contact: parsed.contact,
-      paymentMethod: parsed.paymentMethod,
-      insuranceNumber: parsed.insuranceNumber,
-      insuranceVendor: parsed.insuranceVendor,
-      coverageTerms: parsed.coverageTerms,
-      coPayment: parsed.coPayment,
-      coveredFamilyMember: parsed.coveredFamilyMember,
-      coverageDetails: parsed.coverageDetails,
-      insuranceDetails: parsed.insuranceDetails,
-      insuranceCard: req.files.insuranceCard[0].path,
-      processTime: parsed.time,
-      // claimed,
-      // status,
-    });
-    res.status(201).json({
-      success: true,
-      data: newPatient,
-    });
-    // }
+    if (
+      req.files.file.length > 0 ||
+      req.files.front.length > 0 ||
+      req.files.back.length > 0 ||
+      req.files.insuranceCard.length > 0
+    ) {
+      console.log(parsed);
+      parsed.photo[0].url = req.files.file[0].path;
+      const newPatient = await patientFHIR.create({
+        identifier: MRN,
+        nationalID: parsed.nationalID,
+        name: parsed.name,
+        gender: parsed.gender,
+        birthDate: parsed.birthDate,
+        age: parsed.age,
+        height: parsed.height,
+        weight: parsed.weight,
+        telecom: parsed.telecom,
+        address: parsed.address,
+        country: parsed.country,
+        city: parsed.city,
+        nationality: parsed.nationality,
+        blood: parsed.blood,
+        photo: parsed.photo,
+        idCardFront: req.files.front[0].path,
+        idCardBack: req.files.back[0].path,
+        otherDetails: parsed.otherDetails,
+        contact: parsed.contact,
+        paymentMethod: parsed.paymentMethod,
+        insuranceNumber: parsed.insuranceNumber,
+        insuranceVendor: parsed.insuranceVendor,
+        coverageTerms: parsed.coverageTerms,
+        coPayment: parsed.coPayment,
+        coveredFamilyMember: parsed.coveredFamilyMember,
+        coverageDetails: parsed.coverageDetails,
+        insuranceDetails: parsed.insuranceDetails,
+        insuranceCard: req.files.insuranceCard[0].path,
+        processTime: parsed.time,
+        registrationStatus: parsed.status,
+        // claimed,
+        // status,
+      });
+      res.status(201).json({
+        success: true,
+        data: newPatient,
+      });
+    }
   } else {
     const newPatient = await patientFHIR.create({
       identifier: MRN,
@@ -98,6 +99,7 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       coverageDetails: parsed.coverageDetails,
       insuranceDetails: parsed.insuranceDetails,
       processTime: parsed.time,
+      registrationStatus: parsed.status,
       // claimed,
       // status,
     });

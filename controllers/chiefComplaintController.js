@@ -5,7 +5,6 @@ const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const Staff = require('../models/staffFhir/staff');
 const PA = require('../models/productionArea');
-const chiefComplaint = require('../models/chiefComplaint/chiefComplaint');
 
 exports.addChiefComplaint = asyncHandler(async (req, res, next) => {
   console.log(req.body);
@@ -279,7 +278,8 @@ exports.filterChiefCompaints = asyncHandler(async (req, res, next) => {
     );
     if (
       startHoursISO >= times[i].shiftStartTime.toISOString().split('T')[1] &&
-      endHoursISO <= times[i].shiftEndTime.toISOString().split('T')[1]
+      endHoursISO <= times[i].shiftEndTime.toISOString().split('T')[1] &&
+      times[i].shiftEndTime.toISOString().split('T')[1] >= startHoursISO
     ) {
       arr.push(times[i]._id);
     }
