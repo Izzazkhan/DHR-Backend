@@ -262,15 +262,41 @@ const startHours = new Date(startTime);
 const endHours = new Date(endTime);
 startHours.setSeconds(0, 0);
 endHours.setSeconds(0, 0);
-const startHoursISO = startHours.toISOString().split('T')[1];
-const endHoursISO = endHours.toISOString().split('T')[1];
+const startUser = startHours.toISOString().split('T')[1];
+const endUser = endHours.toISOString().split('T')[1];
 const times = await Staff.find({ staffType: 'Doctor' }).select({
     shiftStartTime: 1,
     shiftEndTime: 1,
   });
+  // var startDb
+  // var endDb
 for (let i = 0; i < times.length; i++) {
+  startDb =times[i].shiftStartTime.toISOString().split('T')[1] 
+  endDb= times[i].shiftEndTime.toISOString().split('T')[1]
+//   console.log(startUser," startUser ",startDb,"startDB")
+//   console.log(endUser," endUser ",endDb,"endDB")
+// if(startUser>=startDb)
+// {
+//   console.log(startUser,startDb)
+//   console.log("1st",i)
+// }
+// if(startUser<=endDb)
+// {
+//   console.log(startUser,endDb)
+//   console.log("2nd",i)
+// }
+// if(endUser>=startDb){
+//   console.log(endUser,startDb)
+//     console.log("3rd",i)
+// }
+// if(endUser<=endDb)
+// {
+//   console.log(endUser,endDb)
+//   console.log("4th",i)
+// }
+
   if(
-    (startHoursISO>=times[i].shiftStartTime.toISOString().split('T')[1])&&(endHoursISO<=times[i].shiftEndTime.toISOString().split('T')[1])
+    (startUser>=startDb)&&(startUser<=endDb)&&(endUser>=startDb)&&(endUser<=endDb)
   )
 {
   arr.push(times[i]._id)
