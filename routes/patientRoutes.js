@@ -38,7 +38,7 @@ router.get('/getPatient/:patientId', getPatient);
 router.get('/pendingRegistration', getPendingRegistration);
 router.get('/approvedRegistration', getApprovedRegistration);
 router.post('/registerPatient', cpUpload, registerPatient);
-router.get('getAllPatients', getAllPatients);
+router.get('/getAllPatients', getAllPatients);
 router.get('/searchPatient/:keyword', getPatientByKeyword);
 router.get('/approvedPatient/:keyword', getApprovedPatientByKeyword);
 router.put('/updatePatient', cpUpload, updatePatient);

@@ -421,11 +421,13 @@ exports.getAvailablePAwithCC = asyncHandler(async (req, res, next) => {
   const prodAreas = await PA.find({
     chiefComplaint: { $ne: [] },
     disabled: false,
-  }).populate('chiefComplaint.chiefComplaintId').select({
-    paName: 1,
-    chiefComplaintId: 1,
-    updatedAt: 1
-  });
+  })
+    .populate('chiefComplaint.chiefComplaintId')
+    .select({
+      paName: 1,
+      chiefComplaintId: 1,
+      updatedAt: 1,
+    });
   res.status(200).json({
     success: true,
     data: prodAreas,
