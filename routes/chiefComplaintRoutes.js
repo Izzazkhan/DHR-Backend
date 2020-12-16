@@ -24,7 +24,7 @@ router.get('/getChiefComplaintByKeyword/:keyword', getChiefComplaintByKeyword);
 router.put('/disableChiefComplaint/:id', disaleChiefComplaint);
 router.put('/enableChiefComplaint/:id', enableChiefComplaint);
 router.get('/getDoctorsWithCC', getDoctorsWithCC);
-router.get('/filterChiefComplaints', filterChiefCompaints);
+router.post('/filterChiefComplaints', filterChiefCompaints);
 router.put('/assignCC', assignCC);
 router.get('/getCCDoctorByKeyword/:keyword', getCCDoctorByKeyword);
 router.put('/assignCCtoPA', assignProductionArea);
