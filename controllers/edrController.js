@@ -4,6 +4,7 @@ const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 
 exports.generateEDR = asyncHandler(async (req, res, next) => {
+  console.log(req.body);
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
   const diff =
@@ -16,7 +17,7 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
   // Destructuring Data from Body
   const {
     patientId,
-    generatedBy,
+    staffId,
     consultationNote,
     residentNotes,
     pharmacyRequest,
@@ -29,7 +30,7 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
     verified,
     insurerId,
     paymentMethod,
-    claimed,
+    // claimed,
   } = req.body;
 
   // checking for existing ERD
@@ -53,7 +54,7 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
   const newEDR = await EDR.create({
     requestNo: `EDR${day}${requestNoFormat(new Date(), 'yyHHMM')}`,
     patientId,
-    generatedBy,
+    generatedBy: staffId,
     consultationNote,
     residentNotes,
     pharmacyRequest,
