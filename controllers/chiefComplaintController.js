@@ -5,6 +5,7 @@ const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const Staff = require('../models/staffFhir/staff');
 const PA = require('../models/productionArea');
+const chiefComplaint = require('../models/chiefComplaint/chiefComplaint');
 
 exports.addChiefComplaint = asyncHandler(async (req, res, next) => {
   console.log(req.body);
@@ -394,7 +395,7 @@ exports.assignProductionArea = asyncHandler(async (req, res, next) => {
 });
 
 exports.getAvailablePA = asyncHandler(async (req, res, next) => {
-  const prodAreas = await PA.find({ availability: true });
+  const prodAreas = await PA.find({ availability: true, disabled: false });
   res.status(200).json({
     success: true,
     data: prodAreas,
@@ -402,20 +403,26 @@ exports.getAvailablePA = asyncHandler(async (req, res, next) => {
 });
 
 exports.getCCandPAByKeyword = asyncHandler(async (req, res, next) => {
+  // console.log(req.body);
   const arr = [];
-  const prodAreas = await PA.find({ chiefComplaint: { $ne: [] } }).populate(
-    'chiefComplaint.chiefComplaintId'
-  );
-  console.log(prodAreas[0].chiefComplaint[0].chiefComplaintId.name);
+  const prodAreas = await PA.find({
+    chiefComplaint: { $ne: [] },
+    disabled: false,
+  }).populate('chiefComplaint.chiefComplaintId');
+  // console.log(prodAreas[0].chiefComplaint.length);
+  console.log(prodAreas);
 
   for (let i = 0; i < prodAreas.length; i++) {
+    // console.log(prodAreas[i].chiefComplaint);
+    const index = prodAreas[i].chiefComplaint.length - 1;
+    console.log(index);
     if (
       (prodAreas[i].paName &&
         prodAreas[i].paName
           .toLowerCase()
           .startsWith(req.params.keyword.toLowerCase())) ||
-      (prodAreas[i].chiefComplaint[0].chiefComplaintId.name &&
-        prodAreas[i].chiefComplaint[0].chiefComplaintId.name
+      (prodAreas[i].chiefComplaint[index].chiefComplaintId.name &&
+        prodAreas[i].chiefComplaint[index].chiefComplaintId.name
           .toLowerCase()
           .startsWith(req.params.keyword.toLowerCase()))
     ) {
@@ -430,12 +437,14 @@ exports.getCCandPAByKeyword = asyncHandler(async (req, res, next) => {
 });
 
 exports.getAvailablePAwithCC = asyncHandler(async (req, res, next) => {
-  const prodAreas = await PA.find({ chiefComplaint: { $ne: [] } })
-    .populate('chiefComplaint.chiefComplaintId', 'name')
-    .select({
-      paName: 1,
-      chiefComplaintId: 1,
-    });
+  const prodAreas = await PA.find({
+    chiefComplaint: { $ne: [] },
+    disabled: false,
+  }).populate('chiefComplaint.chiefComplaintId').select({
+    paName: 1,
+    chiefComplaintId: 1,
+    updatedAt: 1
+  });
   res.status(200).json({
     success: true,
     data: prodAreas,
