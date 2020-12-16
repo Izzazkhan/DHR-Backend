@@ -433,3 +433,23 @@ exports.getAvailablePAwithCC = asyncHandler(async (req, res, next) => {
     data: prodAreas,
   });
 });
+
+exports.assignCCtoPatient = asyncHandler(async (req, res, next) => {
+  console.log(req.body);
+  const chiefComplaint = {
+    assignedBy: req.body.assignedBy,
+    chiefComplaintId: req.body.chiefComplaintId,
+    assignedTime: Date.now(),
+  };
+  const assignedCC = await Staff.findOneAndUpdate(
+    { _id: req.body.patientId },
+    { $push: { chiefComplaint } },
+    {
+      new: true,
+    }
+  );
+  res.status(200).json({
+    success: true,
+    data: assignedCC,
+  });
+});

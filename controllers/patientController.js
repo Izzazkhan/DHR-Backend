@@ -33,7 +33,7 @@ exports.registerPatient = asyncHandler(async (req, res) => {
     // )
     // {
     // console.log(parsed);
-    parsed.photo[0].url = req.files.file[0].path;
+    // parsed.photo[0].url = req.files.file[0].path;
     const newPatient = await patientFHIR.create({
       identifier: MRN,
       nationalID: parsed.nationalID,
@@ -49,9 +49,9 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       city: parsed.city,
       nationality: parsed.nationality,
       blood: parsed.blood,
-      photo: parsed.photo,
-      idCardFront: req.files.req.files.front[0].path,
-      idCardBack: req.files.back[0].path,
+      // photo: parsed.photo,
+      idCardFront: req.files.front ? req.files.front[0].path : null,
+      idCardBack: req.files.back ? req.files.back[0].path : null,
       otherDetails: parsed.otherDetails,
       contact: parsed.contact,
       paymentMethod: parsed.paymentMethod,
@@ -207,15 +207,19 @@ exports.getAllPatients = asyncHandler(async (req, res) => {
 });
 
 exports.getPendingRegistration = asyncHandler(async (req, res, next) => {
-  const pendingPatients = await patientFHIR.paginate({ status: 'pending' });
+  const pendingPatients = await patientFHIR.paginate({
+    registrationStatus: 'pending',
+  });
   res.status(200).json({
     success: true,
     data: pendingPatients,
   });
 });
 
-exports.getApprovedRegistration = asyncHandler(async (req, res, next) => {
-  const approvedPatients = await patientFHIR.paginate({ status: 'completed' });
+exports.getCompletedRegistration = asyncHandler(async (req, res, next) => {
+  const approvedPatients = await patientFHIR.find({
+    registrationStatus: 'completed',
+  });
   res.status(200).json({
     success: true,
     data: approvedPatients,
