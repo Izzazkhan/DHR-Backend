@@ -352,7 +352,7 @@ exports.assignProductionArea = asyncHandler(async (req, res, next) => {
 });
 
 exports.getAvailablePA = asyncHandler(async (req, res, next) => {
-  const prodAreas = await PA.find({ availability: true });
+  const prodAreas = await PA.find({ availability: true, disabled: false });
   res.status(200).json({
     success: true,
     data: prodAreas,
