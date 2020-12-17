@@ -226,7 +226,7 @@ exports.getPatient = asyncHandler(async (req, res, next) => {
 
 exports.getAllPatients = asyncHandler(async (req, res) => {
   const patients = await patientFHIR.find();
-  console.log(patients);
+  // console.log(patients);
   res.status(200).json({
     success: true,
     data: patients,
@@ -256,7 +256,7 @@ exports.getCompletedRegistration = asyncHandler(async (req, res, next) => {
 exports.getApprovedPatientById = asyncHandler(async (req, res, next) => {
   const patient = await patientFHIR.findOne({
     _id: req.params.patientId,
-    status: 'approved',
+    status: 'completed',
   });
 
   if (!patient) {
@@ -273,11 +273,46 @@ exports.getApprovedPatientByKeyword = asyncHandler(async (req, res, next) => {
   const patient = await patientFHIR
     .aggregate([
       {
-        $match: { status: 'completed' },
+        $match: {
+          registrationStatus: 'completed',
+          $or: [
+            {
+              'name.given': { $regex: req.params.keyword, $options: 'i' },
+            },
+            {
+              'name.family': { $regex: req.params.keyword, $options: 'i' },
+            },
+            {
+              'identifier.value': { $regex: req.params.keyword, $options: 'i' },
+            },
+            { nationalID: { $regex: req.params.keyword, $options: 'i' } },
+            {
+              'telecom.value': {
+                $regex: req.params.keyword,
+                $options: 'i',
+              },
+            },
+          ],
+        },
       },
+    ])
+    .limit(50);
+  // console.log(patient);
+  if (!patient) {
+    return next(new ErrorResponse('No Patient Found With this keyword', 404));
+  }
+  res.status(200).json({
+    success: true,
+    data: patient,
+  });
+});
+
+exports.getPendingPatientByKeyword = asyncHandler(async (req, res, next) => {
+  const patient = await patientFHIR
+    .aggregate([
       {
         $match: {
-          // status: 'approved',
+          registrationStatus: 'pending',
           $or: [
             {
               'name.given': { $regex: req.params.keyword, $options: 'i' },

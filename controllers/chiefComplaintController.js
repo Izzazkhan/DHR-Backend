@@ -363,18 +363,17 @@ exports.getAvailablePAwithCC = asyncHandler(async (req, res, next) => {
 });
 
 exports.assignCCtoPatient = asyncHandler(async (req, res, next) => {
-  console.log(req.file);
-  console.log(req.body.data);
+  const parsed = JSON.parse(req.body.data);
   const chiefComplaint = {
-    assignedBy: req.body.data.assignedBy,
-    chiefComplaintId: req.body.data.chiefComplaint,
+    assignedBy: parsed.assignedBy,
+    chiefComplaintId: parsed.chiefComplaint,
     assignedTime: Date.now(),
-    reason: req.body.data.reason,
-    voiceNotes: req.body.data.file.path,
-    comments: req.body.data.comments,
+    reason: parsed.reason,
+    voiceNotes: req.file ? req.file.path : null,
+    comments: parsed.comments,
   };
   const assignedCC = await EDR.findOneAndUpdate(
-    { _id: req.body.data.patientId },
+    { _id: parsed.patientid },
     { $push: { chiefComplaint } },
     {
       new: true,
