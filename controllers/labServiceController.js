@@ -74,7 +74,7 @@ exports.updateLabService = asyncHandler(async (req, res, next) => {
 });
 
 exports.getAllLabServices = asyncHandler(async (req, res, next) => {
-  const labServices = await Lab.paginate({}, { limit: 100 });
+  const labServices = await Lab.find();
   res.status(200).json({
     success: true,
     data: labServices,
