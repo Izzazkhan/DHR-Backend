@@ -136,82 +136,83 @@ exports.filterChiefCompaints = asyncHandler(async (req, res, next) => {
   //   'experience.experience': '2',
   // });
   // res.json(doctor);
-  const {
-    startTime,
-    endTime,
-    year,
-    specialty,
-    availability,
-    chiefComplaint,
-  } = req.body;
-  if (!startTime || !endTime) {
-    const doctors = await Staff.find({
-      // staffType: 'Doctor',
-      $or: [
-        { 'experience.experience': year },
-        { availability: availability },
-        { specialty: specialty },
-        { 'chiefComplaint.chiefComplaintId': chiefComplaint },
-      ],
-    }).populate('chiefComplaint.chiefComplaintId');
-    res.status(200).json({
-      success: true,
-      count: doctors.length,
-      data: doctors,
-    });
-  } else {
-    const arr = [];
-    const startHours = new Date(startTime);
-    const endHours = new Date(endTime);
-    startHours.setSeconds(0, 0);
-    endHours.setSeconds(0, 0);
-    const startUser = startHours.toISOString().split('T')[1];
-    const endUser = endHours.toISOString().split('T')[1];
-    const times = await Staff.find({ staffType: 'Doctor' }).select({
-      shiftStartTime: 1,
-      shiftEndTime: 1,
-    });
-    let startDb;
-    let endDb;
-    for (let i = 0; i < times.length; i++) {
-      startDb = times[i].shiftStartTime.toISOString().split('T')[1];
-      endDb = times[i].shiftEndTime.toISOString().split('T')[1];
-      // console.log(startUser, ' startUser ', startDb, 'startDB');
-      // console.log(endUser, ' endUser ', endDb, 'endDB');
-      // if (startUser >= startDb) {
-      //   console.log(startUser, startDb);
-      //   console.log('1st', i);
-      // }
-      // if (startUser <= endDb) {
-      //   console.log(startUser, endDb);
-      //   console.log('2nd', i);
-      // }
-      // if (endUser >= startDb) {
-      //   console.log(endUser, startDb);
-      //   console.log('3rd', i);
-      // }
-      // if (endUser <= endDb) {
-      //   console.log(endUser, endDb);
-      //   console.log('4th', i);
-      // }
+  // const {
+  //   startTime,
+  //   endTime,
+  //   year,
+  //   specialty,
+  //   availability,
+  //   chiefComplaint,
+  // } = req.body;
 
-      if (
-        startUser >= startDb &&
-        startUser <= endDb &&
-        endUser >= startDb &&
-        endUser <= endDb
-      ) {
-        arr.push(times[i]._id);
-      }
-    }
-    const doctors = await Staff.find({
-      'experience.experience': year,
-      availability: availability,
-      specialty: specialty,
-      'chiefComplaint.chiefComplaintId': chiefComplaint,
-    }).populate('chiefComplaint.chiefComplaintId');
-    res.status(200).json({ success: true, data: doctors });
-  }
+  // if (!startTime || !endTime) {
+  //   const doctors = await Staff.find({
+  //     // staffType: 'Doctor',
+  //     $or: [
+  //       { 'experience.experience': year },
+  //       { availability: availability },
+  //       { specialty: specialty },
+  //       { 'chiefComplaint.chiefComplaintId': chiefComplaint },
+  //     ],
+  //   }).populate('chiefComplaint.chiefComplaintId');
+  //   res.status(200).json({
+  //     success: true,
+  //     count: doctors.length,
+  //     data: doctors,
+  //   });
+  // } else {
+  //   const arr = [];
+  //   const startHours = new Date(startTime);
+  //   const endHours = new Date(endTime);
+  //   startHours.setSeconds(0, 0);
+  //   endHours.setSeconds(0, 0);
+  //   const startUser = startHours.toISOString().split('T')[1];
+  //   const endUser = endHours.toISOString().split('T')[1];
+  //   const times = await Staff.find({ staffType: 'Doctor' }).select({
+  //     shiftStartTime: 1,
+  //     shiftEndTime: 1,
+  //   });
+  //   let startDb;
+  //   let endDb;
+  //   for (let i = 0; i < times.length; i++) {
+  //     startDb = times[i].shiftStartTime.toISOString().split('T')[1];
+  //     endDb = times[i].shiftEndTime.toISOString().split('T')[1];
+  //     // console.log(startUser, ' startUser ', startDb, 'startDB');
+  //     // console.log(endUser, ' endUser ', endDb, 'endDB');
+  //     // if (startUser >= startDb) {
+  //     //   console.log(startUser, startDb);
+  //     //   console.log('1st', i);
+  //     // }
+  //     // if (startUser <= endDb) {
+  //     //   console.log(startUser, endDb);
+  //     //   console.log('2nd', i);
+  //     // }
+  //     // if (endUser >= startDb) {
+  //     //   console.log(endUser, startDb);
+  //     //   console.log('3rd', i);
+  //     // }
+  //     // if (endUser <= endDb) {
+  //     //   console.log(endUser, endDb);
+  //     //   console.log('4th', i);
+  //     // }
+
+  //     if (
+  //       startUser >= startDb &&
+  //       startUser <= endDb &&
+  //       endUser >= startDb &&
+  //       endUser <= endDb
+  //     ) {
+  //       arr.push(times[i]._id);
+  //     }
+  //   }
+  //   const doctors = await Staff.find({
+  //     'experience.experience': year,
+  //     availability: availability,
+  //     specialty: specialty,
+  //     'chiefComplaint.chiefComplaintId': chiefComplaint,
+  //   }).populate('chiefComplaint.chiefComplaintId');
+  //   res.status(200).json({ success: true, data: doctors });
+  // }
 });
 
 exports.assignCC = asyncHandler(async (req, res, next) => {
@@ -362,20 +363,25 @@ exports.getAvailablePAwithCC = asyncHandler(async (req, res, next) => {
 });
 
 exports.assignCCtoPatient = asyncHandler(async (req, res, next) => {
-  console.log(req.body);
+  console.log(req.file);
+  console.log(req.body.data);
   const chiefComplaint = {
-    assignedBy: req.body.assignedBy,
-    chiefComplaintId: req.body.chiefComplaintId,
+    assignedBy: req.body.data.assignedBy,
+    chiefComplaintId: req.body.data.chiefComplaint,
     assignedTime: Date.now(),
-    reason: req.body.reason,
+    reason: req.body.data.reason,
+    voiceNotes: req.body.data.file.path,
+    comments: req.body.data.comments,
   };
   const assignedCC = await EDR.findOneAndUpdate(
-    { _id: req.body.patientId },
+    { _id: req.body.data.patientId },
     { $push: { chiefComplaint } },
     {
       new: true,
     }
   );
+
+  console.log(assignedCC);
   res.status(200).json({
     success: true,
     data: assignedCC,

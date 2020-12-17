@@ -19,7 +19,8 @@ exports.registerPatient = asyncHandler(async (req, res) => {
     },
   ];
   const parsed = JSON.parse(req.body.data);
-  console.log(parsed.photo);
+  // console.log(parsed.photo);
+  console.log(parsed);
   console.log(req.files.file);
   if (parsed.photo && parsed.photo.length > 0) {
     parsed.photo[0].url = req.files.file[0].path;
@@ -139,52 +140,70 @@ exports.averageRegistrationTAT = asyncHandler(async (req, res, next) => {
 
 exports.updatePatient = asyncHandler(async (req, res, next) => {
   const parsed = JSON.parse(req.body.data);
-
   let patient = await patientFHIR.findById(parsed._id);
   if (!patient) {
     return next(
       new ErrorResponse(`Patient not found with id of ${parsed._id}`, 404)
     );
   }
-  if (parsed.photo && parsed.photo.length > 0) {
-    parsed.photo[0].url = req.files.file[0].path;
-  } else {
-    parsed.photo = null;
-  }
-
-  if (
-    req.files.file ||
-    req.files.front ||
-    req.files.back ||
-    req.files.insuranceCard
-  ) {
-    // if (
-    //   req.files.file.length > 0 ||
-    //   req.files.front.length > 0 ||
-    //   req.files.back.length > 0 ||
-    //   req.files.insuranceCard.length > 0
-    // )
-    // {
-
+  console.log(req.files);
+  if (req.files) {
     patient = await patientFHIR.findOneAndUpdate({ _id: parsed._id }, parsed, {
       new: true,
     });
-    await patientFHIR.findOneAndUpdate(
-      { _id: parsed._id },
-      {
-        $set: {
-          photo: parsed.photo,
-          idCardFront: req.files.front ? req.files.front[0].path : null,
-          idCardBack: req.files.back ? req.files.back[0].path : null,
-          insuranceCard: req.files.insuranceCard
-            ? req.files.insuranceCard[0].path
-            : null,
+    if (req.files.file) {
+      patient = await patientFHIR.findOneAndUpdate(
+        { _id: parsed._id },
+        {
+          $set: {
+            'photo.0.url': req.files.file[0].path,
+          },
         },
-      },
-      { new: true }
-    );
+        {
+          new: true,
+        }
+      );
+    }
+    if (req.files.front) {
+      patient = await patientFHIR.findOneAndUpdate(
+        { _id: parsed._id },
+        {
+          $set: {
+            idCardFront: req.files.front[0].path,
+          },
+        },
+        {
+          new: true,
+        }
+      );
+    }
+    if (req.files.back) {
+      patient = await patientFHIR.findOneAndUpdate(
+        { _id: parsed._id },
+        {
+          $set: {
+            idCardBack: req.files.back[0].path,
+          },
+        },
+        {
+          new: true,
+        }
+      );
+    }
+    if (req.files.insuranceCard) {
+      patient = await patientFHIR.findOneAndUpdate(
+        { _id: parsed._id },
+        {
+          $set: {
+            insuranceCard: req.files.insuranceCard[0].path,
+          },
+        },
+        {
+          new: true,
+        }
+      );
+    }
     res.status(200).json({ success: true, data: patient });
-    // }
   } else {
     patient = await patientFHIR.findOneAndUpdate({ _id: parsed._id }, parsed, {
       new: true,

@@ -37,6 +37,12 @@ const edrSchema = new mongoose.Schema({
         type: Date,
       },
       reason: String,
+      comments: {
+        type: String,
+      },
+      voiceNotes: {
+        type: String,
+      },
     },
   ],
   dcdForm: [
