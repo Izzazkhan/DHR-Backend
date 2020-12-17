@@ -27,7 +27,7 @@ const {
   getPatient,
   getAllPatients,
   getPendingRegistration,
-  getApprovedRegistration,
+  getCompletedRegistration,
   getPatientByKeyword,
   getApprovedPatientByKeyword,
   averageRegistrationTAT,
@@ -36,9 +36,9 @@ const {
 const router = express.Router();
 router.get('/getPatient/:patientId', getPatient);
 router.get('/pendingRegistration', getPendingRegistration);
-router.get('/approvedRegistration', getApprovedRegistration);
+router.get('/completedRegistration', getCompletedRegistration);
 router.post('/registerPatient', cpUpload, registerPatient);
-router.get('getAllPatients', getAllPatients);
+router.get('/getAllPatients', getAllPatients);
 router.get('/searchPatient/:keyword', getPatientByKeyword);
 router.get('/approvedPatient/:keyword', getApprovedPatientByKeyword);
 router.put('/updatePatient', cpUpload, updatePatient);

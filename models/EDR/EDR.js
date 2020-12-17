@@ -10,10 +10,56 @@ const edrSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'careStream',
   },
-  chiefComplaint: {
-    type: mongoose.Schema.ObjectId,
-    ref: 'chiefComplaint',
-  },
+  updateRecord: [
+    {
+      updatedAt: {
+        type: Date,
+      },
+      updatedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      reason: {
+        type: String,
+      },
+    },
+  ],
+  chiefComplaint: [
+    {
+      chiefComplaintId: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'chiefComplaint',
+      },
+      assignedBy: {
+        type: mongoose.Schema.ObjectId,
+      },
+      assignedTime: {
+        type: Date,
+      },
+      reason: String,
+      comments: {
+        type: String,
+      },
+      voiceNotes: {
+        type: String,
+      },
+    },
+  ],
+  dcdForm: [
+    {
+      dcdFormId: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'dcdForm',
+      },
+      assignedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      assignedTime: {
+        type: Date,
+      },
+    },
+  ],
   requestNo: {
     type: String,
   },
