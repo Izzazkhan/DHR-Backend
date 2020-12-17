@@ -87,11 +87,10 @@ exports.getEDRById = asyncHandler(async (req, res, next) => {
 });
 
 exports.getEDRs = asyncHandler(async (req, res, next) => {
-  const Edrs = await EDR.find()
-    .populate('patientId')
-    .populate('pharmacyRequest');
+  const Edrs = await EDR.find().populate('patientId');
   res.status(201).json({
     success: true,
+    count: Edrs.length,
     data: Edrs,
   });
 });

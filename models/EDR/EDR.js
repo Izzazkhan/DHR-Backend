@@ -32,6 +32,7 @@ const edrSchema = new mongoose.Schema({
       },
       assignedBy: {
         type: mongoose.Schema.ObjectId,
+        ref: 'staff',
       },
       assignedTime: {
         type: Date,
@@ -43,6 +44,22 @@ const edrSchema = new mongoose.Schema({
       voiceNotes: {
         type: String,
       },
+    },
+  ],
+  customerCare: [
+    {
+      customerCareId: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      assignedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      assignedTime: {
+        type: Date,
+      },
+      reason: String,
     },
   ],
   dcdForm: [
