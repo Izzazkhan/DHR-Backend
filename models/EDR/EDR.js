@@ -32,6 +32,7 @@ const edrSchema = new mongoose.Schema({
       },
       assignedBy: {
         type: mongoose.Schema.ObjectId,
+        ref: 'staff',
       },
       assignedTime: {
         type: Date,
@@ -45,11 +46,11 @@ const edrSchema = new mongoose.Schema({
       },
     },
   ],
-  dcdForm: [
+  customerCare: [
     {
-      dcdFormId: {
+      customerCareId: {
         type: mongoose.Schema.ObjectId,
-        ref: 'dcdForm',
+        ref: 'staff',
       },
       assignedBy: {
         type: mongoose.Schema.ObjectId,
@@ -58,8 +59,26 @@ const edrSchema = new mongoose.Schema({
       assignedTime: {
         type: Date,
       },
+      reason: String,
     },
   ],
+  dcdFormStatus: {
+    type: String,
+    default: 'pending',
+  },
+  dcdForm: {
+    dcdFormId: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'dcdForm',
+    },
+    assignedBy: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'staff',
+    },
+    assignedTime: {
+      type: Date,
+    },
+  },
   requestNo: {
     type: String,
   },
