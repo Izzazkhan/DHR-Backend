@@ -10,6 +10,258 @@ const edrSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'careStream',
   },
+  dcdForm: [
+    {
+      dcdFormId: {
+        type: String,
+      },
+      versionNo: {
+        type: String,
+      },
+      triageAssessment: [
+        {
+          status: { type: String, default: 'pending' },
+          reason: { type: String },
+          triageRequestNo: {
+            type: String,
+          },
+          wieght: {
+            type: String,
+          },
+          bloodSugarLevel: {
+            type: String,
+          },
+          heartRate: {
+            type: String,
+          },
+          bloodPressureSys: {
+            type: String,
+          },
+          bloodPressureDia: {
+            type: String,
+          },
+          respiratoryRate: {
+            type: String,
+          },
+          temperature: {
+            type: String,
+          },
+          FSBS: {
+            type: String,
+          },
+          painScale: {
+            type: String,
+          },
+          pulseOX: {
+            type: String,
+          },
+          triageLevel: [
+            {
+              type: String,
+            },
+          ],
+          generalAppearance: [
+            {
+              type: String,
+            },
+          ],
+          headNeck: [
+            {
+              type: String,
+            },
+          ],
+          respiratory: [
+            {
+              type: String,
+            },
+          ],
+          cardiac: [
+            {
+              type: String,
+            },
+          ],
+          abdomen: [
+            {
+              type: String,
+            },
+          ],
+          neurological: [
+            {
+              type: String,
+            },
+          ],
+          requester: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
+          },
+          date: {
+            type: Date,
+            default: Date.now,
+          },
+        },
+      ],
+
+      createdAt: {
+        type: Date,
+        default: Date.now,
+      },
+      updatedAt: {
+        type: Date,
+        default: Date.now,
+      },
+      emergencyCourse: [
+        {
+          name: String,
+          text: String,
+          details: {
+            detailText: String,
+          },
+        },
+      ],
+      actionPlan: [
+        {
+          name: String,
+          text: String,
+        },
+      ],
+      investigation: [
+        {
+          name: String,
+          detail: [
+            {
+              image: [{ type: String }],
+              text: [{ type: String }],
+              subTypes: [
+                {
+                  type: String,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      pastHistory: [
+        {
+          name: String,
+          detail: {
+            text: String,
+            subTypes: [
+              {
+                type: String,
+              },
+            ],
+          },
+        },
+      ],
+
+      medicationHistory: {
+        name: String,
+        description: String,
+        image: String,
+      },
+      allergies: {
+        name: String,
+        description: String,
+      },
+      socialHX: [
+        {
+          name: String,
+          detail: {
+            text: String,
+            subTypes: [
+              {
+                type: String,
+              },
+            ],
+          },
+        },
+      ],
+      familyHX: {
+        type: String,
+      },
+      ros: [
+        {
+          name: String,
+          subTypes: [
+            {
+              type: String,
+            },
+          ],
+        },
+      ],
+      patientDetails: {
+        timeSeen: {
+          type: Date,
+          // Date wil come from front End
+        },
+        room: {
+          type: Number,
+        },
+        historian: {
+          type: mongoose.Schema.ObjectId,
+        },
+      },
+
+      historian: {
+        type: String,
+      },
+      chiefComplaint: {
+        type: String,
+      },
+      timing: {
+        condition: {
+          type: String,
+        },
+        time: {
+          type: Date,
+        },
+      },
+      severity: {
+        type: Number,
+        min: 0,
+        max: 10,
+      },
+      modifyingFactors: {
+        type: String,
+      },
+      similarSymptomsPrev: {
+        type: String,
+      },
+      recentlyTreated: {
+        type: String,
+      },
+      physicalExam: [
+        {
+          name: String,
+          detail: [
+            {
+              text: String,
+              image: String,
+              subTypes: [
+                {
+                  type: String,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      updateRecord: [
+        {
+          updatedAt: {
+            type: Date,
+          },
+          updatedBy: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
+          },
+          reason: {
+            type: String,
+          },
+        },
+      ],
+    },
+  ],
   updateRecord: [
     {
       updatedAt: {
@@ -65,19 +317,6 @@ const edrSchema = new mongoose.Schema({
   dcdFormStatus: {
     type: String,
     default: 'pending',
-  },
-  dcdForm: {
-    dcdFormId: {
-      type: mongoose.Schema.ObjectId,
-      ref: 'dcdForm',
-    },
-    assignedBy: {
-      type: mongoose.Schema.ObjectId,
-      ref: 'staff',
-    },
-    assignedTime: {
-      type: Date,
-    },
   },
   requestNo: {
     type: String,

@@ -234,10 +234,11 @@ exports.getAllPatients = asyncHandler(async (req, res) => {
 });
 
 exports.getPendingRegistration = asyncHandler(async (req, res, next) => {
-  const pendingPatients = await patientFHIR.paginate({
+  const pendingPatients = await patientFHIR.find({
     registrationStatus: 'pending',
   });
   res.status(200).json({
+    count: pendingPatients.length,
     success: true,
     data: pendingPatients,
   });
