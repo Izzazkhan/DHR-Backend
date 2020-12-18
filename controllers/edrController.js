@@ -30,11 +30,14 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
     verified,
     insurerId,
     paymentMethod,
+    dcdForm,
     // claimed,
   } = req.body;
 
   // checking for existing ERD
-  const edrCheck = await EDR.find({ patientId: req.body.patientId });
+  const edrCheck = await (
+    await EDR.find({ patientId: req.body.patientId }).populate('patientId')
+  ).populate();
   console.log(edrCheck);
   let count = 0;
   for (let i = 0; i < edrCheck.length; i++) {
@@ -51,28 +54,31 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
       )
     );
   }
-  const newEDR = await EDR.create({
-    requestNo: `EDR${day}${requestNoFormat(new Date(), 'yyHHMM')}`,
-    patientId,
-    generatedBy: staffId,
-    consultationNote,
-    residentNotes,
-    pharmacyRequest,
-    labRequest,
-    chiefComplaint,
-    radiologyRequest,
-    dischargeRequest,
-    status,
-    triageAssessment,
-    verified,
-    insurerId,
-    paymentMethod,
-    claimed: false,
-  });
-  res.status(201).json({
-    success: true,
-    data: newEDR,
-  });
+  // const requestNo = `EDR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
+  // // const versionNo =  requestNo + '-' + ''
+  // const newEDR = await EDR.create({
+  //   requestNo,
+  //   patientId,
+  //   generatedBy: staffId,
+  //   consultationNote,
+  //   residentNotes,
+  //   pharmacyRequest,
+  //   labRequest,
+  //   chiefComplaint,
+  //   radiologyRequest,
+  //   dischargeRequest,
+  //   status,
+  //   triageAssessment,
+  //   verified,
+  //   insurerId,
+  //   paymentMethod,
+  //   dcdForm,
+  //   claimed: false,
+  // });
+  // res.status(201).json({
+  //   success: true,
+  //   data: newEDR,
+  // });
 });
 
 exports.getEDRById = asyncHandler(async (req, res, next) => {
@@ -88,7 +94,7 @@ exports.getEDRById = asyncHandler(async (req, res, next) => {
 
 exports.getEDRs = asyncHandler(async (req, res, next) => {
   const Edrs = await EDR.find()
-    .populate('patientId', 'name identifier gender age phone createdAt')
+    .populate('patientId')
     .populate('chiefComplaint.chiefComplaintId', 'name')
     .select('patientId dcdFormStatus');
   res.status(201).json({
@@ -101,10 +107,7 @@ exports.getEDRs = asyncHandler(async (req, res, next) => {
 exports.getEdrPatientByKeyword = asyncHandler(async (req, res, next) => {
   // console.log(req.body);
   const arr = [];
-  const patients = await EDR.find().populate(
-    'patientId',
-    'name identifier gender age phone createdAt telecom nationalID'
-  );
+  const patients = await EDR.find().populate('patientId');
   // console.log(patients);
   // console.log(patients[0].patientId.nationalID);
 

@@ -37,3 +37,33 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
     data: assignedCC,
   });
 });
+
+exports.searchCustomerCare = asyncHandler(async (req, res, next) => {
+  const customerCare = await Staff.aggregate([
+    {
+      $match: {
+        staffType: 'Customer Care',
+        disabled: false,
+        $or: [
+          {
+            'name.given': { $regex: req.params.keyword, $options: 'i' },
+          },
+          {
+            'name.family': { $regex: req.params.keyword, $options: 'i' },
+          },
+          {
+            'identifier.value': { $regex: req.params.keyword, $options: 'i' },
+          },
+        ],
+      },
+    },
+  ]).limit(50);
+  if (!customerCare) {
+    return next(new ErrorResponse('No Data Found With this keyword', 404));
+  }
+
+  res.status(200).json({
+    success: true,
+    data: customerCare,
+  });
+});
