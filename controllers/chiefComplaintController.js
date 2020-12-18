@@ -230,7 +230,7 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
   };
   const assignedCC = await Staff.findOneAndUpdate(
     { _id: doctor.id },
-    { $push: { chiefComplaint } },
+    { $push: { chiefComplaint }, $set: { availability: false } },
     {
       new: true,
     }

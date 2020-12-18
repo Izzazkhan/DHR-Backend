@@ -87,10 +87,61 @@ exports.getEDRById = asyncHandler(async (req, res, next) => {
 });
 
 exports.getEDRs = asyncHandler(async (req, res, next) => {
-  const Edrs = await EDR.find().populate('patientId');
+  const Edrs = await EDR.find()
+    .populate('patientId', 'name identifier gender age phone createdAt')
+    .populate('chiefComplaint.chiefComplaintId', 'name')
+    .select('patientId dcdFormStatus');
   res.status(201).json({
     success: true,
     count: Edrs.length,
     data: Edrs,
+  });
+});
+
+exports.getEdrPatientByKeyword = asyncHandler(async (req, res, next) => {
+  // console.log(req.body);
+  const arr = [];
+  const patients = await EDR.find().populate(
+    'patientId',
+    'name identifier gender age phone createdAt telecom nationalID'
+  );
+  // console.log(patients);
+  // console.log(patients[0].patientId.nationalID);
+
+  for (let i = 0; i < patients.length; i++) {
+    const fullName =
+      patients[i].patientId.name[0].given[0] +
+      ' ' +
+      patients[i].patientId.name[0].family;
+    if (
+      (patients[i].patientId.name[0].given[0] &&
+        patients[i].patientId.name[0].given[0]
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (patients[i].patientId.name[0].family &&
+        patients[i].patientId.name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (patients[i].patientId.identifier[0].value &&
+        patients[i].patientId.identifier[0].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
+      (patients[i].patientId.telecom[1].value &&
+        patients[i].patientId.telecom[1].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (patients[i].patientId.nationalID &&
+        patients[i].patientId.nationalID
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase()))
+    ) {
+      arr.push(patients[i]);
+    }
+  }
+  // console.log(arr);
+  res.status(200).json({
+    success: true,
+    data: arr,
   });
 });

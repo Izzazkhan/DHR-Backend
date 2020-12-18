@@ -62,21 +62,23 @@ const edrSchema = new mongoose.Schema({
       reason: String,
     },
   ],
-  dcdForm: [
-    {
-      dcdFormId: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'dcdForm',
-      },
-      assignedBy: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'staff',
-      },
-      assignedTime: {
-        type: Date,
-      },
+  dcdFormStatus: {
+    type: String,
+    default: 'pending',
+  },
+  dcdForm: {
+    dcdFormId: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'dcdForm',
     },
-  ],
+    assignedBy: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'staff',
+    },
+    assignedTime: {
+      type: Date,
+    },
+  },
   requestNo: {
     type: String,
   },

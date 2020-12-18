@@ -27,7 +27,7 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
   };
   const assignedCC = await EDR.findOneAndUpdate(
     { _id: req.body.patientId },
-    { $push: { customerCare } },
+    { $push: { customerCare }, $set: { availability: false } },
     {
       new: true,
     }
