@@ -12,9 +12,9 @@ const edrSchema = new mongoose.Schema({
   },
   dcdForm: [
     {
-      dcdFormId: {
-        type: String,
-      },
+      // dcdFormId: {
+      //   type: String,
+      // },
       versionNo: {
         type: String,
       },
@@ -490,14 +490,6 @@ const edrSchema = new mongoose.Schema({
     type: String,
     default: 'pending',
   },
-  triageAssessment: [
-    {
-      requester: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'staff',
-      },
-    },
-  ],
   verified: {
     type: Boolean,
   },
