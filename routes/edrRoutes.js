@@ -7,7 +7,7 @@ const {
 
 const router = express.Router();
 
-router.route('/').post(generateEDR).get(getEDRs);
+router.post('/generateEDR', generateEDR);
 router.route('/:id').get(getEDRById);
 
 module.exports = router;

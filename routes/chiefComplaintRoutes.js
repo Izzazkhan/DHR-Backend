@@ -1,4 +1,21 @@
 const express = require('express');
+const multer = require('multer');
+
+const PATH = './uploads';
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, PATH);
+  },
+  filename: (req, file, cb) => {
+    cb(
+      null,
+      new Date().toISOString().replace(/:/g, '-') + '-' + file.originalname
+    );
+  },
+});
+
+const upload = multer({ storage: storage });
 
 const router = express.Router();
 
@@ -16,6 +33,7 @@ const {
   getCCandPAByKeyword,
   getAvailablePA,
   getAvailablePAwithCC,
+  assignCCtoPatient,
 } = require('../controllers/chiefComplaintController');
 
 router.post('/addChiefComplaint', addChiefComplaint);
@@ -24,12 +42,13 @@ router.get('/getChiefComplaintByKeyword/:keyword', getChiefComplaintByKeyword);
 router.put('/disableChiefComplaint/:id', disaleChiefComplaint);
 router.put('/enableChiefComplaint/:id', enableChiefComplaint);
 router.get('/getDoctorsWithCC', getDoctorsWithCC);
-router.get('/filterChiefComplaints', filterChiefCompaints);
+router.post('/filterChiefComplaints', filterChiefCompaints);
 router.put('/assignCC', assignCC);
 router.get('/getCCDoctorByKeyword/:keyword', getCCDoctorByKeyword);
 router.put('/assignCCtoPA', assignProductionArea);
 router.get('/searchCCandPA/:keyword', getCCandPAByKeyword);
 router.get('/getAvailablePA', getAvailablePA);
-router.get('getAvailablePAwithCC', getAvailablePAwithCC);
+router.get('/getAvailablePAwithCC', getAvailablePAwithCC);
+router.put('/assignCCtoPatient', upload.single('file'), assignCCtoPatient);
 
 module.exports = router;
