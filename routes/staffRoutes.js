@@ -27,7 +27,8 @@ const {
   getNurseSubTypes,
   getDoctorSpecialty,
   getNurseSpecialty,
-  getEDDoctors
+  getEDDoctors,
+  getAllSensei
 } = require('../controllers/staffController');
 
 const router = express.Router();
@@ -41,5 +42,5 @@ router.get('/getDoctorSubTypes', getDoctorSubTypes);
 router.get('/getNurseSubTypes', getNurseSubTypes);
 router.get('/getDoctorSpecialty', getDoctorSpecialty);
 router.get('/getNurseSpecialty', getNurseSpecialty);
-
+router.get('/getAllSensei', getAllSensei);
 module.exports = router;

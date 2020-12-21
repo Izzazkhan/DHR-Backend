@@ -15,10 +15,13 @@ const room = require('./routes/room');
 const productionArea = require('./routes/productionArea');
 const authRouter = require('./routes/authRoutes');
 const staffRouter = require('./routes/staffRoutes');
+const senseiRouter = require('./routes/senseiRoutes');
 const careStreamRouter = require('./routes/careStreamRoutes');
 const labServiceRouter = require('./routes/labServiceRoutes');
 const radServiceRouter = require('./routes/radServiceRoutes');
-const chiefComplaint = require('./routes/chiefComplaintRoutes');
+const chiefComplaintRouter = require('./routes/chiefComplaintRoutes');
+const cutomerCareRouter = require('./routes/customerCareRoutes');
+const dcdFormRouter = require('./routes/dcdFormroutes');
 
 const app = express();
 
@@ -48,7 +51,10 @@ app.use('/api/staff', staffRouter);
 app.use('/api/careStream', careStreamRouter);
 app.use('/api/labService', labServiceRouter);
 app.use('/api/radService', radServiceRouter);
-app.use('/api/chiefComplaint', chiefComplaint);
+app.use('/api/chiefComplaint', chiefComplaintRouter);
+app.use('/api/customerCare', cutomerCareRouter);
+app.use('/api/dcdForm', dcdFormRouter);
+app.use('/api/sensei', senseiRouter)
 app.use(errorHandler);
 
 const DB = process.env.MONGO_URI;

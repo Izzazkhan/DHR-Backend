@@ -8,7 +8,6 @@ const PA = require('../models/productionArea');
 const EDR = require('../models/EDR/EDR');
 
 exports.addChiefComplaint = asyncHandler(async (req, res, next) => {
-  console.log(req.body);
   const { name } = req.body;
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
@@ -61,7 +60,6 @@ exports.getChiefComplaintByKeyword = asyncHandler(async (req, res, next) => {
 });
 
 exports.disaleChiefComplaint = asyncHandler(async (req, res) => {
-  console.log(req.body);
   const chiefComplaint = await ChiefComplaint.findOne({ _id: req.params.id });
   if (chiefComplaint.availability === false) {
     res.status(200).json({
@@ -130,7 +128,6 @@ exports.getDoctorsWithCC = asyncHandler(async (req, res, next) => {
 });
 
 exports.filterChiefCompaints = asyncHandler(async (req, res, next) => {
-  console.log(req.body);
   // const doctor = await Staff.find({
   //   staffType: 'Doctor',
   //   'experience.experience': '2',
@@ -230,7 +227,7 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
   };
   const assignedCC = await Staff.findOneAndUpdate(
     { _id: doctor.id },
-    { $push: { chiefComplaint } },
+    { $push: { chiefComplaint }, $set: { availability: false } },
     {
       new: true,
     }
@@ -363,18 +360,17 @@ exports.getAvailablePAwithCC = asyncHandler(async (req, res, next) => {
 });
 
 exports.assignCCtoPatient = asyncHandler(async (req, res, next) => {
-  console.log(req.file);
-  console.log(req.body.data);
+  const parsed = JSON.parse(req.body.data);
   const chiefComplaint = {
-    assignedBy: req.body.data.assignedBy,
-    chiefComplaintId: req.body.data.chiefComplaint,
+    assignedBy: parsed.assignedBy,
+    chiefComplaintId: parsed.chiefComplaint,
     assignedTime: Date.now(),
-    reason: req.body.data.reason,
-    voiceNotes: req.body.data.file.path,
-    comments: req.body.data.comments,
+    reason: parsed.reason,
+    voiceNotes: req.file ? req.file.path : null,
+    comments: parsed.comments,
   };
   const assignedCC = await EDR.findOneAndUpdate(
-    { _id: req.body.data.patientId },
+    { _id: parsed.patientid },
     { $push: { chiefComplaint } },
     {
       new: true,
@@ -387,3 +383,16 @@ exports.assignCCtoPatient = asyncHandler(async (req, res, next) => {
     data: assignedCC,
   });
 });
+
+exports.getPAsByCCs = asyncHandler(async(req,res)=>{
+  const arr = []
+  const cc = await PA.find({'chiefComplaint.chiefComplaintId':req.params.id})
+  for(let i=0; i<cc.length; i++)
+  {
+    if(cc[i].chiefComplaint[cc[i].chiefComplaint.length-1].chiefComplaintId==req.params.id  )
+    {
+      arr.push(cc[i])
+    }
+  }
+  res.status(200).json({success:true,data:arr})
+})
