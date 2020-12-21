@@ -12,7 +12,6 @@ exports.getAllCustomerCares = asyncHandler(async (req, res, next) => {
 });
 
 exports.assignCC = asyncHandler(async (req, res, next) => {
-  console.log(req.body);
   const customerCareStaff = await Staff.findOne({ _id: req.body.data.staffId });
   if (!customerCareStaff || customerCareStaff.disabled === true) {
     return next(

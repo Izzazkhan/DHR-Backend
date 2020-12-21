@@ -12,49 +12,24 @@ const edrSchema = new mongoose.Schema({
   },
   dcdForm: [
     {
-      // dcdFormId: {
-      //   type: String,
-      // },
       versionNo: {
         type: String,
       },
       triageAssessment: [
         {
+          triageRequestNo: {type: String},
           status: { type: String, default: 'pending' },
           reason: { type: String },
-          // triageRequestNo: {
-          //   type: String,
-          // },
-          wieght: {
-            type: String,
-          },
-          bloodSugarLevel: {
-            type: String,
-          },
-          heartRate: {
-            type: String,
-          },
-          bloodPressureSys: {
-            type: String,
-          },
-          bloodPressureDia: {
-            type: String,
-          },
-          respiratoryRate: {
-            type: String,
-          },
-          temperature: {
-            type: String,
-          },
-          FSBS: {
-            type: String,
-          },
-          painScale: {
-            type: String,
-          },
-          pulseOX: {
-            type: String,
-          },
+          weight: {type: String},
+          bloodSugarLevel: {type: String},
+          heartRate: {type: String},
+          bloodPressureSys: {type: String},
+          bloodPressureDia: {type: String},
+          respiratoryRate: {type: String},
+          temperature: {type: String},
+          FSBS: {type: String},
+          painScale: {type: String},
+          pulseOX: {type: String},
           triageLevel: [
             {
               type: String,
@@ -94,7 +69,7 @@ const edrSchema = new mongoose.Schema({
             type: mongoose.Schema.ObjectId,
             ref: 'staff',
           },
-          tirageTime: {
+          triageTime: {
             type: Date,
           },
         },

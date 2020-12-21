@@ -34,6 +34,7 @@ const {
   getAvailablePA,
   getAvailablePAwithCC,
   assignCCtoPatient,
+  getPAsByCCs
 } = require('../controllers/chiefComplaintController');
 
 router.post('/addChiefComplaint', addChiefComplaint);
@@ -50,5 +51,5 @@ router.get('/searchCCandPA/:keyword', getCCandPAByKeyword);
 router.get('/getAvailablePA', getAvailablePA);
 router.get('/getAvailablePAwithCC', getAvailablePAwithCC);
 router.put('/assignCCtoPatient', upload.single('file'), assignCCtoPatient);
-
+router.get('/getPAsByCCs/:id',getPAsByCCs)
 module.exports = router;

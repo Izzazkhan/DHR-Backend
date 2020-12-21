@@ -165,7 +165,6 @@ const staffSchema = new mongoose.Schema(
 );
 
 staffSchema.pre('save', async function (next) {
-  // console.log('Pre Save');
   if (!this.isModified('password')) {
     next();
   }

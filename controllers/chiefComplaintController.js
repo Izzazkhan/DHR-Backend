@@ -8,7 +8,6 @@ const PA = require('../models/productionArea');
 const EDR = require('../models/EDR/EDR');
 
 exports.addChiefComplaint = asyncHandler(async (req, res, next) => {
-  console.log(req.body);
   const { name } = req.body;
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
@@ -61,7 +60,6 @@ exports.getChiefComplaintByKeyword = asyncHandler(async (req, res, next) => {
 });
 
 exports.disaleChiefComplaint = asyncHandler(async (req, res) => {
-  console.log(req.body);
   const chiefComplaint = await ChiefComplaint.findOne({ _id: req.params.id });
   if (chiefComplaint.availability === false) {
     res.status(200).json({
@@ -130,7 +128,6 @@ exports.getDoctorsWithCC = asyncHandler(async (req, res, next) => {
 });
 
 exports.filterChiefCompaints = asyncHandler(async (req, res, next) => {
-  console.log(req.body);
   // const doctor = await Staff.find({
   //   staffType: 'Doctor',
   //   'experience.experience': '2',
@@ -386,3 +383,16 @@ exports.assignCCtoPatient = asyncHandler(async (req, res, next) => {
     data: assignedCC,
   });
 });
+
+exports.getPAsByCCs = asyncHandler(async(req,res)=>{
+  const arr = []
+  const cc = await PA.find({'chiefComplaint.chiefComplaintId':req.params.id})
+  for(let i=0; i<cc.length; i++)
+  {
+    if(cc[i].chiefComplaint[cc[i].chiefComplaint.length-1].chiefComplaintId==req.params.id  )
+    {
+      arr.push(cc[i])
+    }
+  }
+  res.status(200).json({success:true,data:arr})
+})

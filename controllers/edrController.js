@@ -5,7 +5,6 @@ const ErrorResponse = require('../utils/errorResponse');
 const Patient = require('../models/patient/patient');
 
 exports.generateEDR = asyncHandler(async (req, res, next) => {
-  console.log(req.body);
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
   const diff =
@@ -35,7 +34,6 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
   } = req.body;
 
   const patient = await Patient.findOne({ _id: req.body.patientId });
-  // console.log(patient.identifier[0].value);
 
   // checking for existing ERD
   const edrCheck = await EDR.find({ patientId: req.body.patientId });
@@ -46,8 +44,6 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
       versionNo: patient.identifier[0].value + '-' + requestNo + '-' + '1',
     },
   ];
-  // console.log(versionNo);
-  console.log(edrCheck);
   let count = 0;
   for (let i = 0; i < edrCheck.length; i++) {
     if (edrCheck[i].status === 'pending') {
@@ -112,11 +108,8 @@ exports.getEDRs = asyncHandler(async (req, res, next) => {
 });
 
 exports.getEdrPatientByKeyword = asyncHandler(async (req, res, next) => {
-  // console.log(req.body);
   const arr = [];
   const patients = await EDR.find().populate('patientId');
-  // console.log(patients);
-  // console.log(patients[0].patientId.nationalID);
 
   for (let i = 0; i < patients.length; i++) {
     const fullName =
@@ -149,7 +142,6 @@ exports.getEdrPatientByKeyword = asyncHandler(async (req, res, next) => {
       arr.push(patients[i]);
     }
   }
-  // console.log(arr);
   res.status(200).json({
     success: true,
     data: arr,

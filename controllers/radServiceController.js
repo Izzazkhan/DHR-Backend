@@ -4,7 +4,6 @@ const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 
 exports.addRadService = asyncHandler(async (req, res, next) => {
-  console.log(req.body);
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
   const diff =
@@ -34,7 +33,6 @@ exports.addRadService = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateRadService = asyncHandler(async (req, res, next) => {
-  console.log(req.body);
   const updateRecord = {
     updatedAt: Date.now(),
     updatedBy: req.body.staffId,
@@ -56,7 +54,6 @@ exports.updateRadService = asyncHandler(async (req, res, next) => {
   updatedRad = await Radiology.findByIdAndUpdate(req.body._id, body, {
     new: true,
   });
-  console.log(updatedRad);
   if (!updatedRad) {
     return next(
       new ErrorResponse(
@@ -80,7 +77,6 @@ exports.getAllRadServices = asyncHandler(async (req, res, next) => {
 });
 
 exports.disableRadService = asyncHandler(async (req, res) => {
-  console.log(req.body);
   const rad = await Radiology.findOne({ _id: req.params.id });
   if (rad.avairadility === false) {
     res.status(200).json({

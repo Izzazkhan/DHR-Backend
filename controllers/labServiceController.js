@@ -4,9 +4,6 @@ const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 
 exports.addLabService = asyncHandler(async (req, res, next) => {
-  // console.log(req.body.params);
-  console.log(req.body);
-  // console.log(req.body.data);
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
   const diff =
@@ -36,7 +33,6 @@ exports.addLabService = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateLabService = asyncHandler(async (req, res, next) => {
-  console.log(req.body);
   const updateRecord = {
     updatedAt: Date.now(),
     updatedBy: req.body.staffId,
@@ -58,7 +54,6 @@ exports.updateLabService = asyncHandler(async (req, res, next) => {
   updatedLab = await Lab.findByIdAndUpdate(req.body._id, body, {
     new: true,
   });
-  console.log(updatedLab);
   if (!updatedLab) {
     return next(
       new ErrorResponse(
@@ -82,7 +77,6 @@ exports.getAllLabServices = asyncHandler(async (req, res, next) => {
 });
 
 exports.disableLabService = asyncHandler(async (req, res) => {
-  console.log(req.body);
   const lab = await Lab.findOne({ _id: req.params.id });
   if (lab.availability === false) {
     res
