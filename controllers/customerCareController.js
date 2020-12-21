@@ -13,7 +13,7 @@ exports.getAllCustomerCares = asyncHandler(async (req, res, next) => {
 
 exports.assignCC = asyncHandler(async (req, res, next) => {
   console.log(req.body);
-  const customerCareStaff = await Staff.findOne({ _id: req.body.staffId });
+  const customerCareStaff = await Staff.findOne({ _id: req.body.data.staffId });
   if (!customerCareStaff || customerCareStaff.disabled === true) {
     return next(
       new ErrorResponse(
@@ -28,13 +28,13 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
     { new: true }
   );
   const customerCare = {
-    assignedBy: req.body.assignedBy,
-    customerCareId: req.body.staffId,
+    assignedBy: req.body.data.assignedBy,
+    customerCareId: req.body.data.staffId,
     assignedTime: Date.now(),
-    reason: req.body.reason,
+    reason: req.body.data.reason,
   };
   const assignedCC = await EDR.findOneAndUpdate(
-    { _id: req.body.patientId },
+    { _id: req.body.data.patientId },
     { $push: { customerCare } },
     {
       new: true,

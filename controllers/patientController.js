@@ -15,7 +15,7 @@ exports.registerPatient = asyncHandler(async (req, res) => {
   const day = Math.floor(diff / oneDay);
   const MRN = [
     {
-      value: 'dhr' + day + requestNoFormat(new Date(), 'yyHHMMss'),
+      value: 'KHMC' + day + requestNoFormat(new Date(), 'yyHHMMss'),
     },
   ];
   const parsed = JSON.parse(req.body.data);

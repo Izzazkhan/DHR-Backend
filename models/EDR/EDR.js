@@ -22,9 +22,9 @@ const edrSchema = new mongoose.Schema({
         {
           status: { type: String, default: 'pending' },
           reason: { type: String },
-          triageRequestNo: {
-            type: String,
-          },
+          // triageRequestNo: {
+          //   type: String,
+          // },
           wieght: {
             type: String,
           },
@@ -94,9 +94,8 @@ const edrSchema = new mongoose.Schema({
             type: mongoose.Schema.ObjectId,
             ref: 'staff',
           },
-          date: {
+          tirageTime: {
             type: Date,
-            default: Date.now,
           },
         },
       ],
