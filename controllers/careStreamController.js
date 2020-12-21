@@ -4,7 +4,6 @@ const asyncHandler = require('../middleware/async');
 const CareStream = require('../models/CareStreams/CareStreams');
 
 exports.addCareStream = asyncHandler(async (req, res, next) => {
-  console.log(req.body);
   const {
     name,
     inclusionCriteria,
@@ -58,7 +57,6 @@ exports.getAllCareStreams = asyncHandler(async (req, res, next) => {
 });
 
 exports.disableCareStream = asyncHandler(async (req, res) => {
-  console.log(req.body);
   const careStream = await CareStream.findOne({ _id: req.params.id });
   if (careStream.availability === false) {
     res.status(200).json({
