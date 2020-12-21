@@ -281,6 +281,6 @@ exports.getNurseSpecialty = asyncHandler(async (req, res, next) => {
 });
 
 exports.getAllSensei = asyncHandler(async(req,res)=>{
-  const sensei = await Staff.find({staffType:"Sensei"})
+  const sensei = await Staff.find({staffType:"Sensei"}).populate("addedBy")
   res.status(200).json({success:"true",data:sensei})
 })
