@@ -23,15 +23,18 @@ exports.addTriageAssessment = asyncHandler(async (req, res, next) => {
     patientId: req.body.data.patientId,
     triageTime: Date.now(),
   };
-  const edr = await EDR.findOne({ _id: req.body.data.edrId });
-  const latestForm = edr.dcdForm.length - 1;
-  const edrPatient = await EDR.findOneAndUpdate(
-    { _id: req.body.data.edrId },
-    { $push: { [`dcdForm.${latestForm}.triageAssessment`]: triage } },
-    { new: true }
+  const edr = await EDR.findOne({ _id: req.body.data.edrId }).populate(
+    'dcdForm'
   );
-  res.status(200).json({
-    success: true,
-    data: edrPatient,
-  });
+  console.log('EDR', edr);
+  // const latestForm = edr.dcdForm.length - 1;
+  // const edrPatient = await EDR.findOneAndUpdate(
+  //   { _id: req.body.data.edrId },
+  //   { $push: { [`dcdForm.${latestForm}.triageAssessment`]: triage } },
+  //   { new: true }
+  // );
+  // res.status(200).json({
+  //   success: true,
+  //   data: edrPatient,
+  // });
 });
