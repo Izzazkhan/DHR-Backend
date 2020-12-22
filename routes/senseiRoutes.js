@@ -1,9 +1,9 @@
 const express = require('express');
 // const { protect } = require('../controllers/authController');
 const {
-getPharmacyRequests
+updateStaffShift
 } = require('../controllers/senseiController');
 
 const router = express.Router();
-router.post('/assignShifts',getPharmacyRequests);
+router.put('/assignShifts',updateStaffShift);
 module.exports = router;
