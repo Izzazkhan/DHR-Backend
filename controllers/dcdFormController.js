@@ -35,3 +35,9 @@ exports.addTriageAssessment = asyncHandler(async (req, res, next) => {
     data: edrPatient,
   });
 });
+
+exports.addDcdForm = asyncHandler(async (req, res, next) => {
+  const edrCheck = await EDR.find({ _id: req.body.edrId });
+  console.log(edrCheck[0].dcdForm.length);
+  // if(edrCheck)
+});

@@ -386,7 +386,7 @@ exports.getPAsByCCs = asyncHandler(async (req, res) => {
   const arr = [];
   const cc = await PA.find({
     'chiefComplaint.chiefComplaintId': req.params.id,
-  });
+  }).populate('productionArea.productionAreaId');
   for (let i = 0; i < cc.length; i++) {
     if (
       cc[i].chiefComplaint[cc[i].chiefComplaint.length - 1].chiefComplaintId ==
