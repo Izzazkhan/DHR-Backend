@@ -120,6 +120,8 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
       email: parsed.email,
       password: parsed.password,
       addedBy: parsed.addedBy,
+      shiftStartTime: parsed.shiftStartTime,
+      shiftEndTime: parsed.shiftEndTime,
     });
     res.status(201).json({
       success: true,
@@ -140,6 +142,16 @@ exports.getAllStaff = asyncHandler(async (req, res, next) => {
     limit: 100,
   };
   const staff = await Staff.paginate({}, options);
+  res.status(200).json({
+    success: true,
+    data: staff,
+  });
+});
+
+exports.getEDDoctors = asyncHandler(async (req, res, next) => {
+  const staff = await Staff.find({ staffType: 'Doctor' })
+    .populate('addedBy')
+    .populate('chiefComplaint.chiefComplaintId');
   res.status(200).json({
     success: true,
     data: staff,
@@ -269,6 +281,6 @@ exports.getNurseSpecialty = asyncHandler(async (req, res, next) => {
 });
 
 exports.getAllSensei = asyncHandler(async(req,res)=>{
-  const sensei = await Staff.find({staffType:"Sensei"})
+  const sensei = await Staff.find({staffType:"Sensei"}).populate("addedBy")
   res.status(200).json({success:"true",data:sensei})
 })

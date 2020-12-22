@@ -27,12 +27,14 @@ const {
   getNurseSubTypes,
   getDoctorSpecialty,
   getNurseSpecialty,
+  getEDDoctors,
   getAllSensei
 } = require('../controllers/staffController');
 
 const router = express.Router();
 router.post('/registerStaff', upload.single('file'), registerStaff);
 router.get('/getAllStaff', getAllStaff);
+router.get('/geteddoctors', getEDDoctors);
 router.put('/disableStaff/:id', disableStaff);
 router.put('/enableStaff/:id', enableStaff);
 router.put('/updateStaff', upload.single('file'), updateStaff);
