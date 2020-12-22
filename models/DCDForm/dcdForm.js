@@ -66,42 +66,6 @@ const dcdFormSchema = mongoose.Schema({
       },
     },
   ],
-  actionPlan: [
-    {
-      name: String,
-      text: String,
-    },
-  ],
-  investigation: [
-    {
-      name: String,
-      detail: [
-        {
-          image: [{ type: String }],
-          text: [{ type: String }],
-          subTypes: [
-            {
-              type: String,
-            },
-          ],
-        },
-      ],
-    },
-  ],
-  pastHistory: [
-    {
-      name: String,
-      detail: {
-        text: String,
-        subTypes: [
-          {
-            type: String,
-          },
-        ],
-      },
-    },
-  ],
-
   medicationHistory: {
     name: String,
     description: String,
@@ -111,32 +75,22 @@ const dcdFormSchema = mongoose.Schema({
     name: String,
     description: String,
   },
-  socialHX: [
-    {
-      name: String,
-      detail: {
-        text: String,
-        subTypes: [
-          {
-            type: String,
-          },
-        ],
-      },
-    },
-  ],
-  familyHX: {
-    type: String,
-  },
-  ros: [
-    {
-      name: String,
-      subTypes: [
-        {
-          type: String,
-        },
-      ],
-    },
-  ],
+  // socialHX: [
+  //   {
+  //     name: String,
+  //     detail: {
+  //       text: String,
+  //       subTypes: [
+  //         {
+  //           type: String,
+  //         },
+  //       ],
+  //     },
+  //   },
+  // ],
+  // familyHX: {
+  //   type: String,
+  // },
   timeSeen: {
     type: Date,
     // Date wil come from front End
@@ -172,6 +126,113 @@ const dcdFormSchema = mongoose.Schema({
   recentlyTreated: {
     type: String,
   },
+  investigation: [
+    {
+      name: String, // Rhythm ECG
+      chips: [
+        {
+          name: String, // NSR // Rate
+          image: [{ type: String }], // multiple images
+          detail: String // Rate's Textfield
+        },
+      ],
+      Texts: [ 		//for rows such as CBC, Chemistries, UA
+        {
+          name: String,
+          value: String
+        }
+      ],
+    },
+  ],
+  pastMedicalHistory: [
+    {
+      name: String,	// for e.g. Past History 
+      chips: [
+        {
+          name: String,	// for e.g. Neurological Problems
+          detail: String,	// Neurological Problems Textfield
+          subChips: [		// Neurological Problems SubChips 
+            {
+              name: String,	// e.g. CVA
+              selected: boolean	// to mark it as selected
+            },
+          ],
+          List: [
+            {
+              name: String	// for rows such as 'Medications' & 'Allergies' which has 'See list' Option
+            }
+          ]
+        }
+      ],
+      Texts: [ 		//for rows which have only Text e.g. Family HX
+        {
+          name: String,
+          value: String
+        }
+      ],
+    },
+  ],
+  ROS: [
+    {
+      name: String,		// row names e.g. CONST
+      chips: [
+        {
+          name: String	// Chips of rows
+        }
+      ]
+    }
+  ],
+  actionPlan: [
+    {
+      name: String,		// row name
+      chips: [
+        {
+          name: String,	// chip's name
+          detail: String	// chip's Textfield
+        }
+      ]
+    }
+  ],
+  courseOfVisit: [
+    {
+      name: String,		// row name
+      Texts: [ 		// Textfield for a row
+        {
+          name: String,
+          value: String
+        }
+      ],
+      chips: [
+        {
+          name: String,	// chip's name
+          detail: String	// chip's Textfield
+        }
+      ]
+    }
+  ],
+  patientDetails: [
+    {
+      name: String,		// row name e.g Historian
+      Texts: [ 		// Textfields in place of rows
+        {
+          name: String,
+          value: String
+        }
+      ],
+      DropDowns: [		//	Dropdown in details form
+        {
+          name: String,
+          value: String
+        }
+      ],
+      chips: [
+        {
+          name: String,	// chip's name
+          detail: String	// chip's Textfield
+        }
+      ]
+    }
+  ],
   physicalExam: [
     {
       name: String,
@@ -189,5 +250,4 @@ const dcdFormSchema = mongoose.Schema({
     },
   ],
 });
-
 module.exports = mongoose.model('dcdForm', dcdFormSchema);
