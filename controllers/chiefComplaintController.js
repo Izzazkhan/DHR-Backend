@@ -141,7 +141,6 @@ exports.filterChiefCompaints = asyncHandler(async (req, res, next) => {
   //   availability,
   //   chiefComplaint,
   // } = req.body;
-
   // if (!startTime || !endTime) {
   //   const doctors = await Staff.find({
   //     // staffType: 'Doctor',
@@ -192,7 +191,6 @@ exports.filterChiefCompaints = asyncHandler(async (req, res, next) => {
   //     //   console.log(endUser, endDb);
   //     //   console.log('4th', i);
   //     // }
-
   //     if (
   //       startUser >= startDb &&
   //       startUser <= endDb &&
@@ -384,15 +382,18 @@ exports.assignCCtoPatient = asyncHandler(async (req, res, next) => {
   });
 });
 
-exports.getPAsByCCs = asyncHandler(async(req,res)=>{
-  const arr = []
-  const cc = await PA.find({'chiefComplaint.chiefComplaintId':req.params.id})
-  for(let i=0; i<cc.length; i++)
-  {
-    if(cc[i].chiefComplaint[cc[i].chiefComplaint.length-1].chiefComplaintId==req.params.id  )
-    {
-      arr.push(cc[i])
+exports.getPAsByCCs = asyncHandler(async (req, res) => {
+  const arr = [];
+  const cc = await PA.find({
+    'chiefComplaint.chiefComplaintId': req.params.id,
+  });
+  for (let i = 0; i < cc.length; i++) {
+    if (
+      cc[i].chiefComplaint[cc[i].chiefComplaint.length - 1].chiefComplaintId ==
+      req.params.id
+    ) {
+      arr.push(cc[i]);
     }
   }
-  res.status(200).json({success:true,data:arr})
-})
+  res.status(200).json({ success: true, data: arr });
+});
