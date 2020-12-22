@@ -1,20 +1,36 @@
-const chatroom = require('../models/chatRoom/chatRoom');
 const asyncHandler = require('../middleware/async');
-const ErrorResponse = require('../utils/errorResponse');
+const ChatRoom = require('../models/chatRoom/chatRoom');
 
-exports.getChatRoom = asyncHandler(async (req, res, next) => {
-  const chatRoom = await chatroom.findById(req.params.chatId);
-  res.status(200).json({
-    success: true,
-    data: chatRoom,
-  });
+exports.getChat = asyncHandler(async (req, res) => {
+  const chat = await ChatRoom.findOne({ _id: req.params.id });
+  res.status(200).json({ success: true, data: chat });
 });
 
-exports.createChat = asyncHandler(async (req, res, next) => {
-  const checkChat = await chatroom.findOne({
+exports.createChat = asyncHandler(async (req, res) => {
+  const checkChat = await ChatRoom.findOne({
     participant1: { $in: [req.body.sender, req.body.receiver] },
     participant2: { $in: [req.body.sender, req.body.receiver] },
   });
-  // if (checkChat) {
-  // }
+  if (checkChat) {
+    res.status(200).json({ success: true, data: checkChat });
+  } else {
+    const chat = await ChatRoom.create({
+      participant1: req.body.sender,
+      participant2: req.body.receiver,
+      chat: [],
+    });
+    res.status(200).json({ success: true, data: chat });
+  }
+});
+
+exports.uploadChatFile = asyncHandler(async (req, res) => {
+  const file = req.file;
+  if (file) {
+    res.send(file);
+  }
+});
+
+exports.deleteChat = asyncHandler(async (req, res) => {
+  const chat = await ChatRoom.deleteOne({ _id: req.params.id });
+  res.status(200).json({ success: true, data: {} });
 });

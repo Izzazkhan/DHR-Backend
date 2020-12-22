@@ -66,7 +66,10 @@ exports.updateStaffShift = asyncHandler(async (req, res, next) => {
       }
     );
 
-    // updatedStaff =  await Staff.findOne({_id:staff.id}).populate('')
+    updatedStaff = await Staff.findOne({ _id: staff.id }).populate(
+      'productionArea.productionAreaId'
+    );
+    console.log(updatedStaff);
     res.status(200).json({
       success: true,
       data: updatedStaff,

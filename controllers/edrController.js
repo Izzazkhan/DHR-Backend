@@ -89,6 +89,8 @@ exports.getEDRById = asyncHandler(async (req, res, next) => {
   if (!edr) {
     return next(new ErrorResponse('No Edr found for this patient', 404));
   }
+  // const latestForm = edr.dcdForm.length - 1;
+  console.log(edr);
   res.status(200).json({
     success: true,
     data: edr,
