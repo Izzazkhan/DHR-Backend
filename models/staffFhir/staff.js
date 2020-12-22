@@ -151,11 +151,28 @@ const staffSchema = new mongoose.Schema(
         },
       },
     ],
+    productionArea: [
+      {
+        productionAreaId: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'productionArea',
+        },
+        assignedBy: {
+          type: mongoose.Schema.ObjectId,
+        },
+        assignedTime: {
+          type: Date,
+        },
+      },
+    ],
     shiftStartTime: {
       type: Date,
     },
     shiftEndTime: {
       type: Date,
+    },
+    shift: {
+      type: String,
     },
   },
 

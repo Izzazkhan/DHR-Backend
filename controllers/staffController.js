@@ -216,6 +216,7 @@ exports.updateStaff = asyncHandler(async (req, res, next) => {
       new ErrorResponse(`staff not found with id of ${parsed._id}`, 404)
     );
   }
+
   if (req.file) {
     parsed.photo[0].url = req.file.path;
     staff = await Staff.findOneAndUpdate({ _id: parsed._id }, parsed, {
@@ -280,7 +281,7 @@ exports.getNurseSpecialty = asyncHandler(async (req, res, next) => {
   });
 });
 
-exports.getAllSensei = asyncHandler(async(req,res)=>{
-  const sensei = await Staff.find({staffType:"Sensei"})
-  res.status(200).json({success:"true",data:sensei})
-})
+exports.getAllSensei = asyncHandler(async (req, res) => {
+  const sensei = await Staff.find({ staffType: 'Sensei' }).populate('addedBy');
+  res.status(200).json({ success: 'true', data: sensei });
+});

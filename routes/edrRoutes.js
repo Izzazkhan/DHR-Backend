@@ -9,7 +9,7 @@ const {
 const router = express.Router();
 
 router.post('/generateEDR', generateEDR);
-// router.route('/:id').get(getEDRById);
+router.route('/getSingleEdr/:id').get(getEDRById);
 router.get('/getEDRs', getEDRs);
 router.get('/searchEdrPatient/:keyword', getEdrPatientByKeyword);
 
