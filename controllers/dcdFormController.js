@@ -4,7 +4,7 @@ const ErrorResponse = require('../utils/errorResponse');
 
 exports.addTriageAssessment = asyncHandler(async (req, res, next) => {
   const triage = {
-    triageRequestNo:req.body.data.TAARequestNo,
+    triageRequestNo: req.body.data.TAARequestNo,
     requester: req.body.data.staffId,
     triageLevel: req.body.data.triageLevel,
     generalAppearance: req.body.data.generalAppearance,

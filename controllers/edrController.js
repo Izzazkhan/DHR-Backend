@@ -85,7 +85,10 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
 });
 
 exports.getEDRById = asyncHandler(async (req, res, next) => {
-  const edr = await EDR.findById(req.params.id).populate('patientId');
+  const edr = await EDR.findById(
+    { _id: req.params.id },
+    { dcdForm: { $slice: -1 } }
+  ).populate('patientId ');
   if (!edr) {
     return next(new ErrorResponse('No Edr found for this patient', 404));
   }
