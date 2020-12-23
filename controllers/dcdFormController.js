@@ -73,10 +73,10 @@ exports.addPatinetDetals = asyncHandler(async (req, res, next) => {
   // console.log(latestForm);
   const patientDetails = {
     version: latestDetails + 2,
-    details: req.body.form.details,
-    reason: req.body.form.reason,
-    status: req.body.form.status,
-    updatedBy: req.body.form.staffId,
+    details: req.body.details,
+    // reason: req.body.reason,
+    // status: req.body.status,
+    updatedBy: req.body.staffId,
     date: Date.now(),
   };
   const edrPatient = await EDR.findOneAndUpdate(
