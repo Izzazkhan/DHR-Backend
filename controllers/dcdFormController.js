@@ -1,6 +1,6 @@
 const EDR = require('../models/EDR/EDR');
 const asyncHandler = require('../middleware/async');
-const ErrorResponse = require('../utils/errorResponse');
+// const ErrorResponse = require('../utils/errorResponse');
 
 exports.addTriageAssessment = asyncHandler(async (req, res, next) => {
   const triage = {
@@ -33,5 +33,33 @@ exports.addTriageAssessment = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: edrPatient,
+  });
+});
+
+exports.addDcdForm = asyncHandler(async (req, res, next) => {
+  const edrCheck = await EDR.find({ patientId: req.body.patientId }).populate(
+    'patientId'
+  );
+  const latestEdr = edrCheck.length - 1;
+  const latestDcd = edrCheck[latestEdr].dcdForm.length - 1;
+  const updatedVersion = latestDcd + 2;
+  const dcdFormVersion = [
+    {
+      versionNo:
+        edrCheck[latestEdr].patientId.identifier[0].value +
+        '-' +
+        edrCheck[latestEdr].requestNo +
+        '-' +
+        updatedVersion,
+    },
+  ];
+  const newDcd = await EDR.findOneAndUpdate(
+    { _id: edrCheck[latestEdr].id },
+    { $push: { dcdForm: dcdFormVersion } },
+    { new: true }
+  );
+  res.status(200).json({
+    success: true,
+    data: newDcd,
   });
 });
