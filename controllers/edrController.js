@@ -106,7 +106,7 @@ exports.getEDRs = asyncHandler(async (req, res, next) => {
   const Edrs = await EDR.find()
     .populate('patientId')
     .populate('chiefComplaint.chiefComplaintId', 'name')
-    .select('patientId dcdFormStatus');
+    .select('patientId dcdFormStatus status labRequest radiologyRequest');
   res.status(201).json({
     success: true,
     count: Edrs.length,
