@@ -1,7 +1,7 @@
 const express = require('express');
 // const { protect } = require('../controllers/authController');
 const {
-updateStaffShift
+updateStaffShift,
 } = require('../controllers/senseiController');
 
 const router = express.Router();
