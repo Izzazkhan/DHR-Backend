@@ -22,6 +22,9 @@ const radServiceRouter = require('./routes/radServiceRoutes');
 const chiefComplaintRouter = require('./routes/chiefComplaintRoutes');
 const cutomerCareRouter = require('./routes/customerCareRoutes');
 const dcdFormRouter = require('./routes/dcdFormroutes');
+const ChatModel = require('./models/chatRoom/chatRoom');
+// const webRTCSocket = require('./lib/socket');
+const chatRouter = require('./routes/chatRoutes');
 
 const app = express();
 
@@ -54,7 +57,8 @@ app.use('/api/radService', radServiceRouter);
 app.use('/api/chiefComplaint', chiefComplaintRouter);
 app.use('/api/customerCare', cutomerCareRouter);
 app.use('/api/dcdForm', dcdFormRouter);
-app.use('/api/sensei', senseiRouter)
+app.use('/api/sensei', senseiRouter);
+app.use('/api/chatroom', chatRouter);
 app.use(errorHandler);
 
 const DB = process.env.MONGO_URI;
@@ -67,31 +71,80 @@ mongoose
   })
   .then(() => console.log('DataBase connected Successfully'));
 
+// const PORT = process.env.PORT || 8080;
+// const portChat = 4001;
+
+// const server = app.listen(PORT, () =>
+//   console.log(
+//     `Server is running on PORT: ${PORT} in ${process.env.NODE_ENV} mode`
+//   )
+// );
+
+// const socketServer = http.createServer(app);
+// const io = socketIO(socketServer);
+// io.origins('*:*');
+
+// io.on('connection', (socket) => {
+//   console.log('chat user connected');
+//   socket.on('disconnect', () => {
+//     console.log('chat user disconnected');
+//   });
+// });
+
+// global.globalVariable = { io: io };
+
+// socketServer.listen(portChat, () =>
+//   console.log(`Socket for chat is listening on : ${portChat}`)
+// );
+
 const PORT = process.env.PORT || 8080;
 const portChat = 4001;
+const portWebRtc = 4002;
 
-const server = app.listen(PORT, () =>
-  console.log(
-    `Server is running on PORT: ${PORT} in ${process.env.NODE_ENV} mode`
-  )
+const server = app.listen(
+  PORT,
+  console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
 );
+const serverSocket1 = http.createServer(app);
+const io1 = socketIO(serverSocket1);
 
-const socketServer = http.createServer(app);
-const io = socketIO(socketServer);
-io.origins('*:*');
+const serverSocket2 = http.createServer(app);
 
-io.on('connection', (socket) => {
+io1.origins('*:*');
+io1.on('connection', (socket) => {
   console.log('chat user connected');
   socket.on('disconnect', () => {
     console.log('chat user disconnected');
   });
+  socket.on('chat_sent', function (msg) {
+    ChatModel.findOneAndUpdate(
+      { _id: msg.obj2.chatId },
+      {
+        $push: { chat: msg.obj1 },
+      }
+    ).then((docs) => {
+      io1.emit('chat_receive', { message: msg.obj1 });
+    });
+  });
 });
 
-global.globalVariable = { io: io };
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (err, promise) => {
+  console.log(`Error: ${err.message}`);
+  // Close server & exit process
+  // server.close(() => process.exit(1));
+});
 
-socketServer.listen(portChat, () =>
-  console.log(`Socket for chat is listening on : ${portChat}`)
+global.globalVariable = { io: io1 };
+
+serverSocket1.listen(portChat, () =>
+  console.log(`Socket for chat is listening on port ${portChat}`)
 );
+// serverSocket2.listen(portWebRtc, () => {
+//   webRTCSocket(serverSocket2);
+//   console.log(`Socket for webrtc is listening on port ${portWebRtc}`);
+// });
+
 // Handling unhandled Rejections
 process.on('unhandledRejection', (err) => {
   console.log('Unhandled Rejection, Shutting Down...');

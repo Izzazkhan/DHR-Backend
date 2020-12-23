@@ -53,11 +53,11 @@ exports.searchCustomerCare = asyncHandler(async (req, res, next) => {
         disabled: false,
         $or: [
           {
-            'name.given': { $regex: req.params.keyword, $options: 'i' },
+            name: { $regex: req.params.keyword, $options: 'i' },
           },
-          {
-            'name.family': { $regex: req.params.keyword, $options: 'i' },
-          },
+          // {
+          //   'name.family': { $regex: req.params.keyword, $options: 'i' },
+          // },
           {
             'identifier.value': { $regex: req.params.keyword, $options: 'i' },
           },
