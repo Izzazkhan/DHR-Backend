@@ -134,8 +134,8 @@ exports.getAllStaff = asyncHandler(async (req, res, next) => {
   const options = {
     populate: [
       {
-        path: 'addedBy',
-        select: ['name'],
+        path: 'addedBy productionArea.productionAreaId',
+        // select: ['name'],
       },
     ],
 
