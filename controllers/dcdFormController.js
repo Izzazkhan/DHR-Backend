@@ -37,29 +37,58 @@ exports.addTriageAssessment = asyncHandler(async (req, res, next) => {
 });
 
 exports.addDcdForm = asyncHandler(async (req, res, next) => {
-  const edrCheck = await EDR.find({ patientId: req.body.patientId }).populate(
+  const edrCheck = await EDR.find({ _id: req.body.edrId }).populate(
     'patientId'
   );
-  const latestEdr = edrCheck.length - 1;
-  const latestDcd = edrCheck[latestEdr].dcdForm.length - 1;
+  // const latestEdr = edrCheck.length - 1;
+  const latestDcd = edrCheck[0].dcdForm.length - 1;
   const updatedVersion = latestDcd + 2;
   const dcdFormVersion = [
     {
       versionNo:
-        edrCheck[latestEdr].patientId.identifier[0].value +
+        edrCheck[0].patientId.identifier[0].value +
         '-' +
-        edrCheck[latestEdr].requestNo +
+        edrCheck[0].requestNo +
         '-' +
         updatedVersion,
     },
   ];
   const newDcd = await EDR.findOneAndUpdate(
-    { _id: edrCheck[latestEdr].id },
+    { _id: edrCheck[0].id },
     { $push: { dcdForm: dcdFormVersion } },
     { new: true }
   );
   res.status(200).json({
     success: true,
     data: newDcd,
+  });
+});
+
+exports.addPatinetDetals = asyncHandler(async (req, res, next) => {
+  console.log(req.body);
+
+  const patientDetails = {
+    timeSeen: req.body.timeSeen,
+    historian: req.body.historian,
+    historyLimitedBy: req.body.historyLimitedBy,
+    timing: req.body.timing,
+    severity: req.body.severity,
+    modifyingFactors: req.body.modifyingFactors,
+    similarSymptomsPrev: req.body.similarSymptomsPrev,
+    recentlyTreated: req.body.recentlyTreated,
+  };
+  const edr = await EDR.findOne({ _id: req.body.edrId });
+  const latestForm = edr.dcdForm.length - 1;
+  console.log(latestForm);
+  const edrPatient = await EDR.findOneAndUpdate(
+    { _id: req.body.edrId },
+    {
+      $set: { [`dcdForm.${latestForm}.patientDetails`]: patientDetails },
+    },
+    { new: true }
+  );
+  res.status(200).json({
+    success: true,
+    data: edrPatient,
   });
 });

@@ -163,6 +163,7 @@ const edrSchema = new mongoose.Schema({
           ],
         },
       ],
+
       patientDetails: {
         timeSeen: {
           type: Date,
@@ -171,39 +172,57 @@ const edrSchema = new mongoose.Schema({
         room: {
           type: Number,
         },
+
         historian: {
-          type: mongoose.Schema.ObjectId,
+          // type: mongoose.Schema.ObjectId,
+          type: String,
+        },
+        historyLimitedBy: {
+          type: String,
+        },
+        // chiefComplaint: {
+        //   type: mongoose.Schema.ObjectId,
+        //   ref: 'chiefComplaint',
+        // },
+        timing: {
+          condition: {
+            type: String,
+          },
+          time: {
+            type: Number,
+          },
+        },
+        severity: {
+          type: Number,
+          min: 0,
+          max: 10,
+        },
+        modifyingFactors: {
+          name: {
+            type: String,
+          },
+          text: {
+            type: String,
+          },
+        },
+        similarSymptomsPrev: {
+          name: {
+            type: String,
+          },
+          text: {
+            type: String,
+          },
+        },
+        recentlyTreated: {
+          name: {
+            type: String,
+          },
+          text: {
+            type: String,
+          },
         },
       },
 
-      historian: {
-        type: String,
-      },
-      chiefComplaint: {
-        type: String,
-      },
-      timing: {
-        condition: {
-          type: String,
-        },
-        time: {
-          type: Date,
-        },
-      },
-      severity: {
-        type: Number,
-        min: 0,
-        max: 10,
-      },
-      modifyingFactors: {
-        type: String,
-      },
-      similarSymptomsPrev: {
-        type: String,
-      },
-      recentlyTreated: {
-        type: String,
-      },
       physicalExam: [
         {
           name: String,
