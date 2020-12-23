@@ -65,25 +65,24 @@ exports.addDcdForm = asyncHandler(async (req, res, next) => {
 });
 
 exports.addPatinetDetals = asyncHandler(async (req, res, next) => {
-  console.log(req.body);
-
-  const patientDetails = {
-    timeSeen: req.body.timeSeen,
-    historian: req.body.historian,
-    historyLimitedBy: req.body.historyLimitedBy,
-    timing: req.body.timing,
-    severity: req.body.severity,
-    modifyingFactors: req.body.modifyingFactors,
-    similarSymptomsPrev: req.body.similarSymptomsPrev,
-    recentlyTreated: req.body.recentlyTreated,
-  };
+  // console.log(req.body);
   const edr = await EDR.findOne({ _id: req.body.edrId });
   const latestForm = edr.dcdForm.length - 1;
-  console.log(latestForm);
+  const latestDetails = edr.dcdForm[latestForm].patientDetails.length - 1;
+  // console.log(latestDetails);
+  // console.log(latestForm);
+  const patientDetails = {
+    version: latestDetails + 2,
+    details: req.body.details,
+    // reason: req.body.reason,
+    // status: req.body.status,
+    updatedBy: req.body.staffId,
+    date: Date.now(),
+  };
   const edrPatient = await EDR.findOneAndUpdate(
     { _id: req.body.edrId },
     {
-      $set: { [`dcdForm.${latestForm}.patientDetails`]: patientDetails },
+      $push: { [`dcdForm.${latestForm}.patientDetails`]: patientDetails },
     },
     { new: true }
   );

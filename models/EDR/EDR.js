@@ -81,112 +81,121 @@ const edrSchema = new mongoose.Schema({
             {
               name: String, // NSR // Rate
               image: [{ type: String }], // multiple images
-              detail: String // Rate's Textfield
+              detail: String, // Rate's Textfield
             },
           ],
-          Texts: [ 		//for rows such as CBC, Chemistries, UA
+          Texts: [
+            //for rows such as CBC, Chemistries, UA
             {
               name: String,
-              value: String
-            }
+              value: String,
+            },
           ],
         },
       ],
       pastMedicalHistory: [
         {
-          name: String,	// for e.g. Past History 
+          name: String, // for e.g. Past History
           chips: [
             {
-              name: String,	// for e.g. Neurological Problems
-              detail: String,	// Neurological Problems Textfield
-              subChips: [		// Neurological Problems SubChips 
+              name: String, // for e.g. Neurological Problems
+              detail: String, // Neurological Problems Textfield
+              subChips: [
+                // Neurological Problems SubChips
                 {
-                  name: String,	// e.g. CVA
-                  selected: Boolean	// to mark it as selected
+                  name: String, // e.g. CVA
+                  selected: Boolean, // to mark it as selected
                 },
               ],
               List: [
                 {
-                  name: String	// for rows such as 'Medications' & 'Allergies' which has 'See list' Option
-                }
-              ]
-            }
+                  name: String, // for rows such as 'Medications' & 'Allergies' which has 'See list' Option
+                },
+              ],
+            },
           ],
-          Texts: [ 		//for rows which have only Text e.g. Family HX
+          Texts: [
+            //for rows which have only Text e.g. Family HX
             {
               name: String,
-              value: String
-            }
+              value: String,
+            },
           ],
         },
       ],
       ROS: [
         {
-          name: String,		// row names e.g. CONST
+          name: String, // row names e.g. CONST
           chips: [
             {
-              name: String	// Chips of rows
-            }
-          ]
-        }
+              name: String, // Chips of rows
+            },
+          ],
+        },
       ],
       actionPlan: [
         {
-          name: String,		// row name
+          name: String, // row name
           chips: [
             {
-              name: String,	// chip's name
-              detail: String	// chip's Textfield
-            }
-          ]
-        }
+              name: String, // chip's name
+              detail: String, // chip's Textfield
+            },
+          ],
+        },
       ],
       courseOfVisit: [
         {
-          name: String,		// row name
-          Texts: [ 		// Textfield for a row
+          name: String, // row name
+          Texts: [
+            // Textfield for a row
             {
               name: String,
-              value: String
-            }
+              value: String,
+            },
           ],
           chips: [
             {
-              name: String,	// chip's name
-              detail: String	// chip's Textfield
-            }
-          ]
-        }
+              name: String, // chip's name
+              detail: String, // chip's Textfield
+            },
+          ],
+        },
       ],
       patientDetails: [
         {
-          version: {},
-          status: {},
-          reason: {},
-          date: {},
-          updatedBy: {},
+          version: String,
+          status: String,
+          reason: String,
+          date: Date,
+          updatedBy: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
+          },
           details: [
             {
-              name: String,		// row name e.g Historian
-              Texts: [ 		// Textfields in place of rows
+              name: String, // row name e.g Historian
+              Texts: [
+                // Textfields in place of rows
                 {
                   name: String,
-                  value: String
-                }
+                  value: String,
+                },
               ],
-              DropDowns: [		//	Dropdown in details form
+              DropDowns: [
+                //	Dropdown in details form
                 {
                   name: String,
-                  value: String
-                }
+                  value: String,
+                },
               ],
               chips: [
                 {
-                  name: String,	// chip's name
-                  detail: String	// chip's Textfield
-                }
-              ]
-            }
+                  name: String, // chip's name
+                  detail: String, // chip's Textfield
+                },
+              ],
+            },
           ],
         },
       ],
