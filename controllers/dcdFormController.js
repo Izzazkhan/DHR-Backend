@@ -64,7 +64,7 @@ exports.addDcdForm = asyncHandler(async (req, res, next) => {
   });
 });
 
-exports.addPatinetDetals = asyncHandler(async (req, res, next) => {
+exports.addPatientDetails = asyncHandler(async (req, res, next) => {
   // console.log(req.body);
   const edr = await EDR.findOne({ _id: req.body.edrId });
   const latestForm = edr.dcdForm.length - 1;
