@@ -35,10 +35,6 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
 
   const patient = await Patient.findOne({ _id: req.body.patientId });
 
-  // checking for existing ERD
-  // const edrCheck = await EDR.find({ patientId: req.body.patientId });
-  // console.log(edrCheck.dcdForm.length);
-
   const requestNo = `EDR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
   const dcdFormVersion = [
     {
