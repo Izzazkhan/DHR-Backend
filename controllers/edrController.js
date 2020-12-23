@@ -35,30 +35,27 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
 
   const patient = await Patient.findOne({ _id: req.body.patientId });
 
-  // checking for existing ERD
-  const edrCheck = await EDR.find({ patientId: req.body.patientId });
   const requestNo = `EDR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
-  // const versionNo = patient.identifier[0].value + '-' + requestNo + '-' + '1';
   const dcdFormVersion = [
     {
       versionNo: patient.identifier[0].value + '-' + requestNo + '-' + '1',
     },
   ];
-  let count = 0;
-  for (let i = 0; i < edrCheck.length; i++) {
-    if (edrCheck[i].status === 'pending') {
-      count++;
-    }
-    if (count > 0) break;
-  }
-  if (count > 0) {
-    return next(
-      new ErrorResponse(
-        'An EDR is already created for this patient,please discharge the patient to request new EDR',
-        400
-      )
-    );
-  }
+  // let count = 0;
+  // for (let i = 0; i < edrCheck.length; i++) {
+  //   if (edrCheck[i].status === 'pending') {
+  //     count++;
+  //   }
+  //   if (count > 0) break;
+  // }
+  // if (count > 0) {
+  //   return next(
+  //     new ErrorResponse(
+  //       'An EDR is already created for this patient,please discharge the patient to request new EDR',
+  //       400
+  //     )
+  //   );
+  // }
 
   const newEDR = await EDR.create({
     requestNo,
@@ -92,10 +89,17 @@ exports.getEDRById = asyncHandler(async (req, res, next) => {
   if (!edr) {
     return next(new ErrorResponse('No Edr found for this patient', 404));
   }
+  // const latestForm = edr.dcdForm.length - 1;
+  console.log(edr);
   res.status(200).json({
     success: true,
     data: edr,
   });
+});
+
+exports.getEdrsByPatient = asyncHandler(async (req, res, next) => {
+  const edrs = await EDR.find({ patientId: req.params.id });
+  console.log(edrs.length);
 });
 
 exports.getEDRs = asyncHandler(async (req, res, next) => {
