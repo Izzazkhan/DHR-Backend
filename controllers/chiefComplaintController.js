@@ -1,6 +1,6 @@
 const requestNoFormat = require('dateformat');
 const moment = require('moment');
-const ChiefComplaint = require('../models/chiefComplaint/chiefComplaint');
+// const ChiefComplaint = require('../models/chiefComplaint/chiefComplaint');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const Staff = require('../models/staffFhir/staff');
@@ -19,7 +19,7 @@ exports.addChiefComplaint = asyncHandler(async (req, res, next) => {
   const oneDay = 1000 * 60 * 60 * 24;
   const day = Math.floor(diff / oneDay);
   const chiefComplaintId = 'CC' + day + requestNoFormat(new Date(), 'yyHHMMss');
-  const chiefComplaint = await ChiefComplaint.create({
+  const chiefComplaint = await CC.create({
     name,
     chiefComplaintId,
   });
@@ -31,7 +31,7 @@ exports.addChiefComplaint = asyncHandler(async (req, res, next) => {
 });
 
 exports.getAllchiefComplaints = asyncHandler(async (req, res, next) => {
-  const chiefComplaits = await ChiefComplaint.paginate({}, { limit: 100 });
+  const chiefComplaits = await CC.paginate({}, { limit: 100 });
   res.status(200).json({
     success: true,
     data: chiefComplaits,
@@ -39,7 +39,7 @@ exports.getAllchiefComplaints = asyncHandler(async (req, res, next) => {
 });
 
 exports.getChiefComplaintByKeyword = asyncHandler(async (req, res, next) => {
-  const chiefComplaint = await ChiefComplaint.aggregate([
+  const chiefComplaint = await CC.aggregate([
     {
       $match: {
         $or: [
@@ -61,7 +61,7 @@ exports.getChiefComplaintByKeyword = asyncHandler(async (req, res, next) => {
 });
 
 exports.disaleChiefComplaint = asyncHandler(async (req, res) => {
-  const chiefComplaint = await ChiefComplaint.findOne({ _id: req.params.id });
+  const chiefComplaint = await CC.findOne({ _id: req.params.id });
   if (chiefComplaint.availability === false) {
     res.status(200).json({
       success: false,
@@ -77,7 +77,7 @@ exports.disaleChiefComplaint = asyncHandler(async (req, res) => {
       updatedBy: req.body.staffId,
       reason: req.body.reason,
     };
-    await ChiefComplaint.findOneAndUpdate(
+    await CC.findOneAndUpdate(
       { _id: req.params.id },
       {
         $set: { disabled: true },
@@ -92,14 +92,14 @@ exports.disaleChiefComplaint = asyncHandler(async (req, res) => {
 });
 
 exports.enableChiefComplaint = asyncHandler(async (req, res) => {
-  const chiefComplaint = await ChiefComplaint.findOne({ _id: req.params.id });
+  const chiefComplaint = await CC.findOne({ _id: req.params.id });
   if (chiefComplaint.disabled === true) {
     const updateRecord = {
       updatedAt: Date.now(),
       updatedBy: req.body.staffId,
       reason: req.body.reason,
     };
-    await ChiefComplaint.findOneAndUpdate(
+    await CC.findOneAndUpdate(
       { _id: req.params.id },
       {
         $set: { disabled: false },
@@ -271,11 +271,14 @@ exports.getCCDoctorByKeyword = asyncHandler(async (req, res, next) => {
 
 exports.assignProductionAreaToCC = asyncHandler(async (req, res, next) => {
   // console.log(req.body);
-  const chiefComplaint = await ChiefComplaint.findOne({
+  const chiefComplaint = await CC.findOne({
     _id: req.body.chiefComplaintId,
   });
   // console.log(chiefComplaint);
-  if (chiefComplaint.productionArea && chiefComplaint.productionArea.length > 0) {
+  if (
+    chiefComplaint.productionArea &&
+    chiefComplaint.productionArea.length > 0
+  ) {
     return next(
       new ErrorResponse(
         'Production area has already been assigned to this chief complaint',
@@ -296,7 +299,7 @@ exports.assignProductionAreaToCC = asyncHandler(async (req, res, next) => {
     productionAreaId: req.body.productionAreaId,
     assignedTime: Date.now(),
   };
-  const assignedPA = await ChiefComplaint.findOneAndUpdate(
+  const assignedPA = await CC.findOneAndUpdate(
     { _id: req.body.chiefComplaintId },
     { $push: { productionArea } },
     {
