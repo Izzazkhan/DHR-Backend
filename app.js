@@ -29,6 +29,7 @@ const ChatModel = require('./models/chatRoom/chatRoom');
 // const webRTCSocket = require('./lib/socket');
 const chatRouter = require('./routes/chatRoutes');
 const subscriber = require('./routes/subscriber');
+
 const app = express();
 
 //	Handling Uncaught Exception
