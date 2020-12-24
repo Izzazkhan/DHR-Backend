@@ -99,7 +99,7 @@ exports.assignRoom = asyncHandler(async (req, res, next) => {
 
   const room = {
     roomId: req.body.roomId,
-    bedId: req.body.bedId,
+    // bedId: req.body.bedId,
     edrId: req.body.edrId,
     assignedBy: req.body.staffId,
     assignedTime: Date.now(),
@@ -114,52 +114,57 @@ exports.assignRoom = asyncHandler(async (req, res, next) => {
       new ErrorResponse('Room is disabled,you cannot assign it', 400)
     );
   }
-  const checkBed = await Room.findOne({ 'beds._id': req.body.bedId }).select(
-    'beds'
-  );
-
-  const arr = [];
-  for (let i = 0; i < checkBed.beds.length; i++) {
-    if (req.body.bedId == checkBed.beds[i]._id) {
-      arr.push(i);
-    }
-  }
-  // console.log(checkBed.beds[arr[0]].availability);
-  if (checkBed.beds[arr[0]].availability === false) {
-    return next(new ErrorResponse('Bed is already assigned', 400));
-  }
-  if (checkBed.beds[arr[0]].disabled === true) {
-    return next(new ErrorResponse('Bed is disabled,you cannot assign it', 400));
-  }
   const patient = await EDR.findOneAndUpdate(
     { _id: req.body.edrId },
-    { $push: { room } },
+    { $push: { room }, $set: { availability: false } },
     { new: true }
   );
+  // const checkBed = await Room.findOne({ 'beds._id': req.body.bedId }).select(
+  //   'beds'
+  // );
 
-  await Room.findOneAndUpdate(
-    {
-      'beds._id': req.body.bedId,
-    },
-    { $set: { [`beds.${arr[0]}.availability`]: false } },
-    { new: true }
-  );
-  // // console.log(availBed);
-  const beds = await Room.find({
-    _id: req.body.roomId,
-    'beds.availability': true,
-  });
-  // console.log(beds.length);
+  // const arr = [];
+  // for (let i = 0; i < checkBed.beds.length; i++) {
+  //   if (req.body.bedId == checkBed.beds[i]._id) {
+  //     arr.push(i);
+  //   }
+  // }
+  // // console.log(checkBed.beds[arr[0]].availability);
+  // if (checkBed.beds[arr[0]].availability === false) {
+  //   return next(new ErrorResponse('Bed is already assigned', 400));
+  // }
+  // if (checkBed.beds[arr[0]].disabled === true) {
+  //   return next(new ErrorResponse('Bed is disabled,you cannot assign it', 400));
+  // }
+  // const patient = await EDR.findOneAndUpdate(
+  //   { _id: req.body.edrId },
+  //   { $push: { room } },
+  //   { new: true }
+  // );
 
-  if (beds.length < 1) {
-    await Room.findOneAndUpdate(
-      {
-        _id: req.body.roomId,
-      },
-      { $set: { availability: false } },
-      { new: true }
-    );
-  }
+  // await Room.findOneAndUpdate(
+  //   {
+  //     'beds._id': req.body.bedId,
+  //   },
+  //   { $set: { [`beds.${arr[0]}.availability`]: false } },
+  //   { new: true }
+  // );
+  // // // console.log(availBed);
+  // const beds = await Room.find({
+  //   _id: req.body.roomId,
+  //   'beds.availability': true,
+  // });
+  // // console.log(beds.length);
+
+  // if (beds.length < 1) {
+  //   await Room.findOneAndUpdate(
+  //     {
+  //       _id: req.body.roomId,
+  //     },
+  //     { $set: { availability: false } },
+  //     { new: true }
+  //   );
+  // }
   res.status(200).json({
     success: true,
     data: patient,
