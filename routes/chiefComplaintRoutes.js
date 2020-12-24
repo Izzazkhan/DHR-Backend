@@ -29,12 +29,12 @@ const {
   filterChiefCompaints,
   assignCC,
   getCCDoctorByKeyword,
-  assignProductionArea,
+  assignProductionAreaToCC,
   getCCandPAByKeyword,
   getAvailablePA,
   getAvailablePAwithCC,
   assignCCtoPatient,
-  getPAsByCCs
+  getPAsByCCs,
 } = require('../controllers/chiefComplaintController');
 
 router.post('/addChiefComplaint', addChiefComplaint);
@@ -46,10 +46,10 @@ router.get('/getDoctorsWithCC', getDoctorsWithCC);
 router.post('/filterChiefComplaints', filterChiefCompaints);
 router.put('/assignCC', assignCC);
 router.get('/getCCDoctorByKeyword/:keyword', getCCDoctorByKeyword);
-router.put('/assignCCtoPA', assignProductionArea);
+router.put('/assignPAtoCC', assignProductionAreaToCC);
 router.get('/searchCCandPA/:keyword', getCCandPAByKeyword);
 router.get('/getAvailablePA', getAvailablePA);
 router.get('/getAvailablePAwithCC', getAvailablePAwithCC);
 router.put('/assignCCtoPatient', upload.single('file'), assignCCtoPatient);
-router.get('/getPAsByCCs/:id',getPAsByCCs)
+router.get('/getPAsByCCs/:id', getPAsByCCs);
 module.exports = router;

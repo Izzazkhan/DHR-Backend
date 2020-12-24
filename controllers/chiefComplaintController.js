@@ -268,26 +268,28 @@ exports.getCCDoctorByKeyword = asyncHandler(async (req, res, next) => {
   });
 });
 
-exports.assignProductionArea = asyncHandler(async (req, res, next) => {
-  console.log(req.body);
-  const prodArea = await PA.findOne({ _id: req.body.productionAreaId });
-  console.log(prodArea);
-  if (!prodArea || prodArea.disabled === true) {
+exports.assignProductionAreaToCC = asyncHandler(async (req, res, next) => {
+  // console.log(req.body);
+  const chiefComplaint = await ChiefComplaint.findOne({
+    _id: req.body.chiefComplaintId,
+  });
+  // console.log(chiefComplaint);
+  if (!chiefComplaint || chiefComplaint.disabled === true) {
     return next(
       new ErrorResponse(
-        'Could not assign Chief Complaint to this Production Area',
+        'Could not assign production Area to this Chief Complaint',
         400
       )
     );
   }
-  const chiefComplaint = {
+  const productionArea = {
     assignedBy: req.body.staffId,
-    chiefComplaintId: req.body.chiefComplaintId,
+    productionAreaId: req.body.productionAreaId,
     assignedTime: Date.now(),
   };
-  const assignedPA = await PA.findOneAndUpdate(
-    { _id: prodArea.id },
-    { $push: { chiefComplaint } },
+  const assignedPA = await ChiefComplaint.findOneAndUpdate(
+    { _id: req.body.chiefComplaintId },
+    { $push: { productionArea } },
     {
       new: true,
     }
@@ -389,7 +391,7 @@ exports.getPAsByCCs = asyncHandler(async (req, res) => {
   }).populate('productionArea.productionAreaId');
   for (let i = 0; i < cc.length; i++) {
     if (
-      cc[i].chiefComplaint[cc[i].chiefComplaint.length - 1].chiefComplaintId ==
+      cc[i].chiefComplaint[cc[i].chiefComplaint.length - 1].chiefComplaintId ===
       req.params.id
     ) {
       arr.push(cc[i]);
