@@ -7,5 +7,5 @@ const {
 
 const router = express.Router();
 router.put('/assignShifts', updateStaffShift);
-router.put('/getCCPatients', getCCPatients);
+router.get('/getCCPatients', getCCPatients);
 module.exports = router;
