@@ -40,6 +40,21 @@ const ChiefComplaintSchema = new mongoose.Schema(
         },
       },
     ],
+    productionArea: [
+      {
+        productionAreaId: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'productionArea',
+        },
+        assignedBy: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'staff',
+        },
+        assignedTime: {
+          type: Date,
+        },
+      },
+    ],
   },
   {
     timestamps: true,

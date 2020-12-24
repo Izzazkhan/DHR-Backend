@@ -23,17 +23,20 @@ exports.addTriageAssessment = asyncHandler(async (req, res, next) => {
     patientId: req.body.data.patientId,
     triageTime: Date.now(),
   };
-  const edr = await EDR.findOne({ _id: req.body.data.edrId });
-  const latestForm = edr.dcdForm.length - 1;
-  const edrPatient = await EDR.findOneAndUpdate(
-    { _id: req.body.data.edrId },
-    { $push: { [`dcdForm.${latestForm}.triageAssessment`]: triage } },
-    { new: true }
+  const edr = await EDR.findOne({ _id: req.body.data.edrId }).populate(
+    'dcdForm'
   );
-  res.status(200).json({
-    success: true,
-    data: edrPatient,
-  });
+  console.log('EDR', edr);
+  // const latestForm = edr.dcdForm.length - 1;
+  // const edrPatient = await EDR.findOneAndUpdate(
+  //   { _id: req.body.data.edrId },
+  //   { $push: { [`dcdForm.${latestForm}.triageAssessment`]: triage } },
+  //   { new: true }
+  // );
+  // res.status(200).json({
+  //   success: true,
+  //   data: edrPatient,
+  // });
 });
 
 exports.addDcdForm = asyncHandler(async (req, res, next) => {
@@ -64,7 +67,7 @@ exports.addDcdForm = asyncHandler(async (req, res, next) => {
   });
 });
 
-exports.addPatinetDetals = asyncHandler(async (req, res, next) => {
+exports.addPatientDetails = asyncHandler(async (req, res, next) => {
   // console.log(req.body);
   const edr = await EDR.findOne({ _id: req.body.edrId });
   const latestForm = edr.dcdForm.length - 1;
@@ -83,6 +86,37 @@ exports.addPatinetDetals = asyncHandler(async (req, res, next) => {
     { _id: req.body.edrId },
     {
       $push: { [`dcdForm.${latestForm}.patientDetails`]: patientDetails },
+    },
+    { new: true }
+  );
+  res.status(200).json({
+    success: true,
+    data: edrPatient,
+  });
+});
+
+exports.addPastHistory = asyncHandler(async (req, res, next) => {
+  // console.log(req.body);
+  const edr = await EDR.findOne({ _id: req.body.edrId });
+  const latestForm = edr.dcdForm.length - 1;
+  const latestHistory = edr.dcdForm[latestForm].pastMedicalHistory.length - 1;
+  // console.log(latestDetails);
+  // console.log(latestForm);
+  const pastMedicalHistory = {
+    version: latestHistory + 2,
+    details: req.body.details,
+    // reason: req.body.reason,
+    // status: req.body.status,
+    updatedBy: req.body.staffId,
+    date: Date.now(),
+  };
+  console.log(pastMedicalHistory);
+  const edrPatient = await EDR.findOneAndUpdate(
+    { _id: req.body.edrId },
+    {
+      $push: {
+        [`dcdForm.${latestForm}.pastMedicalHistory`]: pastMedicalHistory,
+      },
     },
     { new: true }
   );

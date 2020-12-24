@@ -6,7 +6,6 @@ const SubscriberSchema = new mongoose.Schema({
      user: {
         type: mongoose.Schema.ObjectId,
         ref: 'staff',
-        required: [true, 'Please select System admin'],
       },
      createDate: {
          type: Date,

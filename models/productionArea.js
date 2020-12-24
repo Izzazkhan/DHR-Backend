@@ -29,20 +29,6 @@ const PASchema = new mongoose.Schema(
         },
       },
     ],
-    chiefComplaint: [
-      {
-        chiefComplaintId: {
-          type: mongoose.Schema.ObjectId,
-          ref: 'chiefComplaint',
-        },
-        assignedBy: {
-          type: mongoose.Schema.ObjectId,
-        },
-        assignedTime: {
-          type: Date,
-        },
-      },
-    ],
   },
   {
     timestamps: true,

@@ -1,6 +1,7 @@
 const Staff = require('../models/staffFhir/staff');
 const asyncHandler = require('../middleware/async');
 const EDR = require('../models/EDR/EDR');
+const PA = require('../models/productionArea');
 // const ErrorResponse = require('../utils/errorResponse');
 
 exports.updateStaffShift = asyncHandler(async (req, res, next) => {
@@ -82,7 +83,28 @@ exports.getCCPatients = asyncHandler(async (req, res, next) => {
   const patients = await EDR.find({
     status: 'pending',
     chiefComplaint: { $ne: [] },
-  }).populate('patientId chiefComplaint.chiefComplaintId');
+  }).populate([
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          populate: [
+            {
+              path: 'rooms.roomId',
+              model: 'room',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+    },
+  ]);
   res.status(200).json({
     success: true,
     data: patients,

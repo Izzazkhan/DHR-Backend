@@ -95,30 +95,42 @@ const edrSchema = new mongoose.Schema({
       ],
       pastMedicalHistory: [
         {
-          name: String, // for e.g. Past History
-          chips: [
+          version: String,
+          status: String,
+          reason: String,
+          date: Date,
+          updatedBy: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
+          },
+          details: [
             {
-              name: String, // for e.g. Neurological Problems
-              detail: String, // Neurological Problems Textfield
-              subChips: [
-                // Neurological Problems SubChips
+              name: String, // for e.g. Past History
+              chips: [
                 {
-                  name: String, // e.g. CVA
-                  selected: Boolean, // to mark it as selected
+                  name: String, // for e.g. Neurological Problems
+                  detail: String, // Neurological Problems Textfield
+                  subChips: [
+                    // Neurological Problems SubChips
+                    {
+                      name: String, // e.g. CVA
+                      selected: Boolean, // to mark it as selected
+                    },
+                  ],
+                  List: [
+                    {
+                      name: String, // for rows such as 'Medications' & 'Allergies' which has 'See list' Option
+                    },
+                  ],
                 },
               ],
-              List: [
+              Texts: [
+                //for rows which have only Text e.g. Family HX
                 {
-                  name: String, // for rows such as 'Medications' & 'Allergies' which has 'See list' Option
+                  name: String,
+                  value: String,
                 },
               ],
-            },
-          ],
-          Texts: [
-            //for rows which have only Text e.g. Family HX
-            {
-              name: String,
-              value: String,
             },
           ],
         },
