@@ -2,23 +2,34 @@ const mongoose = require('mongoose');
 
 const FlagMgntSchema = new mongoose.Schema(
   {
-    patient: {
+    edrId: {
       type: mongoose.Schema.ObjectId,
-      ref: 'patient',
+      ref: 'EDR',
     },
-    staff: {
+    // Other Staff
+    generatedBy: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'staff',
+    },
+    // Sensei
+    generatedTo: {
       type: mongoose.Schema.ObjectId,
       ref: 'staff',
     },
     reason: {
       type: String,
     },
-    date: {
+    createdAt: {
       type: Date,
+      default: Date.now,
+    },
+    updatedAt: {
+      type: Date,
+      default: Date.now,
     },
     status: {
       type: String,
-      enum: ['Progress', 'InProgress', 'Completed'],
+      default: 'Pending',
     },
   },
   {
