@@ -391,7 +391,7 @@ exports.getPAsByCCs = asyncHandler(async (req, res) => {
   }).populate('productionArea.productionAreaId');
   for (let i = 0; i < cc.length; i++) {
     if (
-      cc[i].chiefComplaint[cc[i].chiefComplaint.length - 1].chiefComplaintId ==
+      cc[i].chiefComplaint[cc[i].chiefComplaint.length - 1].chiefComplaintId ===
       req.params.id
     ) {
       arr.push(cc[i]);

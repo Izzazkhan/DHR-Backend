@@ -85,14 +85,14 @@ exports.getCCPatients = asyncHandler(async (req, res, next) => {
     chiefComplaint: { $ne: [] },
   }).populate('patientId chiefComplaint.chiefComplaintId');
   // console.log(patients[0].chiefComplaint[0].chiefComplaintId._id);
-  for (let i = 0; i < patients.length; i++) {
-    const latestCC = patients[i].chiefComplaint.length - 1;
-    // console.log(latestCC);
-  }
-  const prodAreas = await PA.find({
-    'chiefComplaint.chiefComplaintId':
-      patients[i].chiefComplaint[latestCC].chiefComplaintId._id,
-  });
+  // for (let i = 0; i < patients.length; i++) {
+  //   const latestCC = patients[i].chiefComplaint.length - 1;
+  //   // console.log(latestCC);
+  // }
+  // const prodAreas = await PA.find({
+  //   'chiefComplaint.chiefComplaintId':
+  //     patients[i].chiefComplaint[latestCC].chiefComplaintId._id,
+  // });
   // console.log(prodAreas);
   // res.status(200).json({
   //   success: true,
