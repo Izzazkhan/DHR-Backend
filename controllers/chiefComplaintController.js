@@ -320,24 +320,24 @@ exports.getAvailablePA = asyncHandler(async (req, res, next) => {
 exports.getCCandPAByKeyword = asyncHandler(async (req, res, next) => {
   // console.log(req.body);
   const arr = [];
-  const prodAreas = await PA.find({
-    chiefComplaint: { $ne: [] },
+  const prodAreas = await CC.find({
+    productionArea: { $ne: [] },
     disabled: false,
-  }).populate('chiefComplaint.chiefComplaintId');
+  }).populate('productionArea.productionAreaId');
   // console.log(prodAreas[0].chiefComplaint.length);
   console.log(prodAreas);
 
   for (let i = 0; i < prodAreas.length; i++) {
     // console.log(prodAreas[i].chiefComplaint);
-    const index = prodAreas[i].chiefComplaint.length - 1;
+    const index = prodAreas[i].productionArea.length - 1;
     console.log(index);
     if (
-      (prodAreas[i].paName &&
-        prodAreas[i].paName
+      (prodAreas[i].name &&
+        prodAreas[i].name
           .toLowerCase()
           .startsWith(req.params.keyword.toLowerCase())) ||
-      (prodAreas[i].chiefComplaint[index].chiefComplaintId.name &&
-        prodAreas[i].chiefComplaint[index].chiefComplaintId.name
+      (prodAreas[i].productionArea[index].productionAreaId.paName &&
+        prodAreas[i].productionArea[index].productionAreaId.paName
           .toLowerCase()
           .startsWith(req.params.keyword.toLowerCase()))
     ) {
