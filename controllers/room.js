@@ -3,7 +3,6 @@ const Room = require('../models/room');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const EDR = require('../models/EDR/EDR');
-const { check } = require('prettier');
 
 exports.getRooms = asyncHandler(async (req, res) => {
   const getRooms = await Room.find();
