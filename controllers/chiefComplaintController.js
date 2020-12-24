@@ -6,6 +6,7 @@ const ErrorResponse = require('../utils/errorResponse');
 const Staff = require('../models/staffFhir/staff');
 const PA = require('../models/productionArea');
 const EDR = require('../models/EDR/EDR');
+const CC = require('../models/chiefComplaint/chiefComplaint');
 
 exports.addChiefComplaint = asyncHandler(async (req, res, next) => {
   const { name } = req.body;
@@ -343,16 +344,15 @@ exports.getCCandPAByKeyword = asyncHandler(async (req, res, next) => {
 });
 
 exports.getAvailablePAwithCC = asyncHandler(async (req, res, next) => {
-  const prodAreas = await PA.find({
-    chiefComplaint: { $ne: [] },
+  const prodAreas = await CC.find({
+    productionArea: { $ne: [] },
     disabled: false,
-  })
-    .populate('chiefComplaint.chiefComplaintId')
-    .select({
-      paName: 1,
-      chiefComplaintId: 1,
-      updatedAt: 1,
-    });
+  }).populate('productionArea.productionAreaId');
+  // .select({
+  //   paName: 1,
+  //   chiefComplaintId: 1,
+  //   updatedAt: 1,
+  // });
   res.status(200).json({
     success: true,
     data: prodAreas,
