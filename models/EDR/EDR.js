@@ -74,136 +74,143 @@ const edrSchema = new mongoose.Schema({
           },
         },
       ],
-
-      createdAt: {
-        type: Date,
-        default: Date.now,
-      },
-      updatedAt: {
-        type: Date,
-        default: Date.now,
-      },
-      emergencyCourse: [
-        {
-          name: String,
-          text: String,
-          details: {
-            detailText: String,
-          },
-        },
-      ],
-      actionPlan: [
-        {
-          name: String,
-          text: String,
-        },
-      ],
       investigation: [
         {
-          name: String,
-          detail: [
+          name: String, // Rhythm ECG
+          chips: [
             {
-              image: [{ type: String }],
-              text: [{ type: String }],
-              subTypes: [
+              name: String, // NSR // Rate
+              image: [{ type: String }], // multiple images
+              detail: String, // Rate's Textfield
+            },
+          ],
+          Texts: [
+            //for rows such as CBC, Chemistries, UA
+            {
+              name: String,
+              value: String,
+            },
+          ],
+        },
+      ],
+      pastMedicalHistory: [
+        {
+          version: String,
+          status: String,
+          reason: String,
+          date: Date,
+          updatedBy: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
+          },
+          details: [
+            {
+              name: String, // for e.g. Past History
+              chips: [
                 {
-                  type: String,
+                  name: String, // for e.g. Neurological Problems
+                  detail: String, // Neurological Problems Textfield
+                  subChips: [
+                    // Neurological Problems SubChips
+                    {
+                      name: String, // e.g. CVA
+                      selected: Boolean, // to mark it as selected
+                    },
+                  ],
+                  List: [
+                    {
+                      name: String, // for rows such as 'Medications' & 'Allergies' which has 'See list' Option
+                    },
+                  ],
+                },
+              ],
+              Texts: [
+                //for rows which have only Text e.g. Family HX
+                {
+                  name: String,
+                  value: String,
                 },
               ],
             },
           ],
         },
       ],
-      pastHistory: [
+      ROS: [
         {
-          name: String,
-          detail: {
-            text: String,
-            subTypes: [
-              {
-                type: String,
-              },
-            ],
-          },
-        },
-      ],
-
-      medicationHistory: {
-        name: String,
-        description: String,
-        image: String,
-      },
-      allergies: {
-        name: String,
-        description: String,
-      },
-      socialHX: [
-        {
-          name: String,
-          detail: {
-            text: String,
-            subTypes: [
-              {
-                type: String,
-              },
-            ],
-          },
-        },
-      ],
-      familyHX: {
-        type: String,
-      },
-      ros: [
-        {
-          name: String,
-          subTypes: [
+          name: String, // row names e.g. CONST
+          chips: [
             {
-              type: String,
+              name: String, // Chips of rows
             },
           ],
         },
       ],
-      patientDetails: {
-        timeSeen: {
-          type: Date,
-          // Date wil come from front End
+      actionPlan: [
+        {
+          name: String, // row name
+          chips: [
+            {
+              name: String, // chip's name
+              detail: String, // chip's Textfield
+            },
+          ],
         },
-        room: {
-          type: Number,
+      ],
+      courseOfVisit: [
+        {
+          name: String, // row name
+          Texts: [
+            // Textfield for a row
+            {
+              name: String,
+              value: String,
+            },
+          ],
+          chips: [
+            {
+              name: String, // chip's name
+              detail: String, // chip's Textfield
+            },
+          ],
         },
-        historian: {
-          type: mongoose.Schema.ObjectId,
+      ],
+      patientDetails: [
+        {
+          version: String,
+          status: String,
+          reason: String,
+          date: Date,
+          updatedBy: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
+          },
+          details: [
+            {
+              name: String, // row name e.g Historian
+              Texts: [
+                // Textfields in place of rows
+                {
+                  name: String,
+                  value: String,
+                },
+              ],
+              DropDowns: [
+                //	Dropdown in details form
+                {
+                  name: String,
+                  value: String,
+                },
+              ],
+              chips: [
+                {
+                  name: String, // chip's name
+                  detail: String, // chip's Textfield
+                },
+              ],
+            },
+          ],
         },
-      },
-
-      historian: {
-        type: String,
-      },
-      chiefComplaint: {
-        type: String,
-      },
-      timing: {
-        condition: {
-          type: String,
-        },
-        time: {
-          type: Date,
-        },
-      },
-      severity: {
-        type: Number,
-        min: 0,
-        max: 10,
-      },
-      modifyingFactors: {
-        type: String,
-      },
-      similarSymptomsPrev: {
-        type: String,
-      },
-      recentlyTreated: {
-        type: String,
-      },
+      ],
       physicalExam: [
         {
           name: String,
@@ -220,6 +227,14 @@ const edrSchema = new mongoose.Schema({
           ],
         },
       ],
+      createdAt: {
+        type: Date,
+        default: Date.now,
+      },
+      updatedAt: {
+        type: Date,
+        default: Date.now,
+      },
       updateRecord: [
         {
           updatedAt: {
