@@ -82,9 +82,9 @@ exports.getCCPatients = asyncHandler(async (req, res, next) => {
   const patients = await EDR.find({
     status: 'pending',
     chiefComplaint: { $ne: [] },
-  }).populate('patientId chiefComplaint.chiefComplaintId');
+  });
   res.status(200).json({
     success: true,
-    data: patients,
+    data: patients.length,
   });
 });
