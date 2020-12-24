@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const RoomsSchema = new mongoose.Schema(
   {
     roomId: { type: String },
-    roomNo:{type:Number},
+    roomNo: { type: Number },
     noOfBeds: { type: Number },
     beds: [
       {
