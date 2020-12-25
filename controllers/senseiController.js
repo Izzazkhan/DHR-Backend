@@ -102,28 +102,25 @@ exports.getCCPatients = asyncHandler(async (req, res, next) => {
       model: 'patientfhir',
     },
   ]);
-  // console.log(
-  //   patients[0].chiefComplaint[0].chiefComplaintId.productionArea[0]
-  //     .productionAreaId.rooms.length
-  // );
-  // const arr = [];
-  // for (let i = 0; i < patients.length; i++) {
-  //   const latestCC = patients[i].chiefComplaint.length - 1;
-  //   arr.push(
-  //     patients[i].chiefComplaint[latestCC].chiefComplaintId.productionArea[0]
-  //       .productionAreaId.rooms
-  //   );
-  // console.log(rooms[0]);
-  // }
+
+  const arr = [];
+  for (let i = 0; i < patients.length; i++) {
+    const latestCC = patients[i].chiefComplaint.length - 1;
+    const rooms =
+      patients[i].chiefComplaint[latestCC].chiefComplaintId.productionArea[0]
+        .productionAreaId.rooms;
+    for (let j = 0; j < rooms.length; j++) {
+      if (rooms[j].roomId.availability === false) {
+        arr.push(rooms[j].roomId._id);
+      }
+    }
+  }
   // console.log(arr);
-  //  for (let j = 0; j < ; j++) {
-  //     if (rooms.roomId.availability === false) {
-  //       arr.push(patients.rooms[j].roomId._id);
-  //     }
 
   res.status(200).json({
     success: true,
     data: patients,
+    noOfPatients: arr.length,
   });
 });
 
