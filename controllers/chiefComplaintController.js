@@ -60,7 +60,7 @@ exports.getChiefComplaintByKeyword = asyncHandler(async (req, res, next) => {
   });
 });
 
-exports.disaleChiefComplaint = asyncHandler(async (req, res) => {
+exports.disableChiefComplaint = asyncHandler(async (req, res) => {
   const chiefComplaint = await CC.findOne({ _id: req.params.id });
   if (chiefComplaint.availability === false) {
     res.status(200).json({
@@ -126,89 +126,6 @@ exports.getDoctorsWithCC = asyncHandler(async (req, res, next) => {
     success: true,
     data: doctors,
   });
-});
-
-exports.filterChiefCompaints = asyncHandler(async (req, res, next) => {
-  // const doctor = await Staff.find({
-  //   staffType: 'Doctor',
-  //   'experience.experience': '2',
-  // });
-  // res.json(doctor);
-  // const {
-  //   startTime,
-  //   endTime,
-  //   year,
-  //   specialty,
-  //   availability,
-  //   chiefComplaint,
-  // } = req.body;
-  // if (!startTime || !endTime) {
-  //   const doctors = await Staff.find({
-  //     // staffType: 'Doctor',
-  //     $or: [
-  //       { 'experience.experience': year },
-  //       { availability: availability },
-  //       { specialty: specialty },
-  //       { 'chiefComplaint.chiefComplaintId': chiefComplaint },
-  //     ],
-  //   }).populate('chiefComplaint.chiefComplaintId');
-  //   res.status(200).json({
-  //     success: true,
-  //     count: doctors.length,
-  //     data: doctors,
-  //   });
-  // } else {
-  //   const arr = [];
-  //   const startHours = new Date(startTime);
-  //   const endHours = new Date(endTime);
-  //   startHours.setSeconds(0, 0);
-  //   endHours.setSeconds(0, 0);
-  //   const startUser = startHours.toISOString().split('T')[1];
-  //   const endUser = endHours.toISOString().split('T')[1];
-  //   const times = await Staff.find({ staffType: 'Doctor' }).select({
-  //     shiftStartTime: 1,
-  //     shiftEndTime: 1,
-  //   });
-  //   let startDb;
-  //   let endDb;
-  //   for (let i = 0; i < times.length; i++) {
-  //     startDb = times[i].shiftStartTime.toISOString().split('T')[1];
-  //     endDb = times[i].shiftEndTime.toISOString().split('T')[1];
-  //     // console.log(startUser, ' startUser ', startDb, 'startDB');
-  //     // console.log(endUser, ' endUser ', endDb, 'endDB');
-  //     // if (startUser >= startDb) {
-  //     //   console.log(startUser, startDb);
-  //     //   console.log('1st', i);
-  //     // }
-  //     // if (startUser <= endDb) {
-  //     //   console.log(startUser, endDb);
-  //     //   console.log('2nd', i);
-  //     // }
-  //     // if (endUser >= startDb) {
-  //     //   console.log(endUser, startDb);
-  //     //   console.log('3rd', i);
-  //     // }
-  //     // if (endUser <= endDb) {
-  //     //   console.log(endUser, endDb);
-  //     //   console.log('4th', i);
-  //     // }
-  //     if (
-  //       startUser >= startDb &&
-  //       startUser <= endDb &&
-  //       endUser >= startDb &&
-  //       endUser <= endDb
-  //     ) {
-  //       arr.push(times[i]._id);
-  //     }
-  //   }
-  //   const doctors = await Staff.find({
-  //     'experience.experience': year,
-  //     availability: availability,
-  //     specialty: specialty,
-  //     'chiefComplaint.chiefComplaintId': chiefComplaint,
-  //   }).populate('chiefComplaint.chiefComplaintId');
-  //   res.status(200).json({ success: true, data: doctors });
-  // }
 });
 
 exports.assignCC = asyncHandler(async (req, res, next) => {
@@ -396,17 +313,11 @@ exports.assignCCtoPatient = asyncHandler(async (req, res, next) => {
 });
 
 exports.getPAsByCCs = asyncHandler(async (req, res) => {
-  const arr = [];
-  const cc = await PA.find({
-    'chiefComplaint.chiefComplaintId': req.params.id,
-  }).populate('productionArea.productionAreaId');
-  for (let i = 0; i < cc.length; i++) {
-    if (
-      cc[i].chiefComplaint[cc[i].chiefComplaint.length - 1].chiefComplaintId ===
-      req.params.id
-    ) {
-      arr.push(cc[i]);
-    }
-  }
-  res.status(200).json({ success: true, data: arr });
+  const cc = await CC.find({
+    _id: req.params.id,
+  })
+    .populate('productionArea.productionAreaId', 'paName')
+    .select('productionArea.productionAreaId.paName');
+
+  res.status(200).json({ success: true, data: cc });
 });
