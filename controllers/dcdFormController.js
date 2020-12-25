@@ -27,16 +27,16 @@ exports.addTriageAssessment = asyncHandler(async (req, res, next) => {
     'dcdForm'
   );
   console.log('EDR', edr);
-  // const latestForm = edr.dcdForm.length - 1;
-  // const edrPatient = await EDR.findOneAndUpdate(
-  //   { _id: req.body.data.edrId },
-  //   { $push: { [`dcdForm.${latestForm}.triageAssessment`]: triage } },
-  //   { new: true }
-  // );
-  // res.status(200).json({
-  //   success: true,
-  //   data: edrPatient,
-  // });
+  const latestForm = edr.dcdForm.length - 1;
+  const edrPatient = await EDR.findOneAndUpdate(
+    { _id: req.body.data.edrId },
+    { $push: { [`dcdForm.${latestForm}.triageAssessment`]: triage } },
+    { new: true }
+  );
+  res.status(200).json({
+    success: true,
+    data: edrPatient,
+  });
 });
 
 exports.addDcdForm = asyncHandler(async (req, res, next) => {
