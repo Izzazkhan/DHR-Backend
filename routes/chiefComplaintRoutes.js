@@ -23,10 +23,10 @@ const {
   addChiefComplaint,
   getAllchiefComplaints,
   getChiefComplaintByKeyword,
-  disaleChiefComplaint,
+  disableChiefComplaint,
   enableChiefComplaint,
   getDoctorsWithCC,
-  filterChiefCompaints,
+  // filterChiefCompaints,
   assignCC,
   getCCDoctorByKeyword,
   assignProductionAreaToCC,
@@ -40,10 +40,10 @@ const {
 router.post('/addChiefComplaint', addChiefComplaint);
 router.get('/getAllChiefComplaints', getAllchiefComplaints);
 router.get('/getChiefComplaintByKeyword/:keyword', getChiefComplaintByKeyword);
-router.put('/disableChiefComplaint/:id', disaleChiefComplaint);
+router.put('/disableChiefComplaint/:id', disableChiefComplaint);
 router.put('/enableChiefComplaint/:id', enableChiefComplaint);
 router.get('/getDoctorsWithCC', getDoctorsWithCC);
-router.post('/filterChiefComplaints', filterChiefCompaints);
+// router.post('/filterChiefComplaints', filterChiefCompaints);
 router.put('/assignCC', assignCC);
 router.get('/getCCDoctorByKeyword/:keyword', getCCDoctorByKeyword);
 router.put('/assignPAtoCC', assignProductionAreaToCC);
