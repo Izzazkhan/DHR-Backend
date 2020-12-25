@@ -116,9 +116,17 @@ exports.assignRoom = asyncHandler(async (req, res, next) => {
   }
   const patient = await EDR.findOneAndUpdate(
     { _id: req.body.edrId },
-    { $push: { room }, $set: { availability: false } },
+    { $push: { room } },
     { new: true }
   );
+
+  if (patient.length > 0) {
+    await Room.findOneAndUpdate(
+      { _id: req.body.roomId },
+      { $set: { availability: false } },
+      { new: true }
+    );
+  }
   // const checkBed = await Room.findOne({ 'beds._id': req.body.bedId }).select(
   //   'beds'
   // );
