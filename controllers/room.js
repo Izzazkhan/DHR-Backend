@@ -95,7 +95,7 @@ exports.enableRoom = asyncHandler(async (req, res) => {
 });
 
 exports.assignRoom = asyncHandler(async (req, res, next) => {
-  // console.log(req.body);
+  console.log(req.body);
 
   const room = {
     roomId: req.body.roomId,
@@ -120,13 +120,15 @@ exports.assignRoom = asyncHandler(async (req, res, next) => {
     { new: true }
   );
 
-  if (patient && patient.length > 0) {
-    await Room.findOneAndUpdate(
-      { _id: req.body.roomId },
-      { $set: { availability: false } },
-      { new: true }
-    );
+  if (!patient) {
+    return next(new ErrorResponse('patient not found with this id', 400));
   }
+
+  await Room.findOneAndUpdate(
+    { _id: req.body.roomId },
+    { $set: { availability: false } },
+    { new: true }
+  );
   // const checkBed = await Room.findOne({ 'beds._id': req.body.bedId }).select(
   //   'beds'
   // );
