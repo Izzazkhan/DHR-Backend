@@ -103,25 +103,49 @@ exports.getCCPatients = asyncHandler(async (req, res, next) => {
     },
   ]);
 
-  const arr = [];
   for (let i = 0; i < patients.length; i++) {
-    const latestCC = patients[i].chiefComplaint.length - 1;
-    const rooms =
-      patients[i].chiefComplaint[latestCC].chiefComplaintId.productionArea[0]
-        .productionAreaId.rooms;
-    for (let j = 0; j < rooms.length; j++) {
-      if (rooms[j].roomId.availability === false) {
-        arr.push(rooms[j].roomId._id);
+    let count = 1;
+    let x =
+      patients[i].chiefComplaint[patients[i].chiefComplaint.length - 1]
+        .chiefComplaintId._id;
+    for (let j = 0; j < patients.length; j++) {
+      let y =
+        patients[j].chiefComplaint[patients[j].chiefComplaint.length - 1]
+          .chiefComplaintId._id;
+      if (x === y && patients[i]._id !== patients[j]._id) {
+        count++;
       }
     }
+    console.log(count);
   }
+
+  // console.log(patients[0].chiefComplaint.length);
+
+  // const arr = [];
+  // for (let i = 0; i < patients.length; i++) {
+  //   const latestCC = patients[i].chiefComplaint.length - 1;
+  //   const rooms =
+  //     patients[i].chiefComplaint[latestCC].chiefComplaintId.productionArea[0]
+  //       .productionAreaId.rooms;
+  //   for (let j = 0; j < rooms.length; j++) {
+  //     if (rooms[j].roomId.availability === false) {
+  //       arr.push(rooms[j].roomId._id);
+  //     }
+  //   }
+  // }
   // console.log(arr);
 
   res.status(200).json({
     success: true,
     data: patients,
-    noOfPatients: arr.length,
   });
+});
+
+exports.getNoOfPatientsByCC = asyncHandler(async (req, res, next) => {
+  const patients = await EDR.find({
+    'chiefComplaint.chiefComplaintId': req.params.id,
+  });
+  console.log(patients.length);
 });
 
 exports.getPatientsByPA = asyncHandler(async (req, res, next) => {
@@ -158,15 +182,15 @@ exports.patientsByCC = asyncHandler(async (req, res, next) => {
       },
     ])
     .select('name chiefComplaintId');
-  const arr = [];
-  for (let i = 0; i < patients.length; i++) {
-    const rooms = patients[i].productionArea[0].productionAreaId.rooms;
-    for (let j = 0; j < rooms.length; j++) {
-      if (rooms[j].roomId.availability === false) {
-        arr.push(rooms[j].roomId._id);
-      }
-    }
-  }
+  // const arr = [];
+  // for (let i = 0; i < patients.length; i++) {
+  //   const rooms = patients[i].productionArea[0].productionAreaId.rooms;
+  //   for (let j = 0; j < rooms.length; j++) {
+  //     if (rooms[j].roomId.availability === false) {
+  //       arr.push(rooms[j].roomId._id);
+  //     }
+  //   }
+  // }
   // console.log(arr);
   // patients = arr.length;
   res.status(200).json({
