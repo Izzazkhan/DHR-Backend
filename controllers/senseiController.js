@@ -2,6 +2,7 @@ const Staff = require('../models/staffFhir/staff');
 const asyncHandler = require('../middleware/async');
 const EDR = require('../models/EDR/EDR');
 const PA = require('../models/productionArea');
+const CC = require('../models/chiefComplaint/chiefComplaint');
 // const ErrorResponse = require('../utils/errorResponse');
 
 exports.updateStaffShift = asyncHandler(async (req, res, next) => {
@@ -13,14 +14,14 @@ exports.updateStaffShift = asyncHandler(async (req, res, next) => {
   } else if (staff.disabled === true) {
     res.status(200).json({ success: false, data: 'Staff disabled' });
   } else {
-    console.log(req.body);
+    // console.log(req.body);
     const chiefComplaint = {
       assignedBy: req.body.assignedBy,
       chiefComplaintId: req.body.chiefComplaint,
       assignedTime: Date.now(),
     };
-    let updatedStaff;
-    updatedStaff = await Staff.findOneAndUpdate(
+
+    const updatedStaff = await Staff.findOneAndUpdate(
       { _id: staff.id },
       { $push: { chiefComplaint } },
       {
@@ -32,14 +33,14 @@ exports.updateStaffShift = asyncHandler(async (req, res, next) => {
       productionAreaId: req.body.productionAreaName,
       assignedTime: Date.now(),
     };
-    updatedStaff = await Staff.findOneAndUpdate(
+    await Staff.findOneAndUpdate(
       { _id: staff.id },
       { $push: { productionArea } },
       {
         new: true,
       }
     );
-    updatedStaff = await Staff.findOneAndUpdate(
+    await Staff.findOneAndUpdate(
       { _id: staff.id },
       {
         $set: {
@@ -58,7 +59,7 @@ exports.updateStaffShift = asyncHandler(async (req, res, next) => {
       reason: req.body.reason,
     };
 
-    updatedStaff = await Staff.findOneAndUpdate(
+    await Staff.findOneAndUpdate(
       { _id: staff.id },
       {
         $push: { updateRecord },
@@ -68,10 +69,6 @@ exports.updateStaffShift = asyncHandler(async (req, res, next) => {
       }
     );
 
-    // updatedStaff = await Staff.find({ _id: staff.id }).populate(
-    //   'productionArea.productionAreaId'
-    // );
-    // console.log(updatedStaff);
     res.status(200).json({
       success: true,
       data: updatedStaff,
@@ -109,16 +106,16 @@ exports.getCCPatients = asyncHandler(async (req, res, next) => {
   //   patients[0].chiefComplaint[0].chiefComplaintId.productionArea[0]
   //     .productionAreaId.rooms.length
   // );
-  const arr = [];
-  for (let i = 0; i < patients.length; i++) {
-    const latestCC = patients[i].chiefComplaint.length - 1;
-    arr.push(
-      patients[i].chiefComplaint[latestCC].chiefComplaintId.productionArea[0]
-        .productionAreaId.rooms
-    );
-    // console.log(rooms[0]);
-  }
-  console.log(arr);
+  // const arr = [];
+  // for (let i = 0; i < patients.length; i++) {
+  //   const latestCC = patients[i].chiefComplaint.length - 1;
+  //   arr.push(
+  //     patients[i].chiefComplaint[latestCC].chiefComplaintId.productionArea[0]
+  //       .productionAreaId.rooms
+  //   );
+  // console.log(rooms[0]);
+  // }
+  // console.log(arr);
   //  for (let j = 0; j < ; j++) {
   //     if (rooms.roomId.availability === false) {
   //       arr.push(patients.rooms[j].roomId._id);
@@ -142,9 +139,44 @@ exports.getPatientsByPA = asyncHandler(async (req, res, next) => {
       arr.push(patients.rooms[i].roomId._id);
     }
   }
-  // console.log(arr.length);
+  console.log(arr);
   res.status(200).json({
     success: true,
     data: arr.length,
+  });
+});
+
+exports.patientsByCC = asyncHandler(async (req, res, next) => {
+  const patients = await CC.find({ productionArea: { $ne: [] } })
+    .populate([
+      {
+        path: 'productionArea.productionAreaId',
+        model: 'productionArea',
+        populate: [
+          {
+            path: 'rooms.roomId',
+            model: 'room',
+          },
+        ],
+      },
+    ])
+    .select('name chiefComplaintId');
+  const arr = [];
+  for (let i = 0; i < patients.length; i++) {
+    const rooms = patients[i].productionArea[0].productionAreaId.rooms;
+    for (let j = 0; j < rooms.length; j++) {
+      if (rooms[j].roomId.availability === false) {
+        arr.push(rooms[j].roomId._id);
+      }
+    }
+  }
+  // console.log(arr);
+  // patients = arr.length;
+  res.status(200).json({
+    success: true,
+    data: {
+      patients,
+      noOfPatients: arr.length,
+    },
   });
 });

@@ -315,11 +315,9 @@ exports.assignCCtoPatient = asyncHandler(async (req, res, next) => {
 exports.getPAsByCCs = asyncHandler(async (req, res) => {
   const cc = await CC.find({
     _id: req.params.id,
-  }).populate('productionArea.productionAreaId');
+  })
+    .populate('productionArea.productionAreaId', 'paName')
+    .select('productionArea.productionAreaId.paName');
 
   res.status(200).json({ success: true, data: cc });
 });
-
-// exports.patientsByCC = asyncHandler(async (req,res,next) => {
-//   const patinets =await CC.find()
-// });
