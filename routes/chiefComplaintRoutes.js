@@ -23,33 +23,33 @@ const {
   addChiefComplaint,
   getAllchiefComplaints,
   getChiefComplaintByKeyword,
-  disaleChiefComplaint,
+  disableChiefComplaint,
   enableChiefComplaint,
   getDoctorsWithCC,
-  filterChiefCompaints,
+  // filterChiefCompaints,
   assignCC,
   getCCDoctorByKeyword,
-  assignProductionArea,
+  assignProductionAreaToCC,
   getCCandPAByKeyword,
   getAvailablePA,
   getAvailablePAwithCC,
   assignCCtoPatient,
-  getPAsByCCs
+  getPAsByCCs,
 } = require('../controllers/chiefComplaintController');
 
 router.post('/addChiefComplaint', addChiefComplaint);
 router.get('/getAllChiefComplaints', getAllchiefComplaints);
 router.get('/getChiefComplaintByKeyword/:keyword', getChiefComplaintByKeyword);
-router.put('/disableChiefComplaint/:id', disaleChiefComplaint);
+router.put('/disableChiefComplaint/:id', disableChiefComplaint);
 router.put('/enableChiefComplaint/:id', enableChiefComplaint);
 router.get('/getDoctorsWithCC', getDoctorsWithCC);
-router.post('/filterChiefComplaints', filterChiefCompaints);
+// router.post('/filterChiefComplaints', filterChiefCompaints);
 router.put('/assignCC', assignCC);
 router.get('/getCCDoctorByKeyword/:keyword', getCCDoctorByKeyword);
-router.put('/assignCCtoPA', assignProductionArea);
+router.put('/assignPAtoCC', assignProductionAreaToCC);
 router.get('/searchCCandPA/:keyword', getCCandPAByKeyword);
 router.get('/getAvailablePA', getAvailablePA);
 router.get('/getAvailablePAwithCC', getAvailablePAwithCC);
 router.put('/assignCCtoPatient', upload.single('file'), assignCCtoPatient);
-router.get('/getPAsByCCs/:id',getPAsByCCs)
+router.get('/getPAsByCCs/:id', getPAsByCCs);
 module.exports = router;

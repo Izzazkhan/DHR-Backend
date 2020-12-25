@@ -10,6 +10,26 @@ const edrSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'careStream',
   },
+  room: [
+    {
+      roomId: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'room',
+      },
+      // bedId: {
+      //   type: mongoose.Schema.ObjectId,
+      //   ref: 'room',
+      // },
+      assignedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      assignedTime: {
+        type: Date,
+      },
+      reason: String,
+    },
+  ],
   dcdForm: [
     {
       versionNo: {

@@ -1,24 +1,22 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const CommunicationRequestSchema = new mongoose.Schema({
-  id: {
+  requestId: {
     type: String,
   },
   reason: {
     type: String,
   },
-  date: {
-    type: Date,
-  },
-  date: {
-    type: Date,
-  },
-  requester: {
-    type: mongoose.Schema.ObjectId,
-    ref: "staff",
-  },
   others: {
     type: String,
+  },
+  generatedBy: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'staff',
+  },
+  generatedTo: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'staff',
   },
   createdAt: {
     type: Date,
@@ -31,6 +29,6 @@ const CommunicationRequestSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model(
-  "CommunicationRequest",
-  CommunicationRequestSchema,
+  'CommunicationRequest',
+  CommunicationRequestSchema
 );
