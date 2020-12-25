@@ -285,3 +285,16 @@ exports.getAllSensei = asyncHandler(async (req, res) => {
   const sensei = await Staff.find({ staffType: 'Sensei' }).populate('addedBy');
   res.status(200).json({ success: 'true', data: sensei });
 });
+
+exports.getUsersFromRole = asyncHandler(async (req, res) => {
+  if (req.params.role === 'all') {
+    const sensei = await Staff.find({ }).populate(
+      'addedBy'
+    );
+    res.status(200).json({ success: 'true', data: sensei });
+  }
+  // const sensei = await Staff.find({ staffType: req.params.role }).populate(
+  //   'addedBy'
+  // );
+  // res.status(200).json({ success: 'true', data: sensei });
+});

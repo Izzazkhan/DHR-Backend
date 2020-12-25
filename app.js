@@ -110,11 +110,26 @@ const io1 = socketIO(serverSocket1);
 
 const serverSocket2 = http.createServer(app);
 
+let connectedUsers = [];
+
 io1.origins('*:*');
 io1.on('connection', (socket) => {
-  socket.on('disconnect', () => {
-    console.log('chat user disconnected');
+  socket.on('connected', (userId) => {
+    let arr = connectedUsers.filter((i) => i !== userId);
+    arr.push(userId);
+    connectedUsers = arr;
+
+    // console.log('chat user connected', connectedUsers);
+    io1.emit('getConnectedUsers', connectedUsers);
   });
+
+  socket.on('disconnected', (userId) => {
+    let arr = connectedUsers.filter((i) => i !== userId);
+    connectedUsers = arr;
+    // console.log('chat user disconnected', connectedUsers);
+    io1.emit('getConnectedUsers', connectedUsers);
+  });
+
   socket.on('chat_sent', function (msg) {
     ChatModel.findOneAndUpdate(
       { _id: msg.obj2.chatId },
