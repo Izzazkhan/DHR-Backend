@@ -120,7 +120,7 @@ exports.assignRoom = asyncHandler(async (req, res, next) => {
     { new: true }
   );
 
-  if (patient.length > 0) {
+  if (patient && patient.length > 0) {
     await Room.findOneAndUpdate(
       { _id: req.body.roomId },
       { $set: { availability: false } },
