@@ -103,20 +103,26 @@ exports.getCCPatients = asyncHandler(async (req, res, next) => {
     },
   ]);
 
+  const newArray = [];
   for (let i = 0; i < patients.length; i++) {
     let count = 1;
-    let x =
+
+    const obj = JSON.parse(JSON.stringify(patients[i]));
+    const x =
       patients[i].chiefComplaint[patients[i].chiefComplaint.length - 1]
         .chiefComplaintId._id;
     for (let j = 0; j < patients.length; j++) {
-      let y =
+      const y =
         patients[j].chiefComplaint[patients[j].chiefComplaint.length - 1]
           .chiefComplaintId._id;
       if (x === y && patients[i]._id !== patients[j]._id) {
         count++;
       }
     }
-    console.log(count);
+
+    obj.count = count;
+    newArray.push(obj);
+    // console.log('count', patients[i]);
   }
 
   // console.log(patients[0].chiefComplaint.length);
@@ -135,9 +141,11 @@ exports.getCCPatients = asyncHandler(async (req, res, next) => {
   // }
   // console.log(arr);
 
+  // console.log(patients);
+
   res.status(200).json({
     success: true,
-    data: patients,
+    data: newArray,
   });
 });
 
@@ -167,7 +175,27 @@ exports.getPatientsByPA = asyncHandler(async (req, res, next) => {
   });
 });
 
-exports.patientsByCC = asyncHandler(async (req, res, next) => {
+exports.getPatientByRoom = asyncHandler(async (req, res, next) => {
+  const rooms = await EDR.findOne({
+    'room.roomId': req.params.roomId,
+    room: { $ne: [] },
+  }).select('room');
+  // console.log(rooms.room.length);
+  const latestRoom = rooms.room.length - 1;
+  console.log(latestRoom);
+  const patient = await EDR.findOne({
+    [`room.${latestRoom}.roomId`]: req.params.roomId,
+  })
+    .populate('patientId', 'identifier name')
+    .select('patientId');
+  console.log(patient);
+  res.status(200).json({
+    success: true,
+    data: patient,
+  });
+});
+
+exports.patientsByCS = asyncHandler(async (req, res, next) => {
   const patients = await CC.find({ productionArea: { $ne: [] } })
     .populate([
       {
