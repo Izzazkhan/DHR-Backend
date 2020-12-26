@@ -124,7 +124,7 @@ exports.assignRoom = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse('patient not found with this id', 400));
   }
 
-  await Room.findOneAndUpdate(
+  const assignedRoom = await Room.findOneAndUpdate(
     { _id: req.body.roomId },
     { $set: { availability: false } },
     { new: true }
@@ -177,7 +177,7 @@ exports.assignRoom = asyncHandler(async (req, res, next) => {
   // }
   res.status(200).json({
     success: true,
-    data: patient,
+    data: assignedRoom,
   });
 });
 

@@ -6,6 +6,7 @@ const {
   getPatientsByPA,
   patientsByCC,
   getNoOfPatientsByCC,
+  getPatientByRoom,
 } = require('../controllers/senseiController');
 
 const router = express.Router();
@@ -14,4 +15,5 @@ router.get('/getCCPatients', getCCPatients);
 router.get('/getPatientsByPA/:productionAreaId', getPatientsByPA);
 router.get('/patientsByCC', patientsByCC);
 router.get('/getNoOfPatientsByCC/:id', getNoOfPatientsByCC);
+router.get('/getPatientByRoom/:roomId', getPatientByRoom);
 module.exports = router;
