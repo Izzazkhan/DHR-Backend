@@ -103,20 +103,26 @@ exports.getCCPatients = asyncHandler(async (req, res, next) => {
     },
   ]);
 
+  const newArray = [];
   for (let i = 0; i < patients.length; i++) {
     let count = 1;
-    let x =
+
+    const obj = JSON.parse(JSON.stringify(patients[i]));
+    const x =
       patients[i].chiefComplaint[patients[i].chiefComplaint.length - 1]
         .chiefComplaintId._id;
     for (let j = 0; j < patients.length; j++) {
-      let y =
+      const y =
         patients[j].chiefComplaint[patients[j].chiefComplaint.length - 1]
           .chiefComplaintId._id;
       if (x === y && patients[i]._id !== patients[j]._id) {
         count++;
       }
     }
-    console.log(count);
+
+    obj.count = count;
+    newArray.push(obj);
+    // console.log('count', patients[i]);
   }
 
   // console.log(patients[0].chiefComplaint.length);
@@ -135,17 +141,12 @@ exports.getCCPatients = asyncHandler(async (req, res, next) => {
   // }
   // console.log(arr);
 
+  // console.log(patients);
+
   res.status(200).json({
     success: true,
-    data: patients,
+    data: newArray,
   });
-});
-
-exports.getNoOfPatientsByCC = asyncHandler(async (req, res, next) => {
-  const patients = await EDR.find({
-    'chiefComplaint.chiefComplaintId': req.params.id,
-  });
-  console.log(patients.length);
 });
 
 exports.getPatientsByPA = asyncHandler(async (req, res, next) => {
@@ -167,37 +168,59 @@ exports.getPatientsByPA = asyncHandler(async (req, res, next) => {
   });
 });
 
-exports.patientsByCC = asyncHandler(async (req, res, next) => {
-  const patients = await CC.find({ productionArea: { $ne: [] } })
-    .populate([
-      {
-        path: 'productionArea.productionAreaId',
-        model: 'productionArea',
-        populate: [
-          {
-            path: 'rooms.roomId',
-            model: 'room',
-          },
-        ],
-      },
-    ])
-    .select('name chiefComplaintId');
-  // const arr = [];
-  // for (let i = 0; i < patients.length; i++) {
-  //   const rooms = patients[i].productionArea[0].productionAreaId.rooms;
-  //   for (let j = 0; j < rooms.length; j++) {
-  //     if (rooms[j].roomId.availability === false) {
-  //       arr.push(rooms[j].roomId._id);
-  //     }
-  //   }
-  // }
-  // console.log(arr);
-  // patients = arr.length;
+exports.getPatientByRoom = asyncHandler(async (req, res, next) => {
+  // console.log(req.params);
+  const rooms = await EDR.findOne({
+    'room.roomId': req.params.roomId,
+    room: { $ne: [] },
+  }).select('room');
+  // console.log(rooms.room.length);
+  const latestRoom = rooms.room.length - 1;
+  // console.log(latestRoom);
+  const patient = await EDR.findOne({
+    [`room.${latestRoom}.roomId`]: req.params.roomId,
+  })
+    .populate('patientId', 'identifier name')
+    .select('patientId');
+  console.log(patient);
   res.status(200).json({
     success: true,
-    data: {
-      patients,
-      noOfPatients: arr.length,
-    },
+    data: patient,
+  });
+});
+
+exports.patientsByCC = asyncHandler(async (req, res, next) => {
+  const chiefComplaint = await CC.find({ productionArea: { $ne: [] } }).select(
+    'name chiefComplaintId'
+  );
+  const edrCC = await EDR.find({
+    chiefComplaint: { $ne: [] },
+    status: 'pending',
+  }).select('chiefComplaint.chiefComplaintId');
+  let count = 0;
+  const newArray = [];
+
+  for (let i = 0; i < chiefComplaint.length; i++) {
+    const obj = JSON.parse(JSON.stringify(chiefComplaint[i]));
+    count = 0;
+    for (let j = 0; j < edrCC.length; j++) {
+      const latestCC =
+        edrCC[j].chiefComplaint[edrCC[j].chiefComplaint.length - 1];
+      // console.log(latestCC);
+      if (
+        chiefComplaint[i]._id.toString() ===
+        latestCC.chiefComplaintId.toString()
+      ) {
+        count++;
+      }
+    }
+    obj.count = count;
+    newArray.push(obj);
+  }
+  // console.log(newArray);
+
+  res.status(200).json({
+    success: true,
+    data: newArray,
   });
 });
