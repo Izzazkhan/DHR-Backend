@@ -149,13 +149,6 @@ exports.getCCPatients = asyncHandler(async (req, res, next) => {
   });
 });
 
-exports.getNoOfPatientsByCC = asyncHandler(async (req, res, next) => {
-  const patients = await EDR.find({
-    'chiefComplaint.chiefComplaintId': req.params.id,
-  });
-  console.log(patients.length);
-});
-
 exports.getPatientsByPA = asyncHandler(async (req, res, next) => {
   const patients = await PA.findOne({
     _id: req.params.productionAreaId,

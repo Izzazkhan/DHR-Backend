@@ -105,6 +105,7 @@ exports.assignRoom = asyncHandler(async (req, res, next) => {
     assignedTime: Date.now(),
     reason: req.body.reason,
   };
+
   const checkRoom = await Room.findOne({ _id: req.body.roomId });
   if (checkRoom.availability === false) {
     return next(new ErrorResponse('Room is already assigned', 400));
