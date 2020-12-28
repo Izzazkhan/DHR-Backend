@@ -156,13 +156,11 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
   // const latestEdr = edrCheck.length - 1;
   const latestCS = edrCheck[0].careStream.length - 1;
   const updatedVersion = latestCS + 2;
-  const careStreamVersion = [
-    {
-      versionNo: edrCheck[0].requestNo + '-' + updatedVersion,
-    },
-  ];
+
+  const versionNo = edrCheck[0].requestNo + '-' + updatedVersion;
+
   const careStream = {
-    careStreamVersion,
+    versionNo,
     name: req.body.name,
     inclusionCriteria: req.body.inclusionCriteria,
     exclusionCriteria: req.body.exclusionCriteria,
@@ -176,16 +174,61 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     assignedBy: req.body.staffId,
     assignedTime: Date.now(),
     reason: req.body.reason,
-    // status: req.body.status,
+    status: req.body.status,
   };
   const assignedCareStream = await EDR.findOneAndUpdate(
     { _id: req.body.edrId },
-    { $push: careStream },
+    { $push: { careStream } },
     { new: true }
   );
 
   res.status(200).json({
     success: true,
     data: assignedCareStream,
+  });
+});
+
+exports.getCSPatientByKeyword = asyncHandler(async (req, res, next) => {
+  const arr = [];
+  const patients = await EDR.find({
+    status: 'pending',
+    careStream: { $eq: [] },
+    room: { $ne: [] },
+  }).populate('patientId');
+
+  for (let i = 0; i < patients.length; i++) {
+    const fullName =
+      patients[i].patientId.name[0].given[0] +
+      ' ' +
+      patients[i].patientId.name[0].family;
+    if (
+      (patients[i].patientId.name[0].given[0] &&
+        patients[i].patientId.name[0].given[0]
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (patients[i].patientId.name[0].family &&
+        patients[i].patientId.name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (patients[i].patientId.identifier[0].value &&
+        patients[i].patientId.identifier[0].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
+      (patients[i].patientId.telecom[1].value &&
+        patients[i].patientId.telecom[1].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (patients[i].patientId.nationalID &&
+        patients[i].patientId.nationalID
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase()))
+    ) {
+      arr.push(patients[i]);
+    }
+  }
+  res.status(200).json({
+    success: true,
+    data: arr,
   });
 });
