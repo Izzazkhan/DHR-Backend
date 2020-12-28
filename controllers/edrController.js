@@ -57,7 +57,7 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
   //   );
   // }
 
-  const newEDR = await EDR.create({
+  let newEDR = await EDR.create({
     requestNo,
     patientId,
     generatedBy: staffId,
@@ -75,6 +75,9 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
     dcdForm: dcdFormVersion,
     claimed: false,
   });
+
+  newEDR = await EDR.findOne({ _id: newEDR.id }).populate('patientId');
+
   res.status(201).json({
     success: true,
     data: newEDR,

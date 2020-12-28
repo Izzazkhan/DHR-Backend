@@ -157,39 +157,75 @@ const edrSchema = new mongoose.Schema({
       ],
       ROS: [
         {
-          name: String, // row names e.g. CONST
-          chips: [
+          version: String,
+          status: String,
+          reason: String,
+          date: Date,
+          updatedBy: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
+          },
+          details: [
             {
-              name: String, // Chips of rows
+              name: String, // row names e.g. CONST
+              chips: [
+                {
+                  name: String, // Chips of rows
+                },
+              ],
             },
           ],
         },
       ],
       actionPlan: [
         {
-          name: String, // row name
-          chips: [
+          version: String,
+          status: String,
+          reason: String,
+          date: Date,
+          updatedBy: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
+          },
+          details: [
             {
-              name: String, // chip's name
-              detail: String, // chip's Textfield
+              name: String, // row name
+              chips: [
+                {
+                  name: String, // chip's name
+                  detail: String, // chip's Textfield
+                },
+              ],
             },
           ],
         },
       ],
       courseOfVisit: [
         {
-          name: String, // row name
-          Texts: [
-            // Textfield for a row
+          version: String,
+          status: String,
+          reason: String,
+          date: Date,
+          updatedBy: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
+          },
+          details: [
             {
-              name: String,
-              value: String,
-            },
-          ],
-          chips: [
-            {
-              name: String, // chip's name
-              detail: String, // chip's Textfield
+              name: String, // row name
+              Texts: [
+                // Textfield for a row
+                {
+                  name: String,
+                  value: String,
+                },
+              ],
+              chips: [
+                {
+                  name: String, // chip's name
+                  detail: String, // chip's Textfield
+                },
+              ],
             },
           ],
         },
@@ -233,14 +269,26 @@ const edrSchema = new mongoose.Schema({
       ],
       physicalExam: [
         {
-          name: String,
-          detail: [
+          version: String,
+          status: String,
+          reason: String,
+          date: Date,
+          updatedBy: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
+          },
+          details: [
             {
-              text: String,
-              image: String,
-              subTypes: [
+              name: String,
+              details: [
                 {
-                  type: String,
+                  text: String,
+                  image: String,
+                  subTypes: [
+                    {
+                      type: String,
+                    },
+                  ],
                 },
               ],
             },

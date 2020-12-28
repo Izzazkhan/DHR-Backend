@@ -24,8 +24,8 @@ const ChiefComplaintSchema = new mongoose.Schema(
     status: {
       type: String,
     },
-    availability: { type: Boolean },
-    disabled: { type: Boolean },
+    availability: { type: Boolean, default: true },
+    disabled: { type: Boolean, default: false },
     updateRecord: [
       {
         updatedAt: {
