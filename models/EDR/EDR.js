@@ -96,22 +96,34 @@ const edrSchema = new mongoose.Schema({
       ],
       investigation: [
         {
-          name: String, // Rhythm ECG
-          chips: [
+          version: String,
+          status: String,
+          reason: String,
+          date: Date,
+          updatedBy: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
+          },
+          details: [
             {
-              name: String, // NSR // Rate
-              image: [{ type: String }], // multiple images
-              detail: String, // Rate's Textfield
-            },
-          ],
-          Texts: [
-            //for rows such as CBC, Chemistries, UA
-            {
-              name: String,
-              value: String,
-            },
-          ],
-        },
+              name: String, // Rhythm ECG
+              chips: [
+                {
+                  name: String, // NSR // Rate
+                  image: [{ type: String }], // multiple images
+                  detail: String, // Rate's Textfield
+                }
+              ],
+              Texts: [
+                //for rows such as CBC, Chemistries, UA
+                {
+                  name: String,
+                  value: String,
+                }
+              ]
+            }
+          ]
+        }
       ],
       pastMedicalHistory: [
         {
@@ -152,8 +164,8 @@ const edrSchema = new mongoose.Schema({
                 },
               ],
             },
-          ],
-        },
+          ]
+        }
       ],
       ROS: [
         {
