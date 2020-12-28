@@ -4,12 +4,12 @@ const router = express.Router();
 
 const {
   getAllCustomerCares,
-  searchCustomerCare,
+  getCCStaffByKeyword,
   assignCC,
 } = require('../controllers/customerCareController');
 
 router.get('/getAllCustomerCares', getAllCustomerCares);
-router.get('/searchCustomerCare/:keyword', searchCustomerCare);
+router.get('/searchCustomerCare/:keyword', getCCStaffByKeyword);
 router.put('/assignCustomerCare', assignCC);
 
 module.exports = router;
