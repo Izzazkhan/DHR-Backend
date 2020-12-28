@@ -72,8 +72,6 @@ exports.addPatientDetails = asyncHandler(async (req, res, next) => {
   const edr = await EDR.findOne({ _id: req.body.edrId });
   const latestForm = edr.dcdForm.length - 1;
   const latestDetails = edr.dcdForm[latestForm].patientDetails.length - 1;
-  // console.log(latestDetails);
-  // console.log(latestForm);
   const patientDetails = {
     version: latestDetails + 2,
     details: req.body.details,
@@ -102,16 +100,185 @@ exports.addPastHistory = asyncHandler(async (req, res, next) => {
   const latestHistory = edr.dcdForm[latestForm].pastMedicalHistory.length - 1;
   const pastMedicalHistory = {
     version: latestHistory + 2,
+    // reason: req.body.reason,
+    // status: req.body.status,
     details: req.body.details,
     updatedBy: req.body.staffId,
     date: Date.now(),
   };
-  // console.log(pastMedicalHistory);
   const edrPatient = await EDR.findOneAndUpdate(
     { _id: req.body.edrId },
     {
       $push: {
         [`dcdForm.${latestForm}.pastMedicalHistory`]: pastMedicalHistory,
+      },
+    },
+    { new: true }
+  );
+  res.status(200).json({
+    success: true,
+    data: edrPatient,
+  });
+});
+
+exports.addROS = asyncHandler(async (req, res, next) => {
+  console.log(req.body);
+  const edr = await EDR.findOne({ _id: req.body.edrId });
+  const latestForm = edr.dcdForm.length - 1;
+  const latestROS = edr.dcdForm[latestForm].ROS.length - 1;
+  const ROS = {
+    version: latestROS + 2,
+    // reason: req.body.reason,
+    // status: req.body.status,
+    details: req.body.details,
+    updatedBy: req.body.staffId,
+    date: Date.now(),
+  };
+  const edrPatient = await EDR.findOneAndUpdate(
+    { _id: req.body.edrId },
+    {
+      $push: {
+        [`dcdForm.${latestForm}.ROS`]: ROS,
+      },
+    },
+    { new: true }
+  );
+  res.status(200).json({
+    success: true,
+    data: edrPatient,
+  });
+});
+
+exports.addROS = asyncHandler(async (req, res, next) => {
+  console.log(req.body);
+  const edr = await EDR.findOne({ _id: req.body.edrId });
+  const latestForm = edr.dcdForm.length - 1;
+  const latestROS = edr.dcdForm[latestForm].ROS.length - 1;
+  const ROS = {
+    version: latestROS + 2,
+    // reason: req.body.reason,
+    // status: req.body.status,
+    details: req.body.details,
+    updatedBy: req.body.staffId,
+    date: Date.now(),
+  };
+  const edrPatient = await EDR.findOneAndUpdate(
+    { _id: req.body.edrId },
+    {
+      $push: {
+        [`dcdForm.${latestForm}.ROS`]: ROS,
+      },
+    },
+    { new: true }
+  );
+  res.status(200).json({
+    success: true,
+    data: edrPatient,
+  });
+});
+
+exports.addPhysicalExam = asyncHandler(async (req, res, next) => {
+  console.log(req.body);
+  const edr = await EDR.findOne({ _id: req.body.edrId });
+  const latestForm = edr.dcdForm.length - 1;
+  const latestPhysicalExam = edr.dcdForm[latestForm].physicalExam.length - 1;
+  const physicalExam = {
+    version: latestPhysicalExam + 2,
+    // reason: req.body.reason,
+    // status: req.body.status,
+    details: req.body.details,
+    updatedBy: req.body.staffId,
+    date: Date.now(),
+  };
+  const edrPatient = await EDR.findOneAndUpdate(
+    { _id: req.body.edrId },
+    {
+      $push: {
+        [`dcdForm.${latestForm}.physicalExam`]: physicalExam,
+      },
+    },
+    { new: true }
+  );
+  res.status(200).json({
+    success: true,
+    data: edrPatient,
+  });
+});
+
+exports.addInvestigation = asyncHandler(async (req, res, next) => {
+  console.log(req.body);
+  const edr = await EDR.findOne({ _id: req.body.edrId });
+  const latestForm = edr.dcdForm.length - 1;
+  const latestInvestigation = edr.dcdForm[latestForm].investigation.length - 1;
+  const investigation = {
+    version: latestInvestigation + 2,
+    // reason: req.body.reason,
+    // status: req.body.status,
+    details: req.body.details,
+    updatedBy: req.body.staffId,
+    date: Date.now(),
+  };
+  const edrPatient = await EDR.findOneAndUpdate(
+    { _id: req.body.edrId },
+    {
+      $push: {
+        [`dcdForm.${latestForm}.investigation`]: investigation,
+      },
+    },
+    { new: true }
+  );
+  res.status(200).json({
+    success: true,
+    data: edrPatient,
+  });
+});
+
+exports.addActionPlan = asyncHandler(async (req, res, next) => {
+  console.log(req.body);
+  const edr = await EDR.findOne({ _id: req.body.edrId });
+  const latestForm = edr.dcdForm.length - 1;
+  const latestActionPlan = edr.dcdForm[latestForm].actionPlan.length - 1;
+  const actionPlan = {
+    version: latestActionPlan + 2,
+    // reason: req.body.reason,
+    // status: req.body.status,
+    details: req.body.details,
+    updatedBy: req.body.staffId,
+    date: Date.now(),
+  };
+  const edrPatient = await EDR.findOneAndUpdate(
+    { _id: req.body.edrId },
+    {
+      $push: {
+        [`dcdForm.${latestForm}.actionPlan`]: actionPlan,
+      },
+    },
+    { new: true }
+  );
+  res.status(200).json({
+    success: true,
+    data: edrPatient,
+  });
+});
+
+exports.addCourseOfVisit = asyncHandler(async (req, res, next) => {
+  console.log(req.body);
+  const edr = await EDR.findOne({ _id: req.body.edrId });
+  const latestForm = edr.dcdForm.length - 1;
+  const latestCourseOfVisit = edr.dcdForm[latestForm].courseOfVisit.length - 1;
+  const courseOfVisit = {
+    version: latestCourseOfVisit + 2,
+    // reason: req.body.reason,
+    // status: req.body.status,
+    details: req.body.details,
+    updatedBy: req.body.staffId,
+    date: Date.now(),
+  };
+  const edrPatient = await EDR.findOneAndUpdate(
+    { _id: req.body.edrId },
+    {
+      $push: {
+        [`dcdForm.${latestForm}.courseOfVisit`]: courseOfVisit,
       },
     },
     { new: true }
