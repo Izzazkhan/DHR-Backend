@@ -12,6 +12,9 @@ const edrSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'careStream',
       },
+      versionNo: {
+        type: String,
+      },
       assignedBy: {
         type: mongoose.Schema.ObjectId,
         ref: 'staff',
