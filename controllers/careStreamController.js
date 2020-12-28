@@ -140,7 +140,7 @@ exports.getCSPatients = asyncHandler(async (req, res, next) => {
     status: 'pending',
     careStream: { $eq: [] },
     room: { $ne: [] },
-  });
+  }).populate('patientId');
 
   res.status(200).json({
     success: true,
