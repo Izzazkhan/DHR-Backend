@@ -2,6 +2,7 @@ const requestNoFormat = require('dateformat');
 const asyncHandler = require('../middleware/async');
 // const ErrorResponse = require('../utils/errorResponse');
 const CareStream = require('../models/CareStreams/CareStreams');
+const EDR = require('../models/EDR/EDR');
 
 exports.addCareStream = asyncHandler(async (req, res, next) => {
   const {
@@ -131,5 +132,60 @@ exports.getMedicationsByIdCareStreams = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: careStreams,
+  });
+});
+
+exports.getCSPatients = asyncHandler(async (req, res, next) => {
+  const csPatients = await EDR.find({
+    status: 'pending',
+    careStream: { $eq: [] },
+    room: { $ne: [] },
+  });
+
+  res.status(200).json({
+    success: true,
+    data: csPatients,
+  });
+});
+
+exports.asignCareStream = asyncHandler(async (req, res, next) => {
+  console.log(req.body);
+  const edrCheck = await EDR.find({ _id: req.body.edrId }).populate(
+    'patientId'
+  );
+  // const latestEdr = edrCheck.length - 1;
+  const latestCS = edrCheck[0].careStream.length - 1;
+  const updatedVersion = latestCS + 2;
+  const careStreamVersion = [
+    {
+      versionNo: edrCheck[0].requestNo + '-' + updatedVersion,
+    },
+  ];
+  const careStream = {
+    careStreamVersion,
+    name: req.body.name,
+    inclusionCriteria: req.body.inclusionCriteria,
+    exclusionCriteria: req.body.exclusionCriteria,
+    investigations: req.body.investigations,
+    precautions: req.body.precautions,
+    treatmentOrders: req.body.treatmentOrders,
+    fluidsIV: req.body.fluidsIV,
+    medications: req.body.medications,
+    mdNotification: req.body.mdNotification,
+    careStreamId: req.body.careStreamId,
+    assignedBy: req.body.staffId,
+    assignedTime: Date.now(),
+    reason: req.body.reason,
+    // status: req.body.status,
+  };
+  const assignedCareStream = await EDR.findOneAndUpdate(
+    { _id: req.body.edrId },
+    { $push: careStream },
+    { new: true }
+  );
+
+  res.status(200).json({
+    success: true,
+    data: assignedCareStream,
   });
 });

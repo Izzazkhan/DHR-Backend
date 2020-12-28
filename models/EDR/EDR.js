@@ -6,10 +6,62 @@ const edrSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'patientfhir',
   },
-  careStream: {
-    type: mongoose.Schema.ObjectId,
-    ref: 'careStream',
-  },
+  careStream: [
+    {
+      careStreamId: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'careStream',
+      },
+      assignedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      assignedTime: {
+        type: Date,
+      },
+      reason: String,
+      name: {
+        type: String,
+      },
+      inclusionCriteria: [{ type: String }],
+      exclusionCriteria: [{ type: String }],
+      investigations: [{ type: String }],
+      precautions: [{ type: String }],
+      treatmentOrders: [
+        {
+          name: String,
+          subType: [
+            {
+              type: String,
+            },
+          ],
+        },
+      ],
+      fluidsIV: [
+        {
+          type: String,
+        },
+      ],
+      medications: [
+        {
+          type: String,
+        },
+      ],
+      mdNotification: [
+        {
+          name: String,
+          subType: [
+            {
+              type: String,
+            },
+          ],
+        },
+      ],
+      status: {
+        type: String,
+      },
+    },
+  ],
   room: [
     {
       roomId: {
