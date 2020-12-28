@@ -112,18 +112,18 @@ const edrSchema = new mongoose.Schema({
                   name: String, // NSR // Rate
                   image: [{ type: String }], // multiple images
                   detail: String, // Rate's Textfield
-                }
+                },
               ],
               Texts: [
                 //for rows such as CBC, Chemistries, UA
                 {
                   name: String,
                   value: String,
-                }
-              ]
-            }
-          ]
-        }
+                },
+              ],
+            },
+          ],
+        },
       ],
       pastMedicalHistory: [
         {
@@ -164,8 +164,8 @@ const edrSchema = new mongoose.Schema({
                 },
               ],
             },
-          ]
-        }
+          ],
+        },
       ],
       ROS: [
         {
