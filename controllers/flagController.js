@@ -70,3 +70,61 @@ exports.getFlagCount = asyncHandler(async (req, res, next) => {
     data: flag.length,
   });
 });
+
+exports.getFlagPatientByKeyword = asyncHandler(async (req, res, next) => {
+  const filteredArray = [];
+
+  const flag = await Flag.find().populate([
+    {
+      path: 'edrId',
+      model: 'EDR',
+      populate: [
+        {
+          path: 'patientId',
+          model: 'patientfhir',
+        },
+      ],
+    },
+    {
+      path: 'generatedBy',
+      model: 'staff',
+    },
+  ]);
+
+  for (let index = 0; index < flag.length; index++) {
+    let paramsInLowerCase = req.params.keyword.toLowerCase();
+
+    let element = flag[index];
+
+    let givenName = element.edrId.patientId.name[0].given[0]
+      .toLowerCase()
+      .startsWith(paramsInLowerCase);
+
+    let familyName = element.edrId.patientId.name[0].family
+      .toLowerCase()
+      .startsWith(paramsInLowerCase);
+
+    let mrn = element.edrId.patientId.identifier[0].value
+      .toLowerCase()
+      .startsWith(paramsInLowerCase);
+
+    let fullName =
+      element.edrId.patientId.name[0].given[0] +
+      ' ' +
+      element.edrId.patientId.name[0].family;
+
+    if (
+      familyName ||
+      givenName ||
+      mrn ||
+      fullName.toLowerCase().startsWith(paramsInLowerCase)
+    ) {
+      filteredArray.push(element);
+    }
+  }
+
+  res.status(200).json({
+    success: true,
+    data: filteredArray,
+  });
+});
