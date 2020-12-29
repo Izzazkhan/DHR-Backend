@@ -45,33 +45,44 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
   });
 });
 
-exports.searchCustomerCare = asyncHandler(async (req, res, next) => {
-  const customerCare = await Staff.aggregate([
-    {
-      $match: {
-        staffType: 'Customer Care',
-        disabled: false,
+exports.getCCStaffByKeyword = asyncHandler(async (req, res, next) => {
+  const arr = [];
+  const staff = await Staff.find({
+    staffType: 'Customer Care',
+  });
 
-        $or: [
-          {
-            'name.given': { $regex: req.params.keyword, $options: 'i' },
-          },
-          {
-            'name.family': { $regex: req.params.keyword, $options: 'i' },
-          },
-          {
-            'identifier.value': { $regex: req.params.keyword, $options: 'i' },
-          },
-        ],
-      },
-    },
-  ]).limit(50);
-  // if (!customerCare) {
-  //   return next(new ErrorResponse('No Data Found With this keyword', 404));
-  // }
+  // console.log(staff);
 
+  for (let i = 0; i < staff.length; i++) {
+    const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
+    if (
+      (staff[i].name[0].given[0] &&
+        staff[i].name[0].given[0]
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].name[0].family &&
+        staff[i].name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].identifier[0].value &&
+        staff[i].identifier[0].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
+      (staff[i].telecom[1].value &&
+        staff[i].telecom[1].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].nationalID &&
+        staff[i].nationalID
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase()))
+    ) {
+      arr.push(staff[i]);
+    }
+  }
   res.status(200).json({
     success: true,
-    data: customerCare,
+    data: arr,
   });
 });
