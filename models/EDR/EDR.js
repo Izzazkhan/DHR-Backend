@@ -460,6 +460,17 @@ const edrSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'staff',
   },
+  doctorNotes: [
+    {
+      notes: String,
+      addedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      voiceNotes: String,
+      assignedTime: Date,
+    },
+  ],
   consultationNote: [
     {
       consultationNo: {
