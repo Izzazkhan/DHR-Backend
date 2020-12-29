@@ -180,3 +180,36 @@ exports.addDoctorNotes = asyncHandler(async (req, res, next) => {
     data: addedNote,
   });
 });
+
+exports.updateDoctorNotes = asyncHandler(async (req, res, next) => {
+  // const parsed = JSON.parse(req.body.data);
+  const parsed = req.body;
+  console.log(parsed);
+  const doctorNotes = {
+    addedBy: parsed.addedBy,
+    assignedTime: Date.now(),
+    notes: parsed.notes,
+    voiceNotes: req.file ? req.file.path : null,
+  };
+  const edrNotes = await EDR.findOne({ _id: parsed.edrId });
+
+  let note;
+  for (let i = 0; i < edrNotes.doctorNotes.length; i++) {
+    if (edrNotes.doctorNotes[i]._id == parsed.noteId) {
+      // console.log(i);
+      note = i;
+    }
+  }
+  console.log(note);
+  console.log(edrNotes.doctorNotes[note]._id);
+  const updatedNote = await EDR.findOneAndUpdate(
+    { _id: parsed.edrId },
+    { $set: { [`doctorNotes.${note}`]: doctorNotes } },
+    { new: true }
+  );
+  // console.log(updatedNote);
+  res.status(200).json({
+    success: true,
+    data: updatedNote,
+  });
+});

@@ -23,6 +23,7 @@ const {
   getEdrPatientByKeyword,
   getEdrsByPatient,
   addDoctorNotes,
+  updateDoctorNotes,
 } = require('../controllers/edrController');
 
 const router = express.Router();
@@ -32,5 +33,6 @@ router.get('/getSingleEdr/:id', getEDRById);
 router.get('/getEDRs', getEDRs);
 router.get('/searchEdrPatient/:keyword', getEdrPatientByKeyword);
 router.put('/addDoctorNotes', upload.single('file'), addDoctorNotes);
+router.put('/updateDoctorNotes', upload.single('file'), updateDoctorNotes);
 router.get('/getEdrsByPatient/:id', getEdrsByPatient);
 module.exports = router;
