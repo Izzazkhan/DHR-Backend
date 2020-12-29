@@ -149,8 +149,8 @@ exports.getCSPatients = asyncHandler(async (req, res, next) => {
 });
 
 exports.asignCareStream = asyncHandler(async (req, res, next) => {
-  console.log(req.body);
-  const edrCheck = await EDR.find({ _id: req.body.edrId }).populate(
+  console.log(req.body.data);
+  const edrCheck = await EDR.find({ _id: req.body.data.edrId }).populate(
     'patientId'
   );
   // const latestEdr = edrCheck.length - 1;
@@ -161,23 +161,23 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
 
   const careStream = {
     versionNo,
-    name: req.body.name,
-    inclusionCriteria: req.body.inclusionCriteria,
-    exclusionCriteria: req.body.exclusionCriteria,
-    investigations: req.body.investigations,
-    precautions: req.body.precautions,
-    treatmentOrders: req.body.treatmentOrders,
-    fluidsIV: req.body.fluidsIV,
-    medications: req.body.medications,
-    mdNotification: req.body.mdNotification,
-    careStreamId: req.body.careStreamId,
-    assignedBy: req.body.staffId,
+    name: req.body.data.name,
+    inclusionCriteria: req.body.data.inclusionCriteria,
+    exclusionCriteria: req.body.data.exclusionCriteria,
+    investigations: req.body.data.investigations,
+    precautions: req.body.data.precautions,
+    treatmentOrders: req.body.data.treatmentOrders,
+    fluidsIV: req.body.data.fluidsIV,
+    medications: req.body.data.medications,
+    mdNotification: req.body.data.mdNotification,
+    careStreamId: req.body.data.careStreamId,
+    assignedBy: req.body.data.staffId,
     assignedTime: Date.now(),
-    reason: req.body.reason,
-    status: req.body.status,
+    reason: req.body.data.reason,
+    status: req.body.data.status,
   };
   const assignedCareStream = await EDR.findOneAndUpdate(
-    { _id: req.body.edrId },
+    { _id: req.body.data.edrId },
     { $push: { careStream } },
     { new: true }
   );
