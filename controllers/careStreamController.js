@@ -283,9 +283,33 @@ exports.getEDRswithCS = asyncHandler(async (req, res, next) => {
     status: 'pending',
     careStream: { $ne: [] },
     room: { $ne: [] },
-  }).populate(
-    'patientId productionArea.productionAreaId careStream.careStreamId'
-  );
+  }).populate([
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          // populate: [
+          //   {
+          //     path: 'rooms.roomId',
+          //     model: 'room',
+          //   },
+          // ],
+        },
+      ],
+    },
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+    },
+    {
+      path: 'careStream.careStreamId',
+      model: 'careStream',
+    },
+  ]);
 
   res.status(200).json({
     success: true,
