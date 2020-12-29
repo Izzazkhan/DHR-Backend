@@ -200,11 +200,16 @@ exports.updateDoctorNotes = asyncHandler(async (req, res, next) => {
       note = i;
     }
   }
-  console.log(note);
-  console.log(edrNotes.doctorNotes[note]._id);
+  // console.log(note);
+  // console.log(edrNotes.doctorNotes[note]);
   const updatedNote = await EDR.findOneAndUpdate(
     { _id: parsed.edrId },
-    { $set: { [`doctorNotes.${note}`]: doctorNotes } },
+    {
+      $set: {
+        [`doctorNotes.${note}.notes`]: doctorNotes.notes,
+        [`doctorNotes.${note}.voiceNotes`]: doctorNotes.voiceNotes,
+      },
+    },
     { new: true }
   );
   // console.log(updatedNote);
