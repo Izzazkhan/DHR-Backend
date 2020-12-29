@@ -6,6 +6,17 @@ const edrSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'patientfhir',
   },
+  transfer: [
+    {
+      reason: String,
+      status: String,
+      transferTime: Date,
+      transferBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+    },
+  ],
   careStream: [
     {
       careStreamId: {
@@ -449,6 +460,17 @@ const edrSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'staff',
   },
+  doctorNotes: [
+    {
+      notes: String,
+      addedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      voiceNotes: String,
+      assignedTime: Date,
+    },
+  ],
   consultationNote: [
     {
       consultationNo: {

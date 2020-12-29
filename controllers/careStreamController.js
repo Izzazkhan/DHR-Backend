@@ -50,7 +50,7 @@ exports.addCareStream = asyncHandler(async (req, res, next) => {
 });
 
 exports.getAllCareStreams = asyncHandler(async (req, res, next) => {
-  const careStreams = await CareStream.paginate({}, { limit: 100 });
+  const careStreams = await CareStream.paginate({ disabled: false });
   res.status(200).json({
     success: true,
     data: careStreams,
@@ -230,5 +230,18 @@ exports.getCSPatientByKeyword = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: arr,
+  });
+});
+
+exports.getEDRswithCS = asyncHandler(async (req, res, next) => {
+  const patients = await EDR.find({
+    status: 'pending',
+    careStream: { $ne: [] },
+    room: { $ne: [] },
+  }).populate('patientId');
+
+  res.status(200).json({
+    success: true,
+    data: patients,
   });
 });

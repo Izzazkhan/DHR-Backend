@@ -157,3 +157,55 @@ exports.getEdrPatientByKeyword = asyncHandler(async (req, res, next) => {
     data: arr,
   });
 });
+
+exports.addDoctorNotes = asyncHandler(async (req, res, next) => {
+  const parsed = JSON.parse(req.body.data);
+  const doctorNotes = {
+    addedBy: parsed.addedBy,
+    assignedTime: Date.now(),
+    notes: parsed.notes,
+    voiceNotes: req.file ? req.file.path : null,
+  };
+  const addedNote = await EDR.findOneAndUpdate(
+    { _id: parsed.edrId },
+    { $push: { doctorNotes } },
+    {
+      new: true,
+    }
+  );
+
+  // console.log(addedNote);
+  res.status(200).json({
+    success: true,
+    data: addedNote,
+  });
+});
+
+exports.updateDoctorNotes = asyncHandler(async (req, res, next) => {
+  const parsed = JSON.parse(req.body.data);
+  // const parsed = req.body;
+  const edrNotes = await EDR.findOne({ _id: parsed.edrId });
+
+  let note;
+  for (let i = 0; i < edrNotes.doctorNotes.length; i++) {
+    if (edrNotes.doctorNotes[i]._id == parsed.noteId) {
+      // console.log(i);
+      note = i;
+    }
+  }
+  const updatedNote = await EDR.findOneAndUpdate(
+    { _id: parsed.edrId },
+    {
+      $set: {
+        [`doctorNotes.${note}.notes`]: parsed.notes,
+        [`doctorNotes.${note}.voiceNotes`]: parsed.voiceNotes,
+      },
+    },
+    { new: true }
+  );
+  // console.log(updatedNote);
+  res.status(200).json({
+    success: true,
+    data: updatedNote,
+  });
+});
