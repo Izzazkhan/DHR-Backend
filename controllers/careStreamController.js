@@ -232,3 +232,16 @@ exports.getCSPatientByKeyword = asyncHandler(async (req, res, next) => {
     data: arr,
   });
 });
+
+exports.getEDRswithCS = asyncHandler(async (req, res, next) => {
+  const patients = await EDR.find({
+    status: 'pending',
+    careStream: { $ne: [] },
+    room: { $ne: [] },
+  }).populate('patientId');
+
+  res.status(200).json({
+    success: true,
+    data: patients,
+  });
+});

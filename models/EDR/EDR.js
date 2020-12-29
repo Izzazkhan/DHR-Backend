@@ -6,6 +6,17 @@ const edrSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'patientfhir',
   },
+  transfer: [
+    {
+      reason: String,
+      status: String,
+      transferTime: Date,
+      transferBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+    },
+  ],
   careStream: [
     {
       careStreamId: {

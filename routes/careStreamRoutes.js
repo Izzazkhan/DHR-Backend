@@ -13,6 +13,7 @@ const {
   asignCareStream,
   getCSPatients,
   getCSPatientByKeyword,
+  getEDRswithCS,
 } = require('../controllers/careStreamController');
 
 router.post('/addCareStream', addCareStream);
@@ -25,5 +26,6 @@ router.get('/getMedicationsCareStreams', getMedicationsCareStreams);
 router.get('/getCSPatients', getCSPatients);
 router.get('/getMedicationsByIdCareStreams/:id', getMedicationsByIdCareStreams);
 router.get('/searchCSPatient/:keyword', getCSPatientByKeyword);
+router.get('/getEDRswithCS', getEDRswithCS);
 
 module.exports = router;
