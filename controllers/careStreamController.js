@@ -50,7 +50,7 @@ exports.addCareStream = asyncHandler(async (req, res, next) => {
 });
 
 exports.getAllCareStreams = asyncHandler(async (req, res, next) => {
-  const careStreams = await CareStream.paginate({}, { limit: 100 });
+  const careStreams = await CareStream.paginate({ disabled: false });
   res.status(200).json({
     success: true,
     data: careStreams,
