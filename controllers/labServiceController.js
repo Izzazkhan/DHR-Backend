@@ -69,7 +69,7 @@ exports.updateLabService = asyncHandler(async (req, res, next) => {
 });
 
 exports.getAllLabServices = asyncHandler(async (req, res, next) => {
-  const labServices = await Lab.find();
+  const labServices = await Lab.find({ disabled: false });
   res.status(200).json({
     success: true,
     data: labServices,
@@ -126,10 +126,11 @@ exports.enableLabService = asyncHandler(async (req, res) => {
   }
 });
 
-exports.getLabSeriviceByKeyword = asyncHandler(async (req, res, next) => {
+exports.getLabServiceByKeyword = asyncHandler(async (req, res, next) => {
   const labService = await Lab.aggregate([
     {
       $match: {
+        disabled: false,
         $or: [
           {
             name: { $regex: req.params.keyword, $options: 'i' },

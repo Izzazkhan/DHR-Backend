@@ -209,3 +209,38 @@ exports.updateDoctorNotes = asyncHandler(async (req, res, next) => {
     data: updatedNote,
   });
 });
+
+exports.addLabRequest = asyncHandler(async (req, res, next) => {
+  console.log(req.body);
+  const edrCheck = await EDR.find({ _id: req.body.edrId }).populate(
+    'patientId'
+  );
+  // const latestEdr = edrCheck.length - 1;
+  const latestLabRequest = edrCheck[0].labRequest.length - 1;
+  const updatedRequest = latestLabRequest + 2;
+
+  const requestId = edrCheck[0].requestNo + '-' + updatedRequest;
+
+  const labRequest = {
+    requestId,
+    name: req.body.name,
+    serviceId: req.body.serviceId,
+    type: req.body.type,
+    price: req.body.price,
+    status: req.body.status,
+    priority: req.body.priority,
+    assignedBy: req.body.staffId,
+    requestedAt: Date.now(),
+    reason: req.body.reason,
+  };
+  const assignedLab = await EDR.findOneAndUpdate(
+    { _id: req.body.edrId },
+    { $push: { labRequest } },
+    { new: true }
+  );
+
+  res.status(200).json({
+    success: true,
+    data: assignedLab,
+  });
+});
