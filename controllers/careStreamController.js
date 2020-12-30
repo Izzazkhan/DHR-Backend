@@ -149,7 +149,8 @@ exports.getCSPatients = asyncHandler(async (req, res, next) => {
 });
 
 exports.asignCareStream = asyncHandler(async (req, res, next) => {
-  console.log(req.body.data);
+  // console.log(req.body.data);
+  req.body.data = req.body;
   const edrCheck = await EDR.find({ _id: req.body.data.edrId }).populate(
     'patientId'
   );

@@ -198,7 +198,7 @@ exports.updateDoctorNotes = asyncHandler(async (req, res, next) => {
     {
       $set: {
         [`doctorNotes.${note}.notes`]: parsed.notes,
-        [`doctorNotes.${note}.voiceNotes`]: parsed.voiceNotes,
+        [`doctorNotes.${note}.voiceNotes`]: req.file ? req.file.path : null,
       },
     },
     { new: true }
