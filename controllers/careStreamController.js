@@ -240,9 +240,33 @@ exports.getPatientsWithCSByKeyword = asyncHandler(async (req, res, next) => {
     status: 'pending',
     careStream: { $ne: [] },
     room: { $ne: [] },
-  }).populate(
-    'patientId chiefComplaint.chiefComplaintId careStream.careStreamId'
-  );
+  }).populate([
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          // populate: [
+          //   {
+          //     path: 'rooms.roomId',
+          //     model: 'room',
+          //   },
+          // ],
+        },
+      ],
+    },
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+    },
+    {
+      path: 'careStream.careStreamId',
+      model: 'careStream',
+    },
+  ]);
 
   for (let i = 0; i < patients.length; i++) {
     const fullName =
