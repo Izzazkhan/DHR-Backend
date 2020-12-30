@@ -56,6 +56,7 @@ exports.addCommunicationRequest = asyncHandler(async (req, res, next) => {
     reason,
     others,
     generatedById,
+    generatedBy: sender,
     requestId: CRequestNo,
   });
 
