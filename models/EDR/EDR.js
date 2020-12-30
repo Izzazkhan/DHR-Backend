@@ -6,6 +6,17 @@ const edrSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'patientfhir',
   },
+  transfer: [
+    {
+      reason: String,
+      status: String,
+      transferTime: Date,
+      transferBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+    },
+  ],
   careStream: [
     {
       careStreamId: {
@@ -449,6 +460,17 @@ const edrSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'staff',
   },
+  doctorNotes: [
+    {
+      notes: String,
+      addedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      voiceNotes: String,
+      assignedTime: Date,
+    },
+  ],
   consultationNote: [
     {
       consultationNo: {
@@ -529,6 +551,49 @@ const edrSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'LaboratoryService',
       },
+      requestId: {
+        type: String,
+      },
+      name: {
+        type: String,
+      },
+      type: {
+        type: String,
+      },
+      price: {
+        type: String,
+      },
+      status: {
+        type: String,
+        default: 'pending',
+      },
+      priority: {
+        type: String,
+      },
+      requestedAt: {
+        type: Date,
+      },
+      requestedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      notes: {
+        type: String,
+      },
+      updateRecord: [
+        {
+          updatedAt: {
+            type: Date,
+          },
+          updatedBy: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
+          },
+          reason: {
+            type: String,
+          },
+        },
+      ],
     },
   ],
   radiologyRequest: [

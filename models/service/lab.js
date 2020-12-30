@@ -25,6 +25,7 @@ const LaboratoryServiceSchema = new mongoose.Schema({
   },
   addedBy: {
     type: mongoose.Schema.ObjectId,
+    ref: 'staff',
   },
   availability: { type: Boolean },
   disabled: { type: Boolean },

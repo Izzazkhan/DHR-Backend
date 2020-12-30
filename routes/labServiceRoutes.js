@@ -6,7 +6,7 @@ const {
   addLabService,
   updateLabService,
   getAllLabServices,
-  getLabSeriviceByKeyword,
+  getLabServiceByKeyword,
   // disableLabService,
   enableLabService,
   disableLabService,
@@ -17,6 +17,6 @@ router.put('/updateLabService', updateLabService);
 router.get('/getAllLabServices', getAllLabServices);
 router.put('/enableLabService/:id', enableLabService);
 router.put('/disableLabService/:id', disableLabService);
-router.get('/searchLabService/:keyword', getLabSeriviceByKeyword);
+router.get('/searchLabService/:keyword', getLabServiceByKeyword);
 
 module.exports = router;

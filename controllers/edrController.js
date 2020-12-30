@@ -157,3 +157,90 @@ exports.getEdrPatientByKeyword = asyncHandler(async (req, res, next) => {
     data: arr,
   });
 });
+
+exports.addDoctorNotes = asyncHandler(async (req, res, next) => {
+  const parsed = JSON.parse(req.body.data);
+  const doctorNotes = {
+    addedBy: parsed.addedBy,
+    assignedTime: Date.now(),
+    notes: parsed.notes,
+    voiceNotes: req.file ? req.file.path : null,
+  };
+  const addedNote = await EDR.findOneAndUpdate(
+    { _id: parsed.edrId },
+    { $push: { doctorNotes } },
+    {
+      new: true,
+    }
+  );
+
+  // console.log(addedNote);
+  res.status(200).json({
+    success: true,
+    data: addedNote,
+  });
+});
+
+exports.updateDoctorNotes = asyncHandler(async (req, res, next) => {
+  const parsed = JSON.parse(req.body.data);
+  // const parsed = req.body;
+  const edrNotes = await EDR.findOne({ _id: parsed.edrId });
+
+  let note;
+  for (let i = 0; i < edrNotes.doctorNotes.length; i++) {
+    if (edrNotes.doctorNotes[i]._id == parsed.noteId) {
+      // console.log(i);
+      note = i;
+    }
+  }
+  const updatedNote = await EDR.findOneAndUpdate(
+    { _id: parsed.edrId },
+    {
+      $set: {
+        [`doctorNotes.${note}.notes`]: parsed.notes,
+        [`doctorNotes.${note}.voiceNotes`]: req.file ? req.file.path : null,
+      },
+    },
+    { new: true }
+  );
+  // console.log(updatedNote);
+  res.status(200).json({
+    success: true,
+    data: updatedNote,
+  });
+});
+
+exports.addLabRequest = asyncHandler(async (req, res, next) => {
+  console.log(req.body);
+  const edrCheck = await EDR.find({ _id: req.body.edrId }).populate(
+    'patientId'
+  );
+  // const latestEdr = edrCheck.length - 1;
+  const latestLabRequest = edrCheck[0].labRequest.length - 1;
+  const updatedRequest = latestLabRequest + 2;
+
+  const requestId = edrCheck[0].requestNo + '-' + updatedRequest;
+
+  const labRequest = {
+    requestId,
+    name: req.body.name,
+    serviceId: req.body.serviceId,
+    type: req.body.type,
+    price: req.body.price,
+    status: req.body.status,
+    priority: req.body.priority,
+    assignedBy: req.body.staffId,
+    requestedAt: Date.now(),
+    reason: req.body.reason,
+  };
+  const assignedLab = await EDR.findOneAndUpdate(
+    { _id: req.body.edrId },
+    { $push: { labRequest } },
+    { new: true }
+  );
+
+  res.status(200).json({
+    success: true,
+    data: assignedLab,
+  });
+});
