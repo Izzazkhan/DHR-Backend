@@ -360,7 +360,7 @@ const edrSchema = new mongoose.Schema({
             {
               name: String, // row name e.g Physical Exam
               scale: String,
-              value: String,
+              value: Number,
               chips: [
                 {
                   name: String,              // Chip names e.g. Agree W/ Vital Sign
