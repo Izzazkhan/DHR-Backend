@@ -150,7 +150,7 @@ exports.getCSPatients = asyncHandler(async (req, res, next) => {
 
 exports.asignCareStream = asyncHandler(async (req, res, next) => {
   // console.log(req.body.data);
-  req.body.data = req.body;
+  // req.body.data = req.body;
   const edrCheck = await EDR.find({ _id: req.body.data.edrId }).populate(
     'patientId'
   );
@@ -195,7 +195,7 @@ exports.getPatientWithoutCSByKeyword = asyncHandler(async (req, res, next) => {
     status: 'pending',
     careStream: { $eq: [] },
     room: { $ne: [] },
-  }).populate('patientId');
+  }).populate('patientId ');
 
   for (let i = 0; i < patients.length; i++) {
     const fullName =
@@ -240,7 +240,9 @@ exports.getPatientsWithCSByKeyword = asyncHandler(async (req, res, next) => {
     status: 'pending',
     careStream: { $ne: [] },
     room: { $ne: [] },
-  }).populate('patientId');
+  }).populate(
+    'patientId chiefComplaint.chiefComplaintId careStream.careStreamId'
+  );
 
   for (let i = 0; i < patients.length; i++) {
     const fullName =
