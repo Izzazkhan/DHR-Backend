@@ -551,6 +551,49 @@ const edrSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'LaboratoryService',
       },
+      requestId: {
+        type: String,
+      },
+      name: {
+        type: String,
+      },
+      type: {
+        type: String,
+      },
+      price: {
+        type: String,
+      },
+      status: {
+        type: String,
+        default: 'pending',
+      },
+      priority: {
+        type: String,
+      },
+      requestedAt: {
+        type: Date,
+      },
+      requestedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      notes: {
+        type: String,
+      },
+      updateRecord: [
+        {
+          updatedAt: {
+            type: Date,
+          },
+          updatedBy: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
+          },
+          reason: {
+            type: String,
+          },
+        },
+      ],
     },
   ],
   radiologyRequest: [
