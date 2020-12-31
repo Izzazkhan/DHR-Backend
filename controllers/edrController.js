@@ -280,3 +280,75 @@ exports.updateLab = asyncHandler(async (req, res, next) => {
     data: updatedLab,
   });
 });
+
+exports.addConsultationNote = asyncHandler(async (req, res, next) => {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const diff =
+    now -
+    start +
+    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
+  const oneDay = 1000 * 60 * 60 * 24;
+  const day = Math.floor(diff / oneDay);
+  const requestNo = `CN${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
+
+  const parsed = JSON.parse(req.body.data);
+  const consultationNote = {
+    requestNo,
+    addedBy: parsed.addedBy,
+    consultant: parsed.consultant,
+    noteTime: Date.now(),
+    notes: parsed.notes,
+    voiceNotes: req.file ? req.file.path : null,
+  };
+  const addedNote = await EDR.findOneAndUpdate(
+    { _id: parsed.edrId },
+    { $push: { consultationNote } },
+    {
+      new: true,
+    }
+  );
+  // console.log(addedNote);
+  res.status(200).json({
+    success: true,
+    data: addedNote,
+  });
+});
+
+exports.updateConsultationNote = asyncHandler(async (req, res, next) => {
+  const parsed = JSON.parse(req.body.data);
+  // const parsed = req.body;
+  console.log(parsed);
+  const edrNotes = await EDR.findOne({ _id: parsed.edrId });
+
+  let note;
+  for (let i = 0; i < edrNotes.consultationNote.length; i++) {
+    if (edrNotes.consultationNote[i]._id == parsed.noteId) {
+      // console.log(i);
+      note = i;
+    }
+  }
+  const updatedNote = await EDR.findOneAndUpdate(
+    { _id: parsed.edrId },
+    {
+      $set: {
+        [`consultationNote.${note}.consultant`]: parsed.consultant,
+        [`consultationNote.${note}.notes`]: parsed.notes,
+        [`consultationNote.${note}.voiceNotes`]: req.file
+          ? req.file.path
+          : null,
+      },
+    },
+    { new: true }
+  );
+  // console.log(updatedNote);
+  res.status(200).json({
+    success: true,
+    data: updatedNote,
+  });
+});
+
+exports.getEDRwihtConsultationNote = asyncHandler(async (req, res, next) => {
+  const patients = await EDR.find({ consultationNote: { $ne: [] } });
+  res.status(200).json({ success: 'true', data: patients });
+});

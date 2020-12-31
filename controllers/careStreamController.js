@@ -336,6 +336,14 @@ exports.getEDRswithCS = asyncHandler(async (req, res, next) => {
       path: 'careStream.careStreamId',
       model: 'careStream',
     },
+    {
+      path: 'consultationNote.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'consultationNote.consultant',
+      model: 'staff',
+    },
   ]);
 
   res.status(200).json({
