@@ -496,34 +496,22 @@ const edrSchema = new mongoose.Schema({
       consultationNo: {
         type: String,
       },
-      date: {
+      notes: String,
+      addedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      voiceNotes: String,
+      consultant: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      noteTime: {
         type: Date,
-        default: Date.now,
-      },
-      description: {
-        type: String,
-      },
-      consultationNotes: {
-        type: String,
-      },
-      doctorNotes: {
-        type: String,
-      },
-      audioNotes: {
-        type: String,
       },
       status: {
         type: String,
-      },
-      specialty: {
-        type: String,
-      },
-      specialist: {
-        type: String,
-      },
-      requester: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'staff',
+        default: 'pending',
       },
     },
   ],
@@ -616,12 +604,55 @@ const edrSchema = new mongoose.Schema({
       ],
     },
   ],
-  radiologyRequest: [
+  radRequest: [
     {
       serviceId: {
         type: mongoose.Schema.ObjectId,
         ref: 'RadiologyService',
       },
+      requestId: {
+        type: String,
+      },
+      name: {
+        type: String,
+      },
+      type: {
+        type: String,
+      },
+      price: {
+        type: String,
+      },
+      status: {
+        type: String,
+        default: 'pending',
+      },
+      priority: {
+        type: String,
+      },
+      requestedAt: {
+        type: Date,
+      },
+      requestedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      notes: {
+        type: String,
+      },
+      updateRecord: [
+        {
+          updatedAt: {
+            type: Date,
+          },
+          updatedBy: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
+          },
+          reason: {
+            type: String,
+          },
+        },
+      ],
     },
   ],
   dischargeRequest: {

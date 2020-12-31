@@ -280,3 +280,146 @@ exports.updateLab = asyncHandler(async (req, res, next) => {
     data: updatedLab,
   });
 });
+
+exports.addConsultationNote = asyncHandler(async (req, res, next) => {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const diff =
+    now -
+    start +
+    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
+  const oneDay = 1000 * 60 * 60 * 24;
+  const day = Math.floor(diff / oneDay);
+  const requestNo = `CN${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
+
+  const parsed = JSON.parse(req.body.data);
+  const consultationNote = {
+    requestNo,
+    addedBy: parsed.addedBy,
+    consultant: parsed.consultant,
+    noteTime: Date.now(),
+    notes: parsed.notes,
+    voiceNotes: req.file ? req.file.path : null,
+  };
+  const addedNote = await EDR.findOneAndUpdate(
+    { _id: parsed.edrId },
+    { $push: { consultationNote } },
+    {
+      new: true,
+    }
+  );
+  // console.log(addedNote);
+  res.status(200).json({
+    success: true,
+    data: addedNote,
+  });
+});
+
+exports.updateConsultationNote = asyncHandler(async (req, res, next) => {
+  const parsed = JSON.parse(req.body.data);
+  // const parsed = req.body;
+  console.log(parsed);
+  const edrNotes = await EDR.findOne({ _id: parsed.edrId });
+
+  let note;
+  for (let i = 0; i < edrNotes.consultationNote.length; i++) {
+    if (edrNotes.consultationNote[i]._id == parsed.noteId) {
+      // console.log(i);
+      note = i;
+    }
+  }
+  const updatedNote = await EDR.findOneAndUpdate(
+    { _id: parsed.edrId },
+    {
+      $set: {
+        [`consultationNote.${note}.consultant`]: parsed.consultant,
+        [`consultationNote.${note}.notes`]: parsed.notes,
+        [`consultationNote.${note}.voiceNotes`]: req.file
+          ? req.file.path
+          : null,
+      },
+    },
+    { new: true }
+  );
+  // console.log(updatedNote);
+  res.status(200).json({
+    success: true,
+    data: updatedNote,
+  });
+});
+
+exports.getEDRwihtConsultationNote = asyncHandler(async (req, res, next) => {
+  const patients = await EDR.find({ consultationNote: { $ne: [] } });
+  res.status(200).json({ success: 'true', data: patients });
+});
+
+exports.addRadRequest = asyncHandler(async (req, res, next) => {
+  // console.log(req.body);
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const diff =
+    now -
+    start +
+    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
+  const oneDay = 1000 * 60 * 60 * 24;
+  const day = Math.floor(diff / oneDay);
+  // const edrCheck = await EDR.find({ _id: req.body.edrId }).populate(
+  //   'patientId labRequest.serviceId'
+  // );
+  // const latestEdr = edrCheck.length - 1;
+  // const latestLabRequest = edrCheck[0].labRequest.length - 1;
+  // const updatedRequest = latestLabRequest + 2;
+
+  const requestId = `RR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
+
+  const radRequest = {
+    requestId,
+    name: req.body.name,
+    serviceId: req.body.serviceId,
+    type: req.body.type,
+    price: req.body.price,
+    status: req.body.status,
+    priority: req.body.priority,
+    assignedBy: req.body.staffId,
+    requestedAt: Date.now(),
+    reason: req.body.reason,
+    notes: req.body.notes,
+  };
+  const assignedRad = await EDR.findOneAndUpdate(
+    { _id: req.body.edrId },
+    { $push: { radRequest } },
+    { new: true }
+  ).populate('radRequest.serviceId');
+
+  res.status(200).json({
+    success: true,
+    data: assignedRad,
+  });
+});
+
+exports.updateRad = asyncHandler(async (req, res, next) => {
+  // console.log(req.body);
+  const rad = await EDR.findOne({ _id: req.body.edrId });
+  let note;
+  for (let i = 0; i < rad.radRequest.length; i++) {
+    if (rad.radRequest[i]._id == req.body.radId) {
+      // console.log(i);
+      note = i;
+    }
+  }
+  const updatedrad = await EDR.findOneAndUpdate(
+    { _id: req.body.edrId },
+    {
+      $set: {
+        [`radRequest.${note}.notes`]: req.body.notes,
+        [`radRequest.${note}.priority`]: req.body.priority,
+      },
+    },
+    { new: true }
+  ).populate('radRequest.serviceId');
+
+  res.status(200).json({
+    success: true,
+    data: updatedrad,
+  });
+});
