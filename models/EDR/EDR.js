@@ -363,32 +363,35 @@ const edrSchema = new mongoose.Schema({
               value: String,
               chips: [
                 {
-                  name: String,              // Chip names e.g. Agree W/ Vital Sign
+                  name: String, // Chip names e.g. Agree W/ Vital Sign
                   image: [{ type: String }], // multiple images
-                  detail: String,            // Chips's Textfield
-                  right: [                   //  Chips further having Right side Details
+                  detail: String, // Chips's Textfield
+                  right: [
+                    //  Chips further having Right side Details
                     {
                       name: String,
-                      value: String
-                    }
+                      value: String,
+                    },
                   ],
-                  left: [                   //  Chips further having Left side Details
+                  left: [
+                    //  Chips further having Left side Details
                     {
                       name: String,
-                      value: String
-                    }
+                      value: String,
+                    },
                   ],
-                  subChips: [             // Chips with SubChips e.g abnormal bowel sounds
+                  subChips: [
+                    // Chips with SubChips e.g abnormal bowel sounds
                     {
-                      name: String,       // e.g. absent, inc, dec
-                      selected: Boolean,  // to mark it as selected
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        }
+                      name: String, // e.g. absent, inc, dec
+                      selected: Boolean, // to mark it as selected
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
       ],
       createdAt: {
         type: Date,
