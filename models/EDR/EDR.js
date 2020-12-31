@@ -321,6 +321,7 @@ const edrSchema = new mongoose.Schema({
           details: [
             {
               name: String, // row name e.g Historian
+              value: Number,
               Texts: [
                 // Textfields in place of rows
                 {
@@ -357,14 +358,33 @@ const edrSchema = new mongoose.Schema({
           },
           details: [
             {
-              name: String,
-              details: [
+              name: String, // row name e.g Physical Exam
+              scale: String,
+              value: String,
+              chips: [
                 {
-                  text: String,
-                  image: String,
-                  subTypes: [
+                  name: String, // Chip names e.g. Agree W/ Vital Sign
+                  image: [{ type: String }], // multiple images
+                  detail: String, // Chips's Textfield
+                  right: [
+                    //  Chips further having Right side Details
                     {
-                      type: String,
+                      name: String,
+                      value: String,
+                    },
+                  ],
+                  left: [
+                    //  Chips further having Left side Details
+                    {
+                      name: String,
+                      value: String,
+                    },
+                  ],
+                  subChips: [
+                    // Chips with SubChips e.g abnormal bowel sounds
+                    {
+                      name: String, // e.g. absent, inc, dec
+                      selected: Boolean, // to mark it as selected
                     },
                   ],
                 },

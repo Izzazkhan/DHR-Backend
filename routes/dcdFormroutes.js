@@ -37,7 +37,7 @@ router.put('/addPatientDetails', addPatientDetails);
 router.put('/addPastHistory', addPastHistory);
 router.put('/addRos', addROS);
 router.put('/addPhysicalExam', addPhysicalExam);
-router.put('/addInvestigation', upload.array('files'), addInvestigation);
+router.put('/addInvestigation', upload.array('file'), addInvestigation);
 router.put('/addActionPlan', addActionPlan);
 router.put('/addCourseOfVisit', addCourseOfVisit);
 
