@@ -328,6 +328,17 @@ exports.searchDoctor = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.getSpecialityDoctor = asyncHandler(async (req, res, next) => {
+  const doctors = await Staff.find({
+    specialty: req.params.speciality,
+    $or: [{ subType: 'Internal' }, { subType: 'External' }],
+  });
+  res.status(200).json({
+    success: true,
+    data: doctors.length,
+  });
+});
+
 exports.getUsersFromRole = asyncHandler(async (req, res) => {
   if (req.params.role === 'all') {
     const sensei = await Staff.find({}).populate('addedBy');
