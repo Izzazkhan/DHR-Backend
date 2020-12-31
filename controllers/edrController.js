@@ -349,6 +349,70 @@ exports.updateConsultationNote = asyncHandler(async (req, res, next) => {
 });
 
 exports.getEDRwihtConsultationNote = asyncHandler(async (req, res, next) => {
-  const patients = await EDR.find({ consultationNote: { $ne: [] } });
-  res.status(200).json({ success: 'true', data: patients });
+  const patients = await EDR.find({
+    status: 'pending',
+    consultationNote: { $ne: [] },
+  }).populate([
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          // populate: [
+          //   {
+          //     path: 'rooms.roomId',
+          //     model: 'room',
+          //   },
+          // ],
+        },
+      ],
+    },
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+    },
+    {
+      path: 'consultationNote.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'consultationNote.consultant',
+      model: 'staff',
+    },
+  ]);
+
+  let responseArray = [];
+  for (let outer = 0; outer < patients.length; outer++) {
+    for (
+      let inner = 0;
+      inner < patients[outer].consultationNote.length;
+      inner++
+    ) {
+      // console.log(
+      //   'Length of consultation Notes',
+      //   patients[outer].consultationNote.length
+      // );
+      // console.log('Index', inner);
+      // console.log(
+      //   'Consultant ID',
+      //   patients[outer].consultationNote[inner].consultant._id
+      // );
+      // console.log('Request ID', req.params.id);
+
+      if (
+        patients[outer].consultationNote[inner].consultant != null &&
+        patients[outer].consultationNote[inner].consultant._id == req.params.id
+      ) {
+        var object = {
+          patientData: patients[outer],
+          consultationNotes: patients[outer].consultationNote[inner],
+        };
+        responseArray.push(object);
+      }
+    }
+  }
+  res.status(200).json({ success: 'true', data: responseArray });
 });
