@@ -358,9 +358,11 @@ const edrSchema = new mongoose.Schema({
           },
           details: [
             {
-              name: String, // row name e.g Physical Exam
-              scale: String,
-              value: Number,
+              name: String,       // row name e.g Physical Exam
+              scale: {           // rows having scale e.g pain scale
+                name: String,
+                value: Number
+              },
               chips: [
                 {
                   name: String,              // Chip names e.g. Agree W/ Vital Sign
