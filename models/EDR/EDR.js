@@ -513,6 +513,9 @@ const edrSchema = new mongoose.Schema({
         type: String,
         default: 'pending',
       },
+      speciality: {
+        type: String,
+      },
     },
   ],
   residentNotes: [

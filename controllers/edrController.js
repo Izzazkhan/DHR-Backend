@@ -300,6 +300,7 @@ exports.addConsultationNote = asyncHandler(async (req, res, next) => {
     noteTime: Date.now(),
     notes: parsed.notes,
     voiceNotes: req.file ? req.file.path : null,
+    speciality: parsed.speciality,
   };
   const addedNote = await EDR.findOneAndUpdate(
     { _id: parsed.edrId },
@@ -333,6 +334,7 @@ exports.updateConsultationNote = asyncHandler(async (req, res, next) => {
     {
       $set: {
         [`consultationNote.${note}.consultant`]: parsed.consultant,
+        [`consultationNote.${note}.consultant`]: parsed.speciality,
         [`consultationNote.${note}.notes`]: parsed.notes,
         [`consultationNote.${note}.voiceNotes`]: req.file
           ? req.file.path

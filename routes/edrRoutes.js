@@ -29,6 +29,8 @@ const {
   addConsultationNote,
   updateConsultationNote,
   getEDRwihtConsultationNote,
+  addRadRequest,
+  updateRad,
 } = require('../controllers/edrController');
 
 const router = express.Router();
@@ -48,6 +50,8 @@ router.put(
 router.get('/getEdrsByPatient/:id', getEdrsByPatient);
 router.get('/getEDRWihtConsultationNote', getEDRwihtConsultationNote);
 router.put('/addLabRequest', addLabRequest);
+router.put('/addRadRequest', addRadRequest);
 router.put('/updateLab', updateLab);
+router.put('/updateRad', updateRad);
 
 module.exports = router;
