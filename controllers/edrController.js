@@ -221,7 +221,7 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
   const oneDay = 1000 * 60 * 60 * 24;
   const day = Math.floor(diff / oneDay);
   // const edrCheck = await EDR.find({ _id: req.body.edrId }).populate(
-  //   'patientId'
+  //   'patientId labRequest.serviceId'
   // );
   // const latestEdr = edrCheck.length - 1;
   // const latestLabRequest = edrCheck[0].labRequest.length - 1;

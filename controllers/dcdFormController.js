@@ -251,7 +251,7 @@ exports.addActionPlan = asyncHandler(async (req, res, next) => {
       }
     }
   }
-  parsed.details.chips.image = ecg;
+  // parsed.details.chips.image = ecg;
   const edr = await EDR.findOne({ _id: req.body.edrId });
   const latestForm = edr.dcdForm.length - 1;
   const latestActionPlan = edr.dcdForm[latestForm].actionPlan.length - 1;
@@ -267,7 +267,7 @@ exports.addActionPlan = asyncHandler(async (req, res, next) => {
   const edrPatient = await EDR.findOneAndUpdate(
     { _id: req.body.edrId },
     {
-      $push: {
+      $set: {
         [`dcdForm.${latestForm}.actionPlan`]: actionPlan,
       },
     },
