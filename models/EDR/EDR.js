@@ -365,32 +365,35 @@ const edrSchema = new mongoose.Schema({
               },
               chips: [
                 {
-                  name: String,              // Chip names e.g. Agree W/ Vital Sign
+                  name: String, // Chip names e.g. Agree W/ Vital Sign
                   image: [{ type: String }], // multiple images
-                  detail: String,            // Chips's Textfield
-                  right: [                   //  Chips further having Right side Details
+                  detail: String, // Chips's Textfield
+                  right: [
+                    //  Chips further having Right side Details
                     {
                       name: String,
-                      value: String
-                    }
+                      value: String,
+                    },
                   ],
-                  left: [                   //  Chips further having Left side Details
+                  left: [
+                    //  Chips further having Left side Details
                     {
                       name: String,
-                      value: String
-                    }
+                      value: String,
+                    },
                   ],
-                  subChips: [             // Chips with SubChips e.g abnormal bowel sounds
+                  subChips: [
+                    // Chips with SubChips e.g abnormal bowel sounds
                     {
-                      name: String,       // e.g. absent, inc, dec
-                      selected: Boolean,  // to mark it as selected
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        }
+                      name: String, // e.g. absent, inc, dec
+                      selected: Boolean, // to mark it as selected
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
       ],
       createdAt: {
         type: Date,
@@ -495,34 +498,25 @@ const edrSchema = new mongoose.Schema({
       consultationNo: {
         type: String,
       },
-      date: {
+      notes: String,
+      addedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      voiceNotes: String,
+      consultant: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      noteTime: {
         type: Date,
-        default: Date.now,
-      },
-      description: {
-        type: String,
-      },
-      consultationNotes: {
-        type: String,
-      },
-      doctorNotes: {
-        type: String,
-      },
-      audioNotes: {
-        type: String,
       },
       status: {
         type: String,
+        default: 'pending',
       },
-      specialty: {
+      speciality: {
         type: String,
-      },
-      specialist: {
-        type: String,
-      },
-      requester: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'staff',
       },
     },
   ],
@@ -615,12 +609,55 @@ const edrSchema = new mongoose.Schema({
       ],
     },
   ],
-  radiologyRequest: [
+  radRequest: [
     {
       serviceId: {
         type: mongoose.Schema.ObjectId,
         ref: 'RadiologyService',
       },
+      requestId: {
+        type: String,
+      },
+      name: {
+        type: String,
+      },
+      type: {
+        type: String,
+      },
+      price: {
+        type: String,
+      },
+      status: {
+        type: String,
+        default: 'pending',
+      },
+      priority: {
+        type: String,
+      },
+      requestedAt: {
+        type: Date,
+      },
+      requestedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      notes: {
+        type: String,
+      },
+      updateRecord: [
+        {
+          updatedAt: {
+            type: Date,
+          },
+          updatedBy: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
+          },
+          reason: {
+            type: String,
+          },
+        },
+      ],
     },
   ],
   dischargeRequest: {
