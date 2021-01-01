@@ -400,7 +400,7 @@ exports.addRadRequest = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateRad = asyncHandler(async (req, res, next) => {
-  // console.log(req.body);
+  // console.log('req.body', req.body);
   const rad = await EDR.findOne({ _id: req.body.edrId });
   let note;
   for (let i = 0; i < rad.radRequest.length; i++) {
@@ -409,6 +409,7 @@ exports.updateRad = asyncHandler(async (req, res, next) => {
       note = i;
     }
   }
+  console.log('note', note);
   const updatedrad = await EDR.findOneAndUpdate(
     { _id: req.body.edrId },
     {
@@ -418,7 +419,8 @@ exports.updateRad = asyncHandler(async (req, res, next) => {
       },
     },
     { new: true }
-  ).populate('radRequest.serviceId');
+  );
+  // console.log('updaterad', updatedrad);
 
   res.status(200).json({
     success: true,
