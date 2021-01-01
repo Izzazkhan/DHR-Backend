@@ -329,12 +329,13 @@ exports.updateConsultationNote = asyncHandler(async (req, res, next) => {
       note = i;
     }
   }
+  // console.log(note);
   const updatedNote = await EDR.findOneAndUpdate(
     { _id: parsed.edrId },
     {
       $set: {
         [`consultationNote.${note}.consultant`]: parsed.consultant,
-        [`consultationNote.${note}.consultant`]: parsed.speciality,
+        [`consultationNote.${note}.speciality`]: parsed.speciality,
         [`consultationNote.${note}.notes`]: parsed.notes,
         [`consultationNote.${note}.voiceNotes`]: req.file
           ? req.file.path
@@ -343,7 +344,7 @@ exports.updateConsultationNote = asyncHandler(async (req, res, next) => {
     },
     { new: true }
   );
-  // console.log(updatedNote);
+  console.log(updatedNote);
   res.status(200).json({
     success: true,
     data: updatedNote,
