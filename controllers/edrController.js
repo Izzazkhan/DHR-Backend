@@ -319,7 +319,7 @@ exports.addConsultationNote = asyncHandler(async (req, res, next) => {
 exports.updateConsultationNote = asyncHandler(async (req, res, next) => {
   const parsed = JSON.parse(req.body.data);
   // const parsed = req.body;
-  console.log(parsed);
+  // console.log(parsed);
   const edrNotes = await EDR.findOne({ _id: parsed.edrId });
 
   let note;
@@ -343,8 +343,11 @@ exports.updateConsultationNote = asyncHandler(async (req, res, next) => {
       },
     },
     { new: true }
-  );
-  console.log(updatedNote);
+  ).populate('consultationNote.consultant');
+  // await EDR.findOne({ _id: parsed.edrId }).populate(
+  //
+  // );
+  // console.log(updatedNote);
   res.status(200).json({
     success: true,
     data: updatedNote,

@@ -208,30 +208,64 @@ exports.addPhysicalExam = asyncHandler(async (req, res, next) => {
 exports.addInvestigation = asyncHandler(async (req, res, next) => {
   const parsed = JSON.parse(req.body.data);
   // console.log(parsed);
-  console.log('files', req.files);
+  // console.log('files', req.files);
   const edr = await EDR.findOne({ _id: parsed.edrId });
   const latestForm = edr.dcdForm.length - 1;
   const latestInvestigation = edr.dcdForm[latestForm].investigation.length - 1;
   const ecg = [];
   const xray = [];
+  let ecgIndex;
+  let xrayIndex;
+
   if (req.files) {
     for (let i = 0; i < parsed.details.length; i++) {
-      for (let j = 0; parsed.details[i].chips.length; j++) {
-        if (parsed.details[i].chips[j].name === 'Add ECG Report') {
-          ecg.push(req.files.ECG.path);
-          const ecgId = parsed.details[i].chips[j]._id;
-          console.log(ecgId);
-        } else if (parsed.details[i].chips[j].name === 'Add CXR Report') {
-          xray.push(req.files.ECG.path);
-          const xrayId = parsed.details.chips[j]._id;
-          console.log(xrayId);
+      for (let j = 0; j < parsed.details[i].chips.length; j++) {
+        // console.log(
+        //   parsed.details[i].chips[j] && parsed.details[i].chips[j].name
+        // );
+        if (
+          parsed.details[i].chips[j] &&
+          parsed.details[i].chips[j].name === 'Add ECG Report'
+        ) {
+          for (let k = 0; k < req.files.length; k++) {
+            // console.log('path', req.files);
+
+            if (req.files[k].fieldname === 'ECG') {
+              ecg.push(req.files[k].path);
+              parsed.details[i].chips[j].image = ecg;
+              ecgIndex = j;
+              console.log(ecgIndex);
+              // parsed.details[i].chips[j].image = req.files[k].path;
+              // const ecgId = parsed.details[i].chips[j];
+              // console.log('ecg id', ecgId);
+            }
+          }
+        } else if (
+          parsed.details[i].chips[j] &&
+          parsed.details[i].chips[j].name === 'Add CXR Report'
+        ) {
+          for (let l = 0; l < req.files.length; l++) {
+            if (req.files[l].fieldname === 'XRAY') {
+              xray.push(req.files[l].path);
+              xrayIndex = j;
+              console.log(xrayIndex);
+              // parsed.details[i].chips[j].image = req.files[l].path;
+            }
+          }
         }
       }
     }
   }
-  console.log(ecg);
-  console.log(xray);
-  // console.log(ecgId);
+  console.log('ecg aray', ecg);
+  console.log('xray array', xray);
+  // if (ecgIndex) {
+  //   parsed.details[0].chips[ecgIndex].image = ecg;
+  // }
+  if (xrayIndex) {
+    parsed.details[6].chips[xrayIndex].image = xray;
+  }
+
+  console.log(parsed.details[0].chips[0]);
   const investigation = {
     version: latestInvestigation + 2,
     // reason: req.body.reason,
