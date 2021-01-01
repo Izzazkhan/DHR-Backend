@@ -6,10 +6,76 @@ const edrSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'patientfhir',
   },
-  careStream: {
-    type: mongoose.Schema.ObjectId,
-    ref: 'careStream',
-  },
+  transfer: [
+    {
+      reason: String,
+      status: String,
+      transferTime: Date,
+      transferBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+    },
+  ],
+  careStream: [
+    {
+      careStreamId: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'careStream',
+      },
+      versionNo: {
+        type: String,
+      },
+      assignedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      assignedTime: {
+        type: Date,
+      },
+      reason: String,
+      name: {
+        type: String,
+      },
+      inclusionCriteria: [{ type: String }],
+      exclusionCriteria: [{ type: String }],
+      investigations: [{ type: String }],
+      precautions: [{ type: String }],
+      treatmentOrders: [
+        {
+          name: String,
+          subType: [
+            {
+              type: String,
+            },
+          ],
+        },
+      ],
+      fluidsIV: [
+        {
+          type: String,
+        },
+      ],
+      medications: [
+        {
+          type: String,
+        },
+      ],
+      mdNotification: [
+        {
+          name: String,
+          subType: [
+            {
+              type: String,
+            },
+          ],
+        },
+      ],
+      status: {
+        type: String,
+      },
+    },
+  ],
   room: [
     {
       roomId: {
@@ -96,19 +162,31 @@ const edrSchema = new mongoose.Schema({
       ],
       investigation: [
         {
-          name: String, // Rhythm ECG
-          chips: [
+          version: String,
+          status: String,
+          reason: String,
+          date: Date,
+          updatedBy: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
+          },
+          details: [
             {
-              name: String, // NSR // Rate
-              image: [{ type: String }], // multiple images
-              detail: String, // Rate's Textfield
-            },
-          ],
-          Texts: [
-            //for rows such as CBC, Chemistries, UA
-            {
-              name: String,
-              value: String,
+              name: String, // Rhythm ECG
+              chips: [
+                {
+                  name: String, // NSR // Rate
+                  image: [{ type: String }], // multiple images
+                  detail: String, // Rate's Textfield
+                },
+              ],
+              Texts: [
+                //for rows such as CBC, Chemistries, UA
+                {
+                  name: String,
+                  value: String,
+                },
+              ],
             },
           ],
         },
@@ -157,39 +235,75 @@ const edrSchema = new mongoose.Schema({
       ],
       ROS: [
         {
-          name: String, // row names e.g. CONST
-          chips: [
+          version: String,
+          status: String,
+          reason: String,
+          date: Date,
+          updatedBy: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
+          },
+          details: [
             {
-              name: String, // Chips of rows
+              name: String, // row names e.g. CONST
+              chips: [
+                {
+                  name: String, // Chips of rows
+                },
+              ],
             },
           ],
         },
       ],
       actionPlan: [
         {
-          name: String, // row name
-          chips: [
+          version: String,
+          status: String,
+          reason: String,
+          date: Date,
+          updatedBy: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
+          },
+          details: [
             {
-              name: String, // chip's name
-              detail: String, // chip's Textfield
+              name: String, // row name
+              chips: [
+                {
+                  name: String, // chip's name
+                  detail: String, // chip's Textfield
+                },
+              ],
             },
           ],
         },
       ],
       courseOfVisit: [
         {
-          name: String, // row name
-          Texts: [
-            // Textfield for a row
+          version: String,
+          status: String,
+          reason: String,
+          date: Date,
+          updatedBy: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
+          },
+          details: [
             {
-              name: String,
-              value: String,
-            },
-          ],
-          chips: [
-            {
-              name: String, // chip's name
-              detail: String, // chip's Textfield
+              name: String, // row name
+              Texts: [
+                // Textfield for a row
+                {
+                  name: String,
+                  value: String,
+                },
+              ],
+              chips: [
+                {
+                  name: String, // chip's name
+                  detail: String, // chip's Textfield
+                },
+              ],
             },
           ],
         },
@@ -207,6 +321,7 @@ const edrSchema = new mongoose.Schema({
           details: [
             {
               name: String, // row name e.g Historian
+              value: Number,
               Texts: [
                 // Textfields in place of rows
                 {
@@ -233,14 +348,47 @@ const edrSchema = new mongoose.Schema({
       ],
       physicalExam: [
         {
-          name: String,
-          detail: [
+          version: String,
+          status: String,
+          reason: String,
+          date: Date,
+          updatedBy: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
+          },
+          details: [
             {
-              text: String,
-              image: String,
-              subTypes: [
+              name: String,       // row name e.g Physical Exam
+              scale: {           // rows having scale e.g pain scale
+                name: String,
+                value: Number
+              },
+              chips: [
                 {
-                  type: String,
+                  name: String, // Chip names e.g. Agree W/ Vital Sign
+                  image: [{ type: String }], // multiple images
+                  detail: String, // Chips's Textfield
+                  right: [
+                    //  Chips further having Right side Details
+                    {
+                      name: String,
+                      value: String,
+                    },
+                  ],
+                  left: [
+                    //  Chips further having Left side Details
+                    {
+                      name: String,
+                      value: String,
+                    },
+                  ],
+                  subChips: [
+                    // Chips with SubChips e.g abnormal bowel sounds
+                    {
+                      name: String, // e.g. absent, inc, dec
+                      selected: Boolean, // to mark it as selected
+                    },
+                  ],
                 },
               ],
             },
@@ -334,39 +482,41 @@ const edrSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'staff',
   },
+  doctorNotes: [
+    {
+      notes: String,
+      addedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      voiceNotes: String,
+      assignedTime: Date,
+    },
+  ],
   consultationNote: [
     {
       consultationNo: {
         type: String,
       },
-      date: {
+      notes: String,
+      addedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      voiceNotes: String,
+      consultant: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      noteTime: {
         type: Date,
-        default: Date.now,
-      },
-      description: {
-        type: String,
-      },
-      consultationNotes: {
-        type: String,
-      },
-      doctorNotes: {
-        type: String,
-      },
-      audioNotes: {
-        type: String,
       },
       status: {
         type: String,
+        default: 'pending',
       },
-      specialty: {
+      speciality: {
         type: String,
-      },
-      specialist: {
-        type: String,
-      },
-      requester: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'staff',
       },
     },
   ],
@@ -414,14 +564,100 @@ const edrSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'LaboratoryService',
       },
+      requestId: {
+        type: String,
+      },
+      name: {
+        type: String,
+      },
+      type: {
+        type: String,
+      },
+      price: {
+        type: String,
+      },
+      status: {
+        type: String,
+        default: 'pending',
+      },
+      priority: {
+        type: String,
+      },
+      requestedAt: {
+        type: Date,
+      },
+      requestedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      notes: {
+        type: String,
+      },
+      updateRecord: [
+        {
+          updatedAt: {
+            type: Date,
+          },
+          updatedBy: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
+          },
+          reason: {
+            type: String,
+          },
+        },
+      ],
     },
   ],
-  radiologyRequest: [
+  radRequest: [
     {
       serviceId: {
         type: mongoose.Schema.ObjectId,
         ref: 'RadiologyService',
       },
+      requestId: {
+        type: String,
+      },
+      name: {
+        type: String,
+      },
+      type: {
+        type: String,
+      },
+      price: {
+        type: String,
+      },
+      status: {
+        type: String,
+        default: 'pending',
+      },
+      priority: {
+        type: String,
+      },
+      requestedAt: {
+        type: Date,
+      },
+      requestedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      notes: {
+        type: String,
+      },
+      updateRecord: [
+        {
+          updatedAt: {
+            type: Date,
+          },
+          updatedBy: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
+          },
+          reason: {
+            type: String,
+          },
+        },
+      ],
     },
   ],
   dischargeRequest: {
