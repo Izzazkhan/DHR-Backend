@@ -206,20 +206,42 @@ exports.addPhysicalExam = asyncHandler(async (req, res, next) => {
 });
 
 exports.addInvestigation = asyncHandler(async (req, res, next) => {
-  console.log(req.body);
-  const edr = await EDR.findOne({ _id: req.body.edrId });
+  const parsed = JSON.parse(req.body.data);
+  // console.log(parsed);
+  console.log('files', req.files);
+  const edr = await EDR.findOne({ _id: parsed.edrId });
   const latestForm = edr.dcdForm.length - 1;
   const latestInvestigation = edr.dcdForm[latestForm].investigation.length - 1;
+  const ecg = [];
+  const xray = [];
+  if (req.files) {
+    for (let i = 0; i < parsed.details.length; i++) {
+      for (let j = 0; parsed.details[i].chips.length; j++) {
+        if (parsed.details[i].chips[j].name === 'Add ECG Report') {
+          ecg.push(req.files.ECG.path);
+          const ecgId = parsed.details[i].chips[j]._id;
+          console.log(ecgId);
+        } else if (parsed.details[i].chips[j].name === 'Add CXR Report') {
+          xray.push(req.files.ECG.path);
+          const xrayId = parsed.details.chips[j]._id;
+          console.log(xrayId);
+        }
+      }
+    }
+  }
+  console.log(ecg);
+  console.log(xray);
+  // console.log(ecgId);
   const investigation = {
     version: latestInvestigation + 2,
     // reason: req.body.reason,
     // status: req.body.status,
-    details: req.body.details,
-    updatedBy: req.body.staffId,
+    details: parsed.details,
+    updatedBy: parsed.staffId,
     date: Date.now(),
   };
   const edrPatient = await EDR.findOneAndUpdate(
-    { _id: req.body.edrId },
+    { _id: parsed.edrId },
     {
       $push: {
         [`dcdForm.${latestForm}.investigation`]: investigation,
@@ -234,7 +256,7 @@ exports.addInvestigation = asyncHandler(async (req, res, next) => {
 });
 
 exports.addActionPlan = asyncHandler(async (req, res, next) => {
-  // console.log(req.body);
+  console.log(req.body);
   const ecg = [];
   const xray = [];
   const parsed = JSON.parse(req.body.data);

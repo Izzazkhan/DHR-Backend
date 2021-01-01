@@ -287,7 +287,9 @@ exports.getAllSensei = asyncHandler(async (req, res) => {
 });
 
 exports.getAllDoctors = asyncHandler(async (req, res) => {
-  const doctors = await Staff.find({ staffType: 'Doctor' }).populate('addedBy');
+  const doctors = await Staff.find({ staffType: 'Doctor' }).populate(
+    'addedBy productionArea.productionAreaId'
+  );
   res.status(200).json({ success: 'true', data: doctors });
 });
 

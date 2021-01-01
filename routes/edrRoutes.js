@@ -48,7 +48,7 @@ router.put(
   updateConsultationNote
 );
 router.get('/getEdrsByPatient/:id', getEdrsByPatient);
-router.get('/getEDRWihtConsultationNote', getEDRwihtConsultationNote);
+router.get('/getEDRWihtConsultationNote/:id', getEDRwihtConsultationNote);
 router.put('/addLabRequest', addLabRequest);
 router.put('/addRadRequest', addRadRequest);
 router.put('/updateLab', updateLab);
