@@ -335,6 +335,7 @@ exports.getSpecialityDoctor = asyncHandler(async (req, res, next) => {
   const doctors = await Staff.find({
     specialty: req.params.speciality,
     $or: [{ subType: 'Internal' }, { subType: 'External' }],
+    disabled: false,
   });
   // console.log(doctors);
   res.status(200).json({
