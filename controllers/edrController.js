@@ -386,7 +386,7 @@ exports.getEDRwihtConsultationNote = asyncHandler(async (req, res, next) => {
     },
   ]);
 
-  let responseArray = [];
+  const responseArray = [];
   for (let outer = 0; outer < patients.length; outer++) {
     for (
       let inner = 0;
@@ -408,7 +408,7 @@ exports.getEDRwihtConsultationNote = asyncHandler(async (req, res, next) => {
         patients[outer].consultationNote[inner].consultant != null &&
         patients[outer].consultationNote[inner].consultant._id == req.params.id
       ) {
-        var object = {
+        const object = {
           patientData: patients[outer],
           consultationNotes: patients[outer].consultationNote[inner],
         };
