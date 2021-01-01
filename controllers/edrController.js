@@ -487,7 +487,7 @@ exports.updateRad = asyncHandler(async (req, res, next) => {
       },
     },
     { new: true }
-  );
+  ).populate('radRequest.serviceId');
   // console.log('updaterad', updatedrad);
 
   res.status(200).json({

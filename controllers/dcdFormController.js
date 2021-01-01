@@ -149,49 +149,44 @@ exports.addROS = asyncHandler(async (req, res, next) => {
   });
 });
 
-// exports.addROS = asyncHandler(async (req, res, next) => {
-//   console.log(req.body);
-//   const edr = await EDR.findOne({ _id: req.body.edrId });
-//   const latestForm = edr.dcdForm.length - 1;
-//   const latestROS = edr.dcdForm[latestForm].ROS.length - 1;
-//   const ROS = {
-//     version: latestROS + 2,
-//     // reason: req.body.reason,
-//     // status: req.body.status,
-//     details: req.body.details,
-//     updatedBy: req.body.staffId,
-//     date: Date.now(),
-//   };
-//   const edrPatient = await EDR.findOneAndUpdate(
-//     { _id: req.body.edrId },
-//     {
-//       $push: {
-//         [`dcdForm.${latestForm}.ROS`]: ROS,
-//       },
-//     },
-//     { new: true }
-//   );
-//   res.status(200).json({
-//     success: true,
-//     data: edrPatient,
-//   });
-// });
-
 exports.addPhysicalExam = asyncHandler(async (req, res, next) => {
-  console.log(req.body);
-  const edr = await EDR.findOne({ _id: req.body.edrId });
+  // console.log(req.body);
+  const parsed = JSON.parse(req.body.data);
+  console.log(parsed);
+  console.log(req.files);
+  const skin = [];
+
+  const edr = await EDR.findOne({ _id: parsed.edrId });
   const latestForm = edr.dcdForm.length - 1;
   const latestPhysicalExam = edr.dcdForm[latestForm].physicalExam.length - 1;
+
+  if (req.files) {
+    for (let i = 0; i < parsed.details.length; i++) {
+      for (let j = 0; j < parsed.details[i].chips.length; j++) {
+        if (
+          parsed.details[i].chips[j] &&
+          parsed.details[i].chips[j].name === 'Add Skin Report'
+        ) {
+          for (let k = 0; k < req.files.length; k++) {
+            if (req.files[k].fieldname === 'SkinReport') {
+              skin.push(req.files[k].path);
+              parsed.details[i].chips[j].image = skin;
+            }
+          }
+        }
+      }
+    }
+  }
   const physicalExam = {
     version: latestPhysicalExam + 2,
     // reason: req.body.reason,
     // status: req.body.status,
-    details: req.body.details,
-    updatedBy: req.body.staffId,
+    details: parsed.details,
+    updatedBy: parsed.staffId,
     date: Date.now(),
   };
   const edrPatient = await EDR.findOneAndUpdate(
-    { _id: req.body.edrId },
+    { _id: parsed.edrId },
     {
       $push: {
         [`dcdForm.${latestForm}.physicalExam`]: physicalExam,
@@ -207,37 +202,23 @@ exports.addPhysicalExam = asyncHandler(async (req, res, next) => {
 
 exports.addInvestigation = asyncHandler(async (req, res, next) => {
   const parsed = JSON.parse(req.body.data);
-  // console.log(parsed);
-  // console.log('files', req.files);
   const edr = await EDR.findOne({ _id: parsed.edrId });
   const latestForm = edr.dcdForm.length - 1;
   const latestInvestigation = edr.dcdForm[latestForm].investigation.length - 1;
   const ecg = [];
   const xray = [];
-  let ecgIndex;
-  let xrayIndex;
 
   if (req.files) {
     for (let i = 0; i < parsed.details.length; i++) {
       for (let j = 0; j < parsed.details[i].chips.length; j++) {
-        // console.log(
-        //   parsed.details[i].chips[j] && parsed.details[i].chips[j].name
-        // );
         if (
           parsed.details[i].chips[j] &&
           parsed.details[i].chips[j].name === 'Add ECG Report'
         ) {
           for (let k = 0; k < req.files.length; k++) {
-            // console.log('path', req.files);
-
             if (req.files[k].fieldname === 'ECG') {
               ecg.push(req.files[k].path);
               parsed.details[i].chips[j].image = ecg;
-              ecgIndex = j;
-              console.log(ecgIndex);
-              // parsed.details[i].chips[j].image = req.files[k].path;
-              // const ecgId = parsed.details[i].chips[j];
-              // console.log('ecg id', ecgId);
             }
           }
         } else if (
@@ -247,25 +228,14 @@ exports.addInvestigation = asyncHandler(async (req, res, next) => {
           for (let l = 0; l < req.files.length; l++) {
             if (req.files[l].fieldname === 'XRAY') {
               xray.push(req.files[l].path);
-              xrayIndex = j;
-              console.log(xrayIndex);
-              // parsed.details[i].chips[j].image = req.files[l].path;
+              parsed.details[i].chips[j].image = xray;
             }
           }
         }
       }
     }
   }
-  console.log('ecg aray', ecg);
-  console.log('xray array', xray);
-  // if (ecgIndex) {
-  //   parsed.details[0].chips[ecgIndex].image = ecg;
-  // }
-  if (xrayIndex) {
-    parsed.details[6].chips[xrayIndex].image = xray;
-  }
 
-  console.log(parsed.details[0].chips[0]);
   const investigation = {
     version: latestInvestigation + 2,
     // reason: req.body.reason,
