@@ -23,6 +23,8 @@ const chiefComplaintRouter = require('./routes/chiefComplaintRoutes');
 const cutomerCareRouter = require('./routes/customerCareRoutes');
 const flagRouter = require('./routes/flagRoutes');
 const communicationRouter = require('./routes/communicationRoutes');
+const patientTransferEDEOURoutes = require('./routes/patientTransferEDEOURoutes');
+
 
 const dcdFormRouter = require('./routes/dcdFormroutes');
 const ChatModel = require('./models/chatRoom/chatRoom');
@@ -67,6 +69,8 @@ app.use('/api/chatroom', chatRouter);
 app.use('/api/flag', flagRouter);
 app.use('/api/subscriber', subscriber);
 app.use('/api/communication', communicationRouter);
+app.use('/api/patientTransfer', patientTransferEDEOURoutes);
+
 
 app.use(errorHandler);
 

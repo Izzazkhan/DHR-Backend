@@ -524,6 +524,11 @@ const edrSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+
+  currentLocation: {
+    type: String,
+    default: 'ED',
+  },
 });
 
 edrSchema.plugin(mongoosePaginate);
