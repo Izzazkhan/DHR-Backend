@@ -127,9 +127,8 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
   const customerCareStaff = await Staff.findOne({ _id: req.body.staffId });
 
   const transfer = await TransferToEDEOU.find({
-    // edrId: req.body.edrId,
+    edrId: req.body.edrId,
     $or: [{ status: 'pending' }, { status: 'in_progress' }],
-    // status: 'Pending',
   });
 
   console.log('transfer', transfer);

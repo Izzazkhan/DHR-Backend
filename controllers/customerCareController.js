@@ -52,6 +52,7 @@ exports.getCCStaffByKeyword = asyncHandler(async (req, res, next) => {
   const arr = [];
   const staff = await Staff.find({
     staffType: 'Customer Care',
+    disabled: false,
   });
 
   // console.log(staff);
