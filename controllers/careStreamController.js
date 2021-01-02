@@ -344,6 +344,14 @@ exports.getEDRswithCS = asyncHandler(async (req, res, next) => {
       path: 'consultationNote.consultant',
       model: 'staff',
     },
+    {
+      path: 'radRequest.serviceId',
+      model: 'RadiologyService',
+    },
+    {
+      path: 'labRequest.serviceId',
+      model: 'LaboratoryService',
+    },
   ]);
 
   res.status(200).json({

@@ -319,7 +319,7 @@ exports.addConsultationNote = asyncHandler(async (req, res, next) => {
 exports.updateConsultationNote = asyncHandler(async (req, res, next) => {
   const parsed = JSON.parse(req.body.data);
   // const parsed = req.body;
-  console.log(parsed);
+  // console.log(parsed);
   const edrNotes = await EDR.findOne({ _id: parsed.edrId });
 
   let note;
@@ -329,12 +329,13 @@ exports.updateConsultationNote = asyncHandler(async (req, res, next) => {
       note = i;
     }
   }
+  // console.log(note);
   const updatedNote = await EDR.findOneAndUpdate(
     { _id: parsed.edrId },
     {
       $set: {
         [`consultationNote.${note}.consultant`]: parsed.consultant,
-        [`consultationNote.${note}.consultant`]: parsed.speciality,
+        [`consultationNote.${note}.speciality`]: parsed.speciality,
         [`consultationNote.${note}.notes`]: parsed.notes,
         [`consultationNote.${note}.voiceNotes`]: req.file
           ? req.file.path
@@ -342,7 +343,10 @@ exports.updateConsultationNote = asyncHandler(async (req, res, next) => {
       },
     },
     { new: true }
-  );
+  ).populate('consultationNote.consultant');
+  // await EDR.findOne({ _id: parsed.edrId }).populate(
+  //
+  // );
   // console.log(updatedNote);
   res.status(200).json({
     success: true,
@@ -386,7 +390,7 @@ exports.getEDRwihtConsultationNote = asyncHandler(async (req, res, next) => {
     },
   ]);
 
-  let responseArray = [];
+  const responseArray = [];
   for (let outer = 0; outer < patients.length; outer++) {
     for (
       let inner = 0;
@@ -408,7 +412,7 @@ exports.getEDRwihtConsultationNote = asyncHandler(async (req, res, next) => {
         patients[outer].consultationNote[inner].consultant != null &&
         patients[outer].consultationNote[inner].consultant._id == req.params.id
       ) {
-        var object = {
+        const object = {
           patientData: patients[outer],
           consultationNotes: patients[outer].consultationNote[inner],
         };
@@ -464,7 +468,7 @@ exports.addRadRequest = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateRad = asyncHandler(async (req, res, next) => {
-  // console.log(req.body);
+  // console.log('req.body', req.body);
   const rad = await EDR.findOne({ _id: req.body.edrId });
   let note;
   for (let i = 0; i < rad.radRequest.length; i++) {
@@ -473,6 +477,7 @@ exports.updateRad = asyncHandler(async (req, res, next) => {
       note = i;
     }
   }
+  console.log('note', note);
   const updatedrad = await EDR.findOneAndUpdate(
     { _id: req.body.edrId },
     {
@@ -483,6 +488,7 @@ exports.updateRad = asyncHandler(async (req, res, next) => {
     },
     { new: true }
   ).populate('radRequest.serviceId');
+  // console.log('updaterad', updatedrad);
 
   res.status(200).json({
     success: true,

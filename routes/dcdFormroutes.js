@@ -15,7 +15,10 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({
+  storage: storage,
+  limits: { fieldSize: 25 * 1024 * 1024 },
+});
 
 const router = express.Router();
 
@@ -36,8 +39,8 @@ router.put('/addDcdForm', addDcdForm);
 router.put('/addPatientDetails', addPatientDetails);
 router.put('/addPastHistory', addPastHistory);
 router.put('/addRos', addROS);
-router.put('/addPhysicalExam', addPhysicalExam);
-router.put('/addInvestigation', upload.array('file'), addInvestigation);
+router.put('/addPhysicalExam', upload.any(), addPhysicalExam);
+router.put('/addInvestigation', upload.any(), addInvestigation);
 router.put('/addActionPlan', addActionPlan);
 router.put('/addCourseOfVisit', addCourseOfVisit);
 
