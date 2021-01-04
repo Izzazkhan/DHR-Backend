@@ -521,6 +521,112 @@ const edrSchema = new mongoose.Schema({
       },
     },
   ],
+  anesthesiologistNote: [
+    {
+      anesthesiologistNo: {
+        type: String,
+      },
+      notes: String,
+      addedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      voiceNotes: String,
+      anesthesiologist: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      noteTime: {
+        type: Date,
+      },
+      status: {
+        type: String,
+        default: 'pending',
+      },
+    },
+  ],
+  edNurseRequest: [
+    {
+      requestNo: {
+        type: String,
+      },
+      notes: String,
+      addedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      voiceNotes: String,
+      edNurseId: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      requestedAt: {
+        type: Date,
+      },
+      status: {
+        type: String,
+        default: 'pending',
+      },
+      speciality: {
+        type: String,
+      },
+    },
+  ],
+  eouNurseRequest: [
+    {
+      requestNo: {
+        type: String,
+      },
+      notes: String,
+      addedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      voiceNotes: String,
+      eouNurseId: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      requestedAt: {
+        type: Date,
+      },
+      status: {
+        type: String,
+        default: 'pending',
+      },
+      speciality: {
+        type: String,
+      },
+    },
+  ],
+
+  nurseTechnicianRequest: [
+    {
+      requestNo: {
+        type: String,
+      },
+      notes: String,
+      addedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      voiceNotes: String,
+      nurseTechnicianId: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      requestedAt: {
+        type: Date,
+      },
+      status: {
+        type: String,
+        default: 'pending',
+      },
+      speciality: {
+        type: String,
+      },
+    },
+  ],
   residentNotes: [
     {
       residentNoteNo: {

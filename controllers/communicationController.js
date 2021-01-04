@@ -21,7 +21,7 @@ exports.addCommunicationRequest = asyncHandler(async (req, res, next) => {
   const sender = await staff.findOne({ _id: generatedById }).select('telecom');
   const receiver = await staff.find({ staffType: 'Admin' }).select('telecom');
 
-  let filteredEmails = [];
+  const filteredEmails = [];
   for (let index = 0; index < receiver.length; index++) {
     filteredEmails.push(receiver[index].telecom[0].value);
   }
@@ -29,7 +29,7 @@ exports.addCommunicationRequest = asyncHandler(async (req, res, next) => {
   console.log('filteredEmails', filteredEmails);
   const senderEmail = sender.telecom[0].value;
 
-  var transporter = nodemailer.createTransport({
+  const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
       user: 'pmdevteam0@gmail.com',
@@ -37,7 +37,7 @@ exports.addCommunicationRequest = asyncHandler(async (req, res, next) => {
     },
   });
 
-  var mailOptions = {
+  const mailOptions = {
     from: senderEmail,
     to: filteredEmails,
     subject: reason,

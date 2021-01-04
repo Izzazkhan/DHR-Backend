@@ -35,7 +35,15 @@ const {
   getEDRFromPatientIdForDischarge,
   updateEdr,
   getDischargedEDRFromPatient,
-  getEDRorIPR
+  getEDRorIPR,
+  addAnesthesiologistNote,
+  updateAnesthesiologistNote,
+  addEDNurseRequest,
+  updateEDNurseRequest,
+  addEOUNurseRequest,
+  updateEOUNurseRequest,
+  addNurseTechnicianRequest,
+  updateNurseTechnicianRequest,
 } = require('../controllers/edrController');
 
 const router = express.Router();
@@ -51,6 +59,38 @@ router.put(
   '/updateConsultationNote',
   upload.single('file'),
   updateConsultationNote
+);
+router.put(
+  '/addAnesthesiologistNote',
+  upload.single('file'),
+  addAnesthesiologistNote
+);
+router.put(
+  '/updateAnesthesiologistNote',
+  upload.single('file'),
+  updateAnesthesiologistNote
+);
+router.put('/addEDNurseRequest', upload.single('file'), addEDNurseRequest);
+router.put(
+  '/updateEDNurseRequest',
+  upload.single('file'),
+  updateEDNurseRequest
+);
+router.put('/addEOUNurseRequest', upload.single('file'), addEOUNurseRequest);
+router.put(
+  '/updateEOUNurseRequest',
+  upload.single('file'),
+  updateEOUNurseRequest
+);
+router.put(
+  '/addNurseTechnicianRequest',
+  upload.single('file'),
+  addNurseTechnicianRequest
+);
+router.put(
+  '/updateNurseTechnicianRequest',
+  upload.single('file'),
+  updateNurseTechnicianRequest
 );
 router.get('/getEdrsByPatient/:id', getEdrsByPatient);
 router.get('/getEDRWihtConsultationNote/:id', getEDRwihtConsultationNote);
