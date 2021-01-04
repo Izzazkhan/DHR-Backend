@@ -358,10 +358,11 @@ const edrSchema = new mongoose.Schema({
           },
           details: [
             {
-              name: String,       // row name e.g Physical Exam
-              scale: {           // rows having scale e.g pain scale
+              name: String, // row name e.g Physical Exam
+              scale: {
+                // rows having scale e.g pain scale
                 name: String,
-                value: Number
+                value: Number,
               },
               chips: [
                 {
@@ -517,6 +518,30 @@ const edrSchema = new mongoose.Schema({
       },
       speciality: {
         type: String,
+      },
+    },
+  ],
+  anesthesiologistNote: [
+    {
+      anesthesiologistNo: {
+        type: String,
+      },
+      notes: String,
+      addedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      voiceNotes: String,
+      anesthesiologist: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      noteTime: {
+        type: Date,
+      },
+      status: {
+        type: String,
+        default: 'pending',
       },
     },
   ],

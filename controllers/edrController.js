@@ -495,3 +495,40 @@ exports.updateRad = asyncHandler(async (req, res, next) => {
     data: updatedrad,
   });
 });
+
+exports.addAnesthesiologistNote = asyncHandler(async (req, res, next) => {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const diff =
+    now -
+    start +
+    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
+  const oneDay = 1000 * 60 * 60 * 24;
+  const day = Math.floor(diff / oneDay);
+  const anesthesiologistNo = `ANR${day}${requestNoFormat(
+    new Date(),
+    'yyHHMM'
+  )}`;
+
+  const parsed = JSON.parse(req.body.data);
+  const anesthesiologistNote = {
+    anesthesiologistNo,
+    addedBy: parsed.addedBy,
+    consultant: parsed.anesthesiologist,
+    noteTime: Date.now(),
+    notes: parsed.notes,
+    voiceNotes: req.file ? req.file.path : null,
+  };
+  const addedNote = await EDR.findOneAndUpdate(
+    { _id: parsed.edrId },
+    { $push: { anesthesiologistNote } },
+    {
+      new: true,
+    }
+  );
+
+  res.status(200).json({
+    success: true,
+    data: addedNote,
+  });
+});
