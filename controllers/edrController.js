@@ -3,6 +3,7 @@ const EDR = require('../models/EDR/EDR');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const Patient = require('../models/patient/patient');
+const Staff = require('../models/staffFhir/staff');
 
 exports.generateEDR = asyncHandler(async (req, res, next) => {
   const now = new Date();
@@ -511,7 +512,8 @@ exports.addAnesthesiologistNote = asyncHandler(async (req, res, next) => {
   )}`;
 
   const parsed = JSON.parse(req.body.data);
-  console.log(parsed);
+  // console.log(parsed);
+  // console.log(parsed.anesthesiologist);
   const anesthesiologistNote = {
     anesthesiologistNo,
     addedBy: parsed.addedBy,
@@ -520,12 +522,19 @@ exports.addAnesthesiologistNote = asyncHandler(async (req, res, next) => {
     notes: parsed.notes,
     voiceNotes: req.file ? req.file.path : null,
   };
+
   const addedNote = await EDR.findOneAndUpdate(
     { _id: parsed.edrId },
     { $push: { anesthesiologistNote } },
     {
       new: true,
     }
+  );
+
+  await Staff.findOneAndUpdate(
+    { _id: parsed.anesthesiologist },
+    { $set: { availability: false } },
+    { new: true }
   );
 
   res.status(200).json({
@@ -536,7 +545,7 @@ exports.addAnesthesiologistNote = asyncHandler(async (req, res, next) => {
 
 exports.updateAnesthesiologistNote = asyncHandler(async (req, res, next) => {
   const parsed = JSON.parse(req.body.data);
-  // console.log(parsed);
+  // console.log(parsed.anesthesiologist.id);
   // console.log(req.file);
   const edrNotes = await EDR.findOne({ _id: parsed.edrId });
 
@@ -560,6 +569,12 @@ exports.updateAnesthesiologistNote = asyncHandler(async (req, res, next) => {
     },
     { new: true }
   ).populate('anesthesiologistNote.anesthesiologist');
+
+  await Staff.findOneAndUpdate(
+    { _id: parsed.anesthesiologist },
+    { $set: { availability: false } },
+    { new: true }
+  );
 
   res.status(200).json({
     success: true,

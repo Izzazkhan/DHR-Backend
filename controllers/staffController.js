@@ -282,14 +282,19 @@ exports.getNurseSpecialty = asyncHandler(async (req, res, next) => {
 });
 
 exports.getAllSensei = asyncHandler(async (req, res) => {
-  const sensei = await Staff.find({ staffType: 'Sensei' }).populate('addedBy');
+  const sensei = await Staff.find({
+    staffType: 'Sensei',
+    disabled: false,
+  }).populate('addedBy');
   res.status(200).json({ success: 'true', data: sensei });
 });
 
 exports.getAllDoctors = asyncHandler(async (req, res) => {
-  const doctors = await Staff.find({ staffType: 'Doctor' }).populate(
-    'addedBy productionArea.productionAreaId'
-  );
+  const doctors = await Staff.find({
+    staffType: 'Doctor',
+    disabled: false,
+    // availability: true,
+  }).populate('addedBy productionArea.productionAreaId');
   res.status(200).json({ success: 'true', data: doctors });
 });
 
@@ -370,9 +375,11 @@ exports.searchSensei = asyncHandler(async (req, res, next) => {
 exports.getSpecialityDoctor = asyncHandler(async (req, res, next) => {
   // console.log(req.params.speciality);
   const doctors = await Staff.find({
+    staffType: 'Doctor',
     specialty: req.params.speciality,
     $or: [{ subType: 'Internal' }, { subType: 'External' }],
     disabled: false,
+    availability: true,
   });
   // console.log(doctors);
   res.status(200).json({
@@ -387,6 +394,7 @@ exports.getAnesthesiologist = asyncHandler(async (req, res, next) => {
     staffType: 'Doctor',
     subType: 'Anesthesiologist',
     disabled: false,
+    availability: true,
   });
   // console.log(doctors);
   res.status(200).json({
@@ -395,6 +403,37 @@ exports.getAnesthesiologist = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.getEDNurse = asyncHandler(async (req, res, next) => {
+  // console.log(req.params.speciality);
+  const doctors = await Staff.find({
+    staffType: 'Nurses',
+    specialty: req.params.speciality,
+    subType: 'ED Nurse',
+    disabled: false,
+    availability: true,
+  });
+  // console.log(doctors);
+  res.status(200).json({
+    success: true,
+    data: doctors,
+  });
+});
+
+exports.getSpecialityNurse = asyncHandler(async (req, res, next) => {
+  // console.log(req.params.speciality);
+  const nurses = await Staff.find({
+    staffType: 'Nurses',
+    specialty: req.params.speciality,
+    subType: 'ED Nurse',
+    disabled: false,
+    availability: true,
+  });
+  // console.log(doctors);
+  res.status(200).json({
+    success: true,
+    data: nurses.length,
+  });
+});
 exports.getUsersFromRole = asyncHandler(async (req, res) => {
   if (req.params.role === 'all') {
     const sensei = await Staff.find({}).populate('addedBy');
