@@ -25,6 +25,8 @@ const flagRouter = require('./routes/flagRoutes');
 const communicationRouter = require('./routes/communicationRoutes');
 const patientTransferEDEOURoutes = require('./routes/patientTransferEDEOURoutes');
 
+const item = require('./routes/item');
+
 
 const dcdFormRouter = require('./routes/dcdFormroutes');
 const ChatModel = require('./models/chatRoom/chatRoom');
@@ -51,6 +53,7 @@ app.use(cors());
 app.use('/uploads', express.static('uploads'));
 
 // Mounting Routes
+app.use('/api/item', item);
 app.use('/api/dhrPatient', patientRouter);
 app.use('/api/edr', edrRouter);
 app.use('/api/pharm', pharmRouter);

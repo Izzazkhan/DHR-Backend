@@ -358,10 +358,11 @@ const edrSchema = new mongoose.Schema({
           },
           details: [
             {
-              name: String,       // row name e.g Physical Exam
-              scale: {           // rows having scale e.g pain scale
+              name: String, // row name e.g Physical Exam
+              scale: {
+                // rows having scale e.g pain scale
                 name: String,
-                value: Number
+                value: Number,
               },
               chips: [
                 {
@@ -665,7 +666,13 @@ const edrSchema = new mongoose.Schema({
       dischargeNotes: {
         type: String,
       },
-      otherNotes: {
+      followUpInstruction: {
+        type: String,
+      },
+      edrCompletionReason: {
+        type: String,
+      },
+      edrCompletionRequirement: {
         type: String,
       },
     },
@@ -730,6 +737,7 @@ const edrSchema = new mongoose.Schema({
       default: 'pending',
     },
   },
+
   inPatientRequest: {},
   status: {
     type: String,

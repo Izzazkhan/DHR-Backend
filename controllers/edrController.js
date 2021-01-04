@@ -495,3 +495,261 @@ exports.updateRad = asyncHandler(async (req, res, next) => {
     data: updatedrad,
   });
 });
+
+exports.getEDRFromPatientForDischarge = asyncHandler(async (req, res) => {
+  var array = [];
+  var secondArray = [];
+
+  const edr = await EDR.find({ status: { $ne: 'Discharged' } })
+    .populate('patientId')
+    .select({ patientId: 1 });
+  for (let i = 0; i < edr.length; i++) {
+    array.push(edr[i].patientId);
+  }
+
+  const unique = Array.from(new Set(array));
+  for (let i = 0; i < unique.length; i++) {
+    const fullName =
+      unique[i].name[0].given[0] + ' ' + unique[i].name[0].family;
+    if (
+      (unique[i].name[0].given[0] &&
+        unique[i].name[0].given[0]
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (unique[i].name[0].family &&
+        unique[i].name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (unique[i].identifier[0].value &&
+        unique[i].identifier[0].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
+      (unique[i].telecom[1].value &&
+        unique[i].telecom[1].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (unique[i].nationalID &&
+        unique[i].nationalID
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase()))
+    ) {
+      secondArray.push(unique[i]);
+    }
+  }
+  var uniqueArray = (function (secondArray) {
+    var m = {},
+      uniqueArray = [];
+    for (var i = 0; i < secondArray.length; i++) {
+      var v = secondArray[i];
+      if (!m[v]) {
+        uniqueArray.push(v);
+        m[v] = true;
+      }
+    }
+    return uniqueArray;
+  })(secondArray);
+  let response = uniqueArray.slice(0, 50);
+  res.status(200).json({ success: true, data: response });
+});
+
+exports.getDischargedEDRFromPatient = asyncHandler(async (req, res) => {
+  var array = [];
+  var secondArray = [];
+
+  const edr = await EDR.find({ status: { $eq: 'Discharged' } })
+    .populate('patientId')
+    .select({ patientId: 1 });
+  for (let i = 0; i < edr.length; i++) {
+    array.push(edr[i].patientId);
+  }
+
+  const unique = Array.from(new Set(array));
+  for (let i = 0; i < unique.length; i++) {
+    const fullName =
+      unique[i].name[0].given[0] + ' ' + unique[i].name[0].family;
+    if (
+      (unique[i].name[0].given[0] &&
+        unique[i].name[0].given[0]
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (unique[i].name[0].family &&
+        unique[i].name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (unique[i].identifier[0].value &&
+        unique[i].identifier[0].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
+      (unique[i].telecom[1].value &&
+        unique[i].telecom[1].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (unique[i].nationalID &&
+        unique[i].nationalID
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase()))
+    ) {
+      secondArray.push(unique[i]);
+    }
+  }
+  var uniqueArray = (function (secondArray) {
+    var m = {},
+      uniqueArray = [];
+    for (var i = 0; i < secondArray.length; i++) {
+      var v = secondArray[i];
+      if (!m[v]) {
+        uniqueArray.push(v);
+        m[v] = true;
+      }
+    }
+    return uniqueArray;
+  })(secondArray);
+  let response = uniqueArray.slice(0, 50);
+  res.status(200).json({ success: true, data: response });
+});
+
+exports.getEDRFromPatientIdForDischarge = asyncHandler(async (req, res) => {
+  const a = await EDR.findOne({ patientId: req.params._id });
+  if (a !== null) {
+    var edr = await EDR.findOne({ patientId: req.params._id })
+      .populate('patientId')
+      .populate('consultationNote.requester')
+      .populate('consultationNote.specialist')
+      .populate({
+        path: 'pharmacyRequest',
+        populate: [
+          {
+            path: 'item.itemId',
+          },
+        ],
+      })
+      .populate('pharmacyRequest.item.itemId')
+      .populate('labRequest.requester')
+      .populate('labRequest.serviceId')
+      .populate('radiologyRequest.serviceId')
+      .populate('radiologyRequest.requester')
+      .populate('residentNotes.doctor')
+      .populate('residentNotes.doctorRef')
+      .populate('dischargeRequest.dischargeMedication.requester')
+      .populate('dischargeRequest.dischargeMedication.medicine.itemId')
+      .populate('triageAssessment.requester')
+      .sort({
+        createdAt: 'desc',
+      })
+      .limit(100);
+  }
+
+  if (a) {
+    res.status(200).json({ success: true, data: edr });
+  } else {
+    res.status(200).json({ success: false, data: 'User not found' });
+  }
+});
+
+exports.updateEdr = asyncHandler(async (req, res, next) => {
+  const { _id, requestType } = req.body;
+  let edr = await EDR.findById(_id);
+  if (!edr) {
+    return next(new ErrorResponse(`EDR not found with id of ${_id}`, 404));
+  }
+  edr = await EDR.findOneAndUpdate({ _id: _id }, req.body, {
+    new: true,
+  }).populate('patientId');
+  res.status(200).json({ success: true, data: edr });
+});
+
+exports.getEDRorIPR = asyncHandler(async (req, res) => {
+  // const rc = await RC.findOne(
+  //   { patient: req.params._id },
+  //   {},
+  //   { sort: { createdAt: -1 } }
+  // );
+  const a = await EDR.findOne({ patientId: req.params._id });
+  if (a !== null) {
+    var edr = await EDR.findOne({ patientId: req.params._id })
+      .populate('patientId')
+      .populate('consultationNote.requester')
+      .populate({
+        path: 'pharmacyRequest',
+        populate: [
+          {
+            path: 'item.itemId',
+          },
+        ],
+      })
+      .populate('pharmacyRequest.item.itemId')
+      .populate('labRequest.requestedBy')
+      .populate('labRequest.serviceId')
+      .populate('radRequest.serviceId')
+      .populate('radRequest.requestedBy')
+      .populate('residentNotes.doctor')
+      .populate('residentNotes.doctorRef')
+      .populate('dischargeRequest.dischargeMedication.requester')
+      .populate('dischargeRequest.dischargeMedication.medicine.itemId')
+      .populate('triageAssessment.requester')
+      .sort({
+        createdAt: 'desc',
+      });
+  }
+
+  if (a) {
+    // const insurance = await IT.find({ providerId: edr.insurerId });
+    // var insured = [];
+    // for (let i = 0; i < edr.pharmacyRequest.length; i++) {
+    //   for (let j = 0; j < edr.pharmacyRequest[i].item.length; j++) {
+    //     for (let k = 0; k < insurance.length; k++) {
+    //       if (
+    //         JSON.parse(
+    //           JSON.stringify(edr.pharmacyRequest[i].item[j].itemId._id)
+    //         ) == insurance[k].itemId
+    //       ) {
+    //         insured.push(insurance[k]);
+    //       }
+    //     }
+    //   }
+    // }
+    // for (let i = 0; i < edr.labRequest.length; i++) {
+    //   for (let j = 0; j < insurance.length; j++) {
+    //     if (
+    //       JSON.parse(JSON.stringify(edr.labRequest[i].serviceId._id)) ==
+    //       insurance[j].laboratoryServiceId
+    //     ) {
+    //       insured.push(insurance[j]);
+    //     }
+    //   }
+    // }
+    // for (let i = 0; i < edr.radiologyRequest.length; i++) {
+    //   for (let j = 0; j < insurance.length; j++) {
+    //     if (
+    //       JSON.parse(JSON.stringify(edr.radiologyRequest[i].serviceId._id)) ==
+    //       insurance[j].radiologyServiceId
+    //     ) {
+    //       insured.push(insurance[j]);
+    //     }
+    //   }
+    // }
+    // var uniqueArray = (function (insured) {
+    //   var m = {},
+    //     uniqueArray = [];
+    //   for (var i = 0; i < insured.length; i++) {
+    //     var v = insured[i];
+    //     if (!m[v]) {
+    //       uniqueArray.push(v);
+    //       m[v] = true;
+    //     }
+    //   }
+    //   return uniqueArray;
+    // })(insured);
+    // res
+    //   .status(200)
+    //   .json({ success: true, data: edr, rc: rc, insured: uniqueArray });
+
+      res
+      .status(200)
+      .json({ success: true, data: edr });
+  } else {
+    res.status(200).json({ success: false, data: 'User not found' });
+  }
+});
