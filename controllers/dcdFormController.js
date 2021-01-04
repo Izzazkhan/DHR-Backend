@@ -260,6 +260,7 @@ exports.addInvestigation = asyncHandler(async (req, res, next) => {
 });
 
 exports.addActionPlan = asyncHandler(async (req, res, next) => {
+<<<<<<< HEAD
   // console.log(req.body);
   // const ecg = [];
   // const xray = [];
@@ -278,22 +279,24 @@ exports.addActionPlan = asyncHandler(async (req, res, next) => {
   //   }
   // }
   // parsed.details.chips.image = ecg;
+=======
+  console.log(req.body);
+>>>>>>> d9ccba6725d57a0117759f8572d29438cafc6bed
   const edr = await EDR.findOne({ _id: req.body.edrId });
   const latestForm = edr.dcdForm.length - 1;
   const latestActionPlan = edr.dcdForm[latestForm].actionPlan.length - 1;
   const actionPlan = {
     version: latestActionPlan + 2,
-    // reason: req.body.reason,
+    reason: req.body.reason,
     // status: req.body.status,
     details: req.body.details,
-    // parsed.details.chips.image : arr,
     updatedBy: req.body.staffId,
     date: Date.now(),
   };
   const edrPatient = await EDR.findOneAndUpdate(
     { _id: req.body.edrId },
     {
-      $set: {
+      $push: {
         [`dcdForm.${latestForm}.actionPlan`]: actionPlan,
       },
     },
