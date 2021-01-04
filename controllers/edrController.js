@@ -621,7 +621,7 @@ exports.addEDNurseRequest = asyncHandler(async (req, res, next) => {
   });
 });
 
-exports.updateaddEDNurseRequest = asyncHandler(async (req, res, next) => {
+exports.updateEDNurseRequest = asyncHandler(async (req, res, next) => {
   const parsed = JSON.parse(req.body.data);
 
   const edrNotes = await EDR.findOne({ _id: parsed.edrId });
