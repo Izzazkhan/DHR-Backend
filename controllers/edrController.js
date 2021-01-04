@@ -497,7 +497,6 @@ exports.updateRad = asyncHandler(async (req, res, next) => {
   });
 });
 
-<<<<<<< HEAD
 exports.getEDRFromPatientForDischarge = asyncHandler(async (req, res) => {
   var array = [];
   var secondArray = [];
@@ -681,15 +680,22 @@ exports.getEDRorIPR = asyncHandler(async (req, res) => {
           },
         ],
       })
+      .populate('doctorNotes.addedBy')
+
       .populate('pharmacyRequest.item.itemId')
-      .populate('labRequest.requestedBy')
+
+      .populate('labRequest.requestedBy')      
       .populate('labRequest.serviceId')
+      
       .populate('radRequest.serviceId')
       .populate('radRequest.requestedBy')
+      
       .populate('residentNotes.doctor')
       .populate('residentNotes.doctorRef')
+      
       .populate('dischargeRequest.dischargeMedication.requester')
       .populate('dischargeRequest.dischargeMedication.medicine.itemId')
+      
       .populate('triageAssessment.requester')
       .sort({
         createdAt: 'desc',
@@ -748,13 +754,13 @@ exports.getEDRorIPR = asyncHandler(async (req, res) => {
     //   .status(200)
     //   .json({ success: true, data: edr, rc: rc, insured: uniqueArray });
 
-      res
-      .status(200)
-      .json({ success: true, data: edr });
+    res.status(200).json({ success: true, data: edr });
   } else {
     res.status(200).json({ success: false, data: 'User not found' });
   }
-=======
+});
+
+
 exports.addAnesthesiologistNote = asyncHandler(async (req, res, next) => {
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
@@ -1073,5 +1079,4 @@ exports.updateNurseTechnicianRequest = asyncHandler(async (req, res, next) => {
     success: true,
     data: updatedRequest,
   });
->>>>>>> a9d01faf347e18ab2c922245857a949d16b156df
 });
