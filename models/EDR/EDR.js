@@ -572,6 +572,33 @@ const edrSchema = new mongoose.Schema({
       },
     },
   ],
+  eouNurseRequest: [
+    {
+      requestNo: {
+        type: String,
+      },
+      notes: String,
+      addedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      voiceNotes: String,
+      eouNurseId: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      requestedAt: {
+        type: Date,
+      },
+      status: {
+        type: String,
+        default: 'pending',
+      },
+      speciality: {
+        type: String,
+      },
+    },
+  ],
   residentNotes: [
     {
       residentNoteNo: {

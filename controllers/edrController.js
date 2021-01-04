@@ -657,3 +657,81 @@ exports.updateEDNurseRequest = asyncHandler(async (req, res, next) => {
     data: updatedRequest,
   });
 });
+
+exports.addEOUNurseRequest = asyncHandler(async (req, res, next) => {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const diff =
+    now -
+    start +
+    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
+  const oneDay = 1000 * 60 * 60 * 24;
+  const day = Math.floor(diff / oneDay);
+  const requestNo = `EOUNR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
+
+  const parsed = JSON.parse(req.body.data);
+  const eouNurseRequest = {
+    requestNo,
+    addedBy: parsed.addedBy,
+    eouNurseId: parsed.eouNurse,
+    requestedAt: Date.now(),
+    notes: parsed.notes,
+    voiceNotes: req.file ? req.file.path : null,
+    speciality: parsed.speciality,
+  };
+  const addedRequest = await EDR.findOneAndUpdate(
+    { _id: parsed.edrId },
+    { $push: { eouNurseRequest } },
+    {
+      new: true,
+    }
+  );
+
+  // await Staff.findOneAndUpdate(
+  //   { _id: parsed.edNurse },
+  //   { $set: { availability: false } },
+  //   { new: true }
+  // );
+
+  res.status(200).json({
+    success: true,
+    data: addedRequest,
+  });
+});
+
+exports.updateEOUNurseRequest = asyncHandler(async (req, res, next) => {
+  const parsed = JSON.parse(req.body.data);
+
+  const edrNotes = await EDR.findOne({ _id: parsed.edrId });
+
+  let note;
+  for (let i = 0; i < edrNotes.eouNurseRequest.length; i++) {
+    if (edrNotes.eouNurseRequest[i]._id == parsed.noteId) {
+      note = i;
+    }
+  }
+
+  const updatedRequest = await EDR.findOneAndUpdate(
+    { _id: parsed.edrId },
+    {
+      $set: {
+        [`eouNurseRequest.${note}.eouNurseId`]: parsed.eouNurse,
+        [`eouNurseRequest.${note}.speciality`]: parsed.speciality,
+        [`eouNurseRequest.${note}.notes`]: parsed.notes,
+        [`eouNurseRequest.${note}.voiceNotes`]: req.file ? req.file.path : null,
+      },
+    },
+    { new: true }
+  ).populate('eouNurseRequest.eouNurse');
+
+  // await Staff.findOneAndUpdate(
+  //   { _id: parsed.edNurse },
+  //   { $set: { availability: false } },
+  //   { new: true }
+  // );
+
+  res.status(200).json({
+    success: true,
+    data: updatedRequest,
+  });
+});

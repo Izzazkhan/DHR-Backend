@@ -36,6 +36,7 @@ const {
   getSpecialityDoctor,
   getAnesthesiologist,
   getSpecialityNurse,
+  getEOUNurse,
 } = require('../controllers/staffController');
 
 const router = express.Router();
@@ -57,5 +58,5 @@ router.get('/searchSensei/:keyword', searchSensei);
 router.get('/getSpecialityDoctor/:speciality', getSpecialityDoctor);
 router.get('/getSpecialityNurse/:speciality', getSpecialityNurse);
 router.get('/getAnesthesiologist', getAnesthesiologist);
-
+router.get('/getEOUNurse/:speciality', getEOUNurse);
 module.exports = router;

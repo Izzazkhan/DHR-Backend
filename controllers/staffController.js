@@ -419,6 +419,22 @@ exports.getSpecialityNurse = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.getEOUNurse = asyncHandler(async (req, res, next) => {
+  // console.log(req.params.speciality);
+  const nurses = await Staff.find({
+    staffType: 'Nurses',
+    specialty: req.params.speciality,
+    subType: 'EOU Nurse',
+    disabled: false,
+    availability: true,
+  });
+  // console.log(doctors);
+  res.status(200).json({
+    success: true,
+    data: nurses,
+  });
+});
+
 exports.getUsersFromRole = asyncHandler(async (req, res) => {
   if (req.params.role === 'all') {
     const sensei = await Staff.find({}).populate('addedBy');
