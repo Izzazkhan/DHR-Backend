@@ -545,8 +545,6 @@ exports.addAnesthesiologistNote = asyncHandler(async (req, res, next) => {
 
 exports.updateAnesthesiologistNote = asyncHandler(async (req, res, next) => {
   const parsed = JSON.parse(req.body.data);
-  // console.log(parsed.anesthesiologist.id);
-  // console.log(req.file);
   const edrNotes = await EDR.findOne({ _id: parsed.edrId });
 
   let note;
@@ -579,5 +577,83 @@ exports.updateAnesthesiologistNote = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: updatedNote,
+  });
+});
+
+exports.addEDNurseRequest = asyncHandler(async (req, res, next) => {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const diff =
+    now -
+    start +
+    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
+  const oneDay = 1000 * 60 * 60 * 24;
+  const day = Math.floor(diff / oneDay);
+  const requestNo = `EDNR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
+
+  const parsed = JSON.parse(req.body.data);
+  const edNurseRequest = {
+    requestNo,
+    addedBy: parsed.addedBy,
+    edNurseId: parsed.edNurse,
+    requestedAt: Date.now(),
+    notes: parsed.notes,
+    voiceNotes: req.file ? req.file.path : null,
+    speciality: parsed.speciality,
+  };
+  const addedRequest = await EDR.findOneAndUpdate(
+    { _id: parsed.edrId },
+    { $push: { edNurseRequest } },
+    {
+      new: true,
+    }
+  );
+
+  await Staff.findOneAndUpdate(
+    { _id: parsed.edNurse },
+    { $set: { availability: false } },
+    { new: true }
+  );
+
+  res.status(200).json({
+    success: true,
+    data: addedRequest,
+  });
+});
+
+exports.updateaddEDNurseRequest = asyncHandler(async (req, res, next) => {
+  const parsed = JSON.parse(req.body.data);
+
+  const edrNotes = await EDR.findOne({ _id: parsed.edrId });
+
+  let note;
+  for (let i = 0; i < edrNotes.edNurseRequest.length; i++) {
+    if (edrNotes.edNurseRequest[i]._id == parsed.noteId) {
+      note = i;
+    }
+  }
+
+  const updatedRequest = await EDR.findOneAndUpdate(
+    { _id: parsed.edrId },
+    {
+      $set: {
+        [`edNurseRequest.${note}.edNurseId`]: parsed.edNurse,
+        [`edNurseRequest.${note}.speciality`]: parsed.speciality,
+        [`edNurseRequest.${note}.notes`]: parsed.notes,
+        [`edNurseRequest.${note}.voiceNotes`]: req.file ? req.file.path : null,
+      },
+    },
+    { new: true }
+  ).populate('edNurseRequest.edrNurse');
+
+  await Staff.findOneAndUpdate(
+    { _id: parsed.edNurse },
+    { $set: { availability: false } },
+    { new: true }
+  );
+
+  res.status(200).json({
+    success: true,
+    data: updatedRequest,
   });
 });
