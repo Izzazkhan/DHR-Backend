@@ -3,6 +3,7 @@ const EDR = require('../models/EDR/EDR');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const Patient = require('../models/patient/patient');
+// const Staff = require('../models/staffFhir/staff');
 
 exports.generateEDR = asyncHandler(async (req, res, next) => {
   const now = new Date();
@@ -493,5 +494,325 @@ exports.updateRad = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: updatedrad,
+  });
+});
+
+exports.addAnesthesiologistNote = asyncHandler(async (req, res, next) => {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const diff =
+    now -
+    start +
+    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
+  const oneDay = 1000 * 60 * 60 * 24;
+  const day = Math.floor(diff / oneDay);
+  const anesthesiologistNo = `ANR${day}${requestNoFormat(
+    new Date(),
+    'yyHHMM'
+  )}`;
+
+  const parsed = JSON.parse(req.body.data);
+  // console.log(parsed);
+  // console.log(parsed.anesthesiologist);
+  const anesthesiologistNote = {
+    anesthesiologistNo,
+    addedBy: parsed.addedBy,
+    anesthesiologist: parsed.anesthesiologist,
+    noteTime: Date.now(),
+    notes: parsed.notes,
+    voiceNotes: req.file ? req.file.path : null,
+  };
+
+  const addedNote = await EDR.findOneAndUpdate(
+    { _id: parsed.edrId },
+    { $push: { anesthesiologistNote } },
+    {
+      new: true,
+    }
+  );
+
+  // await Staff.findOneAndUpdate(
+  //   { _id: parsed.anesthesiologist },
+  //   { $set: { availability: false } },
+  //   { new: true }
+  // );
+
+  res.status(200).json({
+    success: true,
+    data: addedNote,
+  });
+});
+
+exports.updateAnesthesiologistNote = asyncHandler(async (req, res, next) => {
+  const parsed = JSON.parse(req.body.data);
+  const edrNotes = await EDR.findOne({ _id: parsed.edrId });
+
+  let note;
+  for (let i = 0; i < edrNotes.anesthesiologistNote.length; i++) {
+    if (edrNotes.anesthesiologistNote[i]._id == parsed.noteId) {
+      note = i;
+    }
+  }
+  // console.log(note);
+  const updatedNote = await EDR.findOneAndUpdate(
+    { _id: parsed.edrId },
+    {
+      $set: {
+        [`anesthesiologistNote.${note}.anesthesiologist`]: parsed.anesthesiologist,
+        [`anesthesiologistNote.${note}.notes`]: parsed.notes,
+        [`anesthesiologistNote.${note}.voiceNotes`]: req.file
+          ? req.file.path
+          : null,
+      },
+    },
+    { new: true }
+  ).populate('anesthesiologistNote.anesthesiologist');
+
+  // await Staff.findOneAndUpdate(
+  //   { _id: parsed.anesthesiologist },
+  //   { $set: { availability: false } },
+  //   { new: true }
+  // );
+
+  res.status(200).json({
+    success: true,
+    data: updatedNote,
+  });
+});
+
+exports.addEDNurseRequest = asyncHandler(async (req, res, next) => {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const diff =
+    now -
+    start +
+    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
+  const oneDay = 1000 * 60 * 60 * 24;
+  const day = Math.floor(diff / oneDay);
+  const requestNo = `EDNR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
+
+  const parsed = JSON.parse(req.body.data);
+  const edNurseRequest = {
+    requestNo,
+    addedBy: parsed.addedBy,
+    edNurseId: parsed.edNurse,
+    requestedAt: Date.now(),
+    notes: parsed.notes,
+    voiceNotes: req.file ? req.file.path : null,
+    speciality: parsed.speciality,
+  };
+  const addedRequest = await EDR.findOneAndUpdate(
+    { _id: parsed.edrId },
+    { $push: { edNurseRequest } },
+    {
+      new: true,
+    }
+  );
+
+  // await Staff.findOneAndUpdate(
+  //   { _id: parsed.edNurse },
+  //   { $set: { availability: false } },
+  //   { new: true }
+  // );
+
+  res.status(200).json({
+    success: true,
+    data: addedRequest,
+  });
+});
+
+exports.updateEDNurseRequest = asyncHandler(async (req, res, next) => {
+  const parsed = JSON.parse(req.body.data);
+
+  const edrNotes = await EDR.findOne({ _id: parsed.edrId });
+
+  let note;
+  for (let i = 0; i < edrNotes.edNurseRequest.length; i++) {
+    if (edrNotes.edNurseRequest[i]._id == parsed.noteId) {
+      note = i;
+    }
+  }
+
+  const updatedRequest = await EDR.findOneAndUpdate(
+    { _id: parsed.edrId },
+    {
+      $set: {
+        [`edNurseRequest.${note}.edNurseId`]: parsed.edNurse,
+        [`edNurseRequest.${note}.speciality`]: parsed.speciality,
+        [`edNurseRequest.${note}.notes`]: parsed.notes,
+        [`edNurseRequest.${note}.voiceNotes`]: req.file ? req.file.path : null,
+      },
+    },
+    { new: true }
+  ).populate('edNurseRequest.edrNurse');
+
+  // await Staff.findOneAndUpdate(
+  //   { _id: parsed.edNurse },
+  //   { $set: { availability: false } },
+  //   { new: true }
+  // );
+
+  res.status(200).json({
+    success: true,
+    data: updatedRequest,
+  });
+});
+
+exports.addEOUNurseRequest = asyncHandler(async (req, res, next) => {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const diff =
+    now -
+    start +
+    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
+  const oneDay = 1000 * 60 * 60 * 24;
+  const day = Math.floor(diff / oneDay);
+  const requestNo = `EOUNR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
+
+  const parsed = JSON.parse(req.body.data);
+  const eouNurseRequest = {
+    requestNo,
+    addedBy: parsed.addedBy,
+    eouNurseId: parsed.eouNurse,
+    requestedAt: Date.now(),
+    notes: parsed.notes,
+    voiceNotes: req.file ? req.file.path : null,
+    speciality: parsed.speciality,
+  };
+  const addedRequest = await EDR.findOneAndUpdate(
+    { _id: parsed.edrId },
+    { $push: { eouNurseRequest } },
+    {
+      new: true,
+    }
+  );
+
+  // await Staff.findOneAndUpdate(
+  //   { _id: parsed.edNurse },
+  //   { $set: { availability: false } },
+  //   { new: true }
+  // );
+
+  res.status(200).json({
+    success: true,
+    data: addedRequest,
+  });
+});
+
+exports.updateEOUNurseRequest = asyncHandler(async (req, res, next) => {
+  const parsed = JSON.parse(req.body.data);
+
+  const edrNotes = await EDR.findOne({ _id: parsed.edrId });
+
+  let note;
+  for (let i = 0; i < edrNotes.eouNurseRequest.length; i++) {
+    if (edrNotes.eouNurseRequest[i]._id == parsed.noteId) {
+      note = i;
+    }
+  }
+
+  const updatedRequest = await EDR.findOneAndUpdate(
+    { _id: parsed.edrId },
+    {
+      $set: {
+        [`eouNurseRequest.${note}.eouNurseId`]: parsed.eouNurse,
+        [`eouNurseRequest.${note}.speciality`]: parsed.speciality,
+        [`eouNurseRequest.${note}.notes`]: parsed.notes,
+        [`eouNurseRequest.${note}.voiceNotes`]: req.file ? req.file.path : null,
+      },
+    },
+    { new: true }
+  ).populate('eouNurseRequest.eouNurse');
+
+  // await Staff.findOneAndUpdate(
+  //   { _id: parsed.edNurse },
+  //   { $set: { availability: false } },
+  //   { new: true }
+  // );
+
+  res.status(200).json({
+    success: true,
+    data: updatedRequest,
+  });
+});
+
+exports.addNurseTechnicianRequest = asyncHandler(async (req, res, next) => {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const diff =
+    now -
+    start +
+    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
+  const oneDay = 1000 * 60 * 60 * 24;
+  const day = Math.floor(diff / oneDay);
+  const requestNo = `NTR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
+
+  const parsed = JSON.parse(req.body.data);
+  // console.log(parsed);
+  const nurseTechnicianRequest = {
+    requestNo,
+    addedBy: parsed.addedBy,
+    nurseTechnicianId: parsed.nurseTechnician,
+    requestedAt: Date.now(),
+    notes: parsed.notes,
+    voiceNotes: req.file ? req.file.path : null,
+    speciality: parsed.speciality,
+  };
+  const addedRequest = await EDR.findOneAndUpdate(
+    { _id: parsed.edrId },
+    { $push: { nurseTechnicianRequest } },
+    {
+      new: true,
+    }
+  );
+
+  // await Staff.findOneAndUpdate(
+  //   { _id: parsed.edNurse },
+  //   { $set: { availability: false } },
+  //   { new: true }
+  // );
+
+  res.status(200).json({
+    success: true,
+    data: addedRequest,
+  });
+});
+
+exports.updateNurseTechnicianRequest = asyncHandler(async (req, res, next) => {
+  const parsed = JSON.parse(req.body.data);
+
+  const edrNotes = await EDR.findOne({ _id: parsed.edrId });
+
+  let note;
+  for (let i = 0; i < edrNotes.nurseTechnicianRequest.length; i++) {
+    if (edrNotes.nurseTechnicianRequest[i]._id == parsed.noteId) {
+      note = i;
+    }
+  }
+
+  const updatedRequest = await EDR.findOneAndUpdate(
+    { _id: parsed.edrId },
+    {
+      $set: {
+        [`nurseTechnicianRequest.${note}.nurseTechnicianId`]: parsed.nurseTechnician,
+        [`nurseTechnicianRequest.${note}.speciality`]: parsed.speciality,
+        [`nurseTechnicianRequest.${note}.notes`]: parsed.notes,
+        [`nurseTechnicianRequest.${note}.voiceNotes`]: req.file
+          ? req.file.path
+          : null,
+      },
+    },
+    { new: true }
+  ).populate('nurseTechnicianRequest.nurseTechnicianId');
+
+  // await Staff.findOneAndUpdate(
+  //   { _id: parsed.edNurse },
+  //   { $set: { availability: false } },
+  //   { new: true }
+  // );
+
+  res.status(200).json({
+    success: true,
+    data: updatedRequest,
   });
 });
