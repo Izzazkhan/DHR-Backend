@@ -748,6 +748,7 @@ exports.addNurseTechnicianRequest = asyncHandler(async (req, res, next) => {
   const requestNo = `NTR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
 
   const parsed = JSON.parse(req.body.data);
+  // console.log(parsed);
   const nurseTechnicianRequest = {
     requestNo,
     addedBy: parsed.addedBy,
