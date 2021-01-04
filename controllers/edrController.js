@@ -3,7 +3,7 @@ const EDR = require('../models/EDR/EDR');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const Patient = require('../models/patient/patient');
-const Staff = require('../models/staffFhir/staff');
+// const Staff = require('../models/staffFhir/staff');
 
 exports.generateEDR = asyncHandler(async (req, res, next) => {
   const now = new Date();
@@ -531,11 +531,11 @@ exports.addAnesthesiologistNote = asyncHandler(async (req, res, next) => {
     }
   );
 
-  await Staff.findOneAndUpdate(
-    { _id: parsed.anesthesiologist },
-    { $set: { availability: false } },
-    { new: true }
-  );
+  // await Staff.findOneAndUpdate(
+  //   { _id: parsed.anesthesiologist },
+  //   { $set: { availability: false } },
+  //   { new: true }
+  // );
 
   res.status(200).json({
     success: true,
@@ -568,11 +568,11 @@ exports.updateAnesthesiologistNote = asyncHandler(async (req, res, next) => {
     { new: true }
   ).populate('anesthesiologistNote.anesthesiologist');
 
-  await Staff.findOneAndUpdate(
-    { _id: parsed.anesthesiologist },
-    { $set: { availability: false } },
-    { new: true }
-  );
+  // await Staff.findOneAndUpdate(
+  //   { _id: parsed.anesthesiologist },
+  //   { $set: { availability: false } },
+  //   { new: true }
+  // );
 
   res.status(200).json({
     success: true,
@@ -609,11 +609,11 @@ exports.addEDNurseRequest = asyncHandler(async (req, res, next) => {
     }
   );
 
-  await Staff.findOneAndUpdate(
-    { _id: parsed.edNurse },
-    { $set: { availability: false } },
-    { new: true }
-  );
+  // await Staff.findOneAndUpdate(
+  //   { _id: parsed.edNurse },
+  //   { $set: { availability: false } },
+  //   { new: true }
+  // );
 
   res.status(200).json({
     success: true,
@@ -646,11 +646,11 @@ exports.updateEDNurseRequest = asyncHandler(async (req, res, next) => {
     { new: true }
   ).populate('edNurseRequest.edrNurse');
 
-  await Staff.findOneAndUpdate(
-    { _id: parsed.edNurse },
-    { $set: { availability: false } },
-    { new: true }
-  );
+  // await Staff.findOneAndUpdate(
+  //   { _id: parsed.edNurse },
+  //   { $set: { availability: false } },
+  //   { new: true }
+  // );
 
   res.status(200).json({
     success: true,
