@@ -31,6 +31,8 @@ const {
   getEDRwihtConsultationNote,
   addRadRequest,
   updateRad,
+  addAnesthesiologistNote,
+  updateAnesthesiologistNote,
 } = require('../controllers/edrController');
 
 const router = express.Router();
@@ -46,6 +48,16 @@ router.put(
   '/updateConsultationNote',
   upload.single('file'),
   updateConsultationNote
+);
+router.put(
+  '/addAnesthesiologistNote',
+  upload.single('file'),
+  addAnesthesiologistNote
+);
+router.put(
+  '/updateAnesthesiologistNote',
+  upload.single('file'),
+  updateAnesthesiologistNote
 );
 router.get('/getEdrsByPatient/:id', getEdrsByPatient);
 router.get('/getEDRWihtConsultationNote/:id', getEDRwihtConsultationNote);

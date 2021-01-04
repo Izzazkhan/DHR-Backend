@@ -511,10 +511,11 @@ exports.addAnesthesiologistNote = asyncHandler(async (req, res, next) => {
   )}`;
 
   const parsed = JSON.parse(req.body.data);
+  console.log(parsed);
   const anesthesiologistNote = {
     anesthesiologistNo,
     addedBy: parsed.addedBy,
-    consultant: parsed.anesthesiologist,
+    anesthesiologist: parsed.anesthesiologist,
     noteTime: Date.now(),
     notes: parsed.notes,
     voiceNotes: req.file ? req.file.path : null,
@@ -530,5 +531,38 @@ exports.addAnesthesiologistNote = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: addedNote,
+  });
+});
+
+exports.updateAnesthesiologistNote = asyncHandler(async (req, res, next) => {
+  const parsed = JSON.parse(req.body.data);
+  // console.log(parsed);
+  // console.log(req.file);
+  const edrNotes = await EDR.findOne({ _id: parsed.edrId });
+
+  let note;
+  for (let i = 0; i < edrNotes.anesthesiologistNote.length; i++) {
+    if (edrNotes.anesthesiologistNote[i]._id == parsed.noteId) {
+      note = i;
+    }
+  }
+  // console.log(note);
+  const updatedNote = await EDR.findOneAndUpdate(
+    { _id: parsed.edrId },
+    {
+      $set: {
+        [`anesthesiologistNote.${note}.anesthesiologist`]: parsed.anesthesiologist,
+        [`anesthesiologistNote.${note}.notes`]: parsed.notes,
+        [`anesthesiologistNote.${note}.voiceNotes`]: req.file
+          ? req.file.path
+          : null,
+      },
+    },
+    { new: true }
+  ).populate('anesthesiologistNote.anesthesiologist');
+
+  res.status(200).json({
+    success: true,
+    data: updatedNote,
   });
 });
