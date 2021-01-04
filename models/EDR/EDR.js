@@ -483,6 +483,7 @@ const edrSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'staff',
   },
+  
   doctorNotes: [
     {
       notes: String,
@@ -494,6 +495,7 @@ const edrSchema = new mongoose.Schema({
       assignedTime: Date,
     },
   ],
+
   consultationNote: [
     {
       consultationNo: {
@@ -772,7 +774,13 @@ const edrSchema = new mongoose.Schema({
       dischargeNotes: {
         type: String,
       },
-      otherNotes: {
+      followUpInstruction: {
+        type: String,
+      },
+      edrCompletionReason: {
+        type: String,
+      },
+      edrCompletionRequirement: {
         type: String,
       },
     },
@@ -837,6 +845,7 @@ const edrSchema = new mongoose.Schema({
       default: 'pending',
     },
   },
+
   inPatientRequest: {},
   status: {
     type: String,
