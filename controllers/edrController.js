@@ -735,3 +735,83 @@ exports.updateEOUNurseRequest = asyncHandler(async (req, res, next) => {
     data: updatedRequest,
   });
 });
+
+exports.addNurseTechnicianRequest = asyncHandler(async (req, res, next) => {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const diff =
+    now -
+    start +
+    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
+  const oneDay = 1000 * 60 * 60 * 24;
+  const day = Math.floor(diff / oneDay);
+  const requestNo = `NTR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
+
+  const parsed = JSON.parse(req.body.data);
+  const nurseTechnicianRequest = {
+    requestNo,
+    addedBy: parsed.addedBy,
+    nurseTechnicianId: parsed.nurseTechnician,
+    requestedAt: Date.now(),
+    notes: parsed.notes,
+    voiceNotes: req.file ? req.file.path : null,
+    speciality: parsed.speciality,
+  };
+  const addedRequest = await EDR.findOneAndUpdate(
+    { _id: parsed.edrId },
+    { $push: { nurseTechnicianRequest } },
+    {
+      new: true,
+    }
+  );
+
+  // await Staff.findOneAndUpdate(
+  //   { _id: parsed.edNurse },
+  //   { $set: { availability: false } },
+  //   { new: true }
+  // );
+
+  res.status(200).json({
+    success: true,
+    data: addedRequest,
+  });
+});
+
+exports.updateNurseTechnicianRequest = asyncHandler(async (req, res, next) => {
+  const parsed = JSON.parse(req.body.data);
+
+  const edrNotes = await EDR.findOne({ _id: parsed.edrId });
+
+  let note;
+  for (let i = 0; i < edrNotes.nurseTechnicianRequest.length; i++) {
+    if (edrNotes.nurseTechnicianRequest[i]._id == parsed.noteId) {
+      note = i;
+    }
+  }
+
+  const updatedRequest = await EDR.findOneAndUpdate(
+    { _id: parsed.edrId },
+    {
+      $set: {
+        [`nurseTechnicianRequest.${note}.nurseTechnicianId`]: parsed.nurseTechnician,
+        [`nurseTechnicianRequest.${note}.speciality`]: parsed.speciality,
+        [`nurseTechnicianRequest.${note}.notes`]: parsed.notes,
+        [`nurseTechnicianRequest.${note}.voiceNotes`]: req.file
+          ? req.file.path
+          : null,
+      },
+    },
+    { new: true }
+  ).populate('nurseTechnicianRequest.nurseTechnicianId');
+
+  // await Staff.findOneAndUpdate(
+  //   { _id: parsed.edNurse },
+  //   { $set: { availability: false } },
+  //   { new: true }
+  // );
+
+  res.status(200).json({
+    success: true,
+    data: updatedRequest,
+  });
+});
