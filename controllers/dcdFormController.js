@@ -260,7 +260,28 @@ exports.addInvestigation = asyncHandler(async (req, res, next) => {
 });
 
 exports.addActionPlan = asyncHandler(async (req, res, next) => {
+<<<<<<< HEAD
+  // console.log(req.body);
+  // const ecg = [];
+  // const xray = [];
+  // const parsed = JSON.parse(req.body.data);
+  // if (req.files) {
+  //   for (let i = 0; i < parsed.details.length; i++) {
+  //     for (let j = 0; parsed.details.chips.length; j++) {
+  //       if (parsed.details.chips[i].name === 'ECG') {
+  //         ecg.push(req.files.ECG.path);
+  //         const ecgId = parsed.details.chips[i]._id;
+  //       } else if (parsed.details.chips[i].name === 'XRAY') {
+  //         xray.push(req.files.ECG.path);
+  //         const xrayId = parsed.details.chips[i]._id;
+  //       }
+  //     }
+  //   }
+  // }
+  // parsed.details.chips.image = ecg;
+=======
   console.log(req.body);
+>>>>>>> d9ccba6725d57a0117759f8572d29438cafc6bed
   const edr = await EDR.findOne({ _id: req.body.edrId });
   const latestForm = edr.dcdForm.length - 1;
   const latestActionPlan = edr.dcdForm[latestForm].actionPlan.length - 1;
