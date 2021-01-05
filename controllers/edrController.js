@@ -15,7 +15,9 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
   const oneDay = 1000 * 60 * 60 * 24;
   const day = Math.floor(diff / oneDay);
 
-  // Destructuring Data from Body
+  const patient = await Patient.findOne({ _id: req.body.patientId });
+
+  const paymentMethod = patient.paymentMethod[0].payment;
   const {
     patientId,
     staffId,
@@ -29,12 +31,9 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
     status,
     verified,
     insurerId,
-    paymentMethod,
     // dcdForm,
-    // claimed,
+    claimed,
   } = req.body;
-
-  const patient = await Patient.findOne({ _id: req.body.patientId });
 
   const requestNo = `EDR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
   const dcdFormVersion = [
@@ -74,7 +73,7 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
     insurerId,
     paymentMethod,
     dcdForm: dcdFormVersion,
-    claimed: false,
+    claimed,
   });
 
   newEDR = await EDR.findOne({ _id: newEDR.id }).populate('patientId');
@@ -199,7 +198,9 @@ exports.updateDoctorNotes = asyncHandler(async (req, res, next) => {
     {
       $set: {
         [`doctorNotes.${note}.notes`]: parsed.notes,
-        [`doctorNotes.${note}.voiceNotes`]: req.file ? req.file.path : null,
+        [`doctorNotes.${note}.voiceNotes`]: req.file
+          ? req.file.path
+          : parsed.voiceNotes,
       },
     },
     { new: true }
@@ -340,7 +341,7 @@ exports.updateConsultationNote = asyncHandler(async (req, res, next) => {
         [`consultationNote.${note}.notes`]: parsed.notes,
         [`consultationNote.${note}.voiceNotes`]: req.file
           ? req.file.path
-          : null,
+          : parsed.voiceNotes,
       },
     },
     { new: true }
