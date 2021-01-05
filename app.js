@@ -27,6 +27,7 @@ const patientTransferEDEOURoutes = require('./routes/patientTransferEDEOURoutes'
 
 const item = require('./routes/item');
 
+const insurance = require('./routes/insurance');
 
 const dcdFormRouter = require('./routes/dcdFormroutes');
 const ChatModel = require('./models/chatRoom/chatRoom');
@@ -73,7 +74,7 @@ app.use('/api/flag', flagRouter);
 app.use('/api/subscriber', subscriber);
 app.use('/api/communication', communicationRouter);
 app.use('/api/patientTransfer', patientTransferEDEOURoutes);
-
+app.use('/api/insurance', insurance);
 
 app.use(errorHandler);
 
