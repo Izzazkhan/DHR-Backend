@@ -15,6 +15,7 @@ exports.addTriageAssessment = asyncHandler(async (req, res, next) => {
     neurological: req.body.data.neurological,
     heartRate: req.body.data.heartRate,
     bloodPressureDia: req.body.data.bloodPressureDia,
+    bloodPressureSys: req.body.data.bloodPressureSys,
     respiratoryRate: req.body.data.respiratoryRate,
     temperature: req.body.data.temperature,
     FSBS: req.body.data.FSBS,

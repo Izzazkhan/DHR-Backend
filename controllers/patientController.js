@@ -3,6 +3,7 @@ const requestNoFormat = require('dateformat');
 const patientFHIR = require('../models/patient/patient');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
+const EDR = require('../models/EDR/EDR');
 
 exports.registerPatient = asyncHandler(async (req, res) => {
   const now = new Date();
@@ -139,14 +140,21 @@ exports.averageRegistrationTAT = asyncHandler(async (req, res, next) => {
 });
 
 exports.updatePatient = asyncHandler(async (req, res, next) => {
-  const parsed = JSON.parse(req.body.data);
+  // const parsed = JSON.parse(req.body.data);
+  const parsed = req.body;
   let patient = await patientFHIR.findById(parsed._id);
+  await EDR.findOneAndUpdate(
+    { patientId: parsed._id },
+    { $set: { paymentMethod: parsed.paymentMethod[0].payment } },
+    { new: true }
+  );
+
   if (!patient) {
     return next(
       new ErrorResponse(`Patient not found with id of ${parsed._id}`, 404)
     );
   }
-  console.log(req.files);
+  // console.log(req.files);
   if (req.files) {
     patient = await patientFHIR.findOneAndUpdate({ _id: parsed._id }, parsed, {
       new: true,
@@ -213,7 +221,7 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
 });
 
 exports.getPatient = asyncHandler(async (req, res, next) => {
-  console.log(req.params.patientId);
+  // console.log(req.params.patientId);
   const patient = await patientFHIR.findById(req.params.patientId);
   if (!patient) {
     return next(new ErrorResponse('No patient Found with this id', 404));
