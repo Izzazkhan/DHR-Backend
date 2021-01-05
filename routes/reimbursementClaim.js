@@ -29,9 +29,9 @@ const {
 const router = express.Router();
 router.get('/getclaim', getClaims);
 router.get('/getclaim/:keyword', getClaimsKeyword);
-router.get('/getpatient/:id/:keyword', getPatient);
-router.get('/getpatientinsurance/:id/:keyword', getPatientInsurance);
-router.get('/getpatientdischarge/:id/:keyword', getPatientDischarged);
+router.get('/getpatient/:keyword', getPatient);
+router.get('/getpatientinsurance/:keyword', getPatientInsurance);
+router.get('/getpatientdischarge/:keyword', getPatientDischarged);
 router.get('/getpatienthistory/:keyword', getPatientHistoryAll);
 router.post('/addclaim', upload.array('file'), addClaims);
 router.put('/updateclaim', upload.array('file'), updateClaims);
