@@ -4,7 +4,10 @@ const ErrorResponse = require('../utils/errorResponse');
 const EDR = require('../models/EDR/EDR');
 
 exports.getAllCustomerCares = asyncHandler(async (req, res, next) => {
-  const customerCares = await Staff.find({ staffType: 'Customer Care' });
+  const customerCares = await Staff.find({
+    staffType: 'Customer Care',
+    disabled: false,
+  });
   res.status(201).json({
     success: true,
     data: customerCares,
@@ -12,7 +15,7 @@ exports.getAllCustomerCares = asyncHandler(async (req, res, next) => {
 });
 
 exports.assignCC = asyncHandler(async (req, res, next) => {
-  const customerCareStaff = await Staff.findOne({ _id: req.body.data.staffId });
+  const customerCareStaff = await Staff.findOne({ _id: req.body.staffId });
   if (!customerCareStaff || customerCareStaff.disabled === true) {
     return next(
       new ErrorResponse(
@@ -27,13 +30,13 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
     { new: true }
   );
   const customerCare = {
-    assignedBy: req.body.data.assignedBy,
-    customerCareId: req.body.data.staffId,
+    assignedBy: req.body.assignedBy,
+    customerCareId: req.body.staffId,
     assignedTime: Date.now(),
-    reason: req.body.data.reason,
+    reason: req.body.reason,
   };
   const assignedCC = await EDR.findOneAndUpdate(
-    { _id: req.body.data.patientId },
+    { _id: req.body.patientId },
     { $push: { customerCare } },
     {
       new: true,
@@ -49,6 +52,7 @@ exports.getCCStaffByKeyword = asyncHandler(async (req, res, next) => {
   const arr = [];
   const staff = await Staff.find({
     staffType: 'Customer Care',
+    disabled: false,
   });
 
   // console.log(staff);
