@@ -28,6 +28,8 @@ const patientTransferEDEOURoutes = require('./routes/patientTransferEDEOURoutes'
 const item = require('./routes/item');
 
 const insurance = require('./routes/insurance');
+const preApproval = require('./routes/preApprovalInsurance');
+const RC = require('./routes/reimbursementClaim');
 
 const dcdFormRouter = require('./routes/dcdFormroutes');
 const ChatModel = require('./models/chatRoom/chatRoom');
@@ -75,6 +77,8 @@ app.use('/api/subscriber', subscriber);
 app.use('/api/communication', communicationRouter);
 app.use('/api/patientTransfer', patientTransferEDEOURoutes);
 app.use('/api/insurance', insurance);
+app.use('/api/par', preApproval);
+app.use('/api/reimbursementclaim', RC);
 
 app.use(errorHandler);
 
