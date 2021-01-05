@@ -7,7 +7,7 @@ const IT = require('../models/insuranceItem');
 
 exports.getPreApprovalEDR = asyncHandler(async (req, res) => {
   const edr = await EDR.find({
-    // claimed: true,
+    status: 'pending',
     $or: [
       { labRequest: { $ne: [] } },
       { radiologyRequest: { $ne: [] } },
