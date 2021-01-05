@@ -2,7 +2,7 @@ const express = require('express');
 
 const {
   getPreApprovalEDR,
-  //   getEDRandIPRKeyword,
+  getEDRandIPRKeyword,
   //   addPAR,
   //   updatePAR,
 } = require('../controllers/preApprovalInsurance');
@@ -10,7 +10,7 @@ const {
 const router = express.Router();
 
 router.get('/getedrandipr', getPreApprovalEDR);
-// router.get('/getedrandipr/:keyword', getEDRandIPRKeyword);
+router.get('/getedrandipr/:keyword', getEDRandIPRKeyword);
 // router.post('/addpar', addPAR);
 // router.put('/updatepar', updatePAR);
 
