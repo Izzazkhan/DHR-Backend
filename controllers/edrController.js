@@ -199,7 +199,9 @@ exports.updateDoctorNotes = asyncHandler(async (req, res, next) => {
     {
       $set: {
         [`doctorNotes.${note}.notes`]: parsed.notes,
-        [`doctorNotes.${note}.voiceNotes`]: req.file ? req.file.path : null,
+        [`doctorNotes.${note}.voiceNotes`]: req.file
+          ? req.file.path
+          : parsed.voiceNotes,
       },
     },
     { new: true }
@@ -340,7 +342,7 @@ exports.updateConsultationNote = asyncHandler(async (req, res, next) => {
         [`consultationNote.${note}.notes`]: parsed.notes,
         [`consultationNote.${note}.voiceNotes`]: req.file
           ? req.file.path
-          : null,
+          : parsed.voiceNotes,
       },
     },
     { new: true }
