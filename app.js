@@ -24,6 +24,8 @@ const cutomerCareRouter = require('./routes/customerCareRoutes');
 const flagRouter = require('./routes/flagRoutes');
 const communicationRouter = require('./routes/communicationRoutes');
 const patientTransferEDEOURoutes = require('./routes/patientTransferEDEOURoutes');
+const patientClearance = require('./routes/patientClearance');
+
 
 const item = require('./routes/item');
 
@@ -73,6 +75,8 @@ app.use('/api/flag', flagRouter);
 app.use('/api/subscriber', subscriber);
 app.use('/api/communication', communicationRouter);
 app.use('/api/patientTransfer', patientTransferEDEOURoutes);
+app.use('/api/patientclearance', patientClearance);
+
 
 
 app.use(errorHandler);
