@@ -1115,8 +1115,9 @@ exports.getAllPendingLabRequests = asyncHandler(async (req, res) => {
   for (let i = 0; i < edr.length; i++) {
     for (let j = 0; j < edr[i].labRequest.length; j++) {
       if (edr[i].labRequest[j].status === 'pending') {
-        edr[i].radRequest = edr[i].radRequest[j];
-        response.push(edr[i]);
+        let obj = JSON.parse(JSON.stringify(edr[i]));
+        obj.labRequest = edr[i].labRequest[j];
+        response.push(obj);
       }
     }
   }
@@ -1135,17 +1136,17 @@ exports.getAllCompletedLabRequests = asyncHandler(async (req, res) => {
         path: 'serviceId',
       },
     });
-
   let response = [];
+
   for (let i = 0; i < edr.length; i++) {
     for (let j = 0; j < edr[i].labRequest.length; j++) {
       if (edr[i].labRequest[j].status === 'completed') {
-        edr[i].radRequest = edr[i].radRequest[j];
-        response.push(edr[i]);
+        let obj = JSON.parse(JSON.stringify(edr[i]));
+        obj.labRequest = edr[i].labRequest[j];
+        response.push(obj);
       }
     }
   }
-
   res.status(200).json({ success: true, data: response });
 });
 
@@ -1165,8 +1166,9 @@ exports.getAllPendingRadRequests = asyncHandler(async (req, res) => {
   for (let i = 0; i < edr.length; i++) {
     for (let j = 0; j < edr[i].radRequest.length; j++) {
       if (edr[i].radRequest[j].status === 'pending') {
-        edr[i].radRequest = edr[i].radRequest[j];
-        response.push(edr[i]);
+        let obj = JSON.parse(JSON.stringify(edr[i]));
+        obj.radRequest = edr[i].radRequest[j];
+        response.push(obj);
       }
     }
   }
@@ -1190,8 +1192,9 @@ exports.getAllCompletedRadRequests = asyncHandler(async (req, res) => {
   for (let i = 0; i < edr.length; i++) {
     for (let j = 0; j < edr[i].radRequest.length; j++) {
       if (edr[i].radRequest[j].status === 'completed') {
-        edr[i].radRequest = edr[i].radRequest[j];
-        response.push(edr[i]);
+        let obj = JSON.parse(JSON.stringify(edr[i]));
+        obj.radRequest = edr[i].radRequest[j];
+        response.push(obj);
       }
     }
   }
