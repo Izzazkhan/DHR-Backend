@@ -339,14 +339,16 @@ exports.addClaims = asyncHandler(async (req, res) => {
 
 exports.updateClaims = asyncHandler(async (req, res, next) => {
   var { _id } = JSON.parse(req.body.data);
-
+  console.log("FILESS , ", req.files)
   var rc = await RC.findById(_id);
+  console.log("RC document . ", rc.document)
   if (!rc) {
     return next(
       new ErrorResponse(`Reimbursement Claim not found with id of ${_id}`, 404)
     );
   }
-  if (req.files) {
+  if (req.files && req.files.length > 0) {
+    console.log("with files")
     var arr = [];
     for (let i = 0; i < req.files.length; i++) {
       arr.push(req.files[i].path);
@@ -355,23 +357,26 @@ exports.updateClaims = asyncHandler(async (req, res, next) => {
     rc = await RC.findOneAndUpdate(
       { _id: _id },
       { $set: { document: arr } },
-      { new: true },
       JSON.parse(req.body.data)
     );
   } else {
-    rc = await RC.findOneAndUpdate({ _id: _id }, JSON.parse(req.body.data));
+    console.log("without files")
+    await RC.updateOne({ _id: _id }, JSON.parse(req.body.data));
+    rc = await RC.findOneAndUpdate(
+      { _id: _id },
+      { $set: { document: rc.document } },
+      JSON.parse(req.body.data)
+    );
   }
   res.status(200).json({ success: true, data: rc });
 });
 
 exports.getEDRorIPR = asyncHandler(async (req, res) => {
-  console.log('HEREEEE', req.params._id);
   const rc = await RC.findOne(
     { patient: req.params._id },
     {},
     { sort: { createdAt: -1 } }
   );
-  console.log('RC ', rc);
   const a = await EDR.findOne({ patientId: req.params._id });
   if (a !== null) {
     var edr = await EDR.findOne({ patientId: req.params._id })
