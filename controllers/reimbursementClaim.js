@@ -464,7 +464,7 @@ exports.getInsuredEDRs = asyncHandler(async (req, res, next) => {
     status: { $ne: 'Discharged' },
   })
     .select('patientId')
-    .populate('patientId', 'MRN name gender age telecom createdAt');
+    .populate('patientId');
   res.status(200).json({
     success: true,
     data: edrs,
@@ -477,7 +477,7 @@ exports.getDischargedEDRs = asyncHandler(async (req, res, next) => {
     status: 'Discharged',
   })
     .select('patientId')
-    .populate('patientId', 'MRN name gender age telecom createdAt');
+    .populate('patientId');
   res.status(200).json({
     success: true,
     data: edrs,
