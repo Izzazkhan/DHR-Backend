@@ -244,7 +244,7 @@ exports.addClaims = asyncHandler(async (req, res) => {
     status,
   } = req.body.data;
 
-  const parsed = req.body.data;
+  const parsed = JSON.parse(req.body.data);
 
   const claimSolution = await EDR.findOne({ _id: parsed.edriprId });
   await EDR.findOneAndUpdate(
