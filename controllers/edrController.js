@@ -826,7 +826,7 @@ exports.updateAnesthesiologistNote = asyncHandler(async (req, res, next) => {
         [`anesthesiologistNote.${note}.notes`]: parsed.notes,
         [`anesthesiologistNote.${note}.voiceNotes`]: req.file
           ? req.file.path
-          : null,
+          : parsed.voiceNotes,
       },
     },
     { new: true }
@@ -904,7 +904,9 @@ exports.updateEDNurseRequest = asyncHandler(async (req, res, next) => {
         [`edNurseRequest.${note}.edNurseId`]: parsed.edNurse,
         [`edNurseRequest.${note}.speciality`]: parsed.speciality,
         [`edNurseRequest.${note}.notes`]: parsed.notes,
-        [`edNurseRequest.${note}.voiceNotes`]: req.file ? req.file.path : null,
+        [`edNurseRequest.${note}.voiceNotes`]: req.file
+          ? req.file.path
+          : parsed.voiceNotes,
       },
     },
     { new: true }
@@ -982,7 +984,9 @@ exports.updateEOUNurseRequest = asyncHandler(async (req, res, next) => {
         [`eouNurseRequest.${note}.eouNurseId`]: parsed.eouNurse,
         [`eouNurseRequest.${note}.speciality`]: parsed.speciality,
         [`eouNurseRequest.${note}.notes`]: parsed.notes,
-        [`eouNurseRequest.${note}.voiceNotes`]: req.file ? req.file.path : null,
+        [`eouNurseRequest.${note}.voiceNotes`]: req.file
+          ? req.file.path
+          : parsed.voiceNotes,
       },
     },
     { new: true }
@@ -1063,7 +1067,7 @@ exports.updateNurseTechnicianRequest = asyncHandler(async (req, res, next) => {
         [`nurseTechnicianRequest.${note}.notes`]: parsed.notes,
         [`nurseTechnicianRequest.${note}.voiceNotes`]: req.file
           ? req.file.path
-          : null,
+          : parsed.voiceNotes,
       },
     },
     { new: true }
