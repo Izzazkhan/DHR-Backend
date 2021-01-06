@@ -17,6 +17,7 @@ exports.getClaims = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: rc });
 });
 exports.getClaimsKeyword = asyncHandler(async (req, res) => {
+  // console.log(req.params.keyword);
   const rc = await RC.find()
     .populate('generatedBy')
     .populate('patient')
@@ -341,16 +342,16 @@ exports.addClaims = asyncHandler(async (req, res) => {
 
 exports.updateClaims = asyncHandler(async (req, res, next) => {
   var { _id } = JSON.parse(req.body.data);
-  console.log("FILESS , ", req.files)
+  console.log('FILESS , ', req.files);
   var rc = await RC.findById(_id);
-  console.log("RC document . ", rc.document)
+  console.log('RC document . ', rc.document);
   if (!rc) {
     return next(
       new ErrorResponse(`Reimbursement Claim not found with id of ${_id}`, 404)
     );
   }
   if (req.files && req.files.length > 0) {
-    console.log("with files")
+    console.log('with files');
     var arr = [];
     for (let i = 0; i < req.files.length; i++) {
       arr.push(req.files[i].path);
@@ -362,7 +363,7 @@ exports.updateClaims = asyncHandler(async (req, res, next) => {
       JSON.parse(req.body.data)
     );
   } else {
-    console.log("without files")
+    console.log('without files');
     await RC.updateOne({ _id: _id }, JSON.parse(req.body.data));
     rc = await RC.findOneAndUpdate(
       { _id: _id },
@@ -462,4 +463,30 @@ exports.getEDRorIPR = asyncHandler(async (req, res) => {
   } else {
     res.status(200).json({ success: false, data: 'User not found' });
   }
+});
+
+exports.getInsuredEDRs = asyncHandler(async (req, res, next) => {
+  const edrs = await EDR.find({
+    paymentMethod: 'Insured',
+    status: { $ne: 'Discharged' },
+  })
+    .select('patientId')
+    .populate('patientId', 'MRN name gender age telecom createdAt');
+  res.status(200).json({
+    success: true,
+    data: edrs,
+  });
+});
+
+exports.getDischargedEDRs = asyncHandler(async (req, res, next) => {
+  const edrs = await EDR.find({
+    paymentMethod: 'Insured',
+    status: 'Discharged',
+  })
+    .select('patientId')
+    .populate('patientId', 'MRN name gender age telecom createdAt');
+  res.status(200).json({
+    success: true,
+    data: edrs,
+  });
 });
