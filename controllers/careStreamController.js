@@ -274,6 +274,14 @@ exports.getPatientsWithCSByKeyword = asyncHandler(async (req, res, next) => {
       path: 'consultationNote.consultant',
       model: 'staff',
     },
+    {
+      path: 'radRequest.serviceId',
+      model: 'RadiologyService',
+    },
+    {
+      path: 'labRequest.serviceId',
+      model: 'LaboratoryService',
+    },
   ]);
 
   for (let i = 0; i < patients.length; i++) {
