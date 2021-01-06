@@ -94,11 +94,11 @@ exports.getPatient = asyncHandler(async (req, res) => {
 });
 
 exports.getPatientInsurance = asyncHandler(async (req, res) => {
-  const array = [];
-  const secondArray = [];
+  // const array = [];
+  // const secondArray = [];
   const patients = await EDR.find({
     status: { $ne: 'Discharged' },
-    paymentMethod: 'Insurance',
+    paymentMethod: 'Insured',
   })
     .populate(
       'patientId',
