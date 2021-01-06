@@ -96,7 +96,7 @@ exports.getPatient = asyncHandler(async (req, res) => {
 exports.getPatientInsurance = asyncHandler(async (req, res) => {
   const array = [];
   const secondArray = [];
-  const edr = await EDR.find({
+  const patients = await EDR.find({
     status: { $ne: 'Discharged' },
     paymentMethod: 'Insurance',
   })
@@ -105,49 +105,42 @@ exports.getPatientInsurance = asyncHandler(async (req, res) => {
       'profileNo firstName lastName SIN mobileNumber phoneNumber age gender weight QR createdAt'
     )
     .select({ patientId: 1 });
-  for (let i = 0; i < edr.length; i++) {
-    // if(edr[i].patientId.paymentMethod=="Insurance")
-    // {
-    array.push(edr[i].patientId);
-    // }
-  }
-  const unique = Array.from(new Set(array));
-  for (let i = 0; i < unique.length; i++) {
-    var fullName = unique[i].firstName + ' ' + unique[i].lastName;
+  const arr = [];
+  for (let i = 0; i < patients.length; i++) {
+    const fullName =
+      patients[i].patientId.name[0].given[0] +
+      ' ' +
+      patients[i].patientId.name[0].family;
     if (
-      (unique[i].profileNo &&
-        unique[i].profileNo
+      (patients[i].patientId.name[0].given[0] &&
+        patients[i].patientId.name[0].given[0]
           .toLowerCase()
           .startsWith(req.params.keyword.toLowerCase())) ||
-      // (unique[i].firstName && unique[i].firstName.toLowerCase().startsWith(req.params.keyword.toLowerCase()))||
-      // (unique[i].lastName && unique[i].lastName.toLowerCase().startsWith(req.params.keyword.toLowerCase()))||
-      (unique[i].phoneNumber &&
-        unique[i].phoneNumber.startsWith(req.params.keyword)) ||
-      (unique[i].SIN &&
-        unique[i].SIN.toLowerCase().startsWith(
-          req.params.keyword.toLowerCase()
-        )) ||
-      (unique[i].mobileNumber &&
-        unique[i].mobileNumber.startsWith(req.params.keyword)) ||
-      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase())
+      (patients[i].patientId.name[0].family &&
+        patients[i].patientId.name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (patients[i].patientId.identifier[0].value &&
+        patients[i].patientId.identifier[0].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
+      (patients[i].patientId.telecom[1].value &&
+        patients[i].patientId.telecom[1].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (patients[i].patientId.nationalID &&
+        patients[i].patientId.nationalID
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase()))
     ) {
-      secondArray.push(unique[i]);
+      arr.push(patients[i]);
     }
   }
-  var uniqueArray = (function (secondArray) {
-    var m = {},
-      uniqueArray = [];
-    for (var i = 0; i < secondArray.length; i++) {
-      var v = secondArray[i];
-      if (!m[v]) {
-        uniqueArray.push(v);
-        m[v] = true;
-      }
-    }
-    return uniqueArray;
-  })(secondArray);
-  let response = uniqueArray.slice(0, 50);
-  res.status(200).json({ success: true, data: response });
+  res.status(200).json({
+    success: true,
+    data: arr,
+  });
 });
 
 exports.getPatientDischarged = asyncHandler(async (req, res) => {
