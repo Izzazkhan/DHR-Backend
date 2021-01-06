@@ -24,11 +24,15 @@ const {
   addClaims,
   updateClaims,
   getPatientHistoryAll,
+  getInsuredEDRs,
+  getDischargedEDRs,
 } = require('../controllers/reimbursementClaim');
 
 const router = express.Router();
 router.get('/getclaim', getClaims);
 router.get('/getclaim/:keyword', getClaimsKeyword);
+router.get('/getinsuredrs', getInsuredEDRs);
+router.get('/getdischargededrs', getDischargedEDRs);
 router.get('/getpatient/:keyword', getPatient);
 router.get('/getpatientinsurance/:keyword', getPatientInsurance);
 router.get('/getpatientdischarge/:keyword', getPatientDischarged);
