@@ -685,18 +685,18 @@ exports.getEDRorIPR = asyncHandler(async (req, res) => {
 
       .populate('pharmacyRequest.item.itemId')
 
-      .populate('labRequest.requestedBy')      
+      .populate('labRequest.requestedBy')
       .populate('labRequest.serviceId')
-      
+
       .populate('radRequest.serviceId')
       .populate('radRequest.requestedBy')
-      
+
       .populate('residentNotes.doctor')
       .populate('residentNotes.doctorRef')
-      
+
       .populate('dischargeRequest.dischargeMedication.requester')
       .populate('dischargeRequest.dischargeMedication.medicine.itemId')
-      
+
       .populate('triageAssessment.requester')
       .sort({
         createdAt: 'desc',
@@ -760,7 +760,6 @@ exports.getEDRorIPR = asyncHandler(async (req, res) => {
     res.status(200).json({ success: false, data: 'User not found' });
   }
 });
-
 
 exports.addAnesthesiologistNote = asyncHandler(async (req, res, next) => {
   const now = new Date();
@@ -1080,4 +1079,18 @@ exports.updateNurseTechnicianRequest = asyncHandler(async (req, res, next) => {
     success: true,
     data: updatedRequest,
   });
+});
+
+exports.getDischargedEDR = asyncHandler(async (req, res) => {
+  const edr = await EDR.find({ status: { $eq: 'Discharged' } }).populate(
+    'patientId'
+  );
+  res.status(200).json({ success: true, data: edr });
+});
+
+exports.getCompletedEDR = asyncHandler(async (req, res) => {
+  const edr = await EDR.find({ status: { $eq: 'Completed' } }).populate(
+    'patientId'
+  );
+  res.status(200).json({ success: true, data: edr });
 });
