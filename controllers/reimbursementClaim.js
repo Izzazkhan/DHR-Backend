@@ -99,12 +99,8 @@ exports.getPatientInsurance = asyncHandler(async (req, res) => {
   const patients = await EDR.find({
     status: { $ne: 'Discharged' },
     paymentMethod: 'Insured',
-  })
-    .populate(
-      'patientId',
-      'profileNo firstName lastName SIN mobileNumber phoneNumber age gender weight QR createdAt'
-    )
-    .select({ patientId: 1 });
+  }).populate('patientId');
+
   const arr = [];
   for (let i = 0; i < patients.length; i++) {
     const fullName =
