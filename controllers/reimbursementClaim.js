@@ -249,8 +249,10 @@ exports.addClaims = asyncHandler(async (req, res) => {
   const claimSolution = await EDR.findOne({ _id: parsed.edriprId });
   await EDR.findOneAndUpdate(
     { _id: parsed.edriprId },
-    { $set: { claimed: true } }
+    { $set: { claimed: true } },
+    { new: true }
   );
+  console.log(claimSolution);
   var rc;
   if (claimSolution.claimed === true) {
     res.status(200).json({ success: false });
