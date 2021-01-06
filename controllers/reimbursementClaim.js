@@ -1,10 +1,13 @@
 const moment = require('moment');
+const nodemailer = require('nodemailer');
 const requestNoFormat = require('dateformat');
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const EDR = require('../models/EDR/EDR');
 const RC = require('../models/reimbursementClaim');
 const IT = require('../models/insuranceItem');
+const Staff = require('../models/staffFhir/staff');
+
 // const Patient = require('../models/patient');
 exports.getClaims = asyncHandler(async (req, res) => {
   const rc = await RC.find()
@@ -230,6 +233,7 @@ exports.getPatientHistoryAll = asyncHandler(async (req, res) => {
 });
 
 exports.addClaims = asyncHandler(async (req, res) => {
+  console.log(req.body.data);
   const {
     generatedBy,
     patient,
@@ -240,7 +244,7 @@ exports.addClaims = asyncHandler(async (req, res) => {
     status,
   } = req.body.data;
 
-  const parsed = JSON.parse(req.body.data);
+  const parsed = req.body.data;
 
   const claimSolution = await EDR.findOne({ _id: parsed.edriprId });
   await EDR.findOneAndUpdate(
@@ -248,46 +252,88 @@ exports.addClaims = asyncHandler(async (req, res) => {
     { $set: { claimed: true } }
   );
   var rc;
-  if (claimSolution.claimed === true) {
-    res.status(200).json({ success: false });
-  } else {
-    if (req.files) {
-      var arr = [];
-      for (let i = 0; i < req.files.length; i++) {
-        arr.push(req.files[i].path);
-      }
-      var now = new Date();
-      var start = new Date(now.getFullYear(), 0, 0);
-      var diff =
-        now -
-        start +
-        (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
-      var oneDay = 1000 * 60 * 60 * 24;
-      var day = Math.floor(diff / oneDay);
-      rc = await RC.create({
-        requestNo: 'RC' + day + requestNoFormat(new Date(), 'yyHHMMss'),
-        generatedBy: parsed.generatedBy,
-        patient: parsed.patient,
-        insurer: parsed.insurer,
-        treatmentDetail: parsed.treatmentDetail,
-        responseCode: parsed.responseCode,
-        document: arr,
-        status: parsed.status,
-      });
-    } else {
-      rc = await RC.create({
-        requestNo: 'RC' + day + requestNoFormat(new Date(), 'yyHHMMss'),
-        generatedBy: parsed.generatedBy,
-        patient: parsed.patient,
-        insurer: parsed.insurer,
-        treatmentDetail: parsed.treatmentDetail,
-        responseCode: parsed.responseCode,
-        document: '',
-        status: parsed.status,
-      });
+  // if (claimSolution.claimed === true) {
+  //   res.status(200).json({ success: false });
+  // } else {
+  if (req.files) {
+    var arr = [];
+    for (let i = 0; i < req.files.length; i++) {
+      arr.push(req.files[i].path);
     }
-    res.status(200).json({ success: true, data: rc });
+    const now = new Date();
+    const start = new Date(now.getFullYear(), 0, 0);
+    const diff =
+      now -
+      start +
+      (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
+    const oneDay = 1000 * 60 * 60 * 24;
+    const day = Math.floor(diff / oneDay);
+    rc = await RC.create({
+      requestNo: 'RC' + day + requestNoFormat(new Date(), 'yyHHMMss'),
+      generatedBy: parsed.generatedBy,
+      patient: parsed.patient,
+      insurer: parsed.insurer,
+      treatmentDetail: parsed.treatmentDetail,
+      responseCode: parsed.responseCode,
+      document: arr,
+      status: parsed.status,
+    });
+  } else {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), 0, 0);
+    const diff =
+      now -
+      start +
+      (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
+    const oneDay = 1000 * 60 * 60 * 24;
+    const day = Math.floor(diff / oneDay);
+    rc = await RC.create({
+      requestNo: 'RC' + day + requestNoFormat(new Date(), 'yyHHMMss'),
+      generatedBy: parsed.generatedBy,
+      patient: parsed.patient,
+      insurer: parsed.insurer,
+      treatmentDetail: parsed.treatmentDetail,
+      responseCode: parsed.responseCode,
+      document: '',
+      status: parsed.status,
+    });
   }
+  const sender = await Staff.findOne({ _id: parsed.generatedBy }).select(
+    'telecom'
+  );
+  const receiver = await Staff.find({ staffType: 'Admin' }).select('telecom');
+  console.log(sender);
+  const filteredEmails = [];
+  for (let index = 0; index < receiver.length; index++) {
+    filteredEmails.push(receiver[index].telecom[0].value);
+  }
+
+  console.log('filteredEmails', filteredEmails);
+  const senderEmail = sender.telecom[0].value;
+
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'pmdevteam0@gmail.com',
+      pass: 'SysJunc#@!',
+    },
+  });
+
+  const mailOptions = {
+    from: senderEmail,
+    to: filteredEmails,
+    subject: treatmentDetail,
+    html: `<p>${document}<p>`,
+  };
+
+  transporter.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log('Email sent: ' + info.response);
+    }
+  });
+  res.status(200).json({ success: true, data: rc });
 });
 
 exports.updateClaims = asyncHandler(async (req, res, next) => {
@@ -317,11 +363,13 @@ exports.updateClaims = asyncHandler(async (req, res, next) => {
 });
 
 exports.getEDRorIPR = asyncHandler(async (req, res) => {
-  console.log("HEREEEE", req.params._id)
-  const rc = await RC.findOne({ patient: req.params._id },
+  console.log('HEREEEE', req.params._id);
+  const rc = await RC.findOne(
+    { patient: req.params._id },
     {},
-    { sort: { createdAt: -1 } })
-  console.log("RC ", rc)
+    { sort: { createdAt: -1 } }
+  );
+  console.log('RC ', rc);
   const a = await EDR.findOne({ patientId: req.params._id });
   if (a !== null) {
     var edr = await EDR.findOne({ patientId: req.params._id })
@@ -338,7 +386,7 @@ exports.getEDRorIPR = asyncHandler(async (req, res) => {
       // .populate('pharmacyRequest.item.itemId')
       // .populate('labRequest.requester')
       .populate('labRequest.serviceId')
-      .populate('radRequest.serviceId')
+      .populate('radRequest.serviceId');
     // .populate('radRequest.requester')
     // .populate('residentNotes.doctor')
     // .populate('residentNotes.doctorRef')
@@ -351,34 +399,45 @@ exports.getEDRorIPR = asyncHandler(async (req, res) => {
     // console.log("EDR DATA", edr)
   }
   if (a) {
-    const insurance = await IT.find({ providerId: edr.insurerId })
+    const insurance = await IT.find({ providerId: edr.insurerId });
     // console.log("Isurance DATA ", insurance)
     var insured = [];
     for (let i = 0; i < edr.pharmacyRequest.length; i++) {
       for (let j = 0; j < edr.pharmacyRequest[i].item.length; j++) {
         for (let k = 0; k < insurance.length; k++) {
-          if (JSON.parse(JSON.stringify(edr.pharmacyRequest[i].item[j].itemId._id)) == insurance[k].itemId) {
-            insured.push(insurance[k])
+          if (
+            JSON.parse(
+              JSON.stringify(edr.pharmacyRequest[i].item[j].itemId._id)
+            ) == insurance[k].itemId
+          ) {
+            insured.push(insurance[k]);
           }
         }
       }
     }
     for (let i = 0; i < edr.labRequest.length; i++) {
       for (let j = 0; j < insurance.length; j++) {
-        if (JSON.parse(JSON.stringify(edr.labRequest[i].serviceId._id)) == insurance[j].laboratoryServiceId) {
-          insured.push(insurance[j])
+        if (
+          JSON.parse(JSON.stringify(edr.labRequest[i].serviceId._id)) ==
+          insurance[j].laboratoryServiceId
+        ) {
+          insured.push(insurance[j]);
         }
       }
     }
     for (let i = 0; i < edr.radRequest.length; i++) {
       for (let j = 0; j < insurance.length; j++) {
-        if (JSON.parse(JSON.stringify(edr.radRequest[i].serviceId._id)) == insurance[j].radiologyServiceId) {
-          insured.push(insurance[j])
+        if (
+          JSON.parse(JSON.stringify(edr.radRequest[i].serviceId._id)) ==
+          insurance[j].radiologyServiceId
+        ) {
+          insured.push(insurance[j]);
         }
       }
     }
     var uniqueArray = (function (insured) {
-      var m = {}, uniqueArray = []
+      var m = {},
+        uniqueArray = [];
       for (var i = 0; i < insured.length; i++) {
         var v = insured[i];
         if (!m[v]) {
@@ -388,8 +447,9 @@ exports.getEDRorIPR = asyncHandler(async (req, res) => {
       }
       return uniqueArray;
     })(insured);
-    res.status(200).json({ success: true, data: edr, rc: rc, insured: uniqueArray });
-
+    res
+      .status(200)
+      .json({ success: true, data: edr, rc: rc, insured: uniqueArray });
   } else {
     res.status(200).json({ success: false, data: 'User not found' });
   }

@@ -266,6 +266,14 @@ exports.getPatientsWithCSByKeyword = asyncHandler(async (req, res, next) => {
       path: 'careStream.careStreamId',
       model: 'careStream',
     },
+    {
+      path: 'consultationNote.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'consultationNote.consultant',
+      model: 'staff',
+    },
   ]);
 
   for (let i = 0; i < patients.length; i++) {
