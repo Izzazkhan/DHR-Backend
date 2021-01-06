@@ -355,6 +355,7 @@ exports.updateClaims = asyncHandler(async (req, res, next) => {
     rc = await RC.findOneAndUpdate(
       { _id: _id },
       { $set: { document: arr } },
+      { new: true },
       JSON.parse(req.body.data)
     );
   } else {
