@@ -260,14 +260,14 @@ exports.addClaims = asyncHandler(async (req, res) => {
     for (let i = 0; i < req.files.length; i++) {
       arr.push(req.files[i].path);
     }
-    var now = new Date();
-    var start = new Date(now.getFullYear(), 0, 0);
-    var diff =
+    const now = new Date();
+    const start = new Date(now.getFullYear(), 0, 0);
+    const diff =
       now -
       start +
       (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
-    var oneDay = 1000 * 60 * 60 * 24;
-    var day = Math.floor(diff / oneDay);
+    const oneDay = 1000 * 60 * 60 * 24;
+    const day = Math.floor(diff / oneDay);
     rc = await RC.create({
       requestNo: 'RC' + day + requestNoFormat(new Date(), 'yyHHMMss'),
       generatedBy: parsed.generatedBy,
@@ -279,6 +279,14 @@ exports.addClaims = asyncHandler(async (req, res) => {
       status: parsed.status,
     });
   } else {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), 0, 0);
+    const diff =
+      now -
+      start +
+      (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
+    const oneDay = 1000 * 60 * 60 * 24;
+    const day = Math.floor(diff / oneDay);
     rc = await RC.create({
       requestNo: 'RC' + day + requestNoFormat(new Date(), 'yyHHMMss'),
       generatedBy: parsed.generatedBy,
