@@ -10,7 +10,7 @@ const reimbursementClaimSchema = new mongoose.Schema({
   },
   patient: {
     type: mongoose.Schema.ObjectId,
-    ref: 'patient',
+    ref: 'patientfhir',
   },
   insurer: {
     type: mongoose.Schema.ObjectId,

@@ -33,6 +33,7 @@ router.get('/getpatient/:keyword', getPatient);
 router.get('/getpatientinsurance/:keyword', getPatientInsurance);
 router.get('/getpatientdischarge/:keyword', getPatientDischarged);
 router.get('/getpatienthistory/:keyword', getPatientHistoryAll);
+router.get('/getedripr/:_id', getEDRorIPR);
 router.post('/addclaim', upload.array('file'), addClaims);
 router.put('/updateclaim', upload.array('file'), updateClaims);
 

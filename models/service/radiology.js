@@ -14,7 +14,7 @@ const radiologyServiceSchema = new mongoose.Schema({
     type: String,
   },
   price: {
-    type: String,
+    type: Number,
   },
   status: {
     type: String,

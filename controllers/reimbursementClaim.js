@@ -33,18 +33,6 @@ exports.getClaimsKeyword = asyncHandler(async (req, res) => {
 exports.getPatient = asyncHandler(async (req, res) => {
   const array = [];
   const secondArray = [];
-  // const ipr = await IPR.find({
-  //   functionalUnit: req.params.id,
-  //   status: { $ne: 'Discharged' },
-  // })
-  //   .populate(
-  //     'patientId',
-  //     'profileNo firstName lastName SIN mobileNumber phoneNumber age gender drugAllergy weight'
-  //   )
-  //   .select({ patientId: 1 });
-  // for (let i = 0; i < ipr.length; i++) {
-  //   array.push(ipr[i].patientId);
-  // }
   const edr = await EDR.find({ status: { $ne: 'Discharged' } })
     .populate(
       'patientId',
@@ -94,17 +82,13 @@ exports.getPatient = asyncHandler(async (req, res) => {
 });
 
 exports.getPatientInsurance = asyncHandler(async (req, res) => {
-  const array = [];
-  const secondArray = [];
+  // const array = [];
+  // const secondArray = [];
   const patients = await EDR.find({
     status: { $ne: 'Discharged' },
-    paymentMethod: 'Insurance',
-  })
-    .populate(
-      'patientId',
-      'profileNo firstName lastName SIN mobileNumber phoneNumber age gender weight QR createdAt'
-    )
-    .select({ patientId: 1 });
+    paymentMethod: 'Insured',
+  }).populate('patientId');
+
   const arr = [];
   for (let i = 0; i < patients.length; i++) {
     const fullName =
@@ -330,4 +314,83 @@ exports.updateClaims = asyncHandler(async (req, res, next) => {
     rc = await RC.findOneAndUpdate({ _id: _id }, JSON.parse(req.body.data));
   }
   res.status(200).json({ success: true, data: rc });
+});
+
+exports.getEDRorIPR = asyncHandler(async (req, res) => {
+  console.log("HEREEEE", req.params._id)
+  const rc = await RC.findOne({ patient: req.params._id },
+    {},
+    { sort: { createdAt: -1 } })
+  console.log("RC ", rc)
+  const a = await EDR.findOne({ patientId: req.params._id });
+  if (a !== null) {
+    var edr = await EDR.findOne({ patientId: req.params._id })
+      .populate('patientId')
+      // .populate('consultationNote.requester')
+      // .populate({
+      //   path: 'pharmacyRequest',
+      //   populate: [
+      //     {
+      //       path: 'item.itemId',
+      //     },
+      //   ],
+      // })
+      // .populate('pharmacyRequest.item.itemId')
+      // .populate('labRequest.requester')
+      .populate('labRequest.serviceId')
+      .populate('radRequest.serviceId')
+    // .populate('radRequest.requester')
+    // .populate('residentNotes.doctor')
+    // .populate('residentNotes.doctorRef')
+    // .populate('dischargeRequest.dischargeMedication.requester')
+    // .populate('dischargeRequest.dischargeMedication.medicine.itemId')
+    // .populate('triageAssessment.requester')
+    // .sort({
+    //   createdAt: 'desc',
+    // })
+    // console.log("EDR DATA", edr)
+  }
+  if (a) {
+    const insurance = await IT.find({ providerId: edr.insurerId })
+    // console.log("Isurance DATA ", insurance)
+    var insured = [];
+    for (let i = 0; i < edr.pharmacyRequest.length; i++) {
+      for (let j = 0; j < edr.pharmacyRequest[i].item.length; j++) {
+        for (let k = 0; k < insurance.length; k++) {
+          if (JSON.parse(JSON.stringify(edr.pharmacyRequest[i].item[j].itemId._id)) == insurance[k].itemId) {
+            insured.push(insurance[k])
+          }
+        }
+      }
+    }
+    for (let i = 0; i < edr.labRequest.length; i++) {
+      for (let j = 0; j < insurance.length; j++) {
+        if (JSON.parse(JSON.stringify(edr.labRequest[i].serviceId._id)) == insurance[j].laboratoryServiceId) {
+          insured.push(insurance[j])
+        }
+      }
+    }
+    for (let i = 0; i < edr.radRequest.length; i++) {
+      for (let j = 0; j < insurance.length; j++) {
+        if (JSON.parse(JSON.stringify(edr.radRequest[i].serviceId._id)) == insurance[j].radiologyServiceId) {
+          insured.push(insurance[j])
+        }
+      }
+    }
+    var uniqueArray = (function (insured) {
+      var m = {}, uniqueArray = []
+      for (var i = 0; i < insured.length; i++) {
+        var v = insured[i];
+        if (!m[v]) {
+          uniqueArray.push(v);
+          m[v] = true;
+        }
+      }
+      return uniqueArray;
+    })(insured);
+    res.status(200).json({ success: true, data: edr, rc: rc, insured: uniqueArray });
+
+  } else {
+    res.status(200).json({ success: false, data: 'User not found' });
+  }
 });
