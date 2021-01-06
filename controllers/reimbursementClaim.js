@@ -252,88 +252,89 @@ exports.addClaims = asyncHandler(async (req, res) => {
     { $set: { claimed: true } }
   );
   var rc;
-  // if (claimSolution.claimed === true) {
-  //   res.status(200).json({ success: false });
-  // } else {
-  if (req.files) {
-    var arr = [];
-    for (let i = 0; i < req.files.length; i++) {
-      arr.push(req.files[i].path);
-    }
-    const now = new Date();
-    const start = new Date(now.getFullYear(), 0, 0);
-    const diff =
-      now -
-      start +
-      (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
-    const oneDay = 1000 * 60 * 60 * 24;
-    const day = Math.floor(diff / oneDay);
-    rc = await RC.create({
-      requestNo: 'RC' + day + requestNoFormat(new Date(), 'yyHHMMss'),
-      generatedBy: parsed.generatedBy,
-      patient: parsed.patient,
-      insurer: parsed.insurer,
-      treatmentDetail: parsed.treatmentDetail,
-      responseCode: parsed.responseCode,
-      document: arr,
-      status: parsed.status,
-    });
+  if (claimSolution.claimed === true) {
+    res.status(200).json({ success: false });
   } else {
-    const now = new Date();
-    const start = new Date(now.getFullYear(), 0, 0);
-    const diff =
-      now -
-      start +
-      (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
-    const oneDay = 1000 * 60 * 60 * 24;
-    const day = Math.floor(diff / oneDay);
-    rc = await RC.create({
-      requestNo: 'RC' + day + requestNoFormat(new Date(), 'yyHHMMss'),
-      generatedBy: parsed.generatedBy,
-      patient: parsed.patient,
-      insurer: parsed.insurer,
-      treatmentDetail: parsed.treatmentDetail,
-      responseCode: parsed.responseCode,
-      document: '',
-      status: parsed.status,
-    });
-  }
-  const sender = await Staff.findOne({ _id: parsed.generatedBy }).select(
-    'telecom'
-  );
-  const receiver = await Staff.find({ staffType: 'Admin' }).select('telecom');
-  console.log(sender);
-  const filteredEmails = [];
-  for (let index = 0; index < receiver.length; index++) {
-    filteredEmails.push(receiver[index].telecom[0].value);
-  }
-
-  console.log('filteredEmails', filteredEmails);
-  const senderEmail = sender.telecom[0].value;
-
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: 'pmdevteam0@gmail.com',
-      pass: 'SysJunc#@!',
-    },
-  });
-
-  const mailOptions = {
-    from: senderEmail,
-    to: filteredEmails,
-    subject: treatmentDetail,
-    html: `<p>${document}<p>`,
-  };
-
-  transporter.sendMail(mailOptions, function (error, info) {
-    if (error) {
-      console.log(error);
+    if (req.files) {
+      var arr = [];
+      for (let i = 0; i < req.files.length; i++) {
+        arr.push(req.files[i].path);
+      }
+      const now = new Date();
+      const start = new Date(now.getFullYear(), 0, 0);
+      const diff =
+        now -
+        start +
+        (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
+      const oneDay = 1000 * 60 * 60 * 24;
+      const day = Math.floor(diff / oneDay);
+      rc = await RC.create({
+        requestNo: 'RC' + day + requestNoFormat(new Date(), 'yyHHMMss'),
+        generatedBy: parsed.generatedBy,
+        patient: parsed.patient,
+        insurer: parsed.insurer,
+        treatmentDetail: parsed.treatmentDetail,
+        responseCode: parsed.responseCode,
+        document: arr,
+        status: parsed.status,
+      });
     } else {
-      console.log('Email sent: ' + info.response);
+      const now = new Date();
+      const start = new Date(now.getFullYear(), 0, 0);
+      const diff =
+        now -
+        start +
+        (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
+      const oneDay = 1000 * 60 * 60 * 24;
+      const day = Math.floor(diff / oneDay);
+      rc = await RC.create({
+        requestNo: 'RC' + day + requestNoFormat(new Date(), 'yyHHMMss'),
+        generatedBy: parsed.generatedBy,
+        patient: parsed.patient,
+        insurer: parsed.insurer,
+        treatmentDetail: parsed.treatmentDetail,
+        responseCode: parsed.responseCode,
+        document: '',
+        status: parsed.status,
+      });
     }
-  });
-  res.status(200).json({ success: true, data: rc });
+    const sender = await Staff.findOne({ _id: parsed.generatedBy }).select(
+      'telecom'
+    );
+    const receiver = await Staff.find({ staffType: 'Admin' }).select('telecom');
+    console.log(sender);
+    const filteredEmails = [];
+    for (let index = 0; index < receiver.length; index++) {
+      filteredEmails.push(receiver[index].telecom[0].value);
+    }
+
+    console.log('filteredEmails', filteredEmails);
+    const senderEmail = sender.telecom[0].value;
+
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'pmdevteam0@gmail.com',
+        pass: 'SysJunc#@!',
+      },
+    });
+
+    const mailOptions = {
+      from: senderEmail,
+      to: filteredEmails,
+      subject: treatmentDetail,
+      html: `<p>${document}<p>`,
+    };
+
+    transporter.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log('Email sent: ' + info.response);
+      }
+    });
+    res.status(200).json({ success: true, data: rc });
+  }
 });
 
 exports.updateClaims = asyncHandler(async (req, res, next) => {
