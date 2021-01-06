@@ -46,6 +46,11 @@ const {
   updateNurseTechnicianRequest,
   getDischargedEDR,
   getCompletedEDR,
+
+  getAllPendingLabRequests,
+  getAllPendingRadRequests,
+  getAllCompletedLabRequests,
+  getAllCompletedRadRequests,
 } = require('../controllers/edrController');
 
 const router = express.Router();
@@ -118,5 +123,11 @@ router.get(
 router.get('/getDischargedEDR', getDischargedEDR);
 router.get('/getCompletedEDR', getCompletedEDR);
 router.get('/getedripr/:_id', getEDRorIPR);
+
+router.get('/getAllPendingRadRequests', getAllPendingRadRequests);
+router.get('/getAllCompletedRadRequests', getAllCompletedRadRequests);
+
+router.get('/getAllPendingLabRequests', getAllPendingLabRequests);
+router.get('/getAllCompletedLabRequests', getAllCompletedLabRequests);
 
 module.exports = router;
