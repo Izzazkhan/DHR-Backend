@@ -159,7 +159,7 @@ exports.getCCDoctorByKeyword = asyncHandler(async (req, res, next) => {
   const doctorCC = await Staff.find({ staffType: 'Doctor' }).populate(
     'chiefComplaint.chiefComplaintId'
   );
-  console.log(doctorCC[0].chiefComplaint[0].chiefComplaintId.name);
+  // console.log(doctorCC[0].chiefComplaint[0].chiefComplaintId.name);
 
   for (let i = 0; i < doctorCC.length; i++) {
     if (
