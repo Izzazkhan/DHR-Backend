@@ -164,12 +164,13 @@ exports.addDoctorNotes = asyncHandler(async (req, res, next) => {
     addedBy: parsed.addedBy,
     assignedTime: Date.now(),
     notes: parsed.notes,
-    code: parsed.code,
+    // code: parsed.code,
     section: parsed.section,
     voiceNotes: req.file ? req.file.path : null,
   };
   const addedNote = await EDR.findOneAndUpdate(
     { _id: parsed.edrId },
+    { $set: { code: parsed.code } },
     { $push: { doctorNotes } },
     {
       new: true,
