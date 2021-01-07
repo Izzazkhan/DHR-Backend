@@ -203,10 +203,6 @@ exports.searchCCPatients = asyncHandler(async (req, res, next) => {
       (patients[i].patientId.nationalID &&
         patients[i].patientId.nationalID
           .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].chiefComplaint[0].chiefComplaintId.name &&
-        patients[i].chiefComplaint[0].chiefComplaintId.name
-          .toLowerCase()
           .startsWith(req.params.keyword.toLowerCase()))
     ) {
       arr.push(patients[i]);
@@ -233,7 +229,7 @@ exports.getPatientsByPA = asyncHandler(async (req, res, next) => {
   console.log(arr);
   res.status(200).json({
     success: true,
-    data: arr.length,
+    data: arr,
   });
 });
 
