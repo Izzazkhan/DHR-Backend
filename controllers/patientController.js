@@ -140,8 +140,8 @@ exports.averageRegistrationTAT = asyncHandler(async (req, res, next) => {
 });
 
 exports.updatePatient = asyncHandler(async (req, res, next) => {
-  // const parsed = JSON.parse(req.body.data);
-  const parsed = req.body;
+  const parsed = JSON.parse(req.body.data);
+  // const parsed = req.body;
   let patient = await patientFHIR.findById(parsed._id);
   const edr = await EDR.findOne({ patientId: parsed._id });
   if (edr && edr.length > 0) {
