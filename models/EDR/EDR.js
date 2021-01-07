@@ -493,7 +493,11 @@ const edrSchema = new mongoose.Schema({
       },
       voiceNotes: String,
       assignedTime: Date,
-      code: [{ String }],
+      code: [
+        {
+          type: String,
+        },
+      ],
       section: String,
     },
   ],
