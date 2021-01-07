@@ -483,7 +483,7 @@ const edrSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'staff',
   },
-  
+
   doctorNotes: [
     {
       notes: String,
@@ -493,6 +493,8 @@ const edrSchema = new mongoose.Schema({
       },
       voiceNotes: String,
       assignedTime: Date,
+      code: [{ String }],
+      section: String,
     },
   ],
 
