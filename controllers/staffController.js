@@ -337,7 +337,10 @@ exports.searchDoctor = asyncHandler(async (req, res, next) => {
 
 exports.searchSensei = asyncHandler(async (req, res, next) => {
   const arr = [];
-  const staff = await Staff.find({ staffType: 'Sensei', disabled: false });
+  const staff = await Staff.find({
+    staffType: 'Sensei',
+    disabled: false,
+  }).populate('addedBy');
   for (let i = 0; i < staff.length; i++) {
     const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
     if (

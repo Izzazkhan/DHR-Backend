@@ -8,7 +8,6 @@ const RC = require('../models/reimbursementClaim');
 const IT = require('../models/insuranceItem');
 const Staff = require('../models/staffFhir/staff');
 
-// const Patient = require('../models/patient');
 exports.getClaims = asyncHandler(async (req, res) => {
   const rc = await RC.find()
     .populate('generatedBy')
@@ -17,7 +16,6 @@ exports.getClaims = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: rc });
 });
 exports.getClaimsKeyword = asyncHandler(async (req, res) => {
-  // console.log(req.params.keyword);
   const rc = await RC.find()
     .populate('generatedBy')
     .populate('patient')
@@ -86,8 +84,6 @@ exports.getPatient = asyncHandler(async (req, res) => {
 });
 
 exports.getPatientInsurance = asyncHandler(async (req, res) => {
-  // const array = [];
-  // const secondArray = [];
   const patients = await EDR.find({
     status: { $ne: 'Discharged' },
     paymentMethod: 'Insured',
@@ -227,7 +223,6 @@ exports.getPatientHistoryAll = asyncHandler(async (req, res) => {
 });
 
 exports.addClaims = asyncHandler(async (req, res) => {
-  console.log(req.body.data);
   const {
     generatedBy,
     patient,
@@ -246,7 +241,6 @@ exports.addClaims = asyncHandler(async (req, res) => {
     { $set: { claimed: true } },
     { new: true }
   );
-  console.log(claimSolution);
   var rc;
   if (claimSolution.claimed === true) {
     res.status(200).json({ success: false });
@@ -298,13 +292,11 @@ exports.addClaims = asyncHandler(async (req, res) => {
       'telecom'
     );
     const receiver = await Staff.find({ staffType: 'Admin' }).select('telecom');
-    console.log(sender);
     const filteredEmails = [];
     for (let index = 0; index < receiver.length; index++) {
       filteredEmails.push(receiver[index].telecom[0].value);
     }
 
-    console.log('filteredEmails', filteredEmails);
     const senderEmail = sender.telecom[0].value;
 
     const transporter = nodemailer.createTransport({
@@ -335,16 +327,14 @@ exports.addClaims = asyncHandler(async (req, res) => {
 
 exports.updateClaims = asyncHandler(async (req, res, next) => {
   var { _id } = JSON.parse(req.body.data);
-  console.log('FILESS , ', req.files);
+
   var rc = await RC.findById(_id);
-  console.log('RC document . ', rc.document);
   if (!rc) {
     return next(
       new ErrorResponse(`Reimbursement Claim not found with id of ${_id}`, 404)
     );
   }
   if (req.files && req.files.length > 0) {
-    console.log('with files');
     var arr = [];
     for (let i = 0; i < req.files.length; i++) {
       arr.push(req.files[i].path);
@@ -356,7 +346,6 @@ exports.updateClaims = asyncHandler(async (req, res, next) => {
       JSON.parse(req.body.data)
     );
   } else {
-    console.log('without files');
     await RC.updateOne({ _id: _id }, JSON.parse(req.body.data));
     rc = await RC.findOneAndUpdate(
       { _id: _id },
@@ -403,7 +392,7 @@ exports.getEDRorIPR = asyncHandler(async (req, res) => {
   }
   if (a) {
     const insurance = await IT.find({ providerId: edr.insurerId });
-    // console.log("Isurance DATA ", insurance)
+
     var insured = [];
     for (let i = 0; i < edr.pharmacyRequest.length; i++) {
       for (let j = 0; j < edr.pharmacyRequest[i].item.length; j++) {
