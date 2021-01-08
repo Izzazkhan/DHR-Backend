@@ -361,6 +361,10 @@ exports.getEDRswithCS = asyncHandler(async (req, res, next) => {
       model: 'staff',
     },
     {
+      path: 'room.roomId',
+      model: 'room',
+    },
+    {
       path: 'radRequest.serviceId',
       model: 'RadiologyService',
     },
