@@ -176,7 +176,6 @@ exports.addDoctorNotes = asyncHandler(async (req, res, next) => {
     }
   );
 
-  // console.log(addedNote);
   res.status(200).json({
     success: true,
     data: addedNote,
