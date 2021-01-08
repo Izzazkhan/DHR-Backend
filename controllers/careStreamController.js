@@ -335,12 +335,12 @@ exports.getEDRswithCS = asyncHandler(async (req, res, next) => {
         {
           path: 'productionArea.productionAreaId',
           model: 'productionArea',
-          // populate: [
-          //   {
-          //     path: 'rooms.roomId',
-          //     model: 'room',
-          //   },
-          // ],
+          populate: [
+            {
+              path: 'rooms.roomId',
+              model: 'room',
+            },
+          ],
         },
       ],
     },
