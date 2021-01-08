@@ -330,7 +330,6 @@ exports.getEDRswithCS = asyncHandler(async (req, res, next) => {
     {
       path: 'chiefComplaint.chiefComplaintId',
       model: 'chiefComplaint',
-
       populate: [
         {
           path: 'productionArea.productionAreaId',
@@ -343,6 +342,10 @@ exports.getEDRswithCS = asyncHandler(async (req, res, next) => {
           ],
         },
       ],
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
     },
     {
       path: 'patientId',
