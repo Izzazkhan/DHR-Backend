@@ -164,6 +164,8 @@ exports.addDoctorNotes = asyncHandler(async (req, res, next) => {
     addedBy: parsed.addedBy,
     assignedTime: Date.now(),
     notes: parsed.notes,
+    code: parsed.code,
+    section: parsed.section,
     voiceNotes: req.file ? req.file.path : null,
   };
   const addedNote = await EDR.findOneAndUpdate(
@@ -174,7 +176,6 @@ exports.addDoctorNotes = asyncHandler(async (req, res, next) => {
     }
   );
 
-  // console.log(addedNote);
   res.status(200).json({
     success: true,
     data: addedNote,
@@ -198,6 +199,8 @@ exports.updateDoctorNotes = asyncHandler(async (req, res, next) => {
     {
       $set: {
         [`doctorNotes.${note}.notes`]: parsed.notes,
+        [`doctorNotes.${note}.code`]: parsed.code,
+        [`doctorNotes.${note}.section`]: parsed.section,
         [`doctorNotes.${note}.voiceNotes`]: req.file
           ? req.file.path
           : parsed.voiceNotes,

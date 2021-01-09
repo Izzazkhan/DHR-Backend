@@ -140,14 +140,17 @@ exports.averageRegistrationTAT = asyncHandler(async (req, res, next) => {
 });
 
 exports.updatePatient = asyncHandler(async (req, res, next) => {
-  // const parsed = JSON.parse(req.body.data);
-  const parsed = req.body;
+  const parsed = JSON.parse(req.body.data);
+  // const parsed = req.body;
   let patient = await patientFHIR.findById(parsed._id);
-  await EDR.findOneAndUpdate(
-    { patientId: parsed._id },
-    { $set: { paymentMethod: parsed.paymentMethod[0].payment } },
-    { new: true }
-  );
+  const edr = await EDR.findOne({ patientId: parsed._id });
+  if (edr && edr.length > 0) {
+    await EDR.findOneAndUpdate(
+      { patientId: parsed._id },
+      { $set: { paymentMethod: parsed.paymentMethod[0].payment } },
+      { new: true }
+    );
+  }
 
   if (!patient) {
     return next(

@@ -161,7 +161,7 @@ exports.getCSPatients = asyncHandler(async (req, res, next) => {
 
 exports.asignCareStream = asyncHandler(async (req, res, next) => {
   // console.log(req.body.data);
-  req.body.data = req.body;
+  // req.body.data = req.body;
   const edrCheck = await EDR.find({ _id: req.body.data.edrId }).populate(
     'patientId'
   );
@@ -341,19 +341,22 @@ exports.getEDRswithCS = asyncHandler(async (req, res, next) => {
     {
       path: 'chiefComplaint.chiefComplaintId',
       model: 'chiefComplaint',
-
       populate: [
         {
           path: 'productionArea.productionAreaId',
           model: 'productionArea',
-          // populate: [
-          //   {
-          //     path: 'rooms.roomId',
-          //     model: 'room',
-          //   },
-          // ],
+          populate: [
+            {
+              path: 'rooms.roomId',
+              model: 'room',
+            },
+          ],
         },
       ],
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
     },
     {
       path: 'patientId',
@@ -370,6 +373,10 @@ exports.getEDRswithCS = asyncHandler(async (req, res, next) => {
     {
       path: 'consultationNote.consultant',
       model: 'staff',
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
     },
     {
       path: 'radRequest.serviceId',
