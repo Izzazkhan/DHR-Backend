@@ -483,7 +483,7 @@ const edrSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'staff',
   },
-  
+
   doctorNotes: [
     {
       notes: String,
@@ -662,11 +662,117 @@ const edrSchema = new mongoose.Schema({
     },
   ],
   pharmacyRequest: [
+    // {
+    //   type: mongoose.Schema.ObjectId,
+    //   ref: 'pharmacyRequest',
+    // },
     {
-      type: mongoose.Schema.ObjectId,
-      ref: 'pharmacyRequest',
+      pharmacyRequestNo: {
+        type: String,
+      },
+
+      requestedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+
+      pharmacist: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+
+      reconciliationNotes: [
+        {
+          pharmacistComments: {
+            type: String,
+          },
+
+          requesterComments: {
+            type: String,
+          },
+
+          pharmacistAudioNotes: {
+            type: String,
+          },
+
+          createdAt: {
+            type: Date,
+            default: Date.now,
+          },
+
+          updatedAt: {
+            type: Date,
+            default: Date.now,
+          },
+
+          createdBy: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
+          },
+        },
+      ],
+
+      item: [
+        {
+          itemId: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'Item',
+          },
+          itemType: {
+            type: String,
+          },
+          itemName: {
+            type: String,
+          },
+          requestedQty: {
+            type: Number,
+          },
+          priority: {
+            type: String,
+          },
+          schedule: {
+            type: String,
+          },
+          dosage: {
+            type: Number,
+          },
+          frequency: {
+            type: Number,
+          },
+          duration: {
+            type: Number,
+          },
+          form: {
+            type: String,
+          },
+          size: { type: String },
+          make_model: { type: String },
+          additionalNotes: { type: String },
+        },
+      ],
+      status: {
+        type: String,
+      },
+      secondStatus: {
+        type: String,
+      },
+
+      deliveredTime: {
+        type: Date,
+      },
+
+      createdAt: {
+        type: Date,
+        default: Date.now,
+      },
+
+      updatedAt: {
+        type: Date,
+        default: Date.now,
+      },
     },
   ],
+
   labRequest: [
     {
       serviceId: {

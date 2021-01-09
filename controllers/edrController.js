@@ -1201,3 +1201,67 @@ exports.getAllCompletedRadRequests = asyncHandler(async (req, res) => {
 
   res.status(200).json({ success: true, data: response });
 });
+
+exports.addPharmcayRequest = asyncHandler(async (req, res, next) => {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const diff =
+    now -
+    start +
+    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
+  const oneDay = 1000 * 60 * 60 * 24;
+  const day = Math.floor(diff / oneDay);
+  const pharmacyRequestNo = `PHR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
+
+  console.log(req.body);
+  const pharmacyObj = {
+    ...req.body,
+    pharmacyRequestNo,
+  };
+
+  const addedNote = await EDR.findOneAndUpdate(
+    { _id: req.body.edrId },
+    { $push: { pharmacyRequest: pharmacyObj } },
+    {
+      new: true,
+    }
+  );
+
+  res.status(200).json({
+    success: true,
+    data: addedNote,
+  });
+});
+
+exports.updatePharmcayRequest = asyncHandler(async (req, res, next) => {
+  console.log(req.body);
+  // const pharmacyObj = {
+  //   ...,
+  // };
+
+  //   Person.update({'items.id': 2}, {'$set': {
+  //     'items.$.name': 'updated item2',
+  //     'items.$.value': 'two updated'
+  // }},
+
+  const addedNote = await EDR.findOneAndUpdate(
+    { _id: req.body.edrId, 'pharmacyRequest._id': req.body._id },
+    {
+      $set: {
+        'pharmacyRequest.$.item': req.body.item,
+        'pharmacyRequest.$.status': req.body.status,
+        'pharmacyRequest.$.secondStatus': req.body.secondStatus,
+        'pharmacyRequest.$.reconciliationNotes': req.body.reconciliationNotes,
+        'pharmacyRequest.$.updatedAt': new Date().toISOString(),
+      },
+    },
+    {
+      new: true,
+    }
+  );
+
+  res.status(200).json({
+    success: true,
+    data: addedNote,
+  });
+});

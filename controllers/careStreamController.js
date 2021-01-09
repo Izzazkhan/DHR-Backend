@@ -57,6 +57,17 @@ exports.getAllCareStreams = asyncHandler(async (req, res, next) => {
   });
 });
 
+
+
+
+exports.getAllEnableDisableCareStreams = asyncHandler(async (req, res, next) => {
+  const careStreams = await CareStream.paginate({});
+  res.status(200).json({
+    success: true,
+    data: careStreams,
+  });
+});
+
 exports.disableCareStream = asyncHandler(async (req, res) => {
   const careStream = await CareStream.findOne({ _id: req.params.id });
   if (careStream.availability === false) {
@@ -367,6 +378,14 @@ exports.getEDRswithCS = asyncHandler(async (req, res, next) => {
     {
       path: 'labRequest.serviceId',
       model: 'LaboratoryService',
+    },
+    {
+      path: 'pharmacyRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.item.itemId',
+      model: 'Item',
     },
   ]);
 
