@@ -92,7 +92,7 @@ exports.getAllTransferReqForRequester = asyncHandler(async (req, res, next) => {
 
 exports.patientsInDept = asyncHandler(async (req, res, next) => {
   let patients = await EDR.find({
-    // currentLocation: req.params.currentdept,
+    currentLocation: req.params.currentdept,
     status: 'pending',
   })
     .populate('patientId')

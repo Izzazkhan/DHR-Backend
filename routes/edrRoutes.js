@@ -51,6 +51,9 @@ const {
   getAllPendingRadRequests,
   getAllCompletedLabRequests,
   getAllCompletedRadRequests,
+
+  addPharmcayRequest,
+  updatePharmcayRequest
 } = require('../controllers/edrController');
 
 const router = express.Router();
@@ -129,5 +132,9 @@ router.get('/getAllCompletedRadRequests', getAllCompletedRadRequests);
 
 router.get('/getAllPendingLabRequests', getAllPendingLabRequests);
 router.get('/getAllCompletedLabRequests', getAllCompletedLabRequests);
+
+router.put('/addPharmacyRequest', addPharmcayRequest);
+router.put('/updatePharmacyRequest', updatePharmcayRequest);
+
 
 module.exports = router;
