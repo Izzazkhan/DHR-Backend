@@ -76,7 +76,7 @@ exports.addPatientDetails = asyncHandler(async (req, res, next) => {
   const patientDetails = {
     version: latestDetails + 2,
     details: req.body.details,
-    // reason: req.body.reason,
+    reason: req.body.reason,
     // status: req.body.status,
     updatedBy: req.body.staffId,
     date: Date.now(),
@@ -101,7 +101,7 @@ exports.addPastHistory = asyncHandler(async (req, res, next) => {
   const latestHistory = edr.dcdForm[latestForm].pastMedicalHistory.length - 1;
   const pastMedicalHistory = {
     version: latestHistory + 2,
-    // reason: req.body.reason,
+    reason: req.body.reason,
     // status: req.body.status,
     details: req.body.details,
     updatedBy: req.body.staffId,
@@ -129,7 +129,7 @@ exports.addROS = asyncHandler(async (req, res, next) => {
   const latestROS = edr.dcdForm[latestForm].ROS.length - 1;
   const ROS = {
     version: latestROS + 2,
-    // reason: req.body.reason,
+    reason: req.body.reason,
     // status: req.body.status,
     details: req.body.details,
     updatedBy: req.body.staffId,
@@ -180,7 +180,7 @@ exports.addPhysicalExam = asyncHandler(async (req, res, next) => {
   }
   const physicalExam = {
     version: latestPhysicalExam + 2,
-    // reason: req.body.reason,
+    reason: req.body.reason,
     // status: req.body.status,
     details: parsed.details,
     updatedBy: parsed.staffId,
@@ -239,7 +239,7 @@ exports.addInvestigation = asyncHandler(async (req, res, next) => {
 
   const investigation = {
     version: latestInvestigation + 2,
-    // reason: req.body.reason,
+    reason: req.body.reason,
     // status: req.body.status,
     details: parsed.details,
     updatedBy: parsed.staffId,
@@ -295,7 +295,7 @@ exports.addCourseOfVisit = asyncHandler(async (req, res, next) => {
   const latestCourseOfVisit = edr.dcdForm[latestForm].courseOfVisit.length - 1;
   const courseOfVisit = {
     version: latestCourseOfVisit + 2,
-    // reason: req.body.reason,
+    reason: req.body.reason,
     // status: req.body.status,
     details: req.body.details,
     updatedBy: req.body.staffId,
