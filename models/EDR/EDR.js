@@ -523,6 +523,15 @@ const edrSchema = new mongoose.Schema({
       speciality: {
         type: String,
       },
+      consultantNotes: {
+        type: String,
+      },
+      completionDate: {
+        type: Date,
+      },
+      consultantVoiceNotes: {
+        type: String,
+      },
     },
   ],
   anesthesiologistNote: [
