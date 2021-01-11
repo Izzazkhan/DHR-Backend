@@ -41,6 +41,7 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
       versionNo: patient.identifier[0].value + '-' + requestNo + '-' + '1',
     },
   ];
+
   // let count = 0;
   // for (let i = 0; i < edrCheck.length; i++) {
   //   if (edrCheck[i].status === 'pending') {
@@ -75,7 +76,7 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
     dcdForm: dcdFormVersion,
     claimed,
   });
-
+console.log(newEDR)
   newEDR = await EDR.findOne({ _id: newEDR.id }).populate('patientId');
 
   res.status(201).json({
