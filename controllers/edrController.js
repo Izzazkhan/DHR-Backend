@@ -14,7 +14,7 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
     (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
   const oneDay = 1000 * 60 * 60 * 24;
   const day = Math.floor(diff / oneDay);
-
+  var newEDR;
   const patient = await Patient.findOne({ _id: req.body.patientId });
   const requestNo = `EDR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
   const dcdFormVersion = [
@@ -56,8 +56,8 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
   //     )
   //   );
   // }
-
-  let newEDR = await EDR.create({
+  console.log(dcdFormVersion,"form")
+  newEDR = await EDR.create({
     requestNo,
     patientId,
     generatedBy: staffId,
@@ -75,7 +75,7 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
     dcdForm: dcdFormVersion,
     claimed,
   });
-
+  console.log(newEDR,"formHere")
   newEDR = await EDR.findOne({ _id: newEDR.id }).populate('patientId');
 
   res.status(201).json({
