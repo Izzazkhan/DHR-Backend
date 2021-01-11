@@ -76,6 +76,14 @@ exports.getAllLabServices = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.AllLabServices = asyncHandler(async (req, res, next) => {
+  const labServices = await Lab.find();
+  res.status(200).json({
+    success: true,
+    data: labServices,
+  });
+});
+
 exports.disableLabService = asyncHandler(async (req, res) => {
   const lab = await Lab.findOne({ _id: req.params.id });
   if (lab.availability === false) {
