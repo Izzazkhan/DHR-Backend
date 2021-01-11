@@ -72,11 +72,14 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
     verified,
     insurerId,
     paymentMethod,
-    dcdForm: dcdFormVersion,
     claimed,
   });
   console.log(newEDR,"formHere")
-  newEDR = await EDR.findOne({ _id: newEDR.id }).populate('patientId');
+  await EDR.findOneAndUpdate({_id:newEDR._id}, {
+    $set: {
+      dcdForm: dcdFormVersion},
+  },)
+  newEDR = await EDR.findOne({ _id: newEDR._id }).populate('patientId');
 
   res.status(201).json({
     success: true,
