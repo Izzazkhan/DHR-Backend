@@ -28,6 +28,7 @@ const {
   updateLab,
   addConsultationNote,
   updateConsultationNote,
+  completeConsultationNote,
   getEDRwihtConsultationNote,
   addRadRequest,
   updateRad,
@@ -70,6 +71,13 @@ router.put(
   upload.single('file'),
   updateConsultationNote
 );
+
+router.put(
+  '/completeConsultationNote',
+  upload.single('file'),
+  completeConsultationNote
+);
+
 router.put(
   '/addAnesthesiologistNote',
   upload.single('file'),

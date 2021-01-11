@@ -359,6 +359,51 @@ exports.updateConsultationNote = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.completeConsultationNote = asyncHandler(async (req, res, next) => {
+  let parsed;
+  if (req.file) {
+    // console.log(req.file);
+    parsed = JSON.parse(req.body.data);
+    // console.log(parsed);
+  } else {
+    // console.log(req.body);
+    parsed = req.body;
+  }
+
+  // const parsed = req.body;
+  // console.log(parsed);
+  // const edrNotes = await EDR.findOne({ _id: parsed.edrId });
+
+  // let note;
+  // for (let i = 0; i < edrNotes.consultationNote.length; i++) {
+  //   if (edrNotes.consultationNote[i]._id == parsed.noteId) {
+  //     // console.log(i);
+  //     note = i;
+  //   }
+  // }
+  // // console.log(note);
+  const updatedNote = await EDR.findOneAndUpdate(
+    { _id: parsed.edrId, 'consultationNote._id': parsed._id },
+    {
+      $set: {
+        'consultationNote.$.status': parsed.status,
+        'consultationNote.$.consultantNotes': parsed.consultantNotes,
+        'consultationNote.$.completionDate': parsed.completionDate,
+        'consultationNote.$.consultantVoiceNotes': req.file
+          ? req.file.path
+          : '',
+      },
+    },
+    { new: true }
+  ).populate('consultationNote.consultant');
+  // await EDR.findOne({ _id: parsed.edrId }).populate();
+  // console.log(updatedNote);
+  res.status(200).json({
+    success: updatedNote,
+    data: { name: 'saad' },
+  });
+});
+
 exports.getEDRwihtConsultationNote = asyncHandler(async (req, res, next) => {
   const patients = await EDR.find({
     status: 'pending',
