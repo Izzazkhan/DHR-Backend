@@ -16,7 +16,12 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
   const day = Math.floor(diff / oneDay);
 
   const patient = await Patient.findOne({ _id: req.body.patientId });
-
+  const requestNo = `EDR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
+  const dcdFormVersion = [
+    {
+      versionNo: patient.identifier[0].value + '-' + requestNo + '-' + '1',
+    },
+  ];
   const paymentMethod = patient.paymentMethod[0].payment;
   const {
     patientId,
@@ -35,12 +40,7 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
     claimed,
   } = req.body;
 
-  const requestNo = `EDR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
-  const dcdFormVersion = [
-    {
-      versionNo: patient.identifier[0].value + '-' + requestNo + '-' + '1',
-    },
-  ];
+ 
   // let count = 0;
   // for (let i = 0; i < edrCheck.length; i++) {
   //   if (edrCheck[i].status === 'pending') {
