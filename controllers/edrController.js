@@ -40,7 +40,6 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
     claimed,
   } = req.body;
 
- 
   // let count = 0;
   // for (let i = 0; i < edrCheck.length; i++) {
   //   if (edrCheck[i].status === 'pending') {
