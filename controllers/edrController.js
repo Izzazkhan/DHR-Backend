@@ -14,7 +14,7 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
     (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
   const oneDay = 1000 * 60 * 60 * 24;
   const day = Math.floor(diff / oneDay);
-  var newEDR;
+  let newEDR;
   const patient = await Patient.findOne({ _id: req.body.patientId });
   const requestNo = `EDR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
   const dcdFormVersion = [
