@@ -57,16 +57,15 @@ exports.getAllCareStreams = asyncHandler(async (req, res, next) => {
   });
 });
 
-
-
-
-exports.getAllEnableDisableCareStreams = asyncHandler(async (req, res, next) => {
-  const careStreams = await CareStream.paginate({});
-  res.status(200).json({
-    success: true,
-    data: careStreams,
-  });
-});
+exports.getAllEnableDisableCareStreams = asyncHandler(
+  async (req, res, next) => {
+    const careStreams = await CareStream.paginate({});
+    res.status(200).json({
+      success: true,
+      data: careStreams,
+    });
+  }
+);
 
 exports.disableCareStream = asyncHandler(async (req, res) => {
   const careStream = await CareStream.findOne({ _id: req.params.id });
@@ -166,6 +165,7 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     'patientId'
   );
   // const latestEdr = edrCheck.length - 1;
+  // console.log(edrCheck);
   const latestCS = edrCheck[0].careStream.length - 1;
   const updatedVersion = latestCS + 2;
 

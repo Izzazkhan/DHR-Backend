@@ -14,9 +14,14 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
     (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
   const oneDay = 1000 * 60 * 60 * 24;
   const day = Math.floor(diff / oneDay);
-
+  var newEDR;
   const patient = await Patient.findOne({ _id: req.body.patientId });
-
+  const requestNo = `EDR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
+  const dcdFormVersion = [
+    {
+      versionNo: patient.identifier[0].value + '-' + requestNo + '-' + '1',
+    },
+  ];
   const paymentMethod = patient.paymentMethod[0].payment;
   const {
     patientId,
@@ -35,29 +40,7 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
     claimed,
   } = req.body;
 
-  const requestNo = `EDR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
-  const dcdFormVersion = [
-    {
-      versionNo: patient.identifier[0].value + '-' + requestNo + '-' + '1',
-    },
-  ];
-  // let count = 0;
-  // for (let i = 0; i < edrCheck.length; i++) {
-  //   if (edrCheck[i].status === 'pending') {
-  //     count++;
-  //   }
-  //   if (count > 0) break;
-  // }
-  // if (count > 0) {
-  //   return next(
-  //     new ErrorResponse(
-  //       'An EDR is already created for this patient,please discharge the patient to request new EDR',
-  //       400
-  //     )
-  //   );
-  // }
-
-  let newEDR = await EDR.create({
+  newEDR = await EDR.create({
     requestNo,
     patientId,
     generatedBy: staffId,
@@ -72,11 +55,18 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
     verified,
     insurerId,
     paymentMethod,
-    dcdForm: dcdFormVersion,
     claimed,
   });
-
-  newEDR = await EDR.findOne({ _id: newEDR.id }).populate('patientId');
+  // console.log(newEDR, 'formHere');
+  await EDR.findOneAndUpdate(
+    { _id: newEDR._id },
+    {
+      $set: {
+        dcdForm: dcdFormVersion,
+      },
+    }
+  );
+  newEDR = await EDR.findOne({ _id: newEDR._id }).populate('patientId');
 
   res.status(201).json({
     success: true,
