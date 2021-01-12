@@ -57,7 +57,7 @@ const CareStreamSchema = new mongoose.Schema(
       ref: 'staff',
     },
     availability: { type: Boolean },
-    disabled: { type: Boolean, default: true },
+    disabled: { type: Boolean, default: false },
     updateRecord: [
       {
         updatedAt: {
