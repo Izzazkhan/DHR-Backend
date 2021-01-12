@@ -28,7 +28,7 @@ const LaboratoryServiceSchema = new mongoose.Schema({
     ref: 'staff',
   },
   availability: { type: Boolean },
-  disabled: { type: Boolean },
+  disabled: { type: Boolean, default: false },
   updateRecord: [
     {
       updatedAt: {
