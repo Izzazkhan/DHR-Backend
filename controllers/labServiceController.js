@@ -159,3 +159,28 @@ exports.getLabServiceByKeyword = asyncHandler(async (req, res, next) => {
     data: labService,
   });
 });
+
+exports.LabServiceByKeyword = asyncHandler(async (req, res, next) => {
+  const labService = await Lab.aggregate([
+    {
+      $match: {
+        $or: [
+          {
+            name: { $regex: req.params.keyword, $options: 'i' },
+          },
+          {
+            type: { $regex: req.params.keyword, $options: 'i' },
+          },
+          {
+            'identifier.value': { $regex: req.params.keyword, $options: 'i' },
+          },
+        ],
+      },
+    },
+  ]).limit(50);
+
+  res.status(200).json({
+    success: true,
+    data: labService,
+  });
+});
