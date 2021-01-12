@@ -22,6 +22,7 @@ const {
   getEDRById,
   getPendingEDRs,
   getEdrPatientByKeyword,
+  getPendingEdrByKeyword,
   getEdrsByPatient,
   addDoctorNotes,
   updateDoctorNotes,
@@ -65,6 +66,7 @@ router.get('/getSingleEdr/:id', getEDRById);
 router.get('/getEDRs', getEDRs);
 router.get('/getPendingEDRs', getPendingEDRs);
 router.get('/searchEdrPatient/:keyword', getEdrPatientByKeyword);
+router.get('/searchPendingEdr/:keyword', getPendingEdrByKeyword);
 router.put('/addDoctorNotes', upload.single('file'), addDoctorNotes);
 router.put('/updateDoctorNotes', upload.single('file'), updateDoctorNotes);
 router.put('/addConsultationNote', upload.single('file'), addConsultationNote);
