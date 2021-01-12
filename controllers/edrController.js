@@ -40,22 +40,6 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
     claimed,
   } = req.body;
 
-  // let count = 0;
-  // for (let i = 0; i < edrCheck.length; i++) {
-  //   if (edrCheck[i].status === 'pending') {
-  //     count++;
-  //   }
-  //   if (count > 0) break;
-  // }
-  // if (count > 0) {
-  //   return next(
-  //     new ErrorResponse(
-  //       'An EDR is already created for this patient,please discharge the patient to request new EDR',
-  //       400
-  //     )
-  //   );
-  // }
-  console.log(dcdFormVersion,"form")
   newEDR = await EDR.create({
     requestNo,
     patientId,
@@ -73,11 +57,15 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
     paymentMethod,
     claimed,
   });
-  console.log(newEDR,"formHere")
-  await EDR.findOneAndUpdate({_id:newEDR._id}, {
-    $set: {
-      dcdForm: dcdFormVersion},
-  },)
+  // console.log(newEDR, 'formHere');
+  await EDR.findOneAndUpdate(
+    { _id: newEDR._id },
+    {
+      $set: {
+        dcdForm: dcdFormVersion,
+      },
+    }
+  );
   newEDR = await EDR.findOne({ _id: newEDR._id }).populate('patientId');
 
   res.status(201).json({
