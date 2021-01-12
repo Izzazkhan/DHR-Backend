@@ -20,6 +20,7 @@ const {
   generateEDR,
   getEDRs,
   getEDRById,
+  getPendingEDRs,
   getEdrPatientByKeyword,
   getEdrsByPatient,
   addDoctorNotes,
@@ -54,7 +55,7 @@ const {
   getAllCompletedRadRequests,
 
   addPharmcayRequest,
-  updatePharmcayRequest
+  updatePharmcayRequest,
 } = require('../controllers/edrController');
 
 const router = express.Router();
@@ -62,6 +63,7 @@ const router = express.Router();
 router.post('/generateEDR', generateEDR);
 router.get('/getSingleEdr/:id', getEDRById);
 router.get('/getEDRs', getEDRs);
+router.get('/getPendingEDRs', getPendingEDRs);
 router.get('/searchEdrPatient/:keyword', getEdrPatientByKeyword);
 router.put('/addDoctorNotes', upload.single('file'), addDoctorNotes);
 router.put('/updateDoctorNotes', upload.single('file'), updateDoctorNotes);
@@ -143,6 +145,5 @@ router.get('/getAllCompletedLabRequests', getAllCompletedLabRequests);
 
 router.put('/addPharmacyRequest', addPharmcayRequest);
 router.put('/updatePharmacyRequest', updatePharmcayRequest);
-
 
 module.exports = router;

@@ -106,6 +106,17 @@ exports.getEDRs = asyncHandler(async (req, res, next) => {
     data: Edrs,
   });
 });
+exports.getPendingEDRs = asyncHandler(async (req, res, next) => {
+  const Edrs = await EDR.find({ status: 'pending' })
+    .populate('patientId')
+    .populate('chiefComplaint.chiefComplaintId', 'name')
+    .select('patientId dcdFormStatus status labRequest radiologyRequest');
+  res.status(201).json({
+    success: true,
+    count: Edrs.length,
+    data: Edrs,
+  });
+});
 
 exports.getEdrPatientByKeyword = asyncHandler(async (req, res, next) => {
   const arr = [];
