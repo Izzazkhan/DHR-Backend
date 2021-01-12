@@ -73,7 +73,7 @@ exports.addPatientDetails = asyncHandler(async (req, res, next) => {
   const edr = await EDR.findOne({ _id: req.body.edrId });
   const latestForm = edr.dcdForm.length - 1;
   const latestDetails = edr.dcdForm[latestForm].patientDetails.length - 1;
-  console.log(latestDetails,"here")
+  // console.log(latestDetails,"here")
   const patientDetails = {
     version: latestDetails + 2,
     details: req.body.details,
@@ -82,7 +82,7 @@ exports.addPatientDetails = asyncHandler(async (req, res, next) => {
     updatedBy: req.body.staffId,
     date: Date.now(),
   };
-  console.log(patientDetails,"here1")
+  // console.log(patientDetails,"here1")
   const edrPatient = await EDR.findOneAndUpdate(
     { _id: req.body.edrId },
     {
