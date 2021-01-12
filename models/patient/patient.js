@@ -95,10 +95,6 @@ const patientSchema = new mongoose.Schema({
     },
   ],
 
-  QR:{
-    type:String
-  },
-
   createdAt: {
     type: Date,
     default: Date.now,
