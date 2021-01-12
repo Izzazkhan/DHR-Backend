@@ -367,14 +367,14 @@ exports.getEDRorIPR = asyncHandler(async (req, res) => {
     var edr = await EDR.findOne({ patientId: req.params._id })
       .populate('patientId')
       // .populate('consultationNote.requester')
-      // .populate({
-      //   path: 'pharmacyRequest',
-      //   populate: [
-      //     {
-      //       path: 'item.itemId',
-      //     },
-      //   ],
-      // })
+      .populate({
+        path: 'pharmacyRequest',
+        populate: [
+          {
+            path: 'item.itemId',
+          },
+        ],
+      })
       // .populate('pharmacyRequest.item.itemId')
       // .populate('labRequest.requester')
       .populate('labRequest.serviceId')
