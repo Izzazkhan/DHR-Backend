@@ -1,12 +1,15 @@
+const base64ToImage = require('base64-to-image');
 const moment = require('moment');
 const QRCode = require('qrcode');
 const requestNoFormat = require('dateformat');
 const patientFHIR = require('../models/patient/patient');
+
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const EDR = require('../models/EDR/EDR');
 
 exports.registerPatient = asyncHandler(async (req, res) => {
+  let newPatient;
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
   const diff =
@@ -22,8 +25,8 @@ exports.registerPatient = asyncHandler(async (req, res) => {
   ];
   const parsed = JSON.parse(req.body.data);
   // console.log(parsed.photo);
-  console.log(parsed);
-  console.log(req.files.file);
+  // console.log(parsed);
+  // console.log(req.files.file);
   if (parsed.photo && parsed.photo.length > 0) {
     parsed.photo[0].url = req.files.file[0].path;
   } else {
@@ -35,16 +38,7 @@ exports.registerPatient = asyncHandler(async (req, res) => {
     req.files.back ||
     req.files.insuranceCard
   ) {
-    // if (
-    //   req.files.file.length > 0 ||
-    //   req.files.front.length > 0 ||
-    //   req.files.back.length > 0 ||
-    //   req.files.insuranceCard.length > 0
-    // )
-    // {
-    // console.log(parsed);
-
-    const newPatient = await patientFHIR.create({
+    newPatient = await patientFHIR.create({
       identifier: MRN,
       nationalID: parsed.nationalID,
       name: parsed.name,
@@ -80,13 +74,13 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       // claimed,
       // status,
     });
-    res.status(201).json({
-      success: true,
-      data: newPatient,
-    });
+    // res.status(201).json({
+    //   success: true,
+    //   data: newPatient,
+    // });
     // }
   } else {
-    const newPatient = await patientFHIR.create({
+    newPatient = await patientFHIR.create({
       identifier: MRN,
       nationalID: parsed.nationalID,
       name: parsed.name,
@@ -116,11 +110,35 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       // claimed,
       // status,
     });
-    res.status(201).json({
-      success: true,
-      data: newPatient,
-    });
+
+    // res.status(201).json({
+    //   success: true,
+    //   data: newPatient,
+    // });
   }
+  const obj = {};
+  obj.profileNo = newPatient.identifier;
+  obj.age = newPatient.age;
+  obj.paymentMethod = newPatient.paymentMethod;
+  obj.createdAt = newPatient.createdAt;
+  // console.log(obj);
+  // console.log(newPatient._id);
+  QRCode.toDataURL(JSON.stringify(obj), function (err, url) {
+    const base64Str = url;
+    const path = './uploads/';
+    const pathFormed = base64ToImage(base64Str, path);
+    // console.log(pathFormed);
+    patientFHIR
+      .findOneAndUpdate(
+        { _id: newPatient._id },
+        { $set: { QR: '/uploads/' + pathFormed.fileName } },
+        { new: true }
+      )
+      .then((docs) => {
+        // console.log(docs);
+        res.status(200).json({ success: true, data: docs });
+      });
+  });
 });
 
 exports.averageRegistrationTAT = asyncHandler(async (req, res, next) => {
@@ -142,7 +160,6 @@ exports.averageRegistrationTAT = asyncHandler(async (req, res, next) => {
 
 exports.updatePatient = asyncHandler(async (req, res, next) => {
   const parsed = JSON.parse(req.body.data);
-  // const parsed = req.body;
   let patient = await patientFHIR.findById(parsed._id);
   const edr = await EDR.findOne({ patientId: parsed._id });
   if (edr && edr.length > 0) {
@@ -158,8 +175,11 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
       new ErrorResponse(`Patient not found with id of ${parsed._id}`, 404)
     );
   }
+  let patientQR;
   // console.log(req.files);
   if (req.files) {
+    patientQR = await patientFHIR.findOne({ _id: parsed._id });
+
     patient = await patientFHIR.findOneAndUpdate({ _id: parsed._id }, parsed, {
       new: true,
     });
@@ -215,12 +235,65 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
         }
       );
     }
-    res.status(200).json({ success: true, data: patient });
+    // res.status(200).json({ success: true, data: patient });
+    if (!patientQR.QR) {
+      const obj = {};
+      obj.profileNo = patient.identifier;
+      obj.age = patient.age;
+      obj.paymentMethod = patient.paymentMethod;
+      obj.createdAt = patient.createdAt;
+      QRCode.toDataURL(JSON.stringify(obj), function (err, url) {
+        const base64Str = url;
+        const path = './uploads/';
+        const pathFormed = base64ToImage(base64Str, path);
+        // console.log(pathFormed);
+        patientFHIR
+          .findOneAndUpdate(
+            { _id: patient._id },
+            { $set: { QR: '/uploads/' + pathFormed.fileName } },
+            { new: true }
+          )
+          .then((docs) => {
+            // console.log(docs);
+            res.status(200).json({ success: true, data: docs });
+          });
+      });
+    } else {
+      res.status(200).json({ success: true, data: patient });
+    }
   } else {
+    patientQR = await patientFHIR.findOne({ _id: parsed._id });
     patient = await patientFHIR.findOneAndUpdate({ _id: parsed._id }, parsed, {
       new: true,
     });
-    res.status(200).json({ success: true, data: patient });
+    if (!patientQR.QR) {
+      const obj = {};
+      obj.profileNo = patient.identifier;
+      obj.age = patient.age;
+      obj.paymentMethod = patient.paymentMethod;
+      obj.createdAt = patient.createdAt;
+      // console.log(obj);
+      // console.log(newPatient._id);
+      QRCode.toDataURL(JSON.stringify(obj), function (err, url) {
+        const base64Str = url;
+        const path = './uploads/';
+        const pathFormed = base64ToImage(base64Str, path);
+        // console.log(pathFormed);
+        patientFHIR
+          .findOneAndUpdate(
+            { _id: patient._id },
+            { $set: { QR: '/uploads/' + pathFormed.fileName } },
+            { new: true }
+          )
+          .then((docs) => {
+            // console.log(docs);
+            res.status(200).json({ success: true, data: docs });
+          });
+      });
+    } else {
+      res.status(200).json({ success: true, data: patient });
+    }
+    // res.status(200).json({ success: true, data: patient });
   }
 });
 

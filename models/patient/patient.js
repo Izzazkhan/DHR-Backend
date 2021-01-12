@@ -72,6 +72,9 @@ const patientSchema = new mongoose.Schema({
   coveredFamilyMember: [contact.contact],
   coverageDetails: { type: String },
   insuranceDetails: { type: String },
+  QR: {
+    type: String,
+  },
   insuranceCard: { type: String },
   processTime: [
     {
