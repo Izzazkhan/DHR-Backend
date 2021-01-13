@@ -856,12 +856,16 @@ const edrSchema = new mongoose.Schema({
       name: {
         type: String,
       },
+      voiceNotes: {
+        type: String,
+      },
       type: {
         type: String,
       },
       price: {
         type: Number,
       },
+      image: [{ type: String }],
       status: {
         type: String,
         default: 'pending',

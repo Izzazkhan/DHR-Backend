@@ -26,6 +26,7 @@ const communicationRouter = require('./routes/communicationRoutes');
 const patientTransferEDEOURoutes = require('./routes/patientTransferEDEOURoutes');
 const patientClearance = require('./routes/patientClearance');
 const codes = require('./routes/codes');
+const radRequest = require('./routes/radRequest');
 
 const item = require('./routes/item');
 
@@ -83,6 +84,7 @@ app.use('/api/codes', codes);
 app.use('/api/insurance', insurance);
 app.use('/api/par', preApproval);
 app.use('/api/reimbursementclaim', RC);
+app.use('/api/radRequest', radRequest);
 
 app.use(errorHandler);
 
