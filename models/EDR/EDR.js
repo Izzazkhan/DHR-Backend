@@ -819,6 +819,15 @@ const edrSchema = new mongoose.Schema({
       notes: {
         type: String,
       },
+      activeTime: {
+        type: Date,
+      },
+      completeTime: {
+        type: Date,
+      },
+      delayedReason: {
+        type: String,
+      },
       updateRecord: [
         {
           updatedAt: {
@@ -868,6 +877,15 @@ const edrSchema = new mongoose.Schema({
         ref: 'staff',
       },
       notes: {
+        type: String,
+      },
+      activeTime: {
+        type: Date,
+      },
+      completeTime: {
+        type: Date,
+      },
+      delayedReason: {
         type: String,
       },
       updateRecord: [

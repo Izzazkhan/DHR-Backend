@@ -13,6 +13,7 @@ exports.getClaims = asyncHandler(async (req, res) => {
     .populate('generatedBy')
     .populate('patient')
     .populate('insurer');
+  // .populate('item.itemId');
   res.status(200).json({ success: true, data: rc });
 });
 exports.getClaimsKeyword = asyncHandler(async (req, res) => {
@@ -366,17 +367,17 @@ exports.getEDRorIPR = asyncHandler(async (req, res) => {
   if (a !== null) {
     var edr = await EDR.findOne({ patientId: req.params._id })
       .populate('patientId')
-      // .populate('consultationNote.requester')
-      // .populate({
-      //   path: 'pharmacyRequest',
-      //   populate: [
-      //     {
-      //       path: 'item.itemId',
-      //     },
-      //   ],
-      // })
-      // .populate('pharmacyRequest.item.itemId')
-      // .populate('labRequest.requester')
+      .populate('consultationNote.requester')
+      .populate({
+        path: 'pharmacyRequest',
+        populate: [
+          {
+            path: 'item.itemId',
+          },
+        ],
+      })
+      .populate('pharmacyRequest.item.itemId')
+      .populate('labRequest.requester')
       .populate('labRequest.serviceId')
       .populate('radRequest.serviceId');
     // .populate('radRequest.requester')
