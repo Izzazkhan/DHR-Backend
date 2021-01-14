@@ -19,12 +19,16 @@ const {
   getPendingRadEdr,
   getCompletedRadEdr,
   updateRadRequest,
+  searchPendingRadRequest,
+  searchComletedRadRequest,
 } = require('../controllers/radRequest');
 
 const router = express.Router();
 
 router.get('/getPendingRadEdr', getPendingRadEdr);
 router.get('/getCompletedRadEdr', getCompletedRadEdr);
-router.put('/updateRadRequest', upload.array('file'), updateRadRequest);
+router.get('/searchPendingRadRequest/:keyword', searchPendingRadRequest);
+router.get('/searchComletedRadRequest/:keyword', searchComletedRadRequest);
+router.put('/updateRadRequest', upload.any(), updateRadRequest);
 
 module.exports = router;

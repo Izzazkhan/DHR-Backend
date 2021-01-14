@@ -828,6 +828,9 @@ const edrSchema = new mongoose.Schema({
       delayedReason: {
         type: String,
       },
+      voiceNotes: {
+        type: String,
+      },
       updateRecord: [
         {
           updatedAt: {

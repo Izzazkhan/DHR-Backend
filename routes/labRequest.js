@@ -19,12 +19,16 @@ const {
   getPendingLabEdr,
   getCompletedLabEdr,
   updateLabRequest,
+  searchPendingLabRequest,
+  searchComletedLabRequest,
 } = require('../controllers/labRequest');
 
 const router = express.Router();
 
 router.get('/getPendingLabEdr', getPendingLabEdr);
 router.get('/getCompletedLabEdr', getCompletedLabEdr);
+router.get('/searchPendingLabRequest/:keyword', searchPendingLabRequest);
+router.get('/searchComletedLabRequest/:keyword', searchComletedLabRequest);
 router.put('/updateLabRequest', upload.array('file'), updateLabRequest);
 
 module.exports = router;
