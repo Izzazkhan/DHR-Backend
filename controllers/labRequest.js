@@ -118,49 +118,48 @@ exports.getCompletedLabEdr = asyncHandler(async (req, res, next) => {
 exports.updateLabRequest = asyncHandler(async (req, res, next) => {
   console.log(req.files);
   const parsed = JSON.parse(req.body.data);
-  const rad = await EDR.findOne({ _id: parsed.edrId });
+  const lab = await EDR.findOne({ _id: parsed.edrId });
   let note;
-  for (let i = 0; i < rad.radRequest.length; i++) {
-    if (rad.radRequest[i]._id == parsed.radId) {
+  for (let i = 0; i < lab.labRequest.length; i++) {
+    if (lab.labRequest[i]._id == parsed.labId) {
       // console.log(i);
       note = i;
     }
   }
-
+  let voiceNotes;
   if (req.files) {
-    if (req.file.mimetype.startsWith('image')) {
-      const arr = [];
-      for (let i = 0; i < req.files.length; i++) {
+    const arr = [];
+    for (let i = 0; i < req.files.length; i++) {
+      if (req.files[i].mimetype.startsWith('image')) {
         arr.push(req.files[i].path);
+      } else {
+        voiceNotes = req.files[i].path;
       }
     }
-    const updateRecord = {
-      updatedAt: Date.now(),
-      updatedBy: parsed.staffId,
-      reason: parsed.reason,
-    };
-
-    const updatedrad = await EDR.findOneAndUpdate(
-      { _id: parsed.edrId },
-      {
-        $set: {
-          [`radRequest.${note}.status`]: parsed.status,
-          [`radRequest.${note}.delayedReason`]: parsed.delayedReason,
-          [`radRequest.${note}.activeTime`]: parsed.activeTime,
-          [`radRequest.${note}.completeTime`]: parsed.completeTime,
-          [`radRequest.${note}.voiceNotes`]: req.files
-            ? req.files.path
-            : parsed.voiceNotes,
-        },
-      },
-      { $push: { updateRecord } },
-      { new: true }
-    ).populate('radRequest.serviceId');
-    res.status(200).json({
-      success: true,
-      data: updatedrad,
-    });
   }
 
-  // console.log('updaterad', updatedrad);
+  const updateRecord = {
+    updatedAt: Date.now(),
+    updatedBy: parsed.staffId,
+    reason: parsed.reason,
+  };
+
+  const updatedlab = await EDR.findOneAndUpdate(
+    { _id: parsed.edrId },
+    {
+      $set: {
+        [`labRequest.${note}.status`]: parsed.status,
+        [`labRequest.${note}.delayedReason`]: parsed.delayedReason,
+        [`labRequest.${note}.activeTime`]: parsed.activeTime,
+        [`labRequest.${note}.completeTime`]: parsed.completeTime,
+        [`labRequest.${note}.voiceNotes`]: voiceNotes,
+      },
+    },
+    { $push: { updateRecord } },
+    { new: true }
+  ).populate('labRequest.serviceId');
+  res.status(200).json({
+    success: true,
+    data: updatedlab,
+  });
 });
