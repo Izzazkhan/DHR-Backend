@@ -16,15 +16,15 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 const {
-  getPendingRadEdr,
-  getCompletedRadEdr,
-  updateRadRequest,
-} = require('../controllers/radRequest');
+  getPendingLabEdr,
+  getCompletedLabEdr,
+  updateLabRequest,
+} = require('../controllers/labRequest');
 
 const router = express.Router();
 
-router.get('/getPendingRadEdr', getPendingRadEdr);
-router.get('/getCompletedRadEdr', getCompletedRadEdr);
-router.put('/updateRadRequest', upload.array('file'), updateRadRequest);
+router.get('/getLabEdr', getPendingLabEdr);
+router.get('/getCompletedLabEdr', getCompletedLabEdr);
+router.put('/updateLabRequest', upload.array('file'), updateLabRequest);
 
 module.exports = router;
