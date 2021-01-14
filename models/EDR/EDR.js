@@ -825,6 +825,9 @@ const edrSchema = new mongoose.Schema({
       completeTime: {
         type: Date,
       },
+      holdTime: {
+        type: Date,
+      },
       delayedReason: {
         type: String,
       },
@@ -890,6 +893,9 @@ const edrSchema = new mongoose.Schema({
         type: Date,
       },
       completeTime: {
+        type: Date,
+      },
+      holdTime: {
         type: Date,
       },
       delayedReason: {

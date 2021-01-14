@@ -15,13 +15,12 @@ exports.getPendingRadEdr = asyncHandler(async (req, res, next) => {
       },
     },
     {
-      $match: {
-        radRequest: { $ne: [] },
-        'radRequest.status': 'pending',
-      },
+      $unwind: '$radRequest',
     },
     {
-      $unwind: '$radRequest',
+      $match: {
+        'radRequest.status': 'pending',
+      },
     },
   ]);
 
@@ -71,13 +70,12 @@ exports.getCompletedRadEdr = asyncHandler(async (req, res, next) => {
       },
     },
     {
-      $match: {
-        radRequest: { $ne: [] },
-        'radRequest.status': 'completed',
-      },
+      $unwind: '$radRequest',
     },
     {
-      $unwind: '$radRequest',
+      $match: {
+        'radRequest.status': 'completed',
+      },
     },
   ]);
 
@@ -129,7 +127,6 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
   let voiceNotes;
   const arr = [];
   if (req.files) {
-    
     for (let i = 0; i < req.files.length; i++) {
       if (req.files[i].mimetype.includes('image')) {
         arr.push(req.files[i].path);
@@ -159,6 +156,7 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
         [`radRequest.${note}.delayedReason`]: parsed.delayedReason,
         [`radRequest.${note}.activeTime`]: parsed.activeTime,
         [`radRequest.${note}.completeTime`]: parsed.completeTime,
+        [`radRequest.${note}.holdTime`]: parsed.completeTime,
         [`radRequest.${note}.voiceNotes`]: voiceNotes,
         [`radRequest.${note}.image`]: arr,
       },
