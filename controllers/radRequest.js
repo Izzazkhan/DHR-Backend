@@ -143,8 +143,13 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
     updatedBy: parsed.staffId,
     reason: parsed.reason,
   };
+  await EDR.findOneAndUpdate(
+    { _id: parsed.edrId },
+    { $push: { updateRecord } },
+    { new: true }
+  );
 
-  const updatedrab = await EDR.findOneAndUpdate(
+  const updatedrad = await EDR.findOneAndUpdate(
     { _id: parsed.edrId },
     {
       $set: {
@@ -155,12 +160,12 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
         [`radRequest.${note}.voiceNotes`]: voiceNotes,
       },
     },
-    { $push: { updateRecord } },
+
     { new: true }
   ).populate('radRequest.serviceId');
   res.status(200).json({
     success: true,
-    data: updatedrab,
+    data: updatedrad,
   });
 });
 
