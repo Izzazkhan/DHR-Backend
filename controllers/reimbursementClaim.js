@@ -13,6 +13,7 @@ exports.getClaims = asyncHandler(async (req, res) => {
     .populate('generatedBy')
     .populate('patient')
     .populate('insurer');
+  // .populate('item.itemId');
   res.status(200).json({ success: true, data: rc });
 });
 exports.getClaimsKeyword = asyncHandler(async (req, res) => {

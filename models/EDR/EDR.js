@@ -819,6 +819,15 @@ const edrSchema = new mongoose.Schema({
       notes: {
         type: String,
       },
+      activeTime: {
+        type: Date,
+      },
+      completeTime: {
+        type: Date,
+      },
+      delayedReason: {
+        type: String,
+      },
       updateRecord: [
         {
           updatedAt: {
@@ -847,12 +856,16 @@ const edrSchema = new mongoose.Schema({
       name: {
         type: String,
       },
+      voiceNotes: {
+        type: String,
+      },
       type: {
         type: String,
       },
       price: {
         type: Number,
       },
+      image: [{ type: String }],
       status: {
         type: String,
         default: 'pending',
@@ -868,6 +881,15 @@ const edrSchema = new mongoose.Schema({
         ref: 'staff',
       },
       notes: {
+        type: String,
+      },
+      activeTime: {
+        type: Date,
+      },
+      completeTime: {
+        type: Date,
+      },
+      delayedReason: {
         type: String,
       },
       updateRecord: [
