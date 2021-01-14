@@ -145,7 +145,7 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
   };
   await EDR.findOneAndUpdate(
     { _id: parsed.edrId },
-    { $push: { updateRecord } },
+    { $push: { [`radRequest.${note}.updateRecord`]: updateRecord } },
     { new: true }
   );
 
@@ -160,7 +160,6 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
         [`radRequest.${note}.voiceNotes`]: voiceNotes,
       },
     },
-
     { new: true }
   ).populate('radRequest.serviceId');
   res.status(200).json({
