@@ -23,7 +23,7 @@ const {
 
 const router = express.Router();
 
-router.get('/getLabEdr', getPendingLabEdr);
+router.get('/getPendingLabEdr', getPendingLabEdr);
 router.get('/getCompletedLabEdr', getCompletedLabEdr);
 router.put('/updateLabRequest', upload.array('file'), updateLabRequest);
 
