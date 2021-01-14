@@ -29,6 +29,6 @@ router.get('/getPendingRadEdr', getPendingRadEdr);
 router.get('/getCompletedRadEdr', getCompletedRadEdr);
 router.get('/searchPendingRadRequest/:keyword', searchPendingRadRequest);
 router.get('/searchComletedRadRequest/:keyword', searchComletedRadRequest);
-router.put('/updateRadRequest', upload.array('file'), updateRadRequest);
+router.put('/updateRadRequest', upload.any(), updateRadRequest);
 
 module.exports = router;

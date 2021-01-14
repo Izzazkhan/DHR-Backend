@@ -127,12 +127,14 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
     }
   }
   let voiceNotes;
+  const arr = [];
   if (req.files) {
-    const arr = [];
+    
     for (let i = 0; i < req.files.length; i++) {
-      if (req.files[i].mimetype.startsWith('image')) {
+      if (req.files[i].mimetype.includes('image')) {
         arr.push(req.files[i].path);
-      } else {
+      }
+      if (req.files[i].mimetype.includes('audio')) {
         voiceNotes = req.files[i].path;
       }
     }
@@ -158,6 +160,7 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
         [`radRequest.${note}.activeTime`]: parsed.activeTime,
         [`radRequest.${note}.completeTime`]: parsed.completeTime,
         [`radRequest.${note}.voiceNotes`]: voiceNotes,
+        [`radRequest.${note}.image`]: arr,
       },
     },
     { new: true }
