@@ -14,7 +14,7 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
     (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
   const oneDay = 1000 * 60 * 60 * 24;
   const day = Math.floor(diff / oneDay);
-  var newEDR;
+  let newEDR;
   const patient = await Patient.findOne({ _id: req.body.patientId });
   const requestNo = `EDR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
   const dcdFormVersion = [
@@ -22,6 +22,8 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
       versionNo: patient.identifier[0].value + '-' + requestNo + '-' + '1',
     },
   ];
+  // console.log(patient);
+  // console.log(patient.paymentMethod[0].payment);
   const paymentMethod = patient.paymentMethod[0].payment;
   const {
     patientId,
@@ -54,15 +56,23 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
     status,
     verified,
     insurerId,
-    paymentMethod,
+    // paymentMethod,
     claimed,
   });
-  // console.log(newEDR, 'formHere');
+  // console.log(newEDR);
   await EDR.findOneAndUpdate(
     { _id: newEDR._id },
     {
       $set: {
         dcdForm: dcdFormVersion,
+      },
+    }
+  );
+  await EDR.findOneAndUpdate(
+    { _id: newEDR._id },
+    {
+      $set: {
+        paymentMethod: paymentMethod,
       },
     }
   );

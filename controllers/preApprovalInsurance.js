@@ -16,16 +16,16 @@ exports.getPreApprovalEDR = asyncHandler(async (req, res) => {
       { pharmacyRequest: { $ne: [] } },
     ],
     paymentMethod: 'Insured',
-  }).populate('patientId');
-  // .populate('consultationNote.requester');
-  // .populate({
-  //   path: 'pharmacyRequest',
-  //   populate: [
-  //     {
-  //       path: 'item.itemId',
-  //     },
-  //   ],
-  // )}
+  }).populate('patientId')
+    // .populate('consultationNote.requester');
+    .populate({
+      path: 'pharmacyRequest',
+      populate: [
+        {
+          path: 'item.itemId',
+        },
+      ],
+    })
   // .populate('labRequest.requester')
   // .populate('labRequest.serviceId')
   // .populate('radiologyRequest.serviceId')
@@ -47,16 +47,16 @@ exports.getEDRandIPRKeyword = asyncHandler(async (req, res) => {
       { pharmacyRequest: { $ne: [] } },
     ],
     paymentMethod: 'Insured',
-  }).populate('patientId');
-  // .populate('consultationNote.requester')
-  // .populate({
-  //   path: 'pharmacyRequest',
-  //   populate: [
-  //     {
-  //       path: 'item.itemId',
-  //     },
-  //   ],
-  // })
+  }).populate('patientId')
+    // .populate('consultationNote.requester')
+    .populate({
+      path: 'pharmacyRequest',
+      populate: [
+        {
+          path: 'item.itemId',
+        },
+      ],
+    });
   // .populate('labRequest.requester')
   // .populate('labRequest.serviceId')
   // .populate('radiologyRequest.serviceId')
