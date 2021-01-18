@@ -81,9 +81,17 @@ exports.getCompletedRadEdr = asyncHandler(async (req, res, next) => {
     {
       $unwind: '$radRequest',
     },
+    // {
+    //   $match: {
+    //     'radRequest.status': 'completed',
+    //   },
+    // },
     {
       $match: {
-        'radRequest.status': 'completed',
+        $or: [
+          { 'radRequest.status': 'completed' },
+          { 'radRequest.status': 'pending approval' }
+        ]
       },
     },
   ]);
