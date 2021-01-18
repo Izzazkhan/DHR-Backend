@@ -1,9 +1,15 @@
 const express = require('express');
 
-const { houseKeeperRequests } = require('../controllers/houseKeeperRequest');
+const {
+  pendingRadHouseKeeperRequests,
+  comletedRadHouseKeeperRequests,
+  updateStatus,
+} = require('../controllers/houseKeeperRequest');
 
 const router = express.Router();
 
-router.get('/getPendingHKRequests', houseKeeperRequests);
+router.get('/getPendingRadHKRequests', pendingRadHouseKeeperRequests);
+router.get('/getCompletedRadHKRequests', comletedRadHouseKeeperRequests);
+router.get('/updateStatus', updateStatus);
 
 module.exports = router;

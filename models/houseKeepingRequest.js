@@ -5,6 +5,7 @@ const houseKeepingSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'staff',
   },
+  requestedBy: { type: String },
   houseKeeperId: {
     type: mongoose.Schema.ObjectId,
     ref: 'staff',
@@ -20,20 +21,7 @@ const houseKeepingSchema = new mongoose.Schema({
   assignedTime: Date,
   task: { type: String },
   status: { type: String, default: 'pending' },
-  updateRecord: [
-    {
-      updatedAt: {
-        type: Date,
-      },
-      updatedBy: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'staff',
-      },
-      reason: {
-        type: String,
-      },
-    },
-  ],
+  updatedAt: Date,
 });
 
 module.exports = mongoose.model('houseKeeperRequest', houseKeepingSchema);
