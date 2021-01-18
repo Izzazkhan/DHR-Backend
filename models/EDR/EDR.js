@@ -556,6 +556,18 @@ const edrSchema = new mongoose.Schema({
         type: String,
         default: 'pending',
       },
+      suggessions: {
+        type: String,
+      },
+      delayReason: {
+        type: String,
+      },
+      completionTime: {
+        type: Date,
+      },
+      delayTime: {
+        type: Date,
+      },
     },
   ],
   edNurseRequest: [
