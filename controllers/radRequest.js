@@ -1,3 +1,4 @@
+const requestNoFormat = require('dateformat');
 const EDR = require('../models/EDR/EDR');
 const HK = require('../models/houseKeepingRequest');
 const asyncHandler = require('../middleware/async');
@@ -257,6 +258,16 @@ exports.searchComletedRadRequest = asyncHandler(async (req, res, next) => {
 });
 
 exports.assignHouseKeeper = asyncHandler(async (req, res, next) => {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const diff =
+    now -
+    start +
+    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
+  const oneDay = 1000 * 60 * 60 * 24;
+  const day = Math.floor(diff / oneDay);
+  const requestNo = 'HKID' + day + requestNoFormat(new Date(), 'yyHHMMss');
+
   const {
     staffId,
     requestedBy,
@@ -267,6 +278,7 @@ exports.assignHouseKeeper = asyncHandler(async (req, res, next) => {
     task,
   } = req.body;
   const assignedHK = await HK.create({
+    requestNo,
     assignedBy: staffId,
     requestedBy,
     houseKeeperId,

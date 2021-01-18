@@ -11,13 +11,6 @@ exports.pendingRadHouseKeeperRequests = asyncHandler(async (req, res, next) => {
       path: 'productionAreaId',
       model: 'productionArea',
       select: 'paName',
-      populate: [
-        {
-          path: 'roomId',
-          model: 'room',
-          select: 'roomNo',
-        },
-      ],
     },
     {
       path: 'assignedBy',
@@ -51,13 +44,6 @@ exports.comletedRadHouseKeeperRequests = asyncHandler(
         path: 'productionAreaId',
         model: 'productionArea',
         select: 'paName',
-        populate: [
-          {
-            path: 'roomId',
-            model: 'room',
-            select: 'roomNo',
-          },
-        ],
       },
       {
         path: 'assignedBy',
