@@ -257,13 +257,21 @@ exports.searchComletedRadRequest = asyncHandler(async (req, res, next) => {
 });
 
 exports.assignHouseKeeper = asyncHandler(async (req, res, next) => {
-  const { staffId, houseKeeperId, productionAreaId, roomId, status } = req.body;
+  const {
+    staffId,
+    houseKeeperId,
+    productionAreaId,
+    roomId,
+    status,
+    task,
+  } = req.body;
   const assignedHK = await HK.create({
     assignedBy: staffId,
     houseKeeperId,
     productionAreaId,
     roomId,
     status,
+    task,
     assignedTime: Date.now(),
   });
   res.status(200).json({
