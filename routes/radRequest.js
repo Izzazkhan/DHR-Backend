@@ -21,6 +21,7 @@ const {
   updateRadRequest,
   searchPendingRadRequest,
   searchComletedRadRequest,
+  assignHouseKeeper,
 } = require('../controllers/radRequest');
 
 const router = express.Router();
@@ -30,5 +31,6 @@ router.get('/getCompletedRadEdr', getCompletedRadEdr);
 router.get('/searchPendingRadRequest/:keyword', searchPendingRadRequest);
 router.get('/searchComletedRadRequest/:keyword', searchComletedRadRequest);
 router.put('/updateRadRequest', upload.any(), updateRadRequest);
+router.post('/assignHouseKeeper', assignHouseKeeper);
 
 module.exports = router;
