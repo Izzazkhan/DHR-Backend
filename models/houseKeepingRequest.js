@@ -6,7 +6,7 @@ const houseKeepingSchema = new mongoose.Schema({
     ref: 'staff',
   },
   requestedBy: { type: String },
-  requestedNo: String,
+  requestNo: String,
   houseKeeperId: {
     type: mongoose.Schema.ObjectId,
     ref: 'staff',
