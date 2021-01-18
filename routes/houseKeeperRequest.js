@@ -5,6 +5,7 @@ const {
   comletedRadHouseKeeperRequests,
   pendingSenseiHouseKeeperRequests,
   comletedSenseiHouseKeeperRequests,
+  updateSenseiStatus,
   updateStatus,
 } = require('../controllers/houseKeeperRequest');
 
@@ -15,5 +16,6 @@ router.get('/pendingSenseiHKRequests', pendingSenseiHouseKeeperRequests);
 router.get('/completedSenseiHKRequests', comletedSenseiHouseKeeperRequests);
 router.get('/getCompletedRadHKRequests', comletedRadHouseKeeperRequests);
 router.put('/updateStatus', updateStatus);
+router.put('/updateSenseiStatus', updateSenseiStatus);
 
 module.exports = router;
