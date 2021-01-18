@@ -17,9 +17,18 @@ exports.getPendingRadEdr = asyncHandler(async (req, res, next) => {
     {
       $unwind: '$radRequest',
     },
+    // {
+    //   $match: {
+    //     'radRequest.status': 'pending',
+    //   },
+    // }
     {
       $match: {
-        'radRequest.status': 'pending',
+        $or: [
+          { 'radRequest.status': 'pending' },
+          { 'radRequest.status': 'active' },
+          { 'radRequest.status': 'hold' },
+        ]
       },
     },
   ]);
