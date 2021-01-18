@@ -28,7 +28,7 @@ const patientClearance = require('./routes/patientClearance');
 const codes = require('./routes/codes');
 const radRequest = require('./routes/radRequest');
 const labRequest = require('./routes/labRequest');
-
+const houseKeeperRequest = require('./routes/houseKeeperRequest');
 const item = require('./routes/item');
 
 const insurance = require('./routes/insurance');
@@ -88,6 +88,7 @@ app.use('/api/par', preApproval);
 app.use('/api/reimbursementclaim', RC);
 app.use('/api/radRequest', radRequest);
 app.use('/api/labRequest', labRequest);
+app.use('/api/houseKeeper', houseKeeperRequest);
 
 app.use('/api/anesthesiarequest', anesthesiaRequestRoutes);
 
