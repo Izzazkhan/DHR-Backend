@@ -1,7 +1,6 @@
-// const requestNoFormat = require('dateformat');
 const EDR = require('../models/EDR/EDR');
+const HK = require('../models/houseKeepingRequest');
 const asyncHandler = require('../middleware/async');
-// const ErrorResponse = require('../utils/errorResponse');
 
 exports.getPendingRadEdr = asyncHandler(async (req, res, next) => {
   const unwindEdr = await EDR.aggregate([
@@ -254,5 +253,21 @@ exports.searchComletedRadRequest = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: arr,
+  });
+});
+
+exports.assignHouseKeeper = asyncHandler(async (req, res, next) => {
+  const { staffId, houseKeeperId, productionAreaId, roomId, status } = req.body;
+  const assignedHK = await HK.create({
+    assignedBy: staffId,
+    houseKeeperId,
+    productionAreaId,
+    roomId,
+    status,
+    assignedTime: Date.now(),
+  });
+  res.status(200).json({
+    success: true,
+    data: assignedHK,
   });
 });

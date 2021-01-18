@@ -453,6 +453,14 @@ exports.getNurseTechnician = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.getAllHouseKeepers = asyncHandler(async (req, res, next) => {
+  const houseKeepers = await Staff.find({ staffType: 'House Keeping' });
+  res.status(200).json({
+    success: true,
+    data: houseKeepers,
+  });
+});
+
 exports.getUsersFromRole = asyncHandler(async (req, res) => {
   if (req.params.role === 'all') {
     const sensei = await Staff.find({}).populate('addedBy');
