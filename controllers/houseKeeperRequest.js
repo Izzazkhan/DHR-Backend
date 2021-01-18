@@ -82,3 +82,71 @@ exports.updateStatus = asyncHandler(async (req, res, next) => {
     data: updatedStatus,
   });
 });
+
+exports.pendingSenseiHouseKeeperRequests = asyncHandler(
+  async (req, res, next) => {
+    const HKRequests = await HK.find({
+      status: 'pending',
+      requestedBy: 'Sensei',
+    }).populate([
+      {
+        path: 'productionAreaId',
+        model: 'productionArea',
+        select: 'paName',
+      },
+      {
+        path: 'assignedBy',
+        model: 'staff',
+        select: 'name',
+      },
+      {
+        path: 'houseKeeperId',
+        model: 'staff',
+        select: 'name',
+      },
+      {
+        path: 'roomId',
+        model: 'room',
+        select: 'roomNo',
+      },
+    ]);
+    res.status(200).json({
+      success: true,
+      data: HKRequests,
+    });
+  }
+);
+
+exports.comletedSenseiHouseKeeperRequests = asyncHandler(
+  async (req, res, next) => {
+    const HKRequests = await HK.find({
+      status: 'completed',
+      requestedBy: 'Sensei',
+    }).populate([
+      {
+        path: 'productionAreaId',
+        model: 'productionArea',
+        select: 'paName',
+      },
+      {
+        path: 'assignedBy',
+        model: 'staff',
+        select: 'name',
+      },
+      {
+        path: 'houseKeeperId',
+        model: 'staff',
+        select: 'name',
+      },
+      {
+        path: 'roomId',
+        model: 'room',
+        select: 'roomNo',
+      },
+    ]);
+    res.status(200).json({
+      success: true,
+      data: HKRequests,
+    });
+  }
+);
