@@ -41,6 +41,7 @@ const ChatModel = require('./models/chatRoom/chatRoom');
 // const webRTCSocket = require('./lib/socket');
 const chatRouter = require('./routes/chatRoutes');
 const subscriber = require('./routes/subscriber');
+const anesthesiaRequestRoutes = require('./routes/anesthesiaRequestRoutes');
 
 const app = express();
 
@@ -88,6 +89,8 @@ app.use('/api/reimbursementclaim', RC);
 app.use('/api/radRequest', radRequest);
 app.use('/api/labRequest', labRequest);
 app.use('/api/houseKeeper', houseKeeperRequest);
+
+app.use('/api/anesthesiarequest', anesthesiaRequestRoutes);
 
 app.use(errorHandler);
 

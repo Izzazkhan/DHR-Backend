@@ -155,7 +155,7 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
         [`radRequest.${note}.delayedReason`]: parsed.delayedReason,
         [`radRequest.${note}.activeTime`]: parsed.activeTime,
         [`radRequest.${note}.completeTime`]: parsed.completeTime,
-        [`radRequest.${note}.holdTime`]: parsed.completeTime,
+        [`radRequest.${note}.holdTime`]: parsed.holdTime,
         [`radRequest.${note}.voiceNotes`]: voiceNotes,
         [`radRequest.${note}.image`]: arr,
       },
