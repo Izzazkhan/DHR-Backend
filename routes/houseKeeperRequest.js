@@ -10,6 +10,6 @@ const router = express.Router();
 
 router.get('/getPendingRadHKRequests', pendingRadHouseKeeperRequests);
 router.get('/getCompletedRadHKRequests', comletedRadHouseKeeperRequests);
-router.get('/updateStatus', updateStatus);
+router.put('/updateStatus', updateStatus);
 
 module.exports = router;

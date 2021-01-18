@@ -6,6 +6,7 @@ const houseKeepingSchema = new mongoose.Schema({
     ref: 'staff',
   },
   requestedBy: { type: String },
+  requestedNo: String,
   houseKeeperId: {
     type: mongoose.Schema.ObjectId,
     ref: 'staff',
@@ -16,7 +17,7 @@ const houseKeepingSchema = new mongoose.Schema({
   },
   roomId: {
     type: mongoose.Schema.ObjectId,
-    ref: 'productionArea',
+    ref: 'room',
   },
   assignedTime: Date,
   task: { type: String },
