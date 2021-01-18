@@ -3,7 +3,8 @@ const EDR = require('../models/EDR/EDR');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const Patient = require('../models/patient/patient');
-// const Staff = require('../models/staffFhir/staff');
+const HK = require('../models/houseKeepingRequest');
+const Staff = require('../models/staffFhir/staff');
 
 exports.generateEDR = asyncHandler(async (req, res, next) => {
   const now = new Date();
@@ -752,13 +753,84 @@ exports.getEDRFromPatientIdForDischarge = asyncHandler(async (req, res) => {
 
 exports.updateEdr = asyncHandler(async (req, res, next) => {
   const { _id, requestType } = req.body;
-  let edr = await EDR.findById(_id);
+  let edr = await EDR.findById(_id).populate([
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      select: 'chiefComplaintId',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      ],
+    },
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+    },
+    {
+      path: 'radRequest.serviceId',
+      model: 'RadiologyService',
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
+      select: 'roomNo',
+    },
+  ]);
+
   if (!edr) {
     return next(new ErrorResponse(`EDR not found with id of ${_id}`, 404));
   }
+
+  // HouseKeeping Request
+  const latestCC = edr.chiefComplaint.length - 1;
+  const productionAreaId =
+    edr.chiefComplaint[latestCC].chiefComplaintId.productionArea[0]
+      .productionAreaId._id;
+  const latestRoom = edr.room.length - 1;
+  const roomId = edr.room[latestRoom].roomId._id;
+  let houseKeeperId;
+  houseKeeperId = await Staff.findOne({
+    availability: true,
+    disabled: false,
+    staffType: 'House Keeping',
+  });
+  if (!houseKeeperId) {
+    return next(new ErrorResponse('No House Keeper Available this Time'));
+  }
+  houseKeeperId = houseKeeperId._id;
+
+  // Discharge Request
   edr = await EDR.findOneAndUpdate({ _id: _id }, req.body, {
     new: true,
   }).populate('patientId');
+
+  // Generating Houskeeping Request Id
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const diff =
+    now -
+    start +
+    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
+  const oneDay = 1000 * 60 * 60 * 24;
+  const day = Math.floor(diff / oneDay);
+  const requestNo = 'HKID' + day + requestNoFormat(new Date(), 'yyHHMMss');
+
+  // Creating Housekeeping Request
+  await HK.create({
+    requestNo,
+    requestedBy: 'Sensei',
+    houseKeeperId,
+    productionAreaId,
+    roomId,
+    // status,
+    task: 'To Be Clean',
+    assignedTime: Date.now(),
+  });
+
   res.status(200).json({ success: true, data: edr });
 });
 
