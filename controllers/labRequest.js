@@ -15,13 +15,21 @@ exports.getPendingLabEdr = asyncHandler(async (req, res, next) => {
       },
     },
     {
-      $match: {
-        labRequest: { $ne: [] },
-        'labRequest.status': 'pending',
-      },
-    },
-    {
       $unwind: '$labRequest',
+    },
+    // {
+    //   $match: {
+    //     'labRequest.status': 'pending',
+    //   },
+    // }
+    {
+      $match: {
+        $or: [
+          { 'labRequest.status': 'pending' },
+          { 'labRequest.status': 'active' },
+          { 'labRequest.status': 'hold' },
+        ],
+      },
     },
   ]);
 
@@ -71,13 +79,12 @@ exports.getCompletedLabEdr = asyncHandler(async (req, res, next) => {
       },
     },
     {
-      $match: {
-        labRequest: { $ne: [] },
-        'labRequest.status': 'completed',
-      },
+      $unwind: '$labRequest',
     },
     {
-      $unwind: '$labRequest',
+      $match: {
+        'labRequest.status': 'completed',
+      },
     },
   ]);
 
@@ -127,12 +134,13 @@ exports.updateLabRequest = asyncHandler(async (req, res, next) => {
     }
   }
   let voiceNotes;
+  const arr = [];
   if (req.files) {
-    const arr = [];
     for (let i = 0; i < req.files.length; i++) {
-      if (req.files[i].mimetype.startsWith('image')) {
+      if (req.files[i].mimetype.includes('image')) {
         arr.push(req.files[i].path);
-      } else {
+      }
+      if (req.files[i].mimetype.includes('audio')) {
         voiceNotes = req.files[i].path;
       }
     }
@@ -143,6 +151,11 @@ exports.updateLabRequest = asyncHandler(async (req, res, next) => {
     updatedBy: parsed.staffId,
     reason: parsed.reason,
   };
+  await EDR.findOneAndUpdate(
+    { _id: parsed.edrId },
+    { $push: { [`labRequest.${note}.updateRecord`]: updateRecord } },
+    { new: true }
+  );
 
   const updatedlab = await EDR.findOneAndUpdate(
     { _id: parsed.edrId },
@@ -152,10 +165,11 @@ exports.updateLabRequest = asyncHandler(async (req, res, next) => {
         [`labRequest.${note}.delayedReason`]: parsed.delayedReason,
         [`labRequest.${note}.activeTime`]: parsed.activeTime,
         [`labRequest.${note}.completeTime`]: parsed.completeTime,
+        [`labRequest.${note}.holdTime`]: parsed.holdTime,
         [`labRequest.${note}.voiceNotes`]: voiceNotes,
+        [`labRequest.${note}.image`]: arr,
       },
     },
-    { $push: { updateRecord } },
     { new: true }
   ).populate('labRequest.serviceId');
   res.status(200).json({
