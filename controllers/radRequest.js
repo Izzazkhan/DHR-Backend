@@ -28,7 +28,7 @@ exports.getPendingRadEdr = asyncHandler(async (req, res, next) => {
           { 'radRequest.status': 'pending' },
           { 'radRequest.status': 'active' },
           { 'radRequest.status': 'hold' },
-        ]
+        ],
       },
     },
   ]);
@@ -167,7 +167,9 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
         [`radRequest.${note}.completeTime`]: parsed.completeTime,
         [`radRequest.${note}.holdTime`]: parsed.holdTime,
         [`radRequest.${note}.voiceNotes`]: voiceNotes,
-        [`radRequest.${note}.image`]: arr,
+        [`radRequest.${note}.image`]: req.files.mimetype.includes('image')
+          ? arr
+          : parsed.radRequest,
       },
     },
     { new: true }
