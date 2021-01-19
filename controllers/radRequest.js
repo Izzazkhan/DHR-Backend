@@ -1,7 +1,7 @@
-// const requestNoFormat = require('dateformat');
+const requestNoFormat = require('dateformat');
 const EDR = require('../models/EDR/EDR');
+const HK = require('../models/houseKeepingRequest');
 const asyncHandler = require('../middleware/async');
-// const ErrorResponse = require('../utils/errorResponse');
 
 exports.getPendingRadEdr = asyncHandler(async (req, res, next) => {
   const unwindEdr = await EDR.aggregate([
@@ -17,9 +17,18 @@ exports.getPendingRadEdr = asyncHandler(async (req, res, next) => {
     {
       $unwind: '$radRequest',
     },
+    // {
+    //   $match: {
+    //     'radRequest.status': 'pending',
+    //   },
+    // }
     {
       $match: {
-        'radRequest.status': 'pending',
+        $or: [
+          { 'radRequest.status': 'pending' },
+          { 'radRequest.status': 'active' },
+          { 'radRequest.status': 'hold' },
+        ]
       },
     },
   ]);
@@ -72,9 +81,17 @@ exports.getCompletedRadEdr = asyncHandler(async (req, res, next) => {
     {
       $unwind: '$radRequest',
     },
+    // {
+    //   $match: {
+    //     'radRequest.status': 'completed',
+    //   },
+    // },
     {
       $match: {
-        'radRequest.status': 'completed',
+        $or: [
+          { 'radRequest.status': 'completed' },
+          { 'radRequest.status': 'pending approval' }
+        ]
       },
     },
   ]);
@@ -116,24 +133,12 @@ exports.getCompletedRadEdr = asyncHandler(async (req, res, next) => {
 exports.updateRadRequest = asyncHandler(async (req, res, next) => {
   console.log(req.files);
   const parsed = JSON.parse(req.body.data);
+
   const rad = await EDR.findOne({ _id: parsed.edrId });
   let note;
   for (let i = 0; i < rad.radRequest.length; i++) {
     if (rad.radRequest[i]._id == parsed.radId) {
-      // console.log(i);
       note = i;
-    }
-  }
-  let voiceNotes;
-  const arr = [];
-  if (req.files) {
-    for (let i = 0; i < req.files.length; i++) {
-      if (req.files[i].mimetype.includes('image')) {
-        arr.push(req.files[i].path);
-      }
-      if (req.files[i].mimetype.includes('audio')) {
-        voiceNotes = req.files[i].path;
-      }
     }
   }
 
@@ -148,25 +153,53 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
     { new: true }
   );
 
-  const updatedrad = await EDR.findOneAndUpdate(
-    { _id: parsed.edrId },
-    {
-      $set: {
-        [`radRequest.${note}.status`]: parsed.status,
-        [`radRequest.${note}.delayedReason`]: parsed.delayedReason,
-        [`radRequest.${note}.activeTime`]: parsed.activeTime,
-        [`radRequest.${note}.completeTime`]: parsed.completeTime,
-        [`radRequest.${note}.holdTime`]: parsed.holdTime,
-        [`radRequest.${note}.voiceNotes`]: voiceNotes,
-        [`radRequest.${note}.image`]: arr,
+  if (parsed.staffType === "Doctor") {
+
+    const updatedrad = await EDR.findOneAndUpdate(
+      { _id: parsed.edrId },
+      {
+        $set: {
+          [`radRequest.${note}.status`]: parsed.status,
+          [`radRequest.${note}.completeTime`]: parsed.completeTime,
+          [`radRequest.${note}.voiceNotes`]: req.files[0].path
+        },
       },
-    },
-    { new: true }
-  ).populate('radRequest.serviceId');
-  res.status(200).json({
-    success: true,
-    data: updatedrad,
-  });
+      { new: true }
+    ).populate('radRequest.serviceId');
+
+    res.status(200).json({
+      success: true,
+      data: updatedrad,
+    });
+  } else {
+
+    const arr = [];
+    if (req.files) {
+      for (let i = 0; i < req.files.length; i++) {
+        arr.push(req.files[i].path);
+      }
+    }
+
+    const updatedrad = await EDR.findOneAndUpdate(
+      { _id: parsed.edrId },
+      {
+        $set: {
+          [`radRequest.${note}.status`]: parsed.status,
+          [`radRequest.${note}.delayedReason`]: parsed.delayedReason,
+          [`radRequest.${note}.activeTime`]: parsed.activeTime,
+          [`radRequest.${note}.pendingApprovalTime`]: parsed.pendingApprovalTime,
+          [`radRequest.${note}.holdTime`]: parsed.holdTime,
+          [`radRequest.${note}.image`]: arr,
+        },
+      },
+      { new: true }
+    ).populate('radRequest.serviceId');
+
+    res.status(200).json({
+      success: true,
+      data: updatedrad,
+    });
+  }
 });
 
 exports.searchPendingRadRequest = asyncHandler(async (req, res, next) => {
@@ -254,5 +287,150 @@ exports.searchComletedRadRequest = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: arr,
+  });
+});
+
+exports.assignHouseKeeper = asyncHandler(async (req, res, next) => {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const diff =
+    now -
+    start +
+    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
+  const oneDay = 1000 * 60 * 60 * 24;
+  const day = Math.floor(diff / oneDay);
+  const requestNo = 'HKID' + day + requestNoFormat(new Date(), 'yyHHMMss');
+
+  const {
+    staffId,
+    requestedBy,
+    houseKeeperId,
+    productionAreaId,
+    roomId,
+    status,
+    task,
+  } = req.body;
+  const assignedHK = await HK.create({
+    requestNo,
+    assignedBy: staffId,
+    requestedBy,
+    houseKeeperId,
+    productionAreaId,
+    roomId,
+    status,
+    task,
+    assignedTime: Date.now(),
+  });
+  res.status(200).json({
+    success: true,
+    data: assignedHK,
+  });
+});
+
+exports.getPendingRadEdrForED = asyncHandler(async (req, res, next) => {
+  const unwindEdr = await EDR.aggregate([
+    {
+      $project: {
+        _id: 1,
+        radRequest: 1,
+        room: 1,
+        patientId: 1,
+        chiefComplaint: 1,
+      },
+    },
+    {
+      $unwind: '$radRequest',
+    },
+    {
+      $match: {
+        'radRequest.status': 'pending approval',
+      },
+    },
+  ]);
+
+  const edrs = await EDR.populate(unwindEdr, [
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      select: 'chiefComplaintId',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      ],
+    },
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+    },
+    {
+      path: 'radRequest.serviceId',
+      model: 'RadiologyService',
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
+      select: 'roomNo',
+    },
+  ]);
+  res.status(200).json({
+    success: true,
+    data: edrs,
+  });
+});
+
+exports.getCompletedRadEdrForED = asyncHandler(async (req, res, next) => {
+  const unwindEdr = await EDR.aggregate([
+    {
+      $project: {
+        _id: 1,
+        radRequest: 1,
+        room: 1,
+        patientId: 1,
+        chiefComplaint: 1,
+      },
+    },
+    {
+      $unwind: '$radRequest',
+    },
+    {
+      $match: {
+        'radRequest.status': 'completed',
+      },
+    },
+  ]);
+
+  const edrs = await EDR.populate(unwindEdr, [
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      select: 'chiefComplaintId',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      ],
+    },
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+    },
+    {
+      path: 'radRequest.serviceId',
+      model: 'RadiologyService',
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
+      select: 'roomNo',
+    },
+  ]);
+  res.status(200).json({
+    success: true,
+    data: edrs,
   });
 });

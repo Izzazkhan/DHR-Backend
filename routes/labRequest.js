@@ -29,6 +29,6 @@ router.get('/getPendingLabEdr', getPendingLabEdr);
 router.get('/getCompletedLabEdr', getCompletedLabEdr);
 router.get('/searchPendingLabRequest/:keyword', searchPendingLabRequest);
 router.get('/searchComletedLabRequest/:keyword', searchComletedLabRequest);
-router.put('/updateLabRequest', upload.array('file'), updateLabRequest);
+router.put('/updateLabRequest', upload.any(), updateLabRequest);
 
 module.exports = router;
