@@ -910,6 +910,9 @@ const edrSchema = new mongoose.Schema({
       holdTime: {
         type: Date,
       },
+      pendingApprovalTime: {
+        type: Date,
+      },
       delayedReason: {
         type: String,
       },
