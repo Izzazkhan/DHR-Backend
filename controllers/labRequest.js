@@ -157,9 +157,9 @@ exports.updateLabRequest = asyncHandler(async (req, res, next) => {
       $set: {
         [`labRequest.${note}.status`]: parsed.status,
         [`labRequest.${note}.delayedReason`]: parsed.delayedReason,
-        // [`labRequest.${note}.activeTime`]: parsed.activeTime,
-        // [`labRequest.${note}.completeTime`]: parsed.completeTime,
-        // [`labRequest.${note}.holdTime`]: parsed.holdTime,
+        [`labRequest.${note}.activeTime`]: parsed.activeTime,
+        [`labRequest.${note}.completeTime`]: parsed.completeTime,
+        [`labRequest.${note}.holdTime`]: parsed.holdTime,
         // [`labRequest.${note}.voiceNotes`]: voiceNotes,
         [`labRequest.${note}.image`]: arr,
       },
