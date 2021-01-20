@@ -29,6 +29,7 @@ const codes = require('./routes/codes');
 const radRequest = require('./routes/radRequest');
 const labRequest = require('./routes/labRequest');
 const houseKeeperRequest = require('./routes/houseKeeperRequest');
+const socialWorker = require('./routes/socialWorker');
 const item = require('./routes/item');
 
 const insurance = require('./routes/insurance');
@@ -89,7 +90,7 @@ app.use('/api/reimbursementclaim', RC);
 app.use('/api/radRequest', radRequest);
 app.use('/api/labRequest', labRequest);
 app.use('/api/houseKeeper', houseKeeperRequest);
-
+app.use('/api/socialWorker', socialWorker);
 app.use('/api/anesthesiarequest', anesthesiaRequestRoutes);
 
 app.use(errorHandler);

@@ -814,6 +814,7 @@ const edrSchema = new mongoose.Schema({
       price: {
         type: Number,
       },
+      image: [{ type: String }],
       status: {
         type: String,
         default: 'pending',
@@ -1039,7 +1040,16 @@ const edrSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-
+  socialWorkerStatus: {
+    type: String,
+    default: 'pending',
+  },
+  requiredAssistance: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: 'staff',
+    },
+  ],
   currentLocation: {
     type: String,
     default: 'ED',

@@ -129,20 +129,14 @@ exports.updateLabRequest = asyncHandler(async (req, res, next) => {
   let note;
   for (let i = 0; i < lab.labRequest.length; i++) {
     if (lab.labRequest[i]._id == parsed.labId) {
-      // console.log(i);
+      //  image: [{ type: String }], image: [{ type: String }],sole.log(i);
       note = i;
     }
   }
-  let voiceNotes;
   const arr = [];
   if (req.files) {
     for (let i = 0; i < req.files.length; i++) {
-      if (req.files[i].mimetype.includes('image')) {
-        arr.push(req.files[i].path);
-      }
-      if (req.files[i].mimetype.includes('audio')) {
-        voiceNotes = req.files[i].path;
-      }
+      arr.push(req.files[i].path);
     }
   }
 
@@ -163,10 +157,10 @@ exports.updateLabRequest = asyncHandler(async (req, res, next) => {
       $set: {
         [`labRequest.${note}.status`]: parsed.status,
         [`labRequest.${note}.delayedReason`]: parsed.delayedReason,
-        [`labRequest.${note}.activeTime`]: parsed.activeTime,
-        [`labRequest.${note}.completeTime`]: parsed.completeTime,
-        [`labRequest.${note}.holdTime`]: parsed.holdTime,
-        [`labRequest.${note}.voiceNotes`]: voiceNotes,
+        // [`labRequest.${note}.activeTime`]: parsed.activeTime,
+        // [`labRequest.${note}.completeTime`]: parsed.completeTime,
+        // [`labRequest.${note}.holdTime`]: parsed.holdTime,
+        // [`labRequest.${note}.voiceNotes`]: voiceNotes,
         [`labRequest.${note}.image`]: arr,
       },
     },
