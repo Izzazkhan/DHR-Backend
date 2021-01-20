@@ -8,7 +8,9 @@ exports.getAdmittedEDRs = asyncHandler(async (req, res, next) => {
     status: 'Discharged',
     'dischargeRequest.dischargeSummary.edrCompletionReason': 'admitted',
   })
-    .select('patientId chiefComplaint requiredAssistance Room')
+    .select(
+      'patientId chiefComplaint requiredAssistance Room socialWorkerStatus'
+    )
     .populate([
       {
         path: 'chiefComplaint.chiefComplaintId',
@@ -45,7 +47,9 @@ exports.getDischargedEDRs = asyncHandler(async (req, res, next) => {
     status: 'Discharged',
     'dischargeRequest.dischargeSummary.edrCompletionReason': 'discharged',
   })
-    .select('patientId chiefComplaint requiredAssistance Room')
+    .select(
+      'patientId chiefComplaint requiredAssistance Room socialWorkerStatus'
+    )
     .populate([
       {
         path: 'chiefComplaint.chiefComplaintId',
@@ -82,7 +86,9 @@ exports.getTransferedEDRs = asyncHandler(async (req, res, next) => {
     status: 'Discharged',
     'dischargeRequest.dischargeSummary.edrCompletionReason': 'transferred',
   })
-    .select('patientId chiefComplaint requiredAssistance Room')
+    .select(
+      'patientId chiefComplaint requiredAssistance Room socialWorkerStatus'
+    )
     .populate([
       {
         path: 'chiefComplaint.chiefComplaintId',
@@ -119,7 +125,9 @@ exports.getDeceasedEDRs = asyncHandler(async (req, res, next) => {
     status: 'Discharged',
     'dischargeRequest.dischargeSummary.edrCompletionReason': 'deceased',
   })
-    .select('patientId chiefComplaint requiredAssistance Room')
+    .select(
+      'patientId chiefComplaint requiredAssistance Room socialWorkerStatus'
+    )
     .populate([
       {
         path: 'chiefComplaint.chiefComplaintId',
