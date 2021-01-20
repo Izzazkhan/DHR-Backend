@@ -5,9 +5,34 @@ const asyncHandler = require('../middleware/async');
 
 exports.getAdmittedEDRs = asyncHandler(async (req, res, next) => {
   const admittedEdrs = await EDR.find({
-    satus: 'Discharged',
+    status: 'Discharged',
     'dischargeRequest.dischargeSummary.edrCompletionReason': 'admitted',
-  });
+  })
+    .select('patientId chiefComplaint requiredAssistance Room')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'identifier',
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+        select: 'roomNo',
+      },
+    ]);
 
   res.status(200).json({
     success: true,
@@ -54,9 +79,34 @@ exports.getDischargedEDRs = asyncHandler(async (req, res, next) => {
 
 exports.getTransferedEDRs = asyncHandler(async (req, res, next) => {
   const transferedEdrs = await EDR.find({
-    satus: 'Discharged',
-    'dischargeRequest.dischargeSummary.edrCompletionReason': 'transfered',
-  });
+    status: 'Discharged',
+    'dischargeRequest.dischargeSummary.edrCompletionReason': 'transferred',
+  })
+    .select('patientId chiefComplaint requiredAssistance Room')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'identifier',
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+        select: 'roomNo',
+      },
+    ]);
 
   res.status(200).json({
     success: true,
@@ -66,9 +116,34 @@ exports.getTransferedEDRs = asyncHandler(async (req, res, next) => {
 
 exports.getDeceasedEDRs = asyncHandler(async (req, res, next) => {
   const deceasedEdrs = await EDR.find({
-    satus: 'Discharged',
+    status: 'Discharged',
     'dischargeRequest.dischargeSummary.edrCompletionReason': 'deceased',
-  });
+  })
+    .select('patientId chiefComplaint requiredAssistance Room')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'identifier',
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+        select: 'roomNo',
+      },
+    ]);
 
   res.status(200).json({
     success: true,
