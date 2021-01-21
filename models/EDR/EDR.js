@@ -1054,6 +1054,17 @@ const edrSchema = new mongoose.Schema({
     type: String,
     default: 'ED',
   },
+  survey: [
+    {
+      data: [
+        {
+          key: String,
+          value: [{ name: String, value: String }],
+          text: String,
+        },
+      ],
+    },
+  ],
 });
 
 edrSchema.plugin(mongoosePaginate);
