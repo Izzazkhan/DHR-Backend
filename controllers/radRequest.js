@@ -28,7 +28,7 @@ exports.getPendingRadEdr = asyncHandler(async (req, res, next) => {
           { 'radRequest.status': 'pending' },
           { 'radRequest.status': 'active' },
           { 'radRequest.status': 'hold' },
-        ]
+        ],
       },
     },
   ]);
@@ -90,8 +90,8 @@ exports.getCompletedRadEdr = asyncHandler(async (req, res, next) => {
       $match: {
         $or: [
           { 'radRequest.status': 'completed' },
-          { 'radRequest.status': 'pending approval' }
-        ]
+          { 'radRequest.status': 'pending approval' },
+        ],
       },
     },
   ]);
@@ -153,15 +153,14 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
     { new: true }
   );
 
-  if (parsed.staffType === "Doctor") {
-
+  if (parsed.staffType === 'Doctor') {
     const updatedrad = await EDR.findOneAndUpdate(
       { _id: parsed.edrId },
       {
         $set: {
           [`radRequest.${note}.status`]: parsed.status,
           [`radRequest.${note}.completeTime`]: parsed.completeTime,
-          [`radRequest.${note}.voiceNotes`]: req.files[0].path
+          [`radRequest.${note}.voiceNotes`]: req.files[0].path,
         },
       },
       { new: true }
@@ -172,7 +171,6 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
       data: updatedrad,
     });
   } else {
-
     const arr = [];
     if (req.files) {
       for (let i = 0; i < req.files.length; i++) {
