@@ -158,3 +158,26 @@ exports.getDeceasedEDRs = asyncHandler(async (req, res, next) => {
     data: deceasedEdrs,
   });
 });
+
+exports.addSurvey = asyncHandler(async (req, res, next) => {
+  const survey = {
+    data: req.body.object,
+  };
+
+  const surveyEdr = await EDR.findByIdAndUpdate(
+    { _id: req.body.edrId },
+    { $push: { survey: survey } },
+    { new: true }
+  );
+
+  await EDR.findByIdAndUpdate(
+    { _id: req.body.edrId },
+    { $set: { socialWorkerStatus: 'completed' } },
+    { new: true }
+  );
+
+  res.status(200).json({
+    success: true,
+    data: surveyEdr,
+  });
+});

@@ -129,7 +129,6 @@ exports.updateLabRequest = asyncHandler(async (req, res, next) => {
   let note;
   for (let i = 0; i < lab.labRequest.length; i++) {
     if (lab.labRequest[i]._id == parsed.labId) {
-      //  image: [{ type: String }], image: [{ type: String }],sole.log(i);
       note = i;
     }
   }
