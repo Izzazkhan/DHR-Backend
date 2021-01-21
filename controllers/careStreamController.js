@@ -380,8 +380,16 @@ exports.getEDRswithCS = asyncHandler(async (req, res, next) => {
       model: 'RadiologyService',
     },
     {
+      path: 'radRequest.requestedBy',
+      model: 'staff',
+    },
+    {
       path: 'labRequest.serviceId',
       model: 'LaboratoryService',
+    },
+    {
+      path: 'labRequest.requestedBy',
+      model: 'staff',
     },
     {
       path: 'pharmacyRequest.requestedBy',
@@ -390,6 +398,26 @@ exports.getEDRswithCS = asyncHandler(async (req, res, next) => {
     {
       path: 'pharmacyRequest.item.itemId',
       model: 'Item',
+    },
+    {
+      path: 'doctorNotes.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'edNurseRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'eouNurseRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'nurseTechnicianRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'anesthesiologistNote.addedBy',
+      model: 'staff',
     },
   ]);
 
