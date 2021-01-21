@@ -1019,8 +1019,6 @@ exports.updatePharmcayRequest = asyncHandler(async (req, res, next) => {
 });
 
 exports.completeAnesthesiaRequest = asyncHandler(async (req, res, next) => {
-  console.log(req.body);
-
   const addedNote = await EDR.findOneAndUpdate(
     { _id: req.body.edrId, 'anesthesiologistNote._id': req.body._id },
     {
