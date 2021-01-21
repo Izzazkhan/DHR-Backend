@@ -1063,6 +1063,7 @@ const edrSchema = new mongoose.Schema({
           text: String,
         },
       ],
+      surveyTime: Date,
     },
   ],
 });
