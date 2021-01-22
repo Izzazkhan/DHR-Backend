@@ -29,7 +29,7 @@ exports.getLab = asyncHandler(async (req, res, next) => {
     {
       path: 'patientId',
       model: 'patientfhir',
-      select: 'identifier name createdAt',
+      select: 'identifier name createdAt weight age gender',
     },
     {
       path: 'labRequest.serviceId',
@@ -68,7 +68,7 @@ exports.getRad = asyncHandler(async (req, res, next) => {
     {
       path: 'patientId',
       model: 'patientfhir',
-      select: 'identifier name createdAt',
+      select: 'identifier name createdAt weight age gender',
     },
     {
       path: 'radRequest.serviceId',
