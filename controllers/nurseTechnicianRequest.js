@@ -11,7 +11,7 @@ exports.getPendingTransfers = asyncHandler(async (req, res, next) => {
   })
     .populate('patientId', 'identifier name')
     .populate('room.roomId', 'roomNo')
-    .select('room patientId');
+    .select('room patientId transferOfCare');
   res.status(200).json({
     success: true,
     data: transferEdrs,
@@ -38,6 +38,7 @@ exports.addReport = asyncHandler(async (req, res, next) => {
         [`transferOfCare.${latestTransfer}.bloodPressure`]: req.body
           .bloodPressure,
         [`transferOfCare.${latestTransfer}.cbcLevel`]: req.body.cbcLevel,
+        [`transferOfCare.${latestTransfer}.status`]: 'Observed',
         nurseTechnicianStatus: 'completed',
       },
     }
@@ -62,7 +63,3 @@ exports.getCompletedTransfers = asyncHandler(async (req, res, next) => {
     data: transferEdrs,
   });
 });
-
-// exports.getlabRequests = asyncHandler(async (req,res,next) => {
-//   const labRequests = await EDR.find({ 'nurseTechnicianRequest.nurseTechnicianId': });
-// });
