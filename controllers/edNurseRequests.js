@@ -4,16 +4,38 @@ const ErrorResponse = require('../utils/errorResponse');
 const Staff = require('../models/staffFhir/staff');
 
 exports.getLab = asyncHandler(async (req, res, next) => {
-  const labs = await EDR.find({
-    labRequest: { $ne: [] },
-    $or: [
-      { 'labRequest.status': 'pending approval' },
-      { 'labRequest.status': 'completed' },
-    ],
-  })
-    .select('patientId labRequest')
-    .populate('patientId', 'identifier name createdAt labRequest');
+  const unwindEdr = await EDR.aggregate([
+    {
+      $project: {
+        _id: 1,
+        labRequest: 1,
+        patientId: 1,
+      },
+    },
+    {
+      $unwind: '$labRequest',
+    },
+    {
+      $match: {
+        $or: [
+          { 'labRequest.status': 'pending approval' },
+          { 'labRequest.status': 'completed' },
+        ],
+      },
+    },
+  ]);
 
+  const labs = await EDR.populate(unwindEdr, [
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+      //   select: 'identifier name',
+    },
+    {
+      path: 'labRequest.serviceId',
+      model: 'LaboratoryService',
+    },
+  ]);
   res.status(200).json({
     success: true,
     data: labs,
@@ -21,18 +43,40 @@ exports.getLab = asyncHandler(async (req, res, next) => {
 });
 
 exports.getRad = asyncHandler(async (req, res, next) => {
-  const rads = await EDR.find({
-    radRequest: { $ne: [] },
-    $or: [
-      { 'radRequest.status': 'pending approval' },
-      { 'radRequest.status': 'completed' },
-    ],
-  })
-    .select('patientId radRequest')
-    .populate('patientId', 'identifier name createdAt radRequest');
+  const unwindEdr = await EDR.aggregate([
+    {
+      $project: {
+        _id: 1,
+        radRequest: 1,
+        patientId: 1,
+      },
+    },
+    {
+      $unwind: '$radRequest',
+    },
+    {
+      $match: {
+        $or: [
+          { 'radRequest.status': 'pending approval' },
+          { 'radRequest.status': 'completed' },
+        ],
+      },
+    },
+  ]);
 
+  const rad = await EDR.populate(unwindEdr, [
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+      select: 'identifier name createdAt',
+    },
+    {
+      path: 'radRequest.serviceId',
+      model: 'RadiologyService',
+    },
+  ]);
   res.status(200).json({
     success: true,
-    data: rads,
+    data: rad,
   });
 });
