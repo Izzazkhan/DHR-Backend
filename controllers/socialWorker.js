@@ -167,8 +167,7 @@ exports.getTransferedEDRs = asyncHandler(async (req, res, next) => {
   const transferedEdrs = await EDR.find({
     socialWorkerStatus: 'pending',
     status: 'Discharged',
-    'dischargeRequest.dischargeSummary.edrCompletionReason':
-      'transferred survey',
+    'dischargeRequest.dischargeSummary.edrCompletionReason': 'transferred',
   })
     .select(
       'patientId chiefComplaint requiredAssistance Room socialWorkerStatus survey'

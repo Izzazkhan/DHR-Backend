@@ -1060,6 +1060,11 @@ const edrSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'staff',
       },
+      diseaseName: String,
+      fever: String,
+      sugarLevel: Number,
+      bloodPressure: String,
+      cbcLevel: String,
     },
   ],
   nurseTechnicianStatus: {

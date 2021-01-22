@@ -27,7 +27,7 @@ exports.addTriageAssessment = asyncHandler(async (req, res, next) => {
   const edr = await EDR.findOne({ _id: req.body.data.edrId }).populate(
     'dcdForm'
   );
-  console.log('EDR', edr);
+  // console.log('EDR', edr);
   const latestForm = edr.dcdForm.length - 1;
   const edrPatient = await EDR.findOneAndUpdate(
     { _id: req.body.data.edrId },
@@ -126,7 +126,7 @@ exports.addPastHistory = asyncHandler(async (req, res, next) => {
 });
 
 exports.addROS = asyncHandler(async (req, res, next) => {
-  console.log(req.body);
+  // console.log(req.body);
   const edr = await EDR.findOne({ _id: req.body.edrId });
   const latestForm = edr.dcdForm.length - 1;
   const latestROS = edr.dcdForm[latestForm].ROS.length - 1;
@@ -156,8 +156,8 @@ exports.addROS = asyncHandler(async (req, res, next) => {
 exports.addPhysicalExam = asyncHandler(async (req, res, next) => {
   // console.log(req.body);
   const parsed = JSON.parse(req.body.data);
-  console.log(parsed);
-  console.log(req.files);
+  // console.log(parsed);
+  // console.log(req.files);
   const skin = [];
 
   const edr = await EDR.findOne({ _id: parsed.edrId });
@@ -264,7 +264,7 @@ exports.addInvestigation = asyncHandler(async (req, res, next) => {
 });
 
 exports.addActionPlan = asyncHandler(async (req, res, next) => {
-  console.log(req.body);
+  // console.log(req.body);
   const edr = await EDR.findOne({ _id: req.body.edrId });
   const latestForm = edr.dcdForm.length - 1;
   const latestActionPlan = edr.dcdForm[latestForm].actionPlan.length - 1;
@@ -292,7 +292,7 @@ exports.addActionPlan = asyncHandler(async (req, res, next) => {
 });
 
 exports.addCourseOfVisit = asyncHandler(async (req, res, next) => {
-  console.log(req.body);
+  // console.log(req.body);
   const edr = await EDR.findOne({ _id: req.body.edrId });
   const latestForm = edr.dcdForm.length - 1;
   const latestCourseOfVisit = edr.dcdForm[latestForm].courseOfVisit.length - 1;

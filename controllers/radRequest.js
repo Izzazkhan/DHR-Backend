@@ -131,7 +131,7 @@ exports.getCompletedRadEdr = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateRadRequest = asyncHandler(async (req, res, next) => {
-  console.log(req.files);
+  // console.log(req.files);
   const parsed = JSON.parse(req.body.data);
 
   const rad = await EDR.findOne({ _id: parsed.edrId });

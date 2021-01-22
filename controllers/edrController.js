@@ -94,7 +94,7 @@ exports.getEDRById = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse('No Edr found for this patient', 404));
   }
   // const latestForm = edr.dcdForm.length - 1;
-  console.log(edr);
+  // console.log(edr);
   res.status(200).json({
     success: true,
     data: edr,
@@ -103,7 +103,7 @@ exports.getEDRById = asyncHandler(async (req, res, next) => {
 
 exports.getEdrsByPatient = asyncHandler(async (req, res, next) => {
   const edrs = await EDR.find({ patientId: req.params.id });
-  console.log(edrs.length);
+  // console.log(edrs.length);
 });
 
 exports.getEDRs = asyncHandler(async (req, res, next) => {
@@ -313,7 +313,7 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateLab = asyncHandler(async (req, res, next) => {
-  console.log(req.body);
+  // console.log(req.body);
   const lab = await EDR.findOne({ _id: req.body.edrId });
   let note;
   for (let i = 0; i < lab.labRequest.length; i++) {
@@ -580,7 +580,7 @@ exports.updateRad = asyncHandler(async (req, res, next) => {
       note = i;
     }
   }
-  console.log('note', note);
+  // console.log('note', note);
   const updatedrad = await EDR.findOneAndUpdate(
     { _id: req.body.edrId },
     {
@@ -1385,7 +1385,7 @@ exports.addPharmcayRequest = asyncHandler(async (req, res, next) => {
   const day = Math.floor(diff / oneDay);
   const pharmacyRequestNo = `PHR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
 
-  console.log(req.body);
+  // console.log(req.body);
   const pharmacyObj = {
     ...req.body,
     pharmacyRequestNo,
@@ -1406,7 +1406,7 @@ exports.addPharmcayRequest = asyncHandler(async (req, res, next) => {
 });
 
 exports.updatePharmcayRequest = asyncHandler(async (req, res, next) => {
-  console.log(req.body);
+  // console.log(req.body);
   // const pharmacyObj = {
   //   ...,
   // };

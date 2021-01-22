@@ -129,7 +129,7 @@ exports.getDoctorsWithCC = asyncHandler(async (req, res, next) => {
 });
 
 exports.assignCC = asyncHandler(async (req, res, next) => {
-  console.log(req.body);
+  // console.log(req.body);
   const doctor = await Staff.findOne({ _id: req.body.staffId });
   if (!doctor || doctor.disabled === true) {
     return next(
@@ -245,12 +245,12 @@ exports.getCCandPAByKeyword = asyncHandler(async (req, res, next) => {
     disabled: false,
   }).populate('productionArea.productionAreaId');
   // console.log(prodAreas[0].chiefComplaint.length);
-  console.log(prodAreas);
+  // console.log(prodAreas);
 
   for (let i = 0; i < prodAreas.length; i++) {
     // console.log(prodAreas[i].chiefComplaint);
     const index = prodAreas[i].productionArea.length - 1;
-    console.log(index);
+    // console.log(index);
     if (
       (prodAreas[i].name &&
         prodAreas[i].name
@@ -305,7 +305,7 @@ exports.assignCCtoPatient = asyncHandler(async (req, res, next) => {
     }
   );
 
-  console.log(assignedCC);
+  // console.log(assignedCC);
   res.status(200).json({
     success: true,
     data: assignedCC,

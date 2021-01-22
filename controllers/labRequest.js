@@ -123,7 +123,7 @@ exports.getCompletedLabEdr = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateLabRequest = asyncHandler(async (req, res, next) => {
-  console.log(req.files);
+  // console.log(req.files);
   const parsed = JSON.parse(req.body.data);
   const lab = await EDR.findOne({ _id: parsed.edrId });
   let note;

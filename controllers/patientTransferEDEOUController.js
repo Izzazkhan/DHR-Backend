@@ -131,7 +131,7 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
     $or: [{ status: 'pending' }, { status: 'in_progress' }],
   });
 
-  console.log('transfer', transfer);
+  // console.log('transfer', transfer);
   if (transfer.length > 0) {
     // return next(
     //   new ErrorResponse(
@@ -171,19 +171,29 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse('No Nurse Technician Available this Time'));
   }
 
+  // console.log(nurseTechnician._id);
+  const nurseId = {
+    nurseTechnicianId: nurseTechnician._id,
+  };
+
   await EDR.findOneAndUpdate(
     { _id: req.body.edrId },
-    { $push: { transferOfCare: nurseTechnician._id } },
+    { $push: { transferOfCare: nurseId } },
     { new: true }
   );
-
-  console.log('hereee');
 
   await EDR.findOneAndUpdate(
     { _id: req.body.edrId },
     { $set: { nurseTechnicianStatus: 'pending' } },
     { new: true }
   );
+
+  const customerCare = {
+    assignedBy: req.body.assignedBy,
+    customerCareId: req.body.staffId,
+    assignedTime: Date.now(),
+    reason: req.body.reason,
+  };
 
   const patientTransferReqObj = {
     edrId: req.body.edrId,
