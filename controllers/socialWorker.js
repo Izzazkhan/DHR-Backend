@@ -42,8 +42,88 @@ exports.getAdmittedEDRs = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.getCompletedAdmittedEDRs = asyncHandler(async (req, res, next) => {
+  const admittedEdrs = await EDR.find({
+    socialWorkerStatus: 'completed',
+    status: 'Discharged',
+    'dischargeRequest.dischargeSummary.edrCompletionReason': 'admitted',
+  })
+    .select(
+      'patientId chiefComplaint requiredAssistance Room socialWorkerStatus survey'
+    )
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'identifier',
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+        select: 'roomNo',
+      },
+    ]);
+
+  res.status(200).json({
+    success: true,
+    data: admittedEdrs,
+  });
+});
+
 exports.getDischargedEDRs = asyncHandler(async (req, res, next) => {
   const dischargedEdrs = await EDR.find({
+    status: 'Discharged',
+    'dischargeRequest.dischargeSummary.edrCompletionReason': 'discharged',
+  })
+    .select(
+      'patientId chiefComplaint requiredAssistance Room socialWorkerStatus survey'
+    )
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'identifier',
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+        select: 'roomNo',
+      },
+    ]);
+
+  res.status(200).json({
+    success: true,
+    data: dischargedEdrs,
+  });
+});
+
+exports.getCompletedDischargedEDRs = asyncHandler(async (req, res, next) => {
+  const dischargedEdrs = await EDR.find({
+    socialWorkerStatus: 'completed',
     status: 'Discharged',
     'dischargeRequest.dischargeSummary.edrCompletionReason': 'discharged',
   })
@@ -121,8 +201,89 @@ exports.getTransferedEDRs = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.getCompletedTransferedEDRs = asyncHandler(async (req, res, next) => {
+  const transferedEdrs = await EDR.find({
+    socialWorkerStatus: 'completed',
+    status: 'Discharged',
+    'dischargeRequest.dischargeSummary.edrCompletionReason':
+      'transferred survey',
+  })
+    .select(
+      'patientId chiefComplaint requiredAssistance Room socialWorkerStatus survey'
+    )
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'identifier',
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+        select: 'roomNo',
+      },
+    ]);
+
+  res.status(200).json({
+    success: true,
+    data: transferedEdrs,
+  });
+});
+
 exports.getDeceasedEDRs = asyncHandler(async (req, res, next) => {
   const deceasedEdrs = await EDR.find({
+    status: 'Discharged',
+    'dischargeRequest.dischargeSummary.edrCompletionReason': 'deceased',
+  })
+    .select(
+      'patientId chiefComplaint requiredAssistance Room socialWorkerStatus survey'
+    )
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'identifier',
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+        select: 'roomNo',
+      },
+    ]);
+
+  res.status(200).json({
+    success: true,
+    data: deceasedEdrs,
+  });
+});
+
+exports.getCompletedDeceasedEDRs = asyncHandler(async (req, res, next) => {
+  const deceasedEdrs = await EDR.find({
+    socialWorkerStatus: 'completed',
     status: 'Discharged',
     'dischargeRequest.dischargeSummary.edrCompletionReason': 'deceased',
   })
