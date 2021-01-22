@@ -83,7 +83,7 @@ exports.getAllTransferReqForRequester = asyncHandler(async (req, res, next) => {
       path: 'edrId',
       populate: { path: 'room.roomId' },
     })
-    .select({ edrId: 1, status: 1, to:1, from:1 });
+    .select({ edrId: 1, status: 1, to: 1, from: 1 });
   res.status(200).json({
     success: true,
     data: list,
@@ -160,12 +160,30 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
     { new: true }
   );
 
-  const customerCare = {
-    assignedBy: req.body.assignedBy,
-    customerCareId: req.body.staffId,
-    assignedTime: Date.now(),
-    reason: req.body.reason,
-  };
+  // Nurse Technician Request
+  const nurseTechnician = await Staff.findOne({
+    availability: true,
+    disabled: false,
+    staffType: 'Nurses',
+    subType: 'Nurse Technician',
+  });
+  if (!nurseTechnician) {
+    return next(new ErrorResponse('No Nurse Technician Available this Time'));
+  }
+
+  await EDR.findOneAndUpdate(
+    { _id: req.body.edrId },
+    { $push: { transferOfCare: nurseTechnician._id } },
+    { new: true }
+  );
+
+  console.log('hereee');
+
+  await EDR.findOneAndUpdate(
+    { _id: req.body.edrId },
+    { $set: { nurseTechnicianStatus: 'pending' } },
+    { new: true }
+  );
 
   const patientTransferReqObj = {
     edrId: req.body.edrId,

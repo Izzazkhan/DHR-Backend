@@ -6,6 +6,10 @@ const {
   getAdmittedEDRs,
   getTransferedEDRs,
   getDeceasedEDRs,
+  getCompletedAdmittedEDRs,
+  getCompletedDeceasedEDRs,
+  getCompletedDischargedEDRs,
+  getCompletedTransferedEDRs,
   addSurvey,
   getPsychiatrist,
   getMentalCare,
@@ -16,6 +20,10 @@ router.get('/getDischargedEDRs', getDischargedEDRs);
 router.get('/getAdmittedEDRs', getAdmittedEDRs);
 router.get('/getTransferedEDRs', getTransferedEDRs);
 router.get('/getDeceasedEDRs', getDeceasedEDRs);
+router.get('/getCompletedAdmittedEDRs', getCompletedAdmittedEDRs);
+router.get('/getCompletedDeceasedEDRs', getCompletedDeceasedEDRs);
+router.get('/getCompletedDischargedEDRs', getCompletedDischargedEDRs);
+router.get('/getCompletedTransferedEDRs', getCompletedTransferedEDRs);
 router.put('/addSurvey', addSurvey);
 router.get('/getPsychiatrist', getPsychiatrist);
 router.get('/getMentalCare', getMentalCare);

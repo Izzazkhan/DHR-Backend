@@ -1054,6 +1054,17 @@ const edrSchema = new mongoose.Schema({
     type: String,
     default: 'ED',
   },
+  transferOfCare: [
+    {
+      nurseTechnicianId: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+    },
+  ],
+  nurseTechnicianStatus: {
+    type: String,
+  },
   survey: [
     {
       data: [
