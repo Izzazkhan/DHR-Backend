@@ -32,6 +32,7 @@ const houseKeeperRequest = require('./routes/houseKeeperRequest');
 const socialWorker = require('./routes/socialWorker');
 const item = require('./routes/item');
 const nurseTechnician = require('./routes/nurseTechnicianRequest');
+const edNurse = require('./routes/edNurse');
 
 const insurance = require('./routes/insurance');
 const preApproval = require('./routes/preApprovalInsurance');
@@ -96,6 +97,7 @@ app.use('/api/socialWorker', socialWorker);
 app.use('/api/anesthesiarequest', anesthesiaRequestRoutes);
 app.use('/api/consultationNotes', consultationNotesRoutes);
 app.use('/api/nurseTechnician', nurseTechnician);
+app.use('/api/edNurse', edNurse);
 
 app.use(errorHandler);
 
