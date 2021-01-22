@@ -1,3 +1,4 @@
+const requestNoFormat = require('dateformat');
 // const requestNoFormat = require('dateformat');
 const EDR = require('../models/EDR/EDR');
 const asyncHandler = require('../middleware/async');
@@ -325,7 +326,17 @@ exports.getCompletedDeceasedEDRs = asyncHandler(async (req, res, next) => {
 });
 
 exports.addSurvey = asyncHandler(async (req, res, next) => {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const diff =
+    now -
+    start +
+    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
+  const oneDay = 1000 * 60 * 60 * 24;
+  const day = Math.floor(diff / oneDay);
+  const requestId = `LR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
   const survey = {
+    requestId,
     data: req.body.object,
     surveyTime: Date.now(),
   };

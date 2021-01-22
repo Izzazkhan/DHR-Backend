@@ -9,7 +9,7 @@ const {
 } = require('../controllers/nurseTechnicianRequest');
 
 router.get('/getPendingTransfers/:staffId', getPendingTransfers);
-router.get('/getCompletedTransfers', getCompletedTransfers);
+router.get('/getCompletedTransfers/:staffId', getCompletedTransfers);
 router.put('/addReport', addReport);
 
 module.exports = router;
