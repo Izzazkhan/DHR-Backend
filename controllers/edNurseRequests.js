@@ -29,7 +29,7 @@ exports.getLab = asyncHandler(async (req, res, next) => {
     {
       path: 'patientId',
       model: 'patientfhir',
-      //   select: 'identifier name',
+      select: 'identifier name createdAt',
     },
     {
       path: 'labRequest.serviceId',
