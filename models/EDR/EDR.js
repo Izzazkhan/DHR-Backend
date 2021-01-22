@@ -1065,6 +1065,7 @@ const edrSchema = new mongoose.Schema({
       sugarLevel: Number,
       bloodPressure: String,
       cbcLevel: String,
+      status: String,
     },
   ],
   nurseTechnicianStatus: {

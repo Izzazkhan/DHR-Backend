@@ -174,6 +174,7 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
   // console.log(nurseTechnician._id);
   const nurseId = {
     nurseTechnicianId: nurseTechnician._id,
+    status: 'To Be Observed',
   };
 
   await EDR.findOneAndUpdate(

@@ -334,7 +334,7 @@ exports.addSurvey = asyncHandler(async (req, res, next) => {
     (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
   const oneDay = 1000 * 60 * 60 * 24;
   const day = Math.floor(diff / oneDay);
-  const requestId = `LR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
+  const requestId = `CSID${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
   const survey = {
     requestId,
     data: req.body.object,
@@ -345,7 +345,7 @@ exports.addSurvey = asyncHandler(async (req, res, next) => {
     { _id: req.body.edrId },
     { $push: { survey: survey } },
     { new: true }
-  );
+  ).populate('patientId', 'identifier');
 
   await EDR.findByIdAndUpdate(
     { _id: req.body.edrId },
