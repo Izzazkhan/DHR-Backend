@@ -1074,6 +1074,7 @@ const edrSchema = new mongoose.Schema({
     {
       data: [
         {
+          requestId: String,
           key: String,
           value: [{ name: String, value: String }],
           text: String,
