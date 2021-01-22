@@ -62,3 +62,7 @@ exports.getCompletedTransfers = asyncHandler(async (req, res, next) => {
     data: transferEdrs,
   });
 });
+
+// exports.getlabRequests = asyncHandler(async (req,res,next) => {
+//   const labRequests = await EDR.find({ 'nurseTechnicianRequest.nurseTechnicianId': });
+// });

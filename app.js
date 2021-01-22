@@ -95,6 +95,7 @@ app.use('/api/houseKeeper', houseKeeperRequest);
 app.use('/api/socialWorker', socialWorker);
 app.use('/api/anesthesiarequest', anesthesiaRequestRoutes);
 app.use('/api/consultationNotes', consultationNotesRoutes);
+app.use('/api/nurseTechnician', nurseTechnician);
 
 app.use(errorHandler);
 

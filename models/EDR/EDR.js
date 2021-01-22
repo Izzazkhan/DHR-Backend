@@ -1072,9 +1072,9 @@ const edrSchema = new mongoose.Schema({
   },
   survey: [
     {
+      requestId: String,
       data: [
         {
-          requestId: String,
           key: String,
           value: [{ name: String, value: String }],
           text: String,
