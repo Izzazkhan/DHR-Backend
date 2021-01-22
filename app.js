@@ -44,6 +44,7 @@ const ChatModel = require('./models/chatRoom/chatRoom');
 const chatRouter = require('./routes/chatRoutes');
 const subscriber = require('./routes/subscriber');
 const anesthesiaRequestRoutes = require('./routes/anesthesiaRequestRoutes');
+const consultationNotesRoutes = require('./routes/consultationNotesRoutes');
 
 const app = express();
 
@@ -93,7 +94,11 @@ app.use('/api/labRequest', labRequest);
 app.use('/api/houseKeeper', houseKeeperRequest);
 app.use('/api/socialWorker', socialWorker);
 app.use('/api/anesthesiarequest', anesthesiaRequestRoutes);
+<<<<<<< HEAD
 app.use('/api/nurseTechnician', nurseTechnician);
+=======
+app.use('/api/consultationNotes', consultationNotesRoutes);
+>>>>>>> bbe857350fed0dd06573c252cdc63c6aa1a49867
 
 app.use(errorHandler);
 
