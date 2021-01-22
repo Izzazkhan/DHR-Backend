@@ -31,6 +31,7 @@ const labRequest = require('./routes/labRequest');
 const houseKeeperRequest = require('./routes/houseKeeperRequest');
 const socialWorker = require('./routes/socialWorker');
 const item = require('./routes/item');
+const nurseTechnician = require('./routes/nurseTechnicianRequest');
 
 const insurance = require('./routes/insurance');
 const preApproval = require('./routes/preApprovalInsurance');
@@ -93,7 +94,11 @@ app.use('/api/labRequest', labRequest);
 app.use('/api/houseKeeper', houseKeeperRequest);
 app.use('/api/socialWorker', socialWorker);
 app.use('/api/anesthesiarequest', anesthesiaRequestRoutes);
+<<<<<<< HEAD
+app.use('/api/nurseTechnician', nurseTechnician);
+=======
 app.use('/api/consultationNotes', consultationNotesRoutes);
+>>>>>>> bbe857350fed0dd06573c252cdc63c6aa1a49867
 
 app.use(errorHandler);
 

@@ -247,7 +247,7 @@ exports.getPatientByRoom = asyncHandler(async (req, res, next) => {
   })
     .populate('patientId', 'identifier name')
     .select('patientId');
-  console.log(patient);
+  // console.log(patient);
   res.status(200).json({
     success: true,
     data: patient,

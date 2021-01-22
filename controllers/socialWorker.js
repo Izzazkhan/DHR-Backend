@@ -5,6 +5,7 @@ const asyncHandler = require('../middleware/async');
 
 exports.getAdmittedEDRs = asyncHandler(async (req, res, next) => {
   const admittedEdrs = await EDR.find({
+    socialWorkerStatus: 'pending',
     status: 'Discharged',
     'dischargeRequest.dischargeSummary.edrCompletionReason': 'admitted',
   })
@@ -84,6 +85,7 @@ exports.getCompletedAdmittedEDRs = asyncHandler(async (req, res, next) => {
 
 exports.getDischargedEDRs = asyncHandler(async (req, res, next) => {
   const dischargedEdrs = await EDR.find({
+    socialWorkerStatus: 'pending',
     status: 'Discharged',
     'dischargeRequest.dischargeSummary.edrCompletionReason': 'discharged',
   })
@@ -163,9 +165,9 @@ exports.getCompletedDischargedEDRs = asyncHandler(async (req, res, next) => {
 
 exports.getTransferedEDRs = asyncHandler(async (req, res, next) => {
   const transferedEdrs = await EDR.find({
+    socialWorkerStatus: 'pending',
     status: 'Discharged',
-    'dischargeRequest.dischargeSummary.edrCompletionReason':
-      'transferred survey',
+    'dischargeRequest.dischargeSummary.edrCompletionReason': 'transferred',
   })
     .select(
       'patientId chiefComplaint requiredAssistance Room socialWorkerStatus survey'
@@ -244,6 +246,7 @@ exports.getCompletedTransferedEDRs = asyncHandler(async (req, res, next) => {
 
 exports.getDeceasedEDRs = asyncHandler(async (req, res, next) => {
   const deceasedEdrs = await EDR.find({
+    socialWorkerStatus: 'pending',
     status: 'Discharged',
     'dischargeRequest.dischargeSummary.edrCompletionReason': 'deceased',
   })
