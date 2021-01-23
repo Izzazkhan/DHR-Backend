@@ -47,8 +47,6 @@ exports.addReport = asyncHandler(async (req, res, next) => {
     }
   );
 
-  // console.log(addedReport);
-
   res.status(200).json({
     success: true,
     data: addedReport,
@@ -62,7 +60,7 @@ exports.getCompletedTransfers = asyncHandler(async (req, res, next) => {
   })
     .populate('patientId', 'identifier name')
     .populate('room.roomId', 'roomNo')
-    .select('room patientId');
+    .select('room patientId transferOfCare nurseTechnicianStatus');
   res.status(200).json({
     success: true,
     data: transferEdrs,

@@ -1441,9 +1441,9 @@ exports.updatePharmcayRequest = asyncHandler(async (req, res, next) => {
 // Search edr where edr status is not completed
 exports.getNurseEdrByKeyword = asyncHandler(async (req, res, next) => {
   const arr = [];
-  const patients = await EDR.find({ status: { $ne: 'completed' } }).populate(
-    'patientId'
-  );
+  const patients = await EDR.find({ status: { $ne: 'completed' } })
+    .select('patientId')
+    .populate('patientId', 'name identifier telecom nationalID');
 
   for (let i = 0; i < patients.length; i++) {
     const fullName =
