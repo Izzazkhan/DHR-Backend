@@ -1062,7 +1062,7 @@ const edrSchema = new mongoose.Schema({
       },
       diseaseName: String,
       fever: String,
-      sugarLevel: Number,
+      sugarLevel: String,
       bloodPressure: String,
       cbcLevel: String,
       status: String,
