@@ -62,11 +62,17 @@ exports.getRad = asyncHandler(async (req, res, next) => {
         ],
       },
     },
+    {
+      $group: {
+        _id: '$patientId',
+        radRequest: { $push: '$radRequest' },
+      },
+    },
   ]);
 
   const rad = await EDR.populate(unwindEdr, [
     {
-      path: 'patientId',
+      path: '_id',
       model: 'patientfhir',
       select: 'identifier name createdAt weight age gender',
     },
