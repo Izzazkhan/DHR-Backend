@@ -1452,7 +1452,7 @@ exports.getNurseEdrByKeyword = asyncHandler(async (req, res, next) => {
   const arr = [];
   const patients = await EDR.find({ status: { $ne: 'completed' } })
     .select('patientId')
-    .populate('patientId', 'name identifier telecom nationalID');
+    .populate('patientId', 'name identifier telecom nationalID gender age');
 
   for (let i = 0; i < patients.length; i++) {
     const fullName =
