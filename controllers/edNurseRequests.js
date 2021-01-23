@@ -23,9 +23,22 @@ exports.getLab = asyncHandler(async (req, res, next) => {
         ],
       },
     },
+    {
+      $group: {
+        _id: { patientId: '$patientId' },
+        labRequest: { $push: '$labRequest' },
+      },
+    },
+    {
+      $project: {
+        patientId: '$_id',
+        _id: 0,
+        labRequest: 1,
+      },
+    },
   ]);
 
-  const labs = await EDR.populate(unwindEdr, [
+  const lab = await EDR.populate(unwindEdr, [
     {
       path: 'patientId',
       model: 'patientfhir',
@@ -38,7 +51,7 @@ exports.getLab = asyncHandler(async (req, res, next) => {
   ]);
   res.status(200).json({
     success: true,
-    data: labs,
+    data: lab,
   });
 });
 
@@ -60,6 +73,19 @@ exports.getRad = asyncHandler(async (req, res, next) => {
           { 'radRequest.status': 'pending approval' },
           { 'radRequest.status': 'completed' },
         ],
+      },
+    },
+    {
+      $group: {
+        _id: { patientId: '$patientId' },
+        radRequest: { $push: '$radRequest' },
+      },
+    },
+    {
+      $project: {
+        patientId: '$_id',
+        _id: 0,
+        radRequest: 1,
       },
     },
   ]);
