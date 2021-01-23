@@ -6,10 +6,14 @@ const {
   getLab,
   getRad,
   submitRequest,
+  getHouskeepingRequests,
+  getCustomerCareRequests,
+  getNurseTechnicianRequests,
 } = require('../controllers/edNurseRequests');
 
 router.get('/getLab', getLab);
 router.get('/getRad', getRad);
-router.post('/submitRequest', getRad);
+router.get('/getRad', getRad);
+router.post('/submitRequest', submitRequest);
 
 module.exports = router;

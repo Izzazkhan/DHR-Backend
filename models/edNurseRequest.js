@@ -17,4 +17,4 @@ const edNurseSchema = new mongoose.Schema({
   reason: String,
 });
 
-module.exports = mongoose.model('edNurse', edNurseSchema);
+module.exports = mongoose.model('assistanceRequest', edNurseSchema);
