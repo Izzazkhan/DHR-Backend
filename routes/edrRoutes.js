@@ -57,6 +57,8 @@ const {
 
   addPharmcayRequest,
   updatePharmcayRequest,
+
+  getNurseEdrByKeyword,
 } = require('../controllers/edrController');
 
 const router = express.Router();
@@ -130,6 +132,8 @@ router.get(
   '/getDischargedEDRFromPatient/:keyword',
   getDischargedEDRFromPatient
 );
+
+router.get('/getNurseEdrByKeyword/:keyword', getNurseEdrByKeyword);
 
 router.get(
   '/getEDRFromPatientIdForDischarge/:_id',
