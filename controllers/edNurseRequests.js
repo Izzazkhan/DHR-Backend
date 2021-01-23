@@ -2,6 +2,7 @@ const EDR = require('../models/EDR/EDR');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const Staff = require('../models/staffFhir/staff');
+const EDN = require('../models/edNurseRequest');
 
 exports.getLab = asyncHandler(async (req, res, next) => {
   const unwindEdr = await EDR.aggregate([
@@ -104,5 +105,45 @@ exports.getRad = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: rad,
+  });
+});
+
+exports.submitRequest = asyncHandler(async (req, res, next) => {
+  const { patientId, staffId, asignedBy, staffType, reason } = req.body;
+  const request = await EDN.create({
+    patientId,
+    staffId,
+    asignedBy,
+    staffType,
+    reason,
+  });
+
+  res.status(200).json({
+    success: true,
+    data: request,
+  });
+});
+
+exports.getHouskeepingRequests = asyncHandler(async (req, res, next) => {
+  const HKRequests = await EDN.find({ staffType: 'Housekeeping' });
+  res.status(200).json({
+    success: true,
+    data: HKRequests,
+  });
+});
+
+exports.getCustomerCareRequests = asyncHandler(async (req, res, next) => {
+  const CCRequests = await EDN.find({ staffType: 'Customer Care' });
+  res.status(200).json({
+    success: true,
+    data: CCRequests,
+  });
+});
+
+exports.getNurseTechnicianRequests = asyncHandler(async (req, res, next) => {
+  const NTRequests = await EDN.find({ staffType: 'Nurse Technician' });
+  res.status(200).json({
+    success: true,
+    data: NTRequests,
   });
 });
