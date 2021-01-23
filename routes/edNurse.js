@@ -13,7 +13,9 @@ const {
 
 router.get('/getLab', getLab);
 router.get('/getRad', getRad);
-router.get('/getRad', getRad);
+router.get('/getHKRequests', getHouskeepingRequests);
+router.get('/getCCRequests', getCustomerCareRequests);
+router.get('/getNTRequests', getNurseTechnicianRequests);
 router.post('/submitRequest', submitRequest);
 
 module.exports = router;

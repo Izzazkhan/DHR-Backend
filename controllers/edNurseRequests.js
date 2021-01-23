@@ -125,7 +125,7 @@ exports.submitRequest = asyncHandler(async (req, res, next) => {
 });
 
 exports.getHouskeepingRequests = asyncHandler(async (req, res, next) => {
-  const HKRequests = await EDN.find({ staffType: 'House Keeping' });
+  const HKRequests = await EDN.find({ staffType: 'Housekeeping' });
   res.status(200).json({
     success: true,
     data: HKRequests,
@@ -141,7 +141,7 @@ exports.getCustomerCareRequests = asyncHandler(async (req, res, next) => {
 });
 
 exports.getNurseTechnicianRequests = asyncHandler(async (req, res, next) => {
-  const NTRequests = await EDN.find({ staffType: 'NurseTechnician' });
+  const NTRequests = await EDN.find({ staffType: 'Nurse Technician' });
   res.status(200).json({
     success: true,
     data: NTRequests,
