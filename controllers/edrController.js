@@ -1,4 +1,5 @@
 const requestNoFormat = require('dateformat');
+const moment = require('moment');
 const EDR = require('../models/EDR/EDR');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
@@ -278,13 +279,21 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
     (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
   const oneDay = 1000 * 60 * 60 * 24;
   const day = Math.floor(diff / oneDay);
-  // const edrCheck = await EDR.find({ _id: req.body.edrId }).populate(
-  //   'patientId labRequest.serviceId'
-  // );
-  // const latestEdr = edrCheck.length - 1;
-  // const latestLabRequest = edrCheck[0].labRequest.length - 1;
-  // const updatedRequest = latestLabRequest + 2;
 
+  // Sample Collection Task
+  const currentTime = moment().utc().toDate();
+  const sixHours = moment().subtract(6, 'hours').utc().toDate();
+
+  const nurses = await Staff.find({
+    staffType: 'Nurses',
+    subType: 'Nurse Technician',
+    disabled: false,
+    availability: true,
+    $and: [
+      { shiftStartTime: { $lte: currentTime } },
+      { shiftEndTime: { $gte: currentTime } },
+    ],
+  }).select('identifier name');
   const requestId = `LR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
 
   const labRequest = {
@@ -1474,8 +1483,18 @@ exports.getNurseEdrByKeyword = asyncHandler(async (req, res, next) => {
           .startsWith(req.params.keyword.toLowerCase()))
     ) {
       arr.push(patients[i]);
+      break;
     }
   }
+  // const patientArr = [];
+  // for (let i = 0; i < patients.length; i++) {
+  //   if (patients[i]._id == arr[arr.length - 1]._id) {
+  //     patientArr.push(patients[i]);
+  //     break;
+  //   }
+  // }
+  // console.log(patientArr);
+
   res.status(200).json({
     success: true,
     data: arr,
