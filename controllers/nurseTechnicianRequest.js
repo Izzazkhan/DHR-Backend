@@ -19,7 +19,6 @@ exports.getPendingTransfers = asyncHandler(async (req, res, next) => {
 });
 
 exports.addReport = asyncHandler(async (req, res, next) => {
-  // console.log(req.body);
   const edr = await EDR.findOne({ _id: req.body.edrId });
   const arr = [];
   for (let i = 0; i < edr.transferOfCare.length; i++) {
@@ -28,6 +27,7 @@ exports.addReport = asyncHandler(async (req, res, next) => {
     }
   }
   const latestTransfer = arr.length - 1;
+  // console.log(latestTransfer);
   const addedReport = await EDR.findOneAndUpdate(
     { _id: req.body.edrId },
     {
@@ -41,8 +41,13 @@ exports.addReport = asyncHandler(async (req, res, next) => {
         [`transferOfCare.${latestTransfer}.status`]: 'Observed',
         nurseTechnicianStatus: 'completed',
       },
+    },
+    {
+      new: true,
     }
   );
+
+  // console.log(addedReport);
 
   res.status(200).json({
     success: true,
