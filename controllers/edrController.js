@@ -1,5 +1,5 @@
 const requestNoFormat = require('dateformat');
-const moment = require('moment');
+// const moment = require('moment');
 const EDR = require('../models/EDR/EDR');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
@@ -8,6 +8,7 @@ const HK = require('../models/houseKeepingRequest');
 const Staff = require('../models/staffFhir/staff');
 
 exports.generateEDR = asyncHandler(async (req, res, next) => {
+  // console.log(req.body);
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
   const diff =
@@ -42,6 +43,8 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
     insurerId,
     // dcdForm,
     claimed,
+    generatedFrom,
+    generatedFromStatus,
   } = req.body;
 
   newEDR = await EDR.create({
@@ -60,8 +63,10 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
     insurerId,
     // paymentMethod,
     claimed,
+    generatedFrom,
+    generatedFromStatus,
   });
-  // console.log(newEDR);
+
   await EDR.findOneAndUpdate(
     { _id: newEDR._id },
     {

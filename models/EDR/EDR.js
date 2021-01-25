@@ -6,6 +6,13 @@ const edrSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'patientfhir',
   },
+  generatedFrom: {
+    type: String,
+  },
+  generatedFromStatus: {
+    type: String,
+    // default: 'pending',
+  },
   transfer: [
     {
       reason: String,
