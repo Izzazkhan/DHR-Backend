@@ -5,7 +5,7 @@ const ErrorResponse = require('../utils/errorResponse');
 exports.paramedicsEdr = asyncHandler(async (req, res, next) => {
   const paramedicsEdr = await EDR.find({
     generatedFrom: 'Paramedics',
-    generatedFromStatus: 'pending',
+    patientInHospital: false,
   })
     .populate('patientId', 'identifier name age gender telecom createdAt')
     .select('patientId');
@@ -18,7 +18,7 @@ exports.paramedicsEdr = asyncHandler(async (req, res, next) => {
 exports.edrTransfer = asyncHandler(async (req, res, next) => {
   const transferredEdr = await EDR.findOneAndUpdate(
     { _id: req.params.edrId },
-    { $set: { generatedFromStatus: 'completed' } },
+    { $set: { patientInHospital: true } },
     { new: true }
   );
   res.status(200).json({
@@ -30,7 +30,7 @@ exports.edrTransfer = asyncHandler(async (req, res, next) => {
 exports.transferredParamedicsEdr = asyncHandler(async (req, res, next) => {
   const paramedicsEdr = await EDR.find({
     generatedFrom: 'Paramedics',
-    generatedFromStatus: 'completed',
+    patientInHospital: true,
   })
     .populate('patientId', 'identifier name age gender telecom createdAt')
     .select('patientId');

@@ -25,8 +25,7 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
       versionNo: patient.identifier[0].value + '-' + requestNo + '-' + '1',
     },
   ];
-  // console.log(patient);
-  // console.log(patient.paymentMethod[0].payment);
+
   const paymentMethod = patient.paymentMethod[0].payment;
   const {
     patientId,
@@ -44,7 +43,7 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
     // dcdForm,
     claimed,
     generatedFrom,
-    generatedFromStatus,
+    patientInHospital,
   } = req.body;
 
   newEDR = await EDR.create({
@@ -64,7 +63,7 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
     // paymentMethod,
     claimed,
     generatedFrom,
-    generatedFromStatus,
+    patientInHospital,
   });
 
   await EDR.findOneAndUpdate(
