@@ -281,19 +281,18 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
   const day = Math.floor(diff / oneDay);
 
   // Sample Collection Task
-  const currentTime = moment().utc().toDate();
-  const sixHours = moment().subtract(6, 'hours').utc().toDate();
 
   const nurses = await Staff.find({
     staffType: 'Nurses',
     subType: 'Nurse Technician',
     disabled: false,
     availability: true,
-    $and: [
-      { shiftStartTime: { $lte: currentTime } },
-      { shiftEndTime: { $gte: currentTime } },
-    ],
   }).select('identifier name');
+
+  const random = Math.floor(Math.random() * 4);
+  const nurseTechnician = nurses[random];
+  const nurseTechnicianId = nurseTechnician._id;
+
   const requestId = `LR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
 
   const labRequest = {
@@ -306,6 +305,7 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
     priority: req.body.priority,
     requestedBy: req.body.staffId,
     requestedAt: Date.now(),
+    assignedTo: nurseTechnicianId,
     reason: req.body.reason,
     notes: req.body.notes,
   };
