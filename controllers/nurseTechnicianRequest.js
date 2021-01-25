@@ -170,7 +170,9 @@ exports.completeLab = asyncHandler(async (req, res, next) => {
       },
     },
     { new: true }
-  );
+  )
+    .populate('patientId', 'identifier')
+    .select('patientId');
 
   res.status(200).json({
     success: true,
