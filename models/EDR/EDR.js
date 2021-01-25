@@ -805,6 +805,14 @@ const edrSchema = new mongoose.Schema({
       requestId: {
         type: String,
       },
+      assignedTo: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      nurseTechnicianStatus: {
+        type: String,
+        default: 'pending',
+      },
       name: {
         type: String,
       },
