@@ -811,7 +811,7 @@ const edrSchema = new mongoose.Schema({
       },
       nurseTechnicianStatus: {
         type: String,
-        default: 'pending',
+        default: 'Not Collected',
       },
       name: {
         type: String,

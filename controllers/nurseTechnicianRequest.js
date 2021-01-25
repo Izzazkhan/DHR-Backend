@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const EDR = require('../models/EDR/EDR');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
@@ -64,5 +65,50 @@ exports.getCompletedTransfers = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: transferEdrs,
+  });
+});
+
+exports.getpendingLabs = asyncHandler(async (req, res, next) => {
+  // console.log(req.params.staffId);
+  const unwindEdr = await EDR.aggregate([
+    {
+      $project: {
+        _id: 1,
+        labRequest: 1,
+        patientId: 1,
+        room: 1,
+      },
+    },
+    {
+      $unwind: '$labRequest',
+    },
+    {
+      $match: {
+        'labRequest.nurseTechnicianStatus': 'Not Collected',
+        'labRequest.assignedTo': mongoose.Types.ObjectId(req.params.staffId),
+      },
+    },
+  ]);
+
+  const lab = await EDR.populate(unwindEdr, [
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+      select: 'identifier name',
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
+      select: 'roomNo',
+    },
+    // {
+    //   path: 'labRequest.serviceId',
+    //   model: 'LaboratoryService',
+    // },
+  ]);
+
+  res.status(200).json({
+    success: true,
+    data: lab,
   });
 });

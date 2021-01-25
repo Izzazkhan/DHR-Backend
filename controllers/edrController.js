@@ -305,7 +305,7 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
     priority: req.body.priority,
     requestedBy: req.body.staffId,
     requestedAt: Date.now(),
-    asignedTo: nurseTechnicianId,
+    assignedTo: nurseTechnicianId,
     reason: req.body.reason,
     notes: req.body.notes,
   };
