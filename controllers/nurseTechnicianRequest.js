@@ -101,14 +101,79 @@ exports.getpendingLabs = asyncHandler(async (req, res, next) => {
       model: 'room',
       select: 'roomNo',
     },
-    // {
-    //   path: 'labRequest.serviceId',
-    //   model: 'LaboratoryService',
-    // },
   ]);
 
   res.status(200).json({
     success: true,
     data: lab,
+  });
+});
+
+exports.getCompletedLabs = asyncHandler(async (req, res, next) => {
+  const unwindEdr = await EDR.aggregate([
+    {
+      $project: {
+        _id: 1,
+        labRequest: 1,
+        patientId: 1,
+        room: 1,
+      },
+    },
+    {
+      $unwind: '$labRequest',
+    },
+    {
+      $match: {
+        'labRequest.nurseTechnicianStatus': 'Collected',
+        'labRequest.assignedTo': mongoose.Types.ObjectId(req.params.staffId),
+      },
+    },
+  ]);
+
+  const lab = await EDR.populate(unwindEdr, [
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+      select: 'identifier name',
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
+      select: 'roomNo',
+    },
+  ]);
+
+  res.status(200).json({
+    success: true,
+    data: lab,
+  });
+});
+
+exports.completeLab = asyncHandler(async (req, res, next) => {
+  const edr = await EDR.findOne({ _id: req.body.edrId });
+  let labId;
+  for (let i = 0; i < edr.labRequest.length; i++) {
+    if (
+      edr.labRequest[i].assignedTo == req.body.staffId &&
+      edr.labRequest[i].nurseTechnicianStatus === 'Not Collected'
+    ) {
+      labId = i;
+    }
+  }
+
+  // console.log(labId);
+  const labTask = await EDR.findOneAndUpdate(
+    { _id: req.body.edrId },
+    {
+      $set: {
+        [`labRequest.${labId}.nurseTechnicianStatus`]: 'Collected',
+      },
+    },
+    { new: true }
+  );
+
+  res.status(200).json({
+    success: true,
+    data: labTask,
   });
 });
