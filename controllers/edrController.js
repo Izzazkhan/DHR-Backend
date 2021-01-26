@@ -1152,6 +1152,7 @@ exports.updateEDNurseRequest = asyncHandler(async (req, res, next) => {
         [`edNurseRequest.${note}.edNurseId`]: parsed.edNurse,
         [`edNurseRequest.${note}.speciality`]: parsed.speciality,
         [`edNurseRequest.${note}.notes`]: parsed.notes,
+        [`edNurseRequest.${note}.status`]: parsed.status,
         [`edNurseRequest.${note}.voiceNotes`]: req.file
           ? req.file.path
           : parsed.voiceNotes,
