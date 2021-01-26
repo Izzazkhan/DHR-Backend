@@ -49,6 +49,7 @@ const {
   updateNurseTechnicianRequest,
   getDischargedEDR,
   getCompletedEDR,
+  getSenseiPendingEDRs,
 
   getAllPendingLabRequests,
   getAllPendingRadRequests,
@@ -57,7 +58,7 @@ const {
 
   addPharmcayRequest,
   updatePharmcayRequest,
-
+  getSenseiPendingEdrByKeyword,
   getNurseEdrByKeyword,
 } = require('../controllers/edrController');
 
@@ -67,7 +68,9 @@ router.post('/generateEDR', generateEDR);
 router.get('/getSingleEdr/:id', getEDRById);
 router.get('/getEDRs', getEDRs);
 router.get('/getPendingEDRs', getPendingEDRs);
+router.get('/getSenseiPendingEDRs', getSenseiPendingEDRs);
 router.get('/searchEdrPatient/:keyword', getEdrPatientByKeyword);
+router.get('/searchPendingSenseiEdr/:keyword', getSenseiPendingEdrByKeyword);
 router.get('/searchPendingEdr/:keyword', getPendingEdrByKeyword);
 router.put('/addDoctorNotes', upload.single('file'), addDoctorNotes);
 router.put('/updateDoctorNotes', upload.single('file'), updateDoctorNotes);
