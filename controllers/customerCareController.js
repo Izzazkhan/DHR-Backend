@@ -139,7 +139,22 @@ exports.completeTransfer = asyncHandler(async (req, res, next) => {
     { _id: req.params.transferId },
     { $set: { status: 'completed', completedAt: Date.now() } },
     { new: true }
-  );
+  )
+    .select('edrId status')
+    .populate([
+      {
+        path: 'edrId',
+        model: 'EDR',
+        select: 'patientId',
+        populate: [
+          {
+            path: 'patientId',
+            model: 'patientfhir',
+            select: 'identifier ',
+          },
+        ],
+      },
+    ]);
 
   res.status(200).json({
     success: true,
