@@ -91,7 +91,7 @@ exports.getCCStaffByKeyword = asyncHandler(async (req, res, next) => {
   });
 });
 
-exports.edToEouTransfers = asyncHandler(async (req, res, next) => {
+exports.pendingEdToEouTransfers = asyncHandler(async (req, res, next) => {
   const transfers = await Transfer.find({
     to: 'EOU',
     from: 'ED',

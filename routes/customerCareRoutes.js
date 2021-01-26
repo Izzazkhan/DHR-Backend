@@ -6,12 +6,12 @@ const {
   getAllCustomerCares,
   getCCStaffByKeyword,
   assignCC,
-  edToEouTransfers,
+  pendingEdToEouTransfers,
 } = require('../controllers/customerCareController');
 
 router.get('/getAllCustomerCares', getAllCustomerCares);
 router.get('/searchCustomerCare/:keyword', getCCStaffByKeyword);
 router.put('/assignCustomerCare', assignCC);
-router.get('/EouTransfer/:ccId', edToEouTransfers);
+router.get('/pendingEouTransfer/:ccId', pendingEdToEouTransfers);
 
 module.exports = router;
