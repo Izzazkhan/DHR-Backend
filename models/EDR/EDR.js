@@ -9,9 +9,8 @@ const edrSchema = new mongoose.Schema({
   generatedFrom: {
     type: String,
   },
-  generatedFromStatus: {
-    type: String,
-    // default: 'pending',
+  patientInHospital: {
+    type: Boolean,
   },
   transfer: [
     {

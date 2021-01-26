@@ -80,6 +80,7 @@ exports.getCCPatients = asyncHandler(async (req, res, next) => {
   const patients = await EDR.find({
     status: 'pending',
     chiefComplaint: { $ne: [] },
+    patientInHospital: true,
   }).populate([
     {
       path: 'chiefComplaint.chiefComplaintId',
