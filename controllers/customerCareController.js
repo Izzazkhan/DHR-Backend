@@ -2,6 +2,8 @@ const Staff = require('../models/staffFhir/staff');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const EDR = require('../models/EDR/EDR');
+const Transfer = require('../models/patientTransferEDEOU/patientTransferEDEOU');
+const { populate } = require('../models/EDR/EDR');
 
 exports.getAllCustomerCares = asyncHandler(async (req, res, next) => {
   const customerCares = await Staff.find({
@@ -55,8 +57,6 @@ exports.getCCStaffByKeyword = asyncHandler(async (req, res, next) => {
     disabled: false,
   });
 
-  // console.log(staff);
-
   for (let i = 0; i < staff.length; i++) {
     const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
     if (
@@ -88,5 +88,48 @@ exports.getCCStaffByKeyword = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: arr,
+  });
+});
+
+exports.edToEouTransfers = asyncHandler(async (req, res, next) => {
+  const transfers = await Transfer.find({
+    to: 'EOU',
+    from: 'ED',
+    status: 'pending',
+    requestedTo: req.params.ccId,
+  })
+    .select('edrId status')
+    .populate([
+      {
+        path: 'edrId',
+        model: 'EDR',
+        select: 'patientId room chiefComplaint',
+        populate: [
+          {
+            path: 'patientId',
+            model: 'patientfhir',
+            select: 'identifier ',
+          },
+          {
+            path: 'room.roomId',
+            model: 'room',
+            select: 'roomNo ',
+          },
+          {
+            path: 'chiefComplaint.chiefComplaintId',
+            model: 'chiefComplaint',
+            select: 'productionArea.productionAreaId',
+            populate: {
+              path: 'productionArea.productionAreaId',
+              model: 'productionArea',
+              select: 'paName',
+            },
+          },
+        ],
+      },
+    ]);
+  res.status(200).json({
+    success: true,
+    data: transfers,
   });
 });

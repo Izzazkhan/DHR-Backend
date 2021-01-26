@@ -47,7 +47,10 @@ exports.searchPendingPMEdr = asyncHandler(async (req, res, next) => {
     generatedFrom: 'Paramedics',
   })
     .select('patientId dcdFormStatus')
-    .populate('patientId', 'name identifier telecom nationalID gender age');
+    .populate(
+      'patientId',
+      'name identifier telecom nationalID gender age createdAt'
+    );
 
   for (let i = 0; i < patients.length; i++) {
     const fullName =
@@ -95,7 +98,10 @@ exports.searchCompletedPMEdr = asyncHandler(async (req, res, next) => {
     generatedFrom: 'Paramedics',
   })
     .select('patientId dcdFormStatus')
-    .populate('patientId', 'name identifier telecom nationalID gender age');
+    .populate(
+      'patientId',
+      'name identifier telecom nationalID gender age createdAt'
+    );
 
   for (let i = 0; i < patients.length; i++) {
     const fullName =
