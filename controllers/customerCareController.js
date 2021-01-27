@@ -246,3 +246,73 @@ exports.pendingDischargeEdrs = asyncHandler(async (req, res, next) => {
     data: discharge,
   });
 });
+
+exports.completeDischarge = asyncHandler(async (req, res, next) => {
+  const completedDischarge = await CCRequest.findOneAndUpdate(
+    { _id: req.params.dischargeId },
+    { $set: { status: 'completed', completedAt: Date.now() } },
+    { new: true }
+  )
+    .select('edrId status requestNo')
+    .populate([
+      {
+        path: 'edrId',
+        model: 'EDR',
+        select: 'patientId ',
+        populate: [
+          {
+            path: 'patientId',
+            model: 'patientfhir',
+            select: 'identifier ',
+          },
+        ],
+      },
+    ]);
+
+  res.status(200).json({
+    success: true,
+    data: completedDischarge,
+  });
+});
+
+exports.completedDischargeEdrs = asyncHandler(async (req, res, next) => {
+  const discharge = await CCRequest.find({
+    requestedFor: 'Discharge',
+    status: 'completed',
+    costomerCareId: req.params.ccId,
+  })
+    // .select('edrId status ')
+    .populate([
+      {
+        path: 'edrId',
+        model: 'EDR',
+        select: 'patientId room chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'patientId',
+            model: 'patientfhir',
+            select: 'identifier ',
+          },
+          {
+            path: 'room.roomId',
+            model: 'room',
+            select: 'roomNo ',
+          },
+          {
+            path: 'chiefComplaint.chiefComplaintId',
+            model: 'chiefComplaint',
+            select: 'productionArea.productionAreaId',
+            populate: {
+              path: 'productionArea.productionAreaId',
+              model: 'productionArea',
+              select: 'paName',
+            },
+          },
+        ],
+      },
+    ]);
+  res.status(200).json({
+    success: true,
+    data: discharge,
+  });
+});
