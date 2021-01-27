@@ -18,7 +18,7 @@ const ccRequestSchema = new mongoose.Schema({
     ref: 'staff',
   },
   requestedAt: Date,
-  compeltedAt: Date,
+  completedAt: Date,
 });
 
 module.exports = mongoose.model('CCRequest', ccRequestSchema);
