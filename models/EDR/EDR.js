@@ -601,6 +601,7 @@ const edrSchema = new mongoose.Schema({
       speciality: {
         type: String,
       },
+      completedAt: Date,
     },
   ],
   eouNurseRequest: [
