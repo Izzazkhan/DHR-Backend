@@ -725,6 +725,10 @@ const edrSchema = new mongoose.Schema({
             type: String,
           },
 
+          status: {
+            type: String,
+          },
+
           createdAt: {
             type: Date,
             default: Date.now,
@@ -735,7 +739,12 @@ const edrSchema = new mongoose.Schema({
             default: Date.now,
           },
 
-          createdBy: {
+          completedAt: {
+            type: Date,
+            default: Date.now,
+          },
+
+          addedBy: {
             type: mongoose.Schema.ObjectId,
             ref: 'staff',
           },
@@ -787,7 +796,7 @@ const edrSchema = new mongoose.Schema({
         type: String,
       },
 
-      deliveredTime: {
+      deliveryStartTime: {
         type: Date,
       },
 
