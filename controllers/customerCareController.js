@@ -240,6 +240,11 @@ exports.pendingDischargeEdrs = asyncHandler(async (req, res, next) => {
           },
         ],
       },
+      {
+        path: 'staffId',
+        model: 'staff',
+        select: 'name',
+      },
     ]);
   res.status(200).json({
     success: true,
@@ -309,6 +314,11 @@ exports.completedDischargeEdrs = asyncHandler(async (req, res, next) => {
             },
           },
         ],
+      },
+      {
+        path: 'staffId',
+        model: 'staff',
+        select: 'name',
       },
     ]);
   res.status(200).json({

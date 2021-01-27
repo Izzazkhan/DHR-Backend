@@ -930,7 +930,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       status: 'pending',
       dischargeStatus:
         req.body.dischargeRequest.dischargeSummary.edrCompletionReason,
-      staffId: req.body.dischargeRequest.requester,
+      staffId: req.body.dischargeRequest.dischargeMedication.requester,
       requestedFor: 'Discharge',
       requestedAt: Date.now(),
       costomerCareId: customerCare._id,
