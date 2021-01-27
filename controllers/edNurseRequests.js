@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const EDR = require('../models/EDR/EDR');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
@@ -126,8 +127,8 @@ exports.submitRequest = asyncHandler(async (req, res, next) => {
 
 exports.getHouskeepingRequests = asyncHandler(async (req, res, next) => {
   const HKRequests = await EDN.find({ staffType: 'Housekeeping' })
-    .populate('patientId','name identifier')
-    .populate('staffId','name identifier');
+    .populate('patientId', 'name identifier')
+    .populate('staffId', 'name identifier');
   res.status(200).json({
     success: true,
     data: HKRequests,
@@ -136,8 +137,8 @@ exports.getHouskeepingRequests = asyncHandler(async (req, res, next) => {
 
 exports.getCustomerCareRequests = asyncHandler(async (req, res, next) => {
   const CCRequests = await EDN.find({ staffType: 'Customer Care' })
-    .populate('patientId','name identifier')
-    .populate('staffId','name identifier');
+    .populate('patientId', 'name identifier')
+    .populate('staffId', 'name identifier');
   res.status(200).json({
     success: true,
     data: CCRequests,
@@ -146,10 +147,138 @@ exports.getCustomerCareRequests = asyncHandler(async (req, res, next) => {
 
 exports.getNurseTechnicianRequests = asyncHandler(async (req, res, next) => {
   const NTRequests = await EDN.find({ staffType: 'Nurse Technician' })
-    .populate('patientId','name identifier')
-    .populate('staffId','name identifier');
+    .populate('patientId', 'name identifier')
+    .populate('staffId', 'name identifier');
   res.status(200).json({
     success: true,
     data: NTRequests,
+  });
+});
+
+exports.pendingEDNurseEdrRequest = asyncHandler(async (req, res, next) => {
+  const unwindEdr = await EDR.aggregate([
+    {
+      $project: {
+        _id: 1,
+        edNurseRequest: 1,
+        patientId: 1,
+      },
+    },
+    {
+      $unwind: '$edNurseRequest',
+    },
+    {
+      $match: {
+        'edNurseRequest.status': 'pending',
+        'edNurseRequest.edNurseId': mongoose.Types.ObjectId(req.params.nurseId),
+      },
+    },
+    // {
+    //   $group: {
+    //     _id: { patientId: '$patientId' },
+    //     labRequest: { $push: '$labRequest' },
+    //   },
+    // },
+    // {
+    //   $project: {
+    //     patientId: '$_id',
+    //     _id: 0,
+    //     labRequest: 1,
+    //   },
+    // },
+  ]);
+
+  const request = await EDR.populate(unwindEdr, [
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+      select: 'identifier name',
+    },
+    // {
+    //   path: 'labRequest.serviceId',
+    //   model: 'LaboratoryService',
+    // },
+  ]);
+  res.status(200).json({
+    success: true,
+    data: request,
+  });
+});
+
+exports.completeRequest = asyncHandler(async (req, res, next) => {
+  const edrNotes = await EDR.findOne({ _id: req.body.edrId });
+
+  let request;
+  for (let i = 0; i < edrNotes.edNurseRequest.length; i++) {
+    if (edrNotes.edNurseRequest[i]._id == req.body.requestId) {
+      request = i;
+    }
+  }
+  const updatedRequest = await EDR.findOneAndUpdate(
+    { _id: req.body.edrId },
+    {
+      $set: {
+        [`edNurseRequest.${request}.status`]: 'completed',
+        [`edNurseRequest.${request}.completedAt`]: Date.now(),
+      },
+    },
+    { new: true }
+  )
+    .select('patientId edNurseRequest')
+    .populate('patientId', 'Identifier');
+
+  res.status(200).json({
+    success: true,
+    data: updatedRequest,
+  });
+});
+
+exports.completedEDNurseEdrRequest = asyncHandler(async (req, res, next) => {
+  const unwindEdr = await EDR.aggregate([
+    {
+      $project: {
+        _id: 1,
+        edNurseRequest: 1,
+        patientId: 1,
+      },
+    },
+    {
+      $unwind: '$edNurseRequest',
+    },
+    {
+      $match: {
+        'edNurseRequest.status': 'completed',
+        'edNurseRequest.edNurseId': mongoose.Types.ObjectId(req.params.nurseId),
+      },
+    },
+    // {
+    //   $group: {
+    //     _id: { patientId: '$patientId' },
+    //     labRequest: { $push: '$labRequest' },
+    //   },
+    // },
+    // {
+    //   $project: {
+    //     patientId: '$_id',
+    //     _id: 0,
+    //     labRequest: 1,
+    //   },
+    // },
+  ]);
+
+  const request = await EDR.populate(unwindEdr, [
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+      select: 'identifier name',
+    },
+    // {
+    //   path: 'labRequest.serviceId',
+    //   model: 'LaboratoryService',
+    // },
+  ]);
+  res.status(200).json({
+    success: true,
+    data: request,
   });
 });
