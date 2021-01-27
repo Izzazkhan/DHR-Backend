@@ -6,6 +6,12 @@ const edrSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'patientfhir',
   },
+  generatedFrom: {
+    type: String,
+  },
+  patientInHospital: {
+    type: Boolean,
+  },
   transfer: [
     {
       reason: String,
@@ -595,6 +601,7 @@ const edrSchema = new mongoose.Schema({
       speciality: {
         type: String,
       },
+      completedAt: Date,
     },
   ],
   eouNurseRequest: [
@@ -813,6 +820,14 @@ const edrSchema = new mongoose.Schema({
       },
       requestId: {
         type: String,
+      },
+      assignedTo: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      nurseTechnicianStatus: {
+        type: String,
+        default: 'Not Collected',
       },
       name: {
         type: String,
@@ -1063,8 +1078,26 @@ const edrSchema = new mongoose.Schema({
     type: String,
     default: 'ED',
   },
+  transferOfCare: [
+    {
+      nurseTechnicianId: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      diseaseName: String,
+      fever: String,
+      sugarLevel: String,
+      bloodPressure: String,
+      cbcLevel: String,
+      status: String,
+    },
+  ],
+  nurseTechnicianStatus: {
+    type: String,
+  },
   survey: [
     {
+      requestId: String,
       data: [
         {
           key: String,

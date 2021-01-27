@@ -1,3 +1,4 @@
+const requestNoFormat = require('dateformat');
 // const requestNoFormat = require('dateformat');
 const EDR = require('../models/EDR/EDR');
 const asyncHandler = require('../middleware/async');
@@ -5,6 +6,47 @@ const asyncHandler = require('../middleware/async');
 
 exports.getAdmittedEDRs = asyncHandler(async (req, res, next) => {
   const admittedEdrs = await EDR.find({
+    socialWorkerStatus: 'pending',
+    status: 'Discharged',
+    'dischargeRequest.dischargeSummary.edrCompletionReason': 'admitted',
+  })
+    .select(
+      'patientId chiefComplaint requiredAssistance Room socialWorkerStatus survey'
+    )
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'identifier',
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+        select: 'roomNo',
+      },
+    ]);
+
+  res.status(200).json({
+    success: true,
+    data: admittedEdrs,
+  });
+});
+
+exports.getCompletedAdmittedEDRs = asyncHandler(async (req, res, next) => {
+  const admittedEdrs = await EDR.find({
+    socialWorkerStatus: 'completed',
     status: 'Discharged',
     'dischargeRequest.dischargeSummary.edrCompletionReason': 'admitted',
   })
@@ -44,6 +86,47 @@ exports.getAdmittedEDRs = asyncHandler(async (req, res, next) => {
 
 exports.getDischargedEDRs = asyncHandler(async (req, res, next) => {
   const dischargedEdrs = await EDR.find({
+    socialWorkerStatus: 'pending',
+    status: 'Discharged',
+    'dischargeRequest.dischargeSummary.edrCompletionReason': 'discharged',
+  })
+    .select(
+      'patientId chiefComplaint requiredAssistance Room socialWorkerStatus survey'
+    )
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'identifier',
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+        select: 'roomNo',
+      },
+    ]);
+
+  res.status(200).json({
+    success: true,
+    data: dischargedEdrs,
+  });
+});
+
+exports.getCompletedDischargedEDRs = asyncHandler(async (req, res, next) => {
+  const dischargedEdrs = await EDR.find({
+    socialWorkerStatus: 'completed',
     status: 'Discharged',
     'dischargeRequest.dischargeSummary.edrCompletionReason': 'discharged',
   })
@@ -83,9 +166,49 @@ exports.getDischargedEDRs = asyncHandler(async (req, res, next) => {
 
 exports.getTransferedEDRs = asyncHandler(async (req, res, next) => {
   const transferedEdrs = await EDR.find({
+    socialWorkerStatus: 'pending',
     status: 'Discharged',
-    'dischargeRequest.dischargeSummary.edrCompletionReason':
-      'transferred survey',
+    'dischargeRequest.dischargeSummary.edrCompletionReason': 'transferred',
+  })
+    .select(
+      'patientId chiefComplaint requiredAssistance Room socialWorkerStatus survey'
+    )
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'identifier',
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+        select: 'roomNo',
+      },
+    ]);
+
+  res.status(200).json({
+    success: true,
+    data: transferedEdrs,
+  });
+});
+
+exports.getCompletedTransferedEDRs = asyncHandler(async (req, res, next) => {
+  const transferedEdrs = await EDR.find({
+    socialWorkerStatus: 'completed',
+    status: 'Discharged',
+    'dischargeRequest.dischargeSummary.edrCompletionReason': 'transferred',
   })
     .select(
       'patientId chiefComplaint requiredAssistance Room socialWorkerStatus survey'
@@ -123,6 +246,47 @@ exports.getTransferedEDRs = asyncHandler(async (req, res, next) => {
 
 exports.getDeceasedEDRs = asyncHandler(async (req, res, next) => {
   const deceasedEdrs = await EDR.find({
+    socialWorkerStatus: 'pending',
+    status: 'Discharged',
+    'dischargeRequest.dischargeSummary.edrCompletionReason': 'deceased',
+  })
+    .select(
+      'patientId chiefComplaint requiredAssistance Room socialWorkerStatus survey'
+    )
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'identifier',
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+        select: 'roomNo',
+      },
+    ]);
+
+  res.status(200).json({
+    success: true,
+    data: deceasedEdrs,
+  });
+});
+
+exports.getCompletedDeceasedEDRs = asyncHandler(async (req, res, next) => {
+  const deceasedEdrs = await EDR.find({
+    socialWorkerStatus: 'completed',
     status: 'Discharged',
     'dischargeRequest.dischargeSummary.edrCompletionReason': 'deceased',
   })
@@ -161,7 +325,17 @@ exports.getDeceasedEDRs = asyncHandler(async (req, res, next) => {
 });
 
 exports.addSurvey = asyncHandler(async (req, res, next) => {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const diff =
+    now -
+    start +
+    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
+  const oneDay = 1000 * 60 * 60 * 24;
+  const day = Math.floor(diff / oneDay);
+  const requestId = `CSID${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
   const survey = {
+    requestId,
     data: req.body.object,
     surveyTime: Date.now(),
   };
@@ -170,7 +344,7 @@ exports.addSurvey = asyncHandler(async (req, res, next) => {
     { _id: req.body.edrId },
     { $push: { survey: survey } },
     { new: true }
-  );
+  ).populate('patientId', 'identifier');
 
   await EDR.findByIdAndUpdate(
     { _id: req.body.edrId },

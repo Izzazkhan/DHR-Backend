@@ -49,6 +49,7 @@ const {
   updateNurseTechnicianRequest,
   getDischargedEDR,
   getCompletedEDR,
+  getSenseiPendingEDRs,
 
   getAllPendingLabRequests,
   getAllPendingRadRequests,
@@ -60,6 +61,8 @@ const {
   deliverPharmcayRequest,
 
   getEDRsWithPharmacyRequest,
+  getSenseiPendingEdrByKeyword,
+  getNurseEdrByKeyword,
 } = require('../controllers/edrController');
 
 const router = express.Router();
@@ -68,7 +71,9 @@ router.post('/generateEDR', generateEDR);
 router.get('/getSingleEdr/:id', getEDRById);
 router.get('/getEDRs', getEDRs);
 router.get('/getPendingEDRs', getPendingEDRs);
+router.get('/getSenseiPendingEDRs', getSenseiPendingEDRs);
 router.get('/searchEdrPatient/:keyword', getEdrPatientByKeyword);
+router.get('/searchPendingSenseiEdr/:keyword', getSenseiPendingEdrByKeyword);
 router.get('/searchPendingEdr/:keyword', getPendingEdrByKeyword);
 router.put('/addDoctorNotes', upload.single('file'), addDoctorNotes);
 router.put('/updateDoctorNotes', upload.single('file'), updateDoctorNotes);
@@ -133,6 +138,8 @@ router.get(
   '/getDischargedEDRFromPatient/:keyword',
   getDischargedEDRFromPatient
 );
+
+router.get('/getNurseEdrByKeyword/:keyword', getNurseEdrByKeyword);
 
 router.get(
   '/getEDRFromPatientIdForDischarge/:_id',

@@ -80,6 +80,7 @@ exports.getCCPatients = asyncHandler(async (req, res, next) => {
   const patients = await EDR.find({
     status: 'pending',
     chiefComplaint: { $ne: [] },
+    patientInHospital: true,
   }).populate([
     {
       path: 'chiefComplaint.chiefComplaintId',
@@ -247,7 +248,7 @@ exports.getPatientByRoom = asyncHandler(async (req, res, next) => {
   })
     .populate('patientId', 'identifier name')
     .select('patientId');
-  console.log(patient);
+  // console.log(patient);
   res.status(200).json({
     success: true,
     data: patient,

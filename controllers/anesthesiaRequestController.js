@@ -107,7 +107,7 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateLab = asyncHandler(async (req, res, next) => {
-  console.log(req.body);
+  // console.log(req.body);
   const lab = await EDR.findOne({ _id: req.body.edrId });
   let note;
   for (let i = 0; i < lab.labRequest.length; i++) {
@@ -374,7 +374,7 @@ exports.updateRad = asyncHandler(async (req, res, next) => {
       note = i;
     }
   }
-  console.log('note', note);
+  // console.log('note', note);
   const updatedrad = await EDR.findOneAndUpdate(
     { _id: req.body.edrId },
     {
@@ -913,7 +913,7 @@ exports.getAllPendingAnesthesiaRequests = asyncHandler(async (req, res) => {
         edr[i].anesthesiologistNote[j].status !== 'complete' &&
         edr[i].anesthesiologistNote[j].anesthesiologist._id == req.params.id
       ) {
-        console.log(edr[i].anesthesiologistNote[j].anesthesiologist._id);
+        // console.log(edr[i].anesthesiologistNote[j].anesthesiologist._id);
         let obj = JSON.parse(JSON.stringify(edr[i]));
         obj.anesthesiologistNote = edr[i].anesthesiologistNote[j];
         response.push(obj);
@@ -925,11 +925,12 @@ exports.getAllPendingAnesthesiaRequests = asyncHandler(async (req, res) => {
 });
 
 exports.getAllCompletedAnesthesiaRequests = asyncHandler(async (req, res) => {
-  const edr = await EDR.find(
-  //   {
-  //   status: { $eq: 'pending' },
-  // }
-  )
+  const edr = await EDR
+    .find
+    //   {
+    //   status: { $eq: 'pending' },
+    // }
+    ()
     // .select({
     //   patientId: 1,
     //   anesthesiologistNote: 1,
@@ -954,7 +955,7 @@ exports.getAllCompletedAnesthesiaRequests = asyncHandler(async (req, res) => {
         edr[i].anesthesiologistNote[j].status === 'complete' &&
         edr[i].anesthesiologistNote[j].anesthesiologist._id == req.params.id
       ) {
-        console.log(edr[i].anesthesiologistNote[j].anesthesiologist._id);
+        // console.log(edr[i].anesthesiologistNote[j].anesthesiologist._id);
         let obj = JSON.parse(JSON.stringify(edr[i]));
         obj.anesthesiologistNote = edr[i].anesthesiologistNote[j];
         response.push(obj);
@@ -975,7 +976,7 @@ exports.addPharmcayRequest = asyncHandler(async (req, res, next) => {
   const day = Math.floor(diff / oneDay);
   const pharmacyRequestNo = `PHR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
 
-  console.log(req.body);
+  // console.log(req.body);
   const pharmacyObj = {
     ...req.body,
     pharmacyRequestNo,

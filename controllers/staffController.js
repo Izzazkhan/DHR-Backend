@@ -454,10 +454,39 @@ exports.getNurseTechnician = asyncHandler(async (req, res, next) => {
 });
 
 exports.getAllHouseKeepers = asyncHandler(async (req, res, next) => {
-  const houseKeepers = await Staff.find({ staffType: 'House Keeping' });
+  const houseKeepers = await Staff.find({
+    staffType: 'House Keeping',
+    disabled: false,
+    availability: true,
+  }).select('identifier name');
   res.status(200).json({
     success: true,
     data: houseKeepers,
+  });
+});
+
+exports.getCustomerCares = asyncHandler(async (req, res, next) => {
+  const houseKeepers = await Staff.find({
+    staffType: 'Customer Care',
+    disabled: false,
+    availability: true,
+  }).select('identifier name');
+  res.status(200).json({
+    success: true,
+    data: houseKeepers,
+  });
+});
+
+exports.getNurseTechnicians = asyncHandler(async (req, res, next) => {
+  const nurses = await Staff.find({
+    staffType: 'Nurses',
+    subType: 'Nurse Technician',
+    disabled: false,
+    availability: true,
+  }).select('identifier name');
+  res.status(200).json({
+    success: true,
+    data: nurses,
   });
 });
 

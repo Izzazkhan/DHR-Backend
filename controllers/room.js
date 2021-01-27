@@ -95,7 +95,7 @@ exports.enableRoom = asyncHandler(async (req, res) => {
 });
 
 exports.assignRoom = asyncHandler(async (req, res, next) => {
-  console.log(req.body);
+  // console.log(req.body);
 
   const room = {
     roomId: req.body.roomId,

@@ -149,7 +149,7 @@ exports.getCSPatients = asyncHandler(async (req, res, next) => {
   const csPatients = await EDR.find({
     status: 'pending',
     careStream: { $eq: [] },
-    room: { $ne: [] },
+    // room: { $ne: [] },
   }).populate('patientId');
 
   res.status(200).json({

@@ -1,12 +1,15 @@
 const requestNoFormat = require('dateformat');
+// const moment = require('moment');
 const EDR = require('../models/EDR/EDR');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const Patient = require('../models/patient/patient');
 const HK = require('../models/houseKeepingRequest');
 const Staff = require('../models/staffFhir/staff');
+const CCRequest = require('../models/customerCareRequest');
 
 exports.generateEDR = asyncHandler(async (req, res, next) => {
+  // console.log(req.body);
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
   const diff =
@@ -23,8 +26,7 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
       versionNo: patient.identifier[0].value + '-' + requestNo + '-' + '1',
     },
   ];
-  // console.log(patient);
-  // console.log(patient.paymentMethod[0].payment);
+
   const paymentMethod = patient.paymentMethod[0].payment;
   const {
     patientId,
@@ -41,6 +43,8 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
     insurerId,
     // dcdForm,
     claimed,
+    generatedFrom,
+    patientInHospital,
   } = req.body;
 
   newEDR = await EDR.create({
@@ -59,8 +63,10 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
     insurerId,
     // paymentMethod,
     claimed,
+    generatedFrom,
+    patientInHospital,
   });
-  // console.log(newEDR);
+
   await EDR.findOneAndUpdate(
     { _id: newEDR._id },
     {
@@ -94,7 +100,7 @@ exports.getEDRById = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse('No Edr found for this patient', 404));
   }
   // const latestForm = edr.dcdForm.length - 1;
-  console.log(edr);
+  // console.log(edr);
   res.status(200).json({
     success: true,
     data: edr,
@@ -103,7 +109,7 @@ exports.getEDRById = asyncHandler(async (req, res, next) => {
 
 exports.getEdrsByPatient = asyncHandler(async (req, res, next) => {
   const edrs = await EDR.find({ patientId: req.params.id });
-  console.log(edrs.length);
+  // console.log(edrs.length);
 });
 
 exports.getEDRs = asyncHandler(async (req, res, next) => {
@@ -122,6 +128,24 @@ exports.getPendingEDRs = asyncHandler(async (req, res, next) => {
     .populate('patientId')
     .populate('chiefComplaint.chiefComplaintId', 'name')
     .select('patientId dcdFormStatus status labRequest radiologyRequest');
+  res.status(201).json({
+    success: true,
+    count: Edrs.length,
+    data: Edrs,
+  });
+});
+
+exports.getSenseiPendingEDRs = asyncHandler(async (req, res, next) => {
+  const Edrs = await EDR.find({
+    status: 'pending',
+    generatedFrom: 'Sensei',
+    patientInHospital: true,
+  })
+    .populate('patientId')
+    .populate('chiefComplaint.chiefComplaintId', 'name')
+    .select(
+      'patientId dcdFormStatus status labRequest radiologyRequest generatedFrom patientInHospital'
+    );
   res.status(201).json({
     success: true,
     count: Edrs.length,
@@ -173,6 +197,51 @@ exports.getEdrPatientByKeyword = asyncHandler(async (req, res, next) => {
 exports.getPendingEdrByKeyword = asyncHandler(async (req, res, next) => {
   const arr = [];
   const patients = await EDR.find({ status: 'pending' }).populate('patientId');
+
+  for (let i = 0; i < patients.length; i++) {
+    const fullName =
+      patients[i].patientId.name[0].given[0] +
+      ' ' +
+      patients[i].patientId.name[0].family;
+    if (
+      (patients[i].patientId.name[0].given[0] &&
+        patients[i].patientId.name[0].given[0]
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (patients[i].patientId.name[0].family &&
+        patients[i].patientId.name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (patients[i].patientId.identifier[0].value &&
+        patients[i].patientId.identifier[0].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
+      (patients[i].patientId.telecom[1].value &&
+        patients[i].patientId.telecom[1].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (patients[i].patientId.nationalID &&
+        patients[i].patientId.nationalID
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase()))
+    ) {
+      arr.push(patients[i]);
+    }
+  }
+  res.status(200).json({
+    success: true,
+    data: arr,
+  });
+});
+
+exports.getSenseiPendingEdrByKeyword = asyncHandler(async (req, res, next) => {
+  const arr = [];
+  const patients = await EDR.find({
+    status: 'pending',
+    generatedFrom: 'Sensei',
+    patientInHospital: true,
+  }).populate('patientId');
 
   for (let i = 0; i < patients.length; i++) {
     const fullName =
@@ -278,12 +347,19 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
     (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
   const oneDay = 1000 * 60 * 60 * 24;
   const day = Math.floor(diff / oneDay);
-  // const edrCheck = await EDR.find({ _id: req.body.edrId }).populate(
-  //   'patientId labRequest.serviceId'
-  // );
-  // const latestEdr = edrCheck.length - 1;
-  // const latestLabRequest = edrCheck[0].labRequest.length - 1;
-  // const updatedRequest = latestLabRequest + 2;
+
+  // Sample Collection Task
+
+  const nurses = await Staff.find({
+    staffType: 'Nurses',
+    subType: 'Nurse Technician',
+    disabled: false,
+    availability: true,
+  }).select('identifier name');
+
+  const random = Math.floor(Math.random() * (nurses.length - 1));
+  const nurseTechnician = nurses[random];
+  const nurseTechnicianId = nurseTechnician._id;
 
   const requestId = `LR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
 
@@ -297,6 +373,7 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
     priority: req.body.priority,
     requestedBy: req.body.staffId,
     requestedAt: Date.now(),
+    assignedTo: nurseTechnicianId,
     reason: req.body.reason,
     notes: req.body.notes,
   };
@@ -313,7 +390,7 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateLab = asyncHandler(async (req, res, next) => {
-  console.log(req.body);
+  // console.log(req.body);
   const lab = await EDR.findOne({ _id: req.body.edrId });
   let note;
   for (let i = 0; i < lab.labRequest.length; i++) {
@@ -580,7 +657,7 @@ exports.updateRad = asyncHandler(async (req, res, next) => {
       note = i;
     }
   }
-  console.log('note', note);
+  // console.log('note', note);
   const updatedrad = await EDR.findOneAndUpdate(
     { _id: req.body.edrId },
     {
@@ -752,6 +829,7 @@ exports.getEDRFromPatientIdForDischarge = asyncHandler(async (req, res) => {
 });
 
 exports.updateEdr = asyncHandler(async (req, res, next) => {
+  console.log(req.body);
   const { _id, requestType } = req.body;
   let edr = await EDR.findById(_id).populate([
     {
@@ -831,6 +909,34 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     assignedTime: Date.now(),
   });
 
+  // Customer Care Request
+  if (
+    req.body.dischargeRequest.dischargeSummary.edrCompletionRequirement ===
+    'withCare'
+  ) {
+    const CCrequestNo = 'DDID' + day + requestNoFormat(new Date(), 'yyHHMMss');
+    const customerCares = await Staff.find({
+      staffType: 'Customer Care',
+      disabled: false,
+      // availability: true,
+    }).select('identifier name');
+
+    const random = Math.floor(Math.random() * (customerCares.length - 1));
+    const customerCare = customerCares[random];
+
+    const request = await CCRequest.create({
+      requestNo: CCrequestNo,
+      edrId: _id,
+      status: 'pending',
+      dischargeStatus:
+        req.body.dischargeRequest.dischargeSummary.edrCompletionReason,
+      staffId: req.body.dischargeRequest.dischargeMedication.requester,
+      requestedFor: 'Discharge',
+      requestedAt: Date.now(),
+      costomerCareId: customerCare._id,
+    });
+    console.log(request);
+  }
   res.status(200).json({ success: true, data: edr });
 });
 
@@ -1385,7 +1491,7 @@ exports.addPharmcayRequest = asyncHandler(async (req, res, next) => {
   const day = Math.floor(diff / oneDay);
   const pharmacyRequestNo = `PHR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
 
-  console.log(req.body);
+  // console.log(req.body);
   const pharmacyObj = {
     ...req.body,
     pharmacyRequestNo,
@@ -1476,4 +1582,57 @@ exports.getEDRsWithPharmacyRequest = asyncHandler(async (req, res) => {
       doctorNotes: 1,
     });
   res.status(200).json({ success: true, data: edr });
+});
+// Search edr where edr status is not completed
+exports.getNurseEdrByKeyword = asyncHandler(async (req, res, next) => {
+  const arr = [];
+  const patients = await EDR.find({ status: { $ne: 'completed' } })
+    .select('patientId')
+    .populate('patientId', 'name identifier telecom nationalID gender age');
+
+  for (let i = 0; i < patients.length; i++) {
+    const fullName =
+      patients[i].patientId.name[0].given[0] +
+      ' ' +
+      patients[i].patientId.name[0].family;
+    if (
+      (patients[i].patientId.name[0].given[0] &&
+        patients[i].patientId.name[0].given[0]
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (patients[i].patientId.name[0].family &&
+        patients[i].patientId.name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (patients[i].patientId.identifier[0].value &&
+        patients[i].patientId.identifier[0].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
+      (patients[i].patientId.telecom[1].value &&
+        patients[i].patientId.telecom[1].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (patients[i].patientId.nationalID &&
+        patients[i].patientId.nationalID
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase()))
+    ) {
+      arr.push(patients[i]);
+      break;
+    }
+  }
+  // const patientArr = [];
+  // for (let i = 0; i < patients.length; i++) {
+  //   if (patients[i]._id == arr[arr.length - 1]._id) {
+  //     patientArr.push(patients[i]);
+  //     break;
+  //   }
+  // }
+  // console.log(patientArr);
+
+  res.status(200).json({
+    success: true,
+    data: arr,
+  });
 });

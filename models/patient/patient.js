@@ -87,13 +87,13 @@ const patientSchema = new mongoose.Schema({
       // role: {
       //   type: String,
       // },
-      senderID: {
+      staffId: {
         type: mongoose.Schema.ObjectId,
         ref: 'staff',
       },
       processName: {
         type: String,
-        enum: ['registration', 'sensie', 'paramedics'],
+        // enum: ['registration', 'sensie', 'paramedics'],
       },
     },
   ],
