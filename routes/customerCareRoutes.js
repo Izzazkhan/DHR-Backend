@@ -9,6 +9,7 @@ const {
   pendingEdToEouTransfers,
   completeTransfer,
   completedEdToEouTransfers,
+  pendingDischargeEdrs,
 } = require('../controllers/customerCareController');
 
 router.get('/getAllCustomerCares', getAllCustomerCares);
@@ -17,5 +18,6 @@ router.put('/assignCustomerCare', assignCC);
 router.get('/completeTransfer/:transferId', completeTransfer);
 router.get('/pendingEouTransfer/:ccId', pendingEdToEouTransfers);
 router.get('/completedEouTransfer/:ccId', completedEdToEouTransfers);
+router.get('/pendingDischargeEdrs/:ccId', pendingDischargeEdrs);
 
 module.exports = router;
