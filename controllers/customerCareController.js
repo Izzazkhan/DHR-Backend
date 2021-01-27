@@ -3,7 +3,7 @@ const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const EDR = require('../models/EDR/EDR');
 const Transfer = require('../models/patientTransferEDEOU/patientTransferEDEOU');
-const { populate } = require('../models/EDR/EDR');
+const CCRequest = require('../models/customerCareRequest');
 
 exports.getAllCustomerCares = asyncHandler(async (req, res, next) => {
   const customerCares = await Staff.find({
@@ -202,5 +202,47 @@ exports.completedEdToEouTransfers = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: transfers,
+  });
+});
+
+exports.pendingDischargeEdrs = asyncHandler(async (req, res, next) => {
+  const discharge = await CCRequest.find({
+    requestedFor: 'Discharge',
+    status: 'pending',
+    costomerCareId: req.params.ccId,
+  })
+    // .select('edrId status ')
+    .populate([
+      {
+        path: 'edrId',
+        model: 'EDR',
+        select: 'patientId room chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'patientId',
+            model: 'patientfhir',
+            select: 'identifier ',
+          },
+          {
+            path: 'room.roomId',
+            model: 'room',
+            select: 'roomNo ',
+          },
+          {
+            path: 'chiefComplaint.chiefComplaintId',
+            model: 'chiefComplaint',
+            select: 'productionArea.productionAreaId',
+            populate: {
+              path: 'productionArea.productionAreaId',
+              model: 'productionArea',
+              select: 'paName',
+            },
+          },
+        ],
+      },
+    ]);
+  res.status(200).json({
+    success: true,
+    data: discharge,
   });
 });

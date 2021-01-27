@@ -6,6 +6,7 @@ const ErrorResponse = require('../utils/errorResponse');
 const Patient = require('../models/patient/patient');
 const HK = require('../models/houseKeepingRequest');
 const Staff = require('../models/staffFhir/staff');
+const CCRequest = require('../models/customerCareRequest');
 
 exports.generateEDR = asyncHandler(async (req, res, next) => {
   // console.log(req.body);
@@ -356,7 +357,7 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
     availability: true,
   }).select('identifier name');
 
-  const random = Math.floor(Math.random() * 4);
+  const random = Math.floor(Math.random() * (nurses.length - 1));
   const nurseTechnician = nurses[random];
   const nurseTechnicianId = nurseTechnician._id;
 
@@ -828,6 +829,7 @@ exports.getEDRFromPatientIdForDischarge = asyncHandler(async (req, res) => {
 });
 
 exports.updateEdr = asyncHandler(async (req, res, next) => {
+  console.log(req.body);
   const { _id, requestType } = req.body;
   let edr = await EDR.findById(_id).populate([
     {
@@ -907,6 +909,34 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     assignedTime: Date.now(),
   });
 
+  // Customer Care Request
+  if (
+    req.body.dischargeRequest.dischargeSummary.edrCompletionRequirement ===
+    'withCare'
+  ) {
+    const CCrequestNo = 'DDID' + day + requestNoFormat(new Date(), 'yyHHMMss');
+    const customerCares = await Staff.find({
+      staffType: 'Customer Care',
+      disabled: false,
+      // availability: true,
+    }).select('identifier name');
+
+    const random = Math.floor(Math.random() * (customerCares.length - 1));
+    const customerCare = customerCares[random];
+
+    const request = await CCRequest.create({
+      requestNo: CCrequestNo,
+      edrId: _id,
+      status: 'pending',
+      dischargeStatus:
+        req.body.dischargeRequest.dischargeSummary.edrCompletionReason,
+      staffId: req.body.dischargeRequest.requester,
+      requestedFor: 'Discharge',
+      requestedAt: Date.now(),
+      costomerCareId: customerCare._id,
+    });
+    console.log(request);
+  }
   res.status(200).json({ success: true, data: edr });
 });
 
@@ -1152,7 +1182,6 @@ exports.updateEDNurseRequest = asyncHandler(async (req, res, next) => {
         [`edNurseRequest.${note}.edNurseId`]: parsed.edNurse,
         [`edNurseRequest.${note}.speciality`]: parsed.speciality,
         [`edNurseRequest.${note}.notes`]: parsed.notes,
-        [`edNurseRequest.${note}.status`]: parsed.status,
         [`edNurseRequest.${note}.voiceNotes`]: req.file
           ? req.file.path
           : parsed.voiceNotes,
