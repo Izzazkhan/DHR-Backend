@@ -44,6 +44,8 @@ const chatRouter = require('./routes/chatRoutes');
 const subscriber = require('./routes/subscriber');
 const anesthesiaRequestRoutes = require('./routes/anesthesiaRequestRoutes');
 const consultationNotesRoutes = require('./routes/consultationNotesRoutes');
+const reconciliationNotesRoutes = require('./routes/reconciliationNotesRoutes');
+
 
 const app = express();
 
@@ -94,6 +96,8 @@ app.use('/api/houseKeeper', houseKeeperRequest);
 app.use('/api/socialWorker', socialWorker);
 app.use('/api/anesthesiarequest', anesthesiaRequestRoutes);
 app.use('/api/consultationNotes', consultationNotesRoutes);
+app.use('/api/reconciliationNotes', reconciliationNotesRoutes);
+
 
 app.use(errorHandler);
 

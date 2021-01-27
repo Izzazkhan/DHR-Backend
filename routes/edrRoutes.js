@@ -57,6 +57,9 @@ const {
 
   addPharmcayRequest,
   updatePharmcayRequest,
+  deliverPharmcayRequest,
+
+  getEDRsWithPharmacyRequest,
 } = require('../controllers/edrController');
 
 const router = express.Router();
@@ -147,5 +150,8 @@ router.get('/getAllCompletedLabRequests', getAllCompletedLabRequests);
 
 router.put('/addPharmacyRequest', addPharmcayRequest);
 router.put('/updatePharmacyRequest', updatePharmcayRequest);
+router.put('/deliverPharmcayRequest', deliverPharmcayRequest);
+
+router.get('/getEDRsWithPharmacyRequest', getEDRsWithPharmacyRequest);
 
 module.exports = router;
