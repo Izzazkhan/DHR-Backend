@@ -169,8 +169,14 @@ exports.pendingEDNurseEdrRequest = asyncHandler(async (req, res, next) => {
     },
     {
       $match: {
-        'edNurseRequest.status': 'pending',
-        'edNurseRequest.edNurseId': mongoose.Types.ObjectId(req.params.nurseId),
+        $and: [
+          { 'edNurseRequest.status': 'pending' },
+          {
+            'edNurseRequest.edNurseId': mongoose.Types.ObjectId(
+              req.params.nurseId
+            ),
+          },
+        ],
       },
     },
     // {
@@ -247,10 +253,17 @@ exports.completedEDNurseEdrRequest = asyncHandler(async (req, res, next) => {
     },
     {
       $match: {
-        'edNurseRequest.status': 'completed',
-        'edNurseRequest.edNurseId': mongoose.Types.ObjectId(req.params.nurseId),
+        $and: [
+          { 'edNurseRequest.status': 'completed' },
+          {
+            'edNurseRequest.edNurseId': mongoose.Types.ObjectId(
+              req.params.nurseId
+            ),
+          },
+        ],
       },
     },
+
     // {
     //   $group: {
     //     _id: { patientId: '$patientId' },
