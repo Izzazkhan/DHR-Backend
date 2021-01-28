@@ -58,6 +58,9 @@ const {
 
   addPharmcayRequest,
   updatePharmcayRequest,
+  deliverPharmcayRequest,
+
+  getEDRsWithPharmacyRequest,
   getSenseiPendingEdrByKeyword,
   getNurseEdrByKeyword,
 } = require('../controllers/edrController');
@@ -154,5 +157,8 @@ router.get('/getAllCompletedLabRequests', getAllCompletedLabRequests);
 
 router.put('/addPharmacyRequest', addPharmcayRequest);
 router.put('/updatePharmacyRequest', updatePharmcayRequest);
+router.put('/deliverPharmcayRequest', deliverPharmcayRequest);
+
+router.get('/getEDRsWithPharmacyRequest', getEDRsWithPharmacyRequest);
 
 module.exports = router;

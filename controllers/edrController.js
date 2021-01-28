@@ -1512,16 +1512,6 @@ exports.addPharmcayRequest = asyncHandler(async (req, res, next) => {
 });
 
 exports.updatePharmcayRequest = asyncHandler(async (req, res, next) => {
-  // console.log(req.body);
-  // const pharmacyObj = {
-  //   ...,
-  // };
-
-  //   Person.update({'items.id': 2}, {'$set': {
-  //     'items.$.name': 'updated item2',
-  //     'items.$.value': 'two updated'
-  // }},
-
   const addedNote = await EDR.findOneAndUpdate(
     { _id: req.body.edrId, 'pharmacyRequest._id': req.body._id },
     {
@@ -1544,6 +1534,55 @@ exports.updatePharmcayRequest = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.deliverPharmcayRequest = asyncHandler(async (req, res, next) => {
+  const addedNote = await EDR.findOneAndUpdate(
+    { _id: req.body.edrId, 'pharmacyRequest._id': req.body._id },
+    {
+      $set: {
+        'pharmacyRequest.$.status': req.body.status,
+        'pharmacyRequest.$.secondStatus': req.body.secondStatus,
+        'pharmacyRequest.$.updatedAt': new Date().toISOString(),
+        'pharmacyRequest.$.deliveryStartTime': req.body.deliveryStartTime,
+        'pharmacyRequest.$.pharmacist': req.body.pharmacist,
+      },
+    },
+    {
+      new: true,
+    }
+  );
+
+  res.status(200).json({
+    success: true,
+    data: addedNote,
+  });
+});
+
+exports.getEDRsWithPharmacyRequest = asyncHandler(async (req, res) => {
+  const edr = await EDR.find({
+    status: { $eq: 'pending' },
+    pharmacyRequest: { $gt: [] },
+  })
+    .populate('patientId')
+    .populate('doctorNotes.addedBy')
+    .populate('pharmacyRequest.item.itemId')
+    .populate('pharmacyRequest.requestedBy')
+    .populate('pharmacyRequest.reconciliationNotes.addedBy')
+    .populate('chiefComplaint.chiefComplaintId')
+    .populate({
+      path: 'chiefComplaint.chiefComplaintId',
+      populate: {
+        path: 'productionArea.productionAreaId',
+      },
+    })
+    .populate('room.roomId')
+    .select({
+      patientId: 1,
+      pharmacyRequest: 1,
+      chiefComplaint: 1,
+      doctorNotes: 1,
+    });
+  res.status(200).json({ success: true, data: edr });
+});
 // Search edr where edr status is not completed
 exports.getNurseEdrByKeyword = asyncHandler(async (req, res, next) => {
   const arr = [];

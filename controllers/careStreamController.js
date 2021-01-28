@@ -419,6 +419,10 @@ exports.getEDRswithCS = asyncHandler(async (req, res, next) => {
       path: 'anesthesiologistNote.addedBy',
       model: 'staff',
     },
+    {
+      path: 'pharmacyRequest.reconciliationNotes.addedBy',
+      model: 'staff',
+    },
   ]);
 
   res.status(200).json({
