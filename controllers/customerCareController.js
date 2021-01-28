@@ -326,3 +326,70 @@ exports.completedDischargeEdrs = asyncHandler(async (req, res, next) => {
     data: discharge,
   });
 });
+
+exports.getPendingSurveyEdrs = asyncHandler(async (req, res, next) => {
+  const edrs = await EDR.find({
+    status: 'pending',
+    survey: { $eq: [] },
+  })
+    .populate([
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'identifier name ',
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+        select: 'roomNo ',
+      },
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'productionArea.productionAreaId',
+        populate: {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      },
+    ])
+    .select('patientId room chiefComplaint');
+
+  res.status(200).json({
+    success: true,
+    data: edrs,
+  });
+});
+
+exports.getCompletedSurveyEdrs = asyncHandler(async (req, res, next) => {
+  const edrs = await EDR.find({ status: 'pending', survey: { $ne: [] } })
+    .populate([
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'identifier name ',
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+        select: 'roomNo ',
+      },
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'productionArea.productionAreaId',
+        populate: {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      },
+    ])
+    .select('patientId room chiefComplaint survey');
+
+  res.status(200).json({
+    success: true,
+    data: edrs,
+  });
+});

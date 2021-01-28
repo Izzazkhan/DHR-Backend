@@ -338,6 +338,7 @@ exports.addSurvey = asyncHandler(async (req, res, next) => {
     requestId,
     data: req.body.object,
     surveyTime: Date.now(),
+    surveyBy: req.body.staffId,
   };
 
   const surveyEdr = await EDR.findByIdAndUpdate(

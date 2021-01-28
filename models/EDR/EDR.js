@@ -1106,6 +1106,10 @@ const edrSchema = new mongoose.Schema({
         },
       ],
       surveyTime: Date,
+      surveyBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
     },
   ],
 });
