@@ -325,6 +325,7 @@ exports.getCompletedDeceasedEDRs = asyncHandler(async (req, res, next) => {
 });
 
 exports.addSurvey = asyncHandler(async (req, res, next) => {
+  // console.log(req.body);
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
   const diff =
