@@ -110,11 +110,11 @@ exports.getRad = asyncHandler(async (req, res, next) => {
 });
 
 exports.submitRequest = asyncHandler(async (req, res, next) => {
-  const { patientId, staffId, asignedBy, staffType, reason } = req.body;
+  const { patientId, staffId, assignedBy, staffType, reason } = req.body;
   const request = await EDN.create({
     patientId,
     staffId,
-    asignedBy,
+    assignedBy,
     staffType,
     reason,
   });

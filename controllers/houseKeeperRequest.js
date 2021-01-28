@@ -3,6 +3,7 @@ const HK = require('../models/houseKeepingRequest');
 const asyncHandler = require('../middleware/async');
 const Room = require('../models/room');
 
+// Imaging Technician Request
 exports.pendingRadHouseKeeperRequests = asyncHandler(async (req, res, next) => {
   const HKRequests = await HK.find({
     status: 'pending',
@@ -73,7 +74,7 @@ exports.updateStatus = asyncHandler(async (req, res, next) => {
   const updatedStatus = await HK.findOneAndUpdate(
     { _id: req.body.requestId },
     {
-      $set: { status: 'completed', task: req.body.task, updateAt: Date.now() },
+      $set: { status: 'completed', task: req.body.task, updatedAt: Date.now() },
     },
     { new: true }
   );
@@ -84,11 +85,12 @@ exports.updateStatus = asyncHandler(async (req, res, next) => {
   });
 });
 
+// Sensei Requests
 exports.updateSenseiStatus = asyncHandler(async (req, res, next) => {
   const updatedStatus = await HK.findOneAndUpdate(
     { _id: req.body.requestId },
     {
-      $set: { status: 'completed', task: req.body.task, updateAt: Date.now() },
+      $set: { status: 'completed', task: req.body.task, updatedAt: Date.now() },
     },
     { new: true }
   );
@@ -171,3 +173,83 @@ exports.comletedSenseiHouseKeeperRequests = asyncHandler(
     });
   }
 );
+
+// ED Nurse Requests
+exports.pendingEDNurseHKRequests = asyncHandler(async (req, res, next) => {
+  const HKRequests = await HK.find({
+    status: 'pending',
+    requestedBy: 'ED Nurse',
+  }).populate([
+    {
+      path: 'productionAreaId',
+      model: 'productionArea',
+      select: 'paName',
+    },
+    {
+      path: 'assignedBy',
+      model: 'staff',
+      select: 'name',
+    },
+    {
+      path: 'houseKeeperId',
+      model: 'staff',
+      select: 'name',
+    },
+    {
+      path: 'roomId',
+      model: 'room',
+      select: 'roomNo',
+    },
+  ]);
+  res.status(200).json({
+    success: true,
+    data: HKRequests,
+  });
+});
+
+exports.updateEDNurseStatus = asyncHandler(async (req, res, next) => {
+  const updatedStatus = await HK.findOneAndUpdate(
+    { _id: req.body.requestId },
+    {
+      $set: { status: 'completed', task: req.body.task, updatedAt: Date.now() },
+    },
+    { new: true }
+  );
+
+  res.status(200).json({
+    success: true,
+    data: updatedStatus,
+  });
+});
+
+exports.completedEDNurseHKRequests = asyncHandler(async (req, res, next) => {
+  const HKRequests = await HK.find({
+    status: 'completed',
+    requestedBy: 'ED Nurse',
+  }).populate([
+    {
+      path: 'productionAreaId',
+      model: 'productionArea',
+      select: 'paName',
+    },
+    {
+      path: 'assignedBy',
+      model: 'staff',
+      select: 'name',
+    },
+    {
+      path: 'houseKeeperId',
+      model: 'staff',
+      select: 'name',
+    },
+    {
+      path: 'roomId',
+      model: 'room',
+      select: 'roomNo',
+    },
+  ]);
+  res.status(200).json({
+    success: true,
+    data: HKRequests,
+  });
+});
