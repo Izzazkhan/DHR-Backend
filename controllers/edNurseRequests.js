@@ -148,8 +148,8 @@ exports.getPharmacy = asyncHandler(async (req, res, next) => {
       select: 'identifier name createdAt weight age gender',
     },
     {
-      path: 'pharmacyRequest.serviceId',
-      model: 'pharmacyRequest',
+      path: 'pharmacyRequest.item.itemId',
+      model: 'Item',
     },
   ]);
   res.status(200).json({
