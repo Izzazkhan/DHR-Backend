@@ -414,7 +414,7 @@ exports.sendEmail = asyncHandler(async (req, res, next) => {
     if (err) {
       console.log(err);
       res.status(500).json({
-        success: true,
+        success: false,
         data: 'Error In Sending Email,Please Try Again',
       });
     } else {
