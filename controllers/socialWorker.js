@@ -4,7 +4,7 @@ const nodemailer = require('nodemailer');
 const EDR = require('../models/EDR/EDR');
 const Staff = require('../models/staffFhir/staff');
 const asyncHandler = require('../middleware/async');
-// const ErrorResponse = require('../utils/errorResponse');
+const ErrorResponse = require('../utils/errorResponse');
 
 exports.getAdmittedEDRs = asyncHandler(async (req, res, next) => {
   const admittedEdrs = await EDR.find({
@@ -413,8 +413,16 @@ exports.sendEmail = asyncHandler(async (req, res, next) => {
   transporter.sendMail(mailOptions, (err, info) => {
     if (err) {
       console.log(err);
+      res.status(500).json({
+        success: true,
+        data: 'Error In Sending Email,Please Try Again',
+      });
     } else {
       console.log(`Emial Sent : ${info.response}`);
+      res.status(200).json({
+        success: true,
+        data: `Email Sent Successfullly to ${reciever}`,
+      });
     }
   });
 });

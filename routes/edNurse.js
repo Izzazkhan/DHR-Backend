@@ -5,6 +5,7 @@ const router = express.Router();
 const {
   getLab,
   getRad,
+  getPharmacy,
   submitRequest,
   getHouskeepingRequests,
   getCustomerCareRequests,
@@ -16,6 +17,7 @@ const {
 
 router.get('/getLab', getLab);
 router.get('/getRad', getRad);
+router.get('/getPharmacy', getPharmacy);
 router.get('/getHKRequests', getHouskeepingRequests);
 router.get('/getCCRequests', getCustomerCareRequests);
 router.get('/getNTRequests', getNurseTechnicianRequests);
