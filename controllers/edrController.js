@@ -113,18 +113,40 @@ exports.getEdrsByPatient = asyncHandler(async (req, res, next) => {
 });
 
 exports.getEDRs = asyncHandler(async (req, res, next) => {
-  const Edrs = await EDR.find()
+  const Edrs = await EDR.find({ patientInHospital: true })
     .populate('patientId')
     .populate('chiefComplaint.chiefComplaintId', 'name')
     .select('patientId dcdFormStatus status labRequest radiologyRequest');
-  res.status(201).json({
-    success: true,
-    count: Edrs.length,
-    data: Edrs,
-  });
+  // res.status(201).json({
+  //   success: true,
+  //   count: Edrs.length,
+  //   data: Edrs,
+  // });
+
+  let currentTime = new Date();
+  // console.log(currentTime);
+  currentTime = currentTime.toISOString().split('T')[1];
+  // currentTime = currentTime.split('T')[1];
+  console.log(currentTime);
+  const nurses = await Staff.find({
+    staffType: 'Nurses',
+    subType: 'Nurse Technician',
+    // disabled: false,
+    // availability: true,
+  }).select('identifier name shiftStartTime shiftEndTime');
+  // console.log(nurses);
+  let startTime;
+  let endTime;
+  for (let i = 0; i < nurses.length; i++) {
+    startTime = nurses[i].shiftStartTime.toISOString().split('T')[1];
+    endTime = nurses[i].shiftEndTime.toISOString().split('T')[1];
+  }
+  // if(startTime > )
+  console.log(startTime);
+  console.log(endTime);
 });
 exports.getPendingEDRs = asyncHandler(async (req, res, next) => {
-  const Edrs = await EDR.find({ status: 'pending' })
+  const Edrs = await EDR.find({ status: 'pending', patientInHospital: true })
     .populate('patientId')
     .populate('chiefComplaint.chiefComplaintId', 'name')
     .select('patientId dcdFormStatus status labRequest radiologyRequest');
@@ -155,7 +177,9 @@ exports.getSenseiPendingEDRs = asyncHandler(async (req, res, next) => {
 
 exports.getEdrPatientByKeyword = asyncHandler(async (req, res, next) => {
   const arr = [];
-  const patients = await EDR.find().populate('patientId');
+  const patients = await EDR.find({ patientInHospital: true }).populate(
+    'patientId'
+  );
 
   for (let i = 0; i < patients.length; i++) {
     const fullName =
@@ -196,7 +220,10 @@ exports.getEdrPatientByKeyword = asyncHandler(async (req, res, next) => {
 
 exports.getPendingEdrByKeyword = asyncHandler(async (req, res, next) => {
   const arr = [];
-  const patients = await EDR.find({ status: 'pending' }).populate('patientId');
+  const patients = await EDR.find({
+    status: 'pending',
+    patientInHospital: true,
+  }).populate('patientId');
 
   for (let i = 0; i < patients.length; i++) {
     const fullName =
@@ -350,11 +377,16 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
 
   // Sample Collection Task
 
+  const currentTime = Date.now();
   const nurses = await Staff.find({
     staffType: 'Nurses',
     subType: 'Nurse Technician',
     disabled: false,
     availability: true,
+    $and: [
+      { shiftStartTime: { $lte: currentTime } },
+      { shiftEndTime: { $gte: currentTime } },
+    ],
   }).select('identifier name');
 
   const random = Math.floor(Math.random() * (nurses.length - 1));

@@ -1,6 +1,7 @@
 const requestNoFormat = require('dateformat');
 // const requestNoFormat = require('dateformat');
 const EDR = require('../models/EDR/EDR');
+const Staff = require('../models/staffFhir/staff');
 const asyncHandler = require('../middleware/async');
 // const ErrorResponse = require('../utils/errorResponse');
 
@@ -361,24 +362,9 @@ exports.addSurvey = asyncHandler(async (req, res, next) => {
 });
 
 exports.getPsychiatrist = asyncHandler(async (req, res, next) => {
-  const psychiatrists = [
-    {
-      name: 'M Ali',
-      phone: '03471234567',
-      email: 'ali@gmail.com',
-    },
-    {
-      name: 'M Ahmad',
-      phone: '03411234567',
-      email: 'ahmad@gmail.com',
-    },
-    {
-      name: 'Mushtaq',
-      phone: '03211234567',
-      email: 'mushtaq@gmail.com',
-    },
-  ];
-
+  const psychiatrists = await Staff.find({ staffType: 'Psychiatrist' }).select(
+    'name telecom'
+  );
   res.status(200).json({
     success: true,
     data: psychiatrists,
@@ -386,23 +372,9 @@ exports.getPsychiatrist = asyncHandler(async (req, res, next) => {
 });
 
 exports.getMentalCare = asyncHandler(async (req, res, next) => {
-  const mentalCare = [
-    {
-      name: 'M Ali',
-      phone: '03471234567',
-      email: 'ali@gmail.com',
-    },
-    {
-      name: 'M Ahmad',
-      phone: '03411234567',
-      email: 'ahmad@gmail.com',
-    },
-    {
-      name: 'Mushtaq',
-      phone: '03211234567',
-      email: 'mushtaq@gmail.com',
-    },
-  ];
+  const mentalCare = await Staff.find({ staffType: 'Mental Care' }).select(
+    'name telecom'
+  );
 
   res.status(200).json({
     success: true,
@@ -411,23 +383,9 @@ exports.getMentalCare = asyncHandler(async (req, res, next) => {
 });
 
 exports.getAdvocate = asyncHandler(async (req, res, next) => {
-  const advocate = [
-    {
-      name: 'M Ali',
-      phone: '03471234567',
-      email: 'ali@gmail.com',
-    },
-    {
-      name: 'M Ahmad',
-      phone: '03411234567',
-      email: 'ahmad@gmail.com',
-    },
-    {
-      name: 'Mushtaq',
-      phone: '03211234567',
-      email: 'mushtaq@gmail.com',
-    },
-  ];
+  const advocate = await Staff.find({ staffType: 'Advocate' }).select(
+    'name telecom'
+  );
 
   res.status(200).json({
     success: true,
