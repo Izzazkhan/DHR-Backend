@@ -148,7 +148,7 @@ exports.getMedicationsByIdCareStreams = asyncHandler(async (req, res, next) => {
 exports.getCSPatients = asyncHandler(async (req, res, next) => {
   const csPatients = await EDR.find({
     status: 'pending',
-    careStream: { $eq: [] },
+    // careStream: { $eq: [] },
     // room: { $ne: [] },
   }).populate('patientId');
 
@@ -332,7 +332,7 @@ exports.getPatientsWithCSByKeyword = asyncHandler(async (req, res, next) => {
 exports.getEDRswithCS = asyncHandler(async (req, res, next) => {
   const patients = await EDR.find({
     status: 'pending',
-    careStream: { $ne: [] },
+    // careStream: { $ne: [] },
     room: { $ne: [] },
   }).populate([
     {

@@ -109,6 +109,55 @@ exports.getRad = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.getPharmacy = asyncHandler(async (req, res, next) => {
+  const unwindEdr = await EDR.aggregate([
+    {
+      $project: {
+        _id: 1,
+        pharmacyRequest: 1,
+        patientId: 1,
+      },
+    },
+    {
+      $unwind: '$pharmacyRequest',
+    },
+    {
+      $match: {
+        'pharmacyRequest.status': 'pending',
+      },
+    },
+    {
+      $group: {
+        _id: { patientId: '$patientId' },
+        pharmacyRequest: { $push: '$pharmacyRequest' },
+      },
+    },
+    {
+      $project: {
+        patientId: '$_id',
+        _id: 0,
+        pharmacyRequest: 1,
+      },
+    },
+  ]);
+
+  const pharmacyRequest = await EDR.populate(unwindEdr, [
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+      select: 'identifier name createdAt weight age gender',
+    },
+    {
+      path: 'pharmacyRequest.serviceId',
+      model: 'pharmacyRequest',
+    },
+  ]);
+  res.status(200).json({
+    success: true,
+    data: pharmacyRequest,
+  });
+});
+
 exports.submitRequest = asyncHandler(async (req, res, next) => {
   const { patientId, staffId, assignedBy, staffType, reason } = req.body;
   const request = await EDN.create({
