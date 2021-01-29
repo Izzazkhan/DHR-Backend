@@ -123,7 +123,7 @@ exports.getCompletedLabEdr = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateLabRequest = asyncHandler(async (req, res, next) => {
-  // console.log(req.files);
+  console.log(req.files);
   const parsed = JSON.parse(req.body.data);
   const lab = await EDR.findOne({ _id: parsed.edrId });
   let note;
@@ -138,6 +138,8 @@ exports.updateLabRequest = asyncHandler(async (req, res, next) => {
       arr.push(req.files[i].path);
     }
   }
+
+  console.log(arr);
 
   const updateRecord = {
     updatedAt: Date.now(),
@@ -159,7 +161,6 @@ exports.updateLabRequest = asyncHandler(async (req, res, next) => {
         [`labRequest.${note}.activeTime`]: parsed.activeTime,
         [`labRequest.${note}.completeTime`]: parsed.completeTime,
         [`labRequest.${note}.holdTime`]: parsed.holdTime,
-        // [`labRequest.${note}.voiceNotes`]: voiceNotes,
         [`labRequest.${note}.image`]: arr,
       },
     },

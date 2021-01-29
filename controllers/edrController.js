@@ -953,7 +953,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     let currentTimeCC = new Date();
 
     currentTimeCC = currentTimeCC.toISOString().split('T')[1];
-    console.log(currentTimeCC);
+    // console.log(currentTimeCC);
 
     const CCrequestNo = 'DDID' + day + requestNoFormat(new Date(), 'yyHHMMss');
     const customerCares = await Staff.find({
