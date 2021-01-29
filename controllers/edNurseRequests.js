@@ -123,16 +123,13 @@ exports.getPharmacy = asyncHandler(async (req, res, next) => {
     },
     {
       $match: {
-        $or: [
-          { 'pharmacyRequest.status': 'pending approval' },
-          { 'pharmacyRequest.status': 'completed' },
-        ],
+        'pharmacyRequest.status': 'pending',
       },
     },
     {
       $group: {
         _id: { patientId: '$patientId' },
-        radRequest: { $push: '$pharmacyRequest' },
+        pharmacyRequest: { $push: '$pharmacyRequest' },
       },
     },
     {

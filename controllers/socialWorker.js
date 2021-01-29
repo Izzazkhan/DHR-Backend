@@ -395,7 +395,8 @@ exports.getAdvocate = asyncHandler(async (req, res, next) => {
 });
 
 exports.sendEmail = asyncHandler(async (req, res, next) => {
-  const { sender, reciever, subject, body } = req.body;
+  console.log(req.body);
+  const { sender, receiver, subject, body } = req.body;
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -405,7 +406,7 @@ exports.sendEmail = asyncHandler(async (req, res, next) => {
   });
   const mailOptions = {
     from: sender,
-    to: reciever,
+    to: receiver,
     subject: subject,
     html: `<p>${body}<p>`,
   };
@@ -421,7 +422,7 @@ exports.sendEmail = asyncHandler(async (req, res, next) => {
       console.log(`Emial Sent : ${info.response}`);
       res.status(200).json({
         success: true,
-        data: `Email Sent Successfullly to ${reciever}`,
+        data: `Email Sent Successfullly to ${receiver}`,
       });
     }
   });
