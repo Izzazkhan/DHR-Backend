@@ -64,7 +64,24 @@ const edrSchema = new mongoose.Schema({
       ],
       medications: [
         {
-          type: String,
+          itemName: {
+            type: String,
+          },
+          requestedQty: {
+            type: Number,
+          },
+          dosage: {
+            type: Number,
+          },
+          frequency: {
+            type: Number,
+          },
+          duration: {
+            type: Number,
+          },
+          price: {
+            type: Number,
+          },
         },
       ],
       mdNotification: [
@@ -701,6 +718,10 @@ const edrSchema = new mongoose.Schema({
         type: String,
       },
 
+      generatedFrom: {
+        type: String,
+      },
+
       requestedBy: {
         type: mongoose.Schema.ObjectId,
         ref: 'staff',
@@ -787,6 +808,9 @@ const edrSchema = new mongoose.Schema({
           size: { type: String },
           make_model: { type: String },
           additionalNotes: { type: String },
+          price: {
+            type: Number,
+          },
         },
       ],
       status: {
