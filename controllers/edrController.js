@@ -1214,6 +1214,7 @@ exports.updateEDNurseRequest = asyncHandler(async (req, res, next) => {
         [`edNurseRequest.${note}.edNurseId`]: parsed.edNurse,
         [`edNurseRequest.${note}.speciality`]: parsed.speciality,
         [`edNurseRequest.${note}.notes`]: parsed.notes,
+        [`edNurseRequest.${note}.status`]: parsed.status,
         [`edNurseRequest.${note}.voiceNotes`]: req.file
           ? req.file.path
           : parsed.voiceNotes,
@@ -1294,6 +1295,7 @@ exports.updateEOUNurseRequest = asyncHandler(async (req, res, next) => {
         [`eouNurseRequest.${note}.eouNurseId`]: parsed.eouNurse,
         [`eouNurseRequest.${note}.speciality`]: parsed.speciality,
         [`eouNurseRequest.${note}.notes`]: parsed.notes,
+        [`eouNurseRequest.${note}.status`]: parsed.status,
         [`eouNurseRequest.${note}.voiceNotes`]: req.file
           ? req.file.path
           : parsed.voiceNotes,
