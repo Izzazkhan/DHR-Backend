@@ -117,33 +117,11 @@ exports.getEDRs = asyncHandler(async (req, res, next) => {
     .populate('patientId')
     .populate('chiefComplaint.chiefComplaintId', 'name')
     .select('patientId dcdFormStatus status labRequest radiologyRequest');
-  // res.status(201).json({
-  //   success: true,
-  //   count: Edrs.length,
-  //   data: Edrs,
-  // });
-
-  let currentTime = new Date();
-  // console.log(currentTime);
-  currentTime = currentTime.toISOString().split('T')[1];
-  // currentTime = currentTime.split('T')[1];
-  console.log(currentTime);
-  const nurses = await Staff.find({
-    staffType: 'Nurses',
-    subType: 'Nurse Technician',
-    // disabled: false,
-    // availability: true,
-  }).select('identifier name shiftStartTime shiftEndTime');
-  // console.log(nurses);
-  let startTime;
-  let endTime;
-  for (let i = 0; i < nurses.length; i++) {
-    startTime = nurses[i].shiftStartTime.toISOString().split('T')[1];
-    endTime = nurses[i].shiftEndTime.toISOString().split('T')[1];
-  }
-  // if(startTime > )
-  console.log(startTime);
-  console.log(endTime);
+  res.status(201).json({
+    success: true,
+    count: Edrs.length,
+    data: Edrs,
+  });
 });
 exports.getPendingEDRs = asyncHandler(async (req, res, next) => {
   const Edrs = await EDR.find({ status: 'pending', patientInHospital: true })
@@ -376,21 +354,30 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
   const day = Math.floor(diff / oneDay);
 
   // Sample Collection Task
+  let currentTime = new Date();
 
-  const currentTime = Date.now();
+  currentTime = currentTime.toISOString().split('T')[1];
+
+  // console.log(currentTime);
   const nurses = await Staff.find({
     staffType: 'Nurses',
     subType: 'Nurse Technician',
     disabled: false,
-    availability: true,
-    $and: [
-      { shiftStartTime: { $lte: currentTime } },
-      { shiftEndTime: { $gte: currentTime } },
-    ],
-  }).select('identifier name');
+    // availability: true,
+  }).select('identifier name shiftStartTime shiftEndTime');
+  let startTime;
+  let endTime;
+  const shiftNurse = nurses.filter((nurse) => {
+    startTime = nurse.shiftStartTime.toISOString().split('T')[1];
+    endTime = nurse.shiftEndTime.toISOString().split('T')[1];
+    if (currentTime >= startTime && currentTime <= endTime) {
+      return nurse;
+    }
+  });
+  // console.log(shiftNurse);
 
-  const random = Math.floor(Math.random() * (nurses.length - 1));
-  const nurseTechnician = nurses[random];
+  const random = Math.floor(Math.random() * (shiftNurse.length - 1));
+  const nurseTechnician = shiftNurse[random];
   const nurseTechnicianId = nurseTechnician._id;
 
   const requestId = `LR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
@@ -861,7 +848,7 @@ exports.getEDRFromPatientIdForDischarge = asyncHandler(async (req, res) => {
 });
 
 exports.updateEdr = asyncHandler(async (req, res, next) => {
-  console.log(req.body);
+  // console.log(req.body);
   const { _id, requestType } = req.body;
   let edr = await EDR.findById(_id).populate([
     {
@@ -896,22 +883,36 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
   }
 
   // HouseKeeping Request
+  let currentTime = new Date();
+
+  currentTime = currentTime.toISOString().split('T')[1];
+  // console.log(currentTime);
   const latestCC = edr.chiefComplaint.length - 1;
   const productionAreaId =
     edr.chiefComplaint[latestCC].chiefComplaintId.productionArea[0]
       .productionAreaId._id;
   const latestRoom = edr.room.length - 1;
   const roomId = edr.room[latestRoom].roomId._id;
-  let houseKeeperId;
-  houseKeeperId = await Staff.findOne({
-    availability: true,
+
+  const houseKeepers = await Staff.find({
+    // availability: true,
     disabled: false,
     staffType: 'House Keeping',
   });
-  if (!houseKeeperId) {
-    return next(new ErrorResponse('No House Keeper Available this Time'));
-  }
-  houseKeeperId = houseKeeperId._id;
+  let startTime;
+  let endTime;
+  const shiftHK = houseKeepers.filter((hk) => {
+    startTime = hk.shiftStartTime.toISOString().split('T')[1];
+    endTime = hk.shiftEndTime.toISOString().split('T')[1];
+    if (currentTime >= startTime && currentTime <= endTime) {
+      return hk;
+    }
+  });
+  const random = Math.floor(Math.random() * (shiftHK.length - 1));
+  const houseKeeper = shiftHK[random];
+  const houseKeeperId = houseKeeper._id;
+
+  // console.log(houseKeeperId);
 
   // Discharge Request
   edr = await EDR.findOneAndUpdate({ _id: _id }, req.body, {
@@ -946,17 +947,34 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     req.body.dischargeRequest.dischargeSummary.edrCompletionRequirement ===
     'withCare'
   ) {
+    // console.log('hereee');
+    let startTimeCC;
+    let endTimeCC;
+    let currentTimeCC = new Date();
+
+    currentTimeCC = currentTimeCC.toISOString().split('T')[1];
+    console.log(currentTimeCC);
+
     const CCrequestNo = 'DDID' + day + requestNoFormat(new Date(), 'yyHHMMss');
     const customerCares = await Staff.find({
       staffType: 'Customer Care',
       disabled: false,
       // availability: true,
-    }).select('identifier name');
+    }).select('identifier name shiftStartTime shiftEndTime');
+    const shiftCC = customerCares.filter((CC) => {
+      startTimeCC = CC.shiftStartTime.toISOString().split('T')[1];
+      endTimeCC = CC.shiftEndTime.toISOString().split('T')[1];
+      if (currentTimeCC >= startTimeCC && currentTimeCC <= endTimeCC) {
+        console.log(CC);
+        return CC;
+      }
+    });
 
-    const random = Math.floor(Math.random() * (customerCares.length - 1));
-    const customerCare = customerCares[random];
+    const randomCC = Math.floor(Math.random() * (shiftCC.length - 1));
+    console.log(randomCC);
+    const customerCare = shiftCC[randomCC];
 
-    const request = await CCRequest.create({
+    await CCRequest.create({
       requestNo: CCrequestNo,
       edrId: _id,
       status: 'pending',
@@ -967,7 +985,6 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       requestedAt: Date.now(),
       costomerCareId: customerCare._id,
     });
-    console.log(request);
   }
   res.status(200).json({ success: true, data: edr });
 });
