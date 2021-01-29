@@ -1570,6 +1570,45 @@ exports.updatePharmcayRequest = asyncHandler(async (req, res, next) => {
 });
 
 exports.deliverPharmcayRequest = asyncHandler(async (req, res, next) => {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const diff =
+    now -
+    start +
+    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
+  const oneDay = 1000 * 60 * 60 * 24;
+  const day = Math.floor(diff / oneDay);
+
+  let endTimeCC, startTimeCC;
+  let currentTimeCC = new Date();
+  currentTimeCC = currentTimeCC.toISOString().split('T')[1];
+  const CCrequestNo = 'PHRD' + day + requestNoFormat(new Date(), 'yyHHMMss');
+  const customerCares = await Staff.find({
+    staffType: 'Customer Care',
+    disabled: false,
+    // availability: true,
+  }).select('identifier name shiftStartTime shiftEndTime');
+  const shiftCC = customerCares.filter((CC) => {
+    startTimeCC = CC.shiftStartTime.toISOString().split('T')[1];
+    endTimeCC = CC.shiftEndTime.toISOString().split('T')[1];
+    if (currentTimeCC >= startTimeCC && currentTimeCC <= endTimeCC) {
+      console.log(CC);
+      return CC;
+    }
+  });
+  const randomCC = Math.floor(Math.random() * (shiftCC.length - 1));
+  // console.log(randomCC);
+  const customerCare = shiftCC[randomCC];
+  await CCRequest.create({
+    requestNo: CCrequestNo,
+    edrId: req.body.edrId,
+    status: 'pending',
+    requestedFor: 'Medication Request',
+    requestedAt: Date.now(),
+    costomerCareId: customerCare._id,
+    pharmacyRequestId: req.body._id,
+  });
+
   const addedNote = await EDR.findOne({
     _id: req.body.edrId,
     'pharmacyRequest._id': req.body._id,
@@ -1638,7 +1677,7 @@ exports.getAllDeliverInProgessPharmaRequest = asyncHandler(async (req, res) => {
   for (let i = 0; i < edr.length; i++) {
     for (let j = 0; j < edr[i].pharmacyRequest.length; j++) {
       if (
-        (edr[i].pharmacyRequest[j].status === 'Delivery in Progress' ||
+        (edr[i].pharmacyRequest[j].status === 'in_progress' ||
           edr[i].pharmacyRequest[j].status === 'complete') &&
         edr[i].pharmacyRequest[j].generatedFrom === req.params.requestType
       ) {
