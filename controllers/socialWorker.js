@@ -1,4 +1,5 @@
 const requestNoFormat = require('dateformat');
+const nodemailer = require('nodemailer');
 // const requestNoFormat = require('dateformat');
 const EDR = require('../models/EDR/EDR');
 const Staff = require('../models/staffFhir/staff');
@@ -390,5 +391,30 @@ exports.getAdvocate = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: advocate,
+  });
+});
+
+exports.sendEmail = asyncHandler(async (req, res, next) => {
+  const { sender, reciever, subject, body } = req.body;
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'pmdevteam0@gmail.com',
+      pass: 'SysJunc#@!',
+    },
+  });
+  const mailOptions = {
+    from: sender,
+    to: reciever,
+    subject: subject,
+    html: `<p>${body}<p>`,
+  };
+
+  transporter.sendMail(mailOptions, (err, info) => {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log(`Emial Sent : ${info.response}`);
+    }
   });
 });
