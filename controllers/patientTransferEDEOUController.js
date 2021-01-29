@@ -94,6 +94,7 @@ exports.patientsInDept = asyncHandler(async (req, res, next) => {
   let patients = await EDR.find({
     currentLocation: req.params.currentdept,
     status: 'pending',
+    patientInHospital: true,
   })
     .populate('patientId')
     .populate('chiefComplaint.chiefComplaintId')

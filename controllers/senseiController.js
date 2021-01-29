@@ -126,24 +126,6 @@ exports.getCCPatients = asyncHandler(async (req, res, next) => {
     // console.log('count', patients[i]);
   }
 
-  // console.log(patients[0].chiefComplaint.length);
-
-  // const arr = [];
-  // for (let i = 0; i < patients.length; i++) {
-  //   const latestCC = patients[i].chiefComplaint.length - 1;
-  //   const rooms =
-  //     patients[i].chiefComplaint[latestCC].chiefComplaintId.productionArea[0]
-  //       .productionAreaId.rooms;
-  //   for (let j = 0; j < rooms.length; j++) {
-  //     if (rooms[j].roomId.availability === false) {
-  //       arr.push(rooms[j].roomId._id);
-  //     }
-  //   }
-  // }
-  // console.log(arr);
-
-  // console.log(patients);
-
   res.status(200).json({
     success: true,
     data: newArray,
