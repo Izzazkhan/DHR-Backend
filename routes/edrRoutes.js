@@ -63,6 +63,7 @@ const {
   getEDRsWithPharmacyRequest,
   getSenseiPendingEdrByKeyword,
   getNurseEdrByKeyword,
+  getAllDeliverInProgessPharmaRequest,
 } = require('../controllers/edrController');
 
 const router = express.Router();
@@ -158,7 +159,14 @@ router.get('/getAllCompletedLabRequests', getAllCompletedLabRequests);
 router.put('/addPharmacyRequest', addPharmcayRequest);
 router.put('/updatePharmacyRequest', updatePharmcayRequest);
 router.put('/deliverPharmcayRequest', deliverPharmcayRequest);
+router.get(
+  '/getAllDeliverInProgessPharmaRequest/:requestType',
+  getAllDeliverInProgessPharmaRequest
+);
 
-router.get('/getEDRsWithPharmacyRequest', getEDRsWithPharmacyRequest);
+router.get(
+  '/getEDRsWithPharmacyRequest/:requestType',
+  getEDRsWithPharmacyRequest
+);
 
 module.exports = router;

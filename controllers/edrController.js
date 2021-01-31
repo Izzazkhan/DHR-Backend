@@ -1546,6 +1546,7 @@ exports.addPharmcayRequest = asyncHandler(async (req, res, next) => {
   const pharmacyObj = {
     ...req.body,
     pharmacyRequestNo,
+    generatedFrom: 'Medication Request',
   };
 
   const addedNote = await EDR.findOneAndUpdate(
@@ -1586,7 +1587,63 @@ exports.updatePharmcayRequest = asyncHandler(async (req, res, next) => {
 });
 
 exports.deliverPharmcayRequest = asyncHandler(async (req, res, next) => {
-  const addedNote = await EDR.findOneAndUpdate(
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const diff =
+    now -
+    start +
+    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
+  const oneDay = 1000 * 60 * 60 * 24;
+  const day = Math.floor(diff / oneDay);
+
+  let endTimeCC, startTimeCC;
+  let currentTimeCC = new Date();
+  currentTimeCC = currentTimeCC.toISOString().split('T')[1];
+  const CCrequestNo = 'PHRD' + day + requestNoFormat(new Date(), 'yyHHMMss');
+  const customerCares = await Staff.find({
+    staffType: 'Customer Care',
+    disabled: false,
+    // availability: true,
+  }).select('identifier name shiftStartTime shiftEndTime');
+  const shiftCC = customerCares.filter((CC) => {
+    startTimeCC = CC.shiftStartTime.toISOString().split('T')[1];
+    endTimeCC = CC.shiftEndTime.toISOString().split('T')[1];
+    if (currentTimeCC >= startTimeCC && currentTimeCC <= endTimeCC) {
+      console.log(CC);
+      return CC;
+    }
+  });
+  const randomCC = Math.floor(Math.random() * (shiftCC.length - 1));
+  // console.log(randomCC);
+  const customerCare = shiftCC[randomCC];
+  await CCRequest.create({
+    requestNo: CCrequestNo,
+    edrId: req.body.edrId,
+    status: 'pending',
+    requestedFor: 'Medication Request',
+    requestedAt: Date.now(),
+    costomerCareId: customerCare._id,
+    pharmacyRequestId: req.body._id,
+  });
+
+  const addedNote = await EDR.findOne({
+    _id: req.body.edrId,
+    'pharmacyRequest._id': req.body._id,
+  }).populate('pharmacyRequest.item.itemId');
+
+  let singlePharmaRequest;
+  for (let i = 0; i < addedNote.pharmacyRequest.length; i++) {
+    if (addedNote.pharmacyRequest[i]._id == req.body._id) {
+      singlePharmaRequest = addedNote.pharmacyRequest[i];
+    }
+  }
+
+  for (let i = 0; i < singlePharmaRequest.item.length; i++) {
+    singlePharmaRequest.item[i].price =
+      singlePharmaRequest.item[i].itemId.issueUnitCost;
+  }
+
+  const response = await EDR.findOneAndUpdate(
     { _id: req.body.edrId, 'pharmacyRequest._id': req.body._id },
     {
       $set: {
@@ -1595,6 +1652,7 @@ exports.deliverPharmcayRequest = asyncHandler(async (req, res, next) => {
         'pharmacyRequest.$.updatedAt': new Date().toISOString(),
         'pharmacyRequest.$.deliveryStartTime': req.body.deliveryStartTime,
         'pharmacyRequest.$.pharmacist': req.body.pharmacist,
+        'pharmacyRequest.$.item': singlePharmaRequest.item,
       },
     },
     {
@@ -1604,8 +1662,50 @@ exports.deliverPharmcayRequest = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    data: addedNote,
+    data: response,
   });
+});
+
+exports.getAllDeliverInProgessPharmaRequest = asyncHandler(async (req, res) => {
+  const edr = await EDR.find({
+    pharmacyRequest: { $gt: [] },
+  })
+    .populate('patientId')
+    .populate('doctorNotes.addedBy')
+    .populate('pharmacyRequest.item.itemId')
+    .populate('pharmacyRequest.requestedBy')
+    .populate('pharmacyRequest.reconciliationNotes.addedBy')
+    .populate('chiefComplaint.chiefComplaintId')
+    .populate({
+      path: 'chiefComplaint.chiefComplaintId',
+      populate: {
+        path: 'productionArea.productionAreaId',
+      },
+    })
+    .populate('room.roomId')
+    .select({
+      patientId: 1,
+      pharmacyRequest: 1,
+      chiefComplaint: 1,
+      doctorNotes: 1,
+    });
+
+  let response = [];
+  for (let i = 0; i < edr.length; i++) {
+    for (let j = 0; j < edr[i].pharmacyRequest.length; j++) {
+      if (
+        (edr[i].pharmacyRequest[j].status === 'in_progress' ||
+          edr[i].pharmacyRequest[j].status === 'complete') &&
+        edr[i].pharmacyRequest[j].generatedFrom === req.params.requestType
+      ) {
+        let obj = JSON.parse(JSON.stringify(edr[i]));
+        obj.pharmacyRequest = [edr[i].pharmacyRequest[j]];
+        response.push(obj);
+      }
+    }
+  }
+
+  res.status(200).json({ success: true, data: response });
 });
 
 exports.getEDRsWithPharmacyRequest = asyncHandler(async (req, res) => {
@@ -1632,7 +1732,21 @@ exports.getEDRsWithPharmacyRequest = asyncHandler(async (req, res) => {
       chiefComplaint: 1,
       doctorNotes: 1,
     });
-  res.status(200).json({ success: true, data: edr });
+
+  let response = [];
+  for (let i = 0; i < edr.length; i++) {
+    for (let j = 0; j < edr[i].pharmacyRequest.length; j++) {
+      if (
+        edr[i].pharmacyRequest[j].status === 'pending' &&
+        edr[i].pharmacyRequest[j].generatedFrom === req.params.requestType
+      ) {
+        let obj = JSON.parse(JSON.stringify(edr[i]));
+        obj.pharmacyRequest = [edr[i].pharmacyRequest[j]];
+        response.push(obj);
+      }
+    }
+  }
+  res.status(200).json({ success: true, data: response });
 });
 // Search edr where edr status is not completed
 exports.getNurseEdrByKeyword = asyncHandler(async (req, res, next) => {

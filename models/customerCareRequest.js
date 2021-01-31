@@ -18,7 +18,11 @@ const ccRequestSchema = new mongoose.Schema({
     ref: 'staff',
   },
   requestedAt: Date,
+  deliveryStartTime: Date,
   completedAt: Date,
+  pharmacyRequestId: {
+    type: String,
+  },
 });
 
 module.exports = mongoose.model('CCRequest', ccRequestSchema);

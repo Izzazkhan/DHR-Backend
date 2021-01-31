@@ -3,6 +3,7 @@ const asyncHandler = require('../middleware/async');
 // const ErrorResponse = require('../utils/errorResponse');
 const CareStream = require('../models/CareStreams/CareStreams');
 const EDR = require('../models/EDR/EDR');
+const Items = require('../models/item');
 
 exports.addCareStream = asyncHandler(async (req, res, next) => {
   const {
@@ -185,9 +186,64 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     reason: req.body.data.reason,
     status: req.body.data.status,
   };
-  const assignedCareStream = await EDR.findOneAndUpdate(
+
+  let pharmacyRequest = edrCheck[0].pharmacyRequest;
+
+  for (let i = 0; i < req.body.data.medications.length; i++) {
+    const item = await Items.findOne({
+      name: req.body.data.medications[i].itemName,
+    });
+
+    const now = new Date();
+    const start = new Date(now.getFullYear(), 0, 0);
+    const diff =
+      now -
+      start +
+      (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
+    const oneDay = 1000 * 60 * 60 * 24;
+    const day = Math.floor(diff / oneDay);
+    const pharmacyRequestNo = `PHR${day}${requestNoFormat(
+      new Date(),
+      'yyHHMM'
+    )}`;
+
+    let pharmaObj = {
+      pharmacyRequestNo,
+      requestedBy: req.body.data.staffId,
+      reconciliationNotes: [],
+      generatedFrom: 'CareStream Request',
+      item: {
+        itemId: item._id,
+        itemType: item.medClass.toLowerCase(),
+        itemName: item.name,
+        requestedQty: req.body.data.medications[i].requestedQty,
+        priority: '',
+        schedule: '',
+        dosage: req.body.data.medications[i].dosage,
+        frequency: req.body.data.medications[i].frequency,
+        duration: req.body.data.medications[i].duration,
+        form: '',
+        size: '',
+        make_model: '',
+        additionalNotes: '',
+      },
+      status: 'pending',
+      secondStatus: 'pending',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    pharmacyRequest.push(pharmaObj);
+  }
+
+  await EDR.findOneAndUpdate(
     { _id: req.body.data.edrId },
     { $push: { careStream } },
+    { new: true }
+  );
+
+  const assignedCareStream = await EDR.findOneAndUpdate(
+    { _id: req.body.data.edrId },
+    { $set: { pharmacyRequest: pharmacyRequest } },
     { new: true }
   );
 
