@@ -823,12 +823,13 @@ const edrSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'staff',
       },
-      CCStatus: {
-        type: String,
-      },
       deliveryStartTime: {
         type: Date,
       },
+      // customer care time
+      // deliveryInProgressTime: {
+      //   type: Date,
+      // },
 
       progressStartTime: {
         type: Date,

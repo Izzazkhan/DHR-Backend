@@ -412,7 +412,105 @@ exports.pendingMedications = asyncHandler(async (req, res, next) => {
     {
       $match: {
         $and: [
-          { 'pharmacyRequest.CCStatus': 'pending' },
+          { 'pharmacyRequest.status': 'in_progress' },
+          {
+            'pharmacyRequest.customerCareId': mongoose.Types.ObjectId(
+              req.params.ccId
+            ),
+          },
+        ],
+      },
+    },
+    // {
+    //   $group: {
+    //     _id: { patientId: '$patientId' },
+    //     labRequest: { $push: '$labRequest' },
+    //   },
+    // },
+    // {
+    //   $project: {
+    //     patientId: '$_id',
+    //     _id: 0,
+    //     labRequest: 1,
+    //   },
+    // },
+  ]);
+
+  const medications = await EDR.populate(unwindEdr, [
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+      select: 'identifier name ',
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
+      select: 'roomNo ',
+    },
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      select: 'productionArea.productionAreaId',
+      populate: {
+        path: 'productionArea.productionAreaId',
+        model: 'productionArea',
+        select: 'paName',
+      },
+    },
+  ]);
+
+  res.status(200).json({
+    success: true,
+    data: medications,
+  });
+});
+
+exports.updateMedicationStatus = asyncHandler(async (req, res, next) => {
+  const edrMedication = await EDR.findOne({ _id: req.body.edrId });
+
+  let request;
+  for (let i = 0; i < edrMedication.pharmacyRequest.length; i++) {
+    if (edrMedication.pharmacyRequest[i]._id == req.body.requestId) {
+      request = i;
+    }
+  }
+
+  const updatedRequest = await EDR.findOneAndUpdate(
+    { _id: req.body.edrId },
+    {
+      $set: {
+        [`pharmacyRequest.${request}.status`]: 'delivery_in_progress',
+      },
+    },
+    { new: true }
+  )
+    .select('patientId pharmacyRequest')
+    .populate('patientId', 'Identifier');
+
+  res.status(200).json({
+    success: true,
+    data: updatedRequest,
+  });
+});
+
+exports.completedMedications = asyncHandler(async (req, res, next) => {
+  const unwindEdr = await EDR.aggregate([
+    {
+      $project: {
+        _id: 1,
+        pharmacyRequest: 1,
+        patientId: 1,
+        chiefComplaint: 1,
+        room: 1,
+      },
+    },
+    {
+      $unwind: '$pharmacyRequest',
+    },
+    {
+      $match: {
+        $and: [
+          { 'pharmacyRequest.status': 'delivery_in_progress' },
           {
             'pharmacyRequest.customerCareId': mongoose.Types.ObjectId(
               req.params.ccId

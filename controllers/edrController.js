@@ -1653,7 +1653,6 @@ exports.deliverPharmcayRequest = asyncHandler(async (req, res, next) => {
         'pharmacyRequest.$.progressStartTime': req.body.progressStartTime,
         'pharmacyRequest.$.pharmacist': req.body.pharmacist,
         'pharmacyRequest.$.item': singlePharmaRequest.item,
-        'pharmacyRequest.$.CCStatus': 'pending',
         'pharmacyRequest.$.customerCareId': customerCare._id,
       },
     },

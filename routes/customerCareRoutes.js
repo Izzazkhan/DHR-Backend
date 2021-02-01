@@ -15,6 +15,8 @@ const {
   getPendingSurveyEdrs,
   getCompletedSurveyEdrs,
   pendingMedications,
+  completedMedications,
+  updateMedicationStatus,
 } = require('../controllers/customerCareController');
 
 router.get('/getAllCustomerCares', getAllCustomerCares);
@@ -27,6 +29,8 @@ router.get('/pendingDischargeEdrs/:ccId', pendingDischargeEdrs);
 router.get('/completeDischarge/:dischargeId', completeDischarge);
 router.get('/completedDischargeEdrs/:ccId', completedDischargeEdrs);
 router.get('/pendingMedications/:ccId', pendingMedications);
+router.get('/completedMedications/:ccId', completedMedications);
+router.put('/updateMedicationStatus', updateMedicationStatus);
 router.get('/getPendingSurveyEdrs', getPendingSurveyEdrs);
 router.get('/getCompletedSurveyEdrs', getCompletedSurveyEdrs);
 
