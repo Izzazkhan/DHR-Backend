@@ -344,3 +344,33 @@ exports.completedEDNurseEdrRequest = asyncHandler(async (req, res, next) => {
     data: request,
   });
 });
+
+exports.updateMedicationStatus = asyncHandler(async (req, res, next) => {
+  const edrMedication = await EDR.findOne({ _id: req.body.edrId });
+
+  let request;
+  for (let i = 0; i < edrMedication.pharmacyRequest.length; i++) {
+    if (edrMedication.pharmacyRequest[i]._id == req.body.requestId) {
+      request = i;
+    }
+  }
+
+  // console.log(request);
+
+  const updatedRequest = await EDR.findOneAndUpdate(
+    { _id: req.body.edrId },
+    {
+      $set: {
+        [`pharmacyRequest.${request}.status`]: req.body.status,
+      },
+    },
+    { new: true }
+  )
+    .select('patientId pharmacyRequest')
+    .populate('patientId', 'Identifier');
+
+  res.status(200).json({
+    success: true,
+    data: updatedRequest,
+  });
+});
