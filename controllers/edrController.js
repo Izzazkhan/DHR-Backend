@@ -1616,15 +1616,15 @@ exports.deliverPharmcayRequest = asyncHandler(async (req, res, next) => {
   const randomCC = Math.floor(Math.random() * (shiftCC.length - 1));
   // console.log(randomCC);
   const customerCare = shiftCC[randomCC];
-  await CCRequest.create({
-    requestNo: CCrequestNo,
-    edrId: req.body.edrId,
-    status: 'pending',
-    requestedFor: 'Medication Request',
-    requestedAt: Date.now(),
-    costomerCareId: customerCare._id,
-    pharmacyRequestId: req.body._id,
-  });
+  // await CCRequest.create({
+  //   requestNo: CCrequestNo,
+  //   edrId: req.body.edrId,
+  //   status: 'pending',
+  //   requestedFor: 'Medication Request',
+  //   requestedAt: Date.now(),
+  //   costomerCareId: customerCare._id,
+  //   pharmacyRequestId: req.body._id,
+  // });
 
   const addedNote = await EDR.findOne({
     _id: req.body.edrId,
@@ -1653,6 +1653,8 @@ exports.deliverPharmcayRequest = asyncHandler(async (req, res, next) => {
         'pharmacyRequest.$.deliveryStartTime': req.body.deliveryStartTime,
         'pharmacyRequest.$.pharmacist': req.body.pharmacist,
         'pharmacyRequest.$.item': singlePharmaRequest.item,
+        'pharmacyRequest.$.CCStatus': 'pending',
+        'pharmacyRequest.$.customerCareId': customerCare._id,
       },
     },
     {

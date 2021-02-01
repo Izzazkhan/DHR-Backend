@@ -819,7 +819,13 @@ const edrSchema = new mongoose.Schema({
       secondStatus: {
         type: String,
       },
-
+      customerCareId: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      CCStatus: {
+        type: String,
+      },
       deliveryStartTime: {
         type: Date,
       },
