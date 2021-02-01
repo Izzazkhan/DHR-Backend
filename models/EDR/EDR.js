@@ -831,6 +831,18 @@ const edrSchema = new mongoose.Schema({
       //   type: Date,
       // },
 
+      progressStartTime: {
+        type: Date,
+      },
+
+      deliveredTime: {
+        type: Date,
+      },
+
+      completedTime: {
+        type: Date,
+      },
+      
       createdAt: {
         type: Date,
         default: Date.now,

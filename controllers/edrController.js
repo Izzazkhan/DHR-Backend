@@ -1650,7 +1650,7 @@ exports.deliverPharmcayRequest = asyncHandler(async (req, res, next) => {
         'pharmacyRequest.$.status': req.body.status,
         'pharmacyRequest.$.secondStatus': req.body.secondStatus,
         'pharmacyRequest.$.updatedAt': new Date().toISOString(),
-        'pharmacyRequest.$.deliveryStartTime': req.body.deliveryStartTime,
+        'pharmacyRequest.$.progressStartTime': req.body.progressStartTime,
         'pharmacyRequest.$.pharmacist': req.body.pharmacist,
         'pharmacyRequest.$.item': singlePharmaRequest.item,
         'pharmacyRequest.$.customerCareId': customerCare._id,
