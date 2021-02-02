@@ -117,10 +117,9 @@ exports.registerPatient = asyncHandler(async (req, res) => {
     // });
   }
   const obj = {};
-  obj.profileNo = newPatient.identifier;
-  obj.age = newPatient.age;
-  obj.paymentMethod = newPatient.paymentMethod;
+  obj.profileNo = newPatient.identifier[0].value;
   obj.createdAt = newPatient.createdAt;
+  obj.insuranceCardNumber = newPatient.insuranceNumber;
   // console.log(obj);
   // console.log(newPatient._id);
   QRCode.toDataURL(JSON.stringify(obj), function (err, url) {
@@ -238,10 +237,9 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
     // res.status(200).json({ success: true, data: patient });
     if (!patientQR.QR) {
       const obj = {};
-      obj.profileNo = patient.identifier;
-      obj.age = patient.age;
-      obj.paymentMethod = patient.paymentMethod;
+      obj.profileNo = patient.identifier[0].value;
       obj.createdAt = patient.createdAt;
+      obj.insuranceCardNumber = patient.insuranceNumber;
       QRCode.toDataURL(JSON.stringify(obj), function (err, url) {
         const base64Str = url;
         const path = './uploads/';
@@ -268,10 +266,9 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
     });
     if (!patientQR.QR) {
       const obj = {};
-      obj.profileNo = patient.identifier;
-      obj.age = patient.age;
-      obj.paymentMethod = patient.paymentMethod;
+      obj.profileNo = patient.identifier[0].value;
       obj.createdAt = patient.createdAt;
+      obj.insuranceCardNumber = patient.insuranceNumber;
       // console.log(obj);
       // console.log(newPatient._id);
       QRCode.toDataURL(JSON.stringify(obj), function (err, url) {
