@@ -404,6 +404,7 @@ exports.pendingMedications = asyncHandler(async (req, res, next) => {
         patientId: 1,
         chiefComplaint: 1,
         room: 1,
+        doctorNotes: 1,
       },
     },
     {
@@ -440,7 +441,7 @@ exports.pendingMedications = asyncHandler(async (req, res, next) => {
     {
       path: 'patientId',
       model: 'patientfhir',
-      select: 'identifier name ',
+      select: 'identifier name gender age weight',
     },
     {
       path: 'room.roomId',
@@ -502,6 +503,7 @@ exports.completedMedications = asyncHandler(async (req, res, next) => {
         patientId: 1,
         chiefComplaint: 1,
         room: 1,
+        doctorNotes: 1,
       },
     },
     {
@@ -538,7 +540,7 @@ exports.completedMedications = asyncHandler(async (req, res, next) => {
     {
       path: 'patientId',
       model: 'patientfhir',
-      select: 'identifier name ',
+      select: 'identifier name gender age weight',
     },
     {
       path: 'room.roomId',
