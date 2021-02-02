@@ -40,7 +40,7 @@ exports.edrTransfer = asyncHandler(async (req, res, next) => {
   let endTimeCC;
   let currentTimeCC = new Date();
 
-  currentTimeCC = currentTimeCC.toISOString().split('T')[1];
+  currentTimeCC = currentTimeCC.falsetoISOString().split('T')[1];
   // console.log(currentTimeCC);
 
   const CCrequestNo = 'TRID' + day + requestNoFormat(new Date(), 'yyHHMMss');
@@ -66,7 +66,7 @@ exports.edrTransfer = asyncHandler(async (req, res, next) => {
     requestNo: CCrequestNo,
     edrId: req.body.edrId,
     status: 'pending',
-    staffId: req.body.StaffId,
+    staffId: req.body.staffId,
     requestedFor: 'Transfer',
     requestedAt: Date.now(),
     costomerCareId: customerCare._id,
