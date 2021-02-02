@@ -1,6 +1,9 @@
+const requestNoFormat = require('dateformat');
 const EDR = require('../models/EDR/EDR');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
+const CCRequest = require('../models/customerCareRequest');
+const Staff = require('../models/staffFhir/staff');
 
 exports.paramedicsEdr = asyncHandler(async (req, res, next) => {
   const paramedicsEdr = await EDR.find({
@@ -16,14 +19,61 @@ exports.paramedicsEdr = asyncHandler(async (req, res, next) => {
 });
 
 exports.edrTransfer = asyncHandler(async (req, res, next) => {
-  const transferredEdr = await EDR.findOneAndUpdate(
-    { _id: req.params.edrId },
-    { $set: { patientInHospital: true } },
-    { new: true }
-  );
+  // const transferredEdr = await EDR.findOneAndUpdate(
+  //   { _id: req.params.edrId },
+  //   { $set: { patientInHospital: true } },
+  //   { new: true }
+  // );
+
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const diff =
+    now -
+    start +
+    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
+  const oneDay = 1000 * 60 * 60 * 24;
+  const day = Math.floor(diff / oneDay);
+  // const requestNo = '' + day + requestNoFormat(new Date(), 'yyHHMMss');
+
+  // Customer Care Request
+  let startTimeCC;
+  let endTimeCC;
+  let currentTimeCC = new Date();
+
+  currentTimeCC = currentTimeCC.toISOString().split('T')[1];
+  // console.log(currentTimeCC);
+
+  const CCrequestNo = 'TRID' + day + requestNoFormat(new Date(), 'yyHHMMss');
+  const customerCares = await Staff.find({
+    staffType: 'Customer Care',
+    disabled: false,
+    // availability: true,
+  }).select('identifier name shiftStartTime shiftEndTime');
+  const shiftCC = customerCares.filter((CC) => {
+    startTimeCC = CC.shiftStartTime.toISOString().split('T')[1];
+    endTimeCC = CC.shiftEndTime.toISOString().split('T')[1];
+    if (currentTimeCC >= startTimeCC && currentTimeCC <= endTimeCC) {
+      console.log(CC);
+      return CC;
+    }
+  });
+
+  const randomCC = Math.floor(Math.random() * (shiftCC.length - 1));
+  console.log(randomCC);
+  const customerCare = shiftCC[randomCC];
+
+  const cc = await CCRequest.create({
+    requestNo: CCrequestNo,
+    edrId: req.body.edrId,
+    status: 'pending',
+    staffId: req.body.StaffId,
+    requestedFor: 'Transfer',
+    requestedAt: Date.now(),
+    costomerCareId: customerCare._id,
+  });
   res.status(200).json({
     success: true,
-    data: transferredEdr,
+    data: cc,
   });
 });
 
