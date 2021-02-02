@@ -121,11 +121,11 @@ exports.getPharmacy = asyncHandler(async (req, res, next) => {
     {
       $unwind: '$pharmacyRequest',
     },
-    {
-      $match: {
-        'pharmacyRequest.status': 'pending',
-      },
-    },
+    // {
+    //   $match: {
+    //     'pharmacyRequest.status': 'pending',
+    //   },
+    // },
     {
       $group: {
         _id: '$_id',
