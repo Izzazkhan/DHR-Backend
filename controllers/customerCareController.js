@@ -3,8 +3,10 @@ const Staff = require('../models/staffFhir/staff');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const EDR = require('../models/EDR/EDR');
+const Room = require('../models/room');
 const Transfer = require('../models/patientTransferEDEOU/patientTransferEDEOU');
 const CCRequest = require('../models/customerCareRequest');
+const room = require('../models/room');
 
 exports.getAllCustomerCares = asyncHandler(async (req, res, next) => {
   const customerCares = await Staff.find({
@@ -135,7 +137,50 @@ exports.pendingEdToEouTransfers = asyncHandler(async (req, res, next) => {
   });
 });
 
-exports.completeTransfer = asyncHandler(async (req, res, next) => {
+exports.pendingEouToEdTransfers = asyncHandler(async (req, res, next) => {
+  const transfers = await Transfer.find({
+    to: 'ED',
+    from: 'EOU',
+    status: 'pending',
+    requestedTo: req.params.ccId,
+  })
+    .select('edrId status')
+    .populate([
+      {
+        path: 'edrId',
+        model: 'EDR',
+        select: 'patientId room chiefComplaint',
+        populate: [
+          {
+            path: 'patientId',
+            model: 'patientfhir',
+            select: 'identifier ',
+          },
+          {
+            path: 'room.roomId',
+            model: 'room',
+            select: 'roomNo ',
+          },
+          {
+            path: 'chiefComplaint.chiefComplaintId',
+            model: 'chiefComplaint',
+            select: 'productionArea.productionAreaId',
+            populate: {
+              path: 'productionArea.productionAreaId',
+              model: 'productionArea',
+              select: 'paName',
+            },
+          },
+        ],
+      },
+    ]);
+  res.status(200).json({
+    success: true,
+    data: transfers,
+  });
+});
+
+exports.completeEOUTransfer = asyncHandler(async (req, res, next) => {
   const completedTransfer = await Transfer.findOneAndUpdate(
     { _id: req.params.transferId },
     { $set: { status: 'completed', completedAt: Date.now() } },
@@ -157,6 +202,54 @@ exports.completeTransfer = asyncHandler(async (req, res, next) => {
       },
     ]);
 
+  const updatedEDR = await EDR.findOneAndUpdate(
+    { _id: completedTransfer.edrId._id },
+    { $set: { currentLocation: 'EOU' } },
+    { new: true }
+  ).populate('room.roomId');
+
+  const roomId = updatedEDR.room[updatedEDR.room.length - 1].roomId._id;
+
+  await Room.findOneAndUpdate(
+    { _id: roomId },
+    { $set: { availability: true } },
+    { new: true }
+  );
+
+  res.status(200).json({
+    success: true,
+    data: completedTransfer,
+  });
+});
+
+exports.completeEDTransfer = asyncHandler(async (req, res, next) => {
+  const completedTransfer = await Transfer.findOneAndUpdate(
+    { _id: req.params.transferId },
+    { $set: { status: 'completed', completedAt: Date.now() } },
+    { new: true }
+  )
+    .select('edrId status')
+    .populate([
+      {
+        path: 'edrId',
+        model: 'EDR',
+        select: 'patientId',
+        populate: [
+          {
+            path: 'patientId',
+            model: 'patientfhir',
+            select: 'identifier ',
+          },
+        ],
+      },
+    ]);
+
+  const updatedEDR = await EDR.findOneAndUpdate(
+    { _id: completedTransfer.edrId._id },
+    { $set: { currentLocation: 'ED' } },
+    { new: true }
+  ).populate('room.roomId');
+
   res.status(200).json({
     success: true,
     data: completedTransfer,
@@ -167,6 +260,49 @@ exports.completedEdToEouTransfers = asyncHandler(async (req, res, next) => {
   const transfers = await Transfer.find({
     to: 'EOU',
     from: 'ED',
+    status: 'completed',
+    requestedTo: req.params.ccId,
+  })
+    .select('edrId status')
+    .populate([
+      {
+        path: 'edrId',
+        model: 'EDR',
+        select: 'patientId room chiefComplaint',
+        populate: [
+          {
+            path: 'patientId',
+            model: 'patientfhir',
+            select: 'identifier ',
+          },
+          {
+            path: 'room.roomId',
+            model: 'room',
+            select: 'roomNo ',
+          },
+          {
+            path: 'chiefComplaint.chiefComplaintId',
+            model: 'chiefComplaint',
+            select: 'productionArea.productionAreaId',
+            populate: {
+              path: 'productionArea.productionAreaId',
+              model: 'productionArea',
+              select: 'paName',
+            },
+          },
+        ],
+      },
+    ]);
+  res.status(200).json({
+    success: true,
+    data: transfers,
+  });
+});
+
+exports.completedEouToEdTransfers = asyncHandler(async (req, res, next) => {
+  const transfers = await Transfer.find({
+    to: 'ED',
+    from: 'EOU',
     status: 'completed',
     requestedTo: req.params.ccId,
   })

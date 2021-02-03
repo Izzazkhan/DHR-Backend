@@ -3,6 +3,7 @@ const Room = require('../models/room');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const EDR = require('../models/EDR/EDR');
+const ProductionArea = require('../models/productionArea');
 
 exports.getRooms = asyncHandler(async (req, res) => {
   const getRooms = await Room.find();
@@ -15,6 +16,19 @@ exports.getAvailableRooms = asyncHandler(async (req, res) => {
     availability: true,
   }).select({ roomId: 1, noOfBeds: 1, roomNo: 1 });
   res.status(200).json({ success: true, data: available });
+});
+
+exports.getAvailableRoomsAganistPA = asyncHandler(async (req, res) => {
+  const paWithRooms = await ProductionArea.findById({
+    _id: req.params.paId,
+    disabled: false,
+    availability: true,
+  }).select('rooms').populate({
+    path: 'rooms.roomId',
+    match: { availability: true, disabled: false },
+  });
+
+  res.status(200).json({ success: true, data: paWithRooms });
 });
 
 exports.createRoom = asyncHandler(async (req, res) => {
