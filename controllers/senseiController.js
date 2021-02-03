@@ -489,7 +489,68 @@ exports.getEOUPatients = asyncHandler(async (req, res, next) => {
 exports.searchEDPatients = asyncHandler(async (req, res, next) => {
   const patients = await EDR.find({
     currentLocation: 'ED',
-  }).populate('patientId');
+  }).populate([
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+    },
+    {
+      path: 'consultationNote.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'consultationNote.consultant',
+      model: 'staff',
+    },
+    {
+      path: 'radRequest.serviceId',
+      model: 'RadiologyService',
+    },
+    {
+      path: 'radRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'labRequest.serviceId',
+      model: 'LaboratoryService',
+    },
+    {
+      path: 'labRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.item.itemId',
+      model: 'Item',
+    },
+    {
+      path: 'doctorNotes.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'edNurseRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'eouNurseRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'nurseTechnicianRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'anesthesiologistNote.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.reconciliationNotes.addedBy',
+      model: 'staff',
+    },
+  ]);
   const arr = [];
   for (let i = 0; i < patients.length; i++) {
     const fullName =
@@ -531,7 +592,68 @@ exports.searchEDPatients = asyncHandler(async (req, res, next) => {
 exports.searchEOUPatients = asyncHandler(async (req, res, next) => {
   const patients = await EDR.find({
     currentLocation: 'EOU',
-  }).populate('patientId');
+  }).populate([
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+    },
+    {
+      path: 'consultationNote.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'consultationNote.consultant',
+      model: 'staff',
+    },
+    {
+      path: 'radRequest.serviceId',
+      model: 'RadiologyService',
+    },
+    {
+      path: 'radRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'labRequest.serviceId',
+      model: 'LaboratoryService',
+    },
+    {
+      path: 'labRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.item.itemId',
+      model: 'Item',
+    },
+    {
+      path: 'doctorNotes.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'edNurseRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'eouNurseRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'nurseTechnicianRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'anesthesiologistNote.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.reconciliationNotes.addedBy',
+      model: 'staff',
+    },
+  ]);
   const arr = [];
   for (let i = 0; i < patients.length; i++) {
     const fullName =
