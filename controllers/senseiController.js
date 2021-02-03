@@ -272,3 +272,95 @@ exports.patientsByCC = asyncHandler(async (req, res, next) => {
     data: newArray,
   });
 });
+
+// Internal Consultan Requests
+exports.getICR = asyncHandler(async (req, res, next) => {
+  const unwindEdr = await EDR.aggregate([
+    {
+      $project: {
+        _id: 1,
+        consultationNote: 1,
+        patientId: 1,
+      },
+    },
+    {
+      $unwind: '$consultationNote',
+    },
+    {
+      $match: {
+        'consultationNote.consultationType': 'Internal',
+      },
+    },
+    // {
+    //   $group: {
+    //     _id: { patientId: '$patientId' },
+    //     labRequest: { $push: '$labRequest' },
+    //   },
+    // },
+    // {
+    //   $project: {
+    //     patientId: '$_id',
+    //     _id: 0,
+    //     labRequest: 1,
+    //   },
+    // },
+  ]);
+
+  const icr = await EDR.populate(unwindEdr, [
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+      select: 'identifier name createdAt weight age gender',
+    },
+  ]);
+  res.status(200).json({
+    success: true,
+    data: icr,
+  });
+});
+
+// External Consultan Requests
+exports.getECR = asyncHandler(async (req, res, next) => {
+  const unwindEdr = await EDR.aggregate([
+    {
+      $project: {
+        _id: 1,
+        consultationNote: 1,
+        patientId: 1,
+      },
+    },
+    {
+      $unwind: '$consultationNote',
+    },
+    {
+      $match: {
+        'consultationNote.consultationType': 'External',
+      },
+    },
+    // {
+    //   $group: {
+    //     _id: { patientId: '$patientId' },
+    //     labRequest: { $push: '$labRequest' },
+    //   },
+    // },
+    // {
+    //   $project: {
+    //     patientId: '$_id',
+    //     _id: 0,
+    //     labRequest: 1,
+    //   },
+    // },
+  ]);
+
+  const ecr = await EDR.populate(unwindEdr, [
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+      select: 'identifier name createdAt weight age gender',
+    },
+  ]);
+  res.status(200).json({
+    success: true,
+    data: ecr,
+  });
+});
