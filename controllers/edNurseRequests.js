@@ -121,25 +121,27 @@ exports.getPharmacy = asyncHandler(async (req, res, next) => {
     {
       $unwind: '$pharmacyRequest',
     },
-    {
-      $match: {
-        'pharmacyRequest.status': 'pending',
-      },
-    },
+    // {
+    //   $match: {
+    //     'pharmacyRequest.status': 'pending',
+    //   },
+    // },
     {
       $group: {
-        _id: { patientId: '$patientId' },
+        _id: '$_id',
+        patientId: { $push: '$patientId' },
         pharmacyRequest: { $push: '$pharmacyRequest' },
       },
     },
     {
       $project: {
-        patientId: '$_id',
-        _id: 0,
+        patientId: 1,
+        _id: 1,
         pharmacyRequest: 1,
       },
     },
   ]);
+  // console.log(unwindEdr);
 
   const pharmacyRequest = await EDR.populate(unwindEdr, [
     {

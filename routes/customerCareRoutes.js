@@ -20,6 +20,9 @@ const {
   pendingMedications,
   completedMedications,
   updateMedicationStatus,
+  pendingAmbulanceRequest,
+  completedAmbulanceRequest,
+  updateAmbulanceRequest,
 } = require('../controllers/customerCareController');
 
 router.get('/getAllCustomerCares', getAllCustomerCares);
@@ -39,5 +42,7 @@ router.get('/completedMedications/:ccId', completedMedications);
 router.put('/updateMedicationStatus', updateMedicationStatus);
 router.get('/getPendingSurveyEdrs', getPendingSurveyEdrs);
 router.get('/getCompletedSurveyEdrs', getCompletedSurveyEdrs);
-
+router.get('/pendingAmbulanceRequest/:ccId', pendingAmbulanceRequest);
+router.get('/completedAmbulanceRequest/:ccId', completedAmbulanceRequest);
+router.put('/updateAmbulanceRequest', updateAmbulanceRequest);
 module.exports = router;

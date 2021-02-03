@@ -156,7 +156,7 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
 
   // Nurse Technician Request
   const nurseTechnician = await Staff.findOne({
-    availability: true,
+    // availability: true,
     disabled: false,
     staffType: 'Nurses',
     subType: 'Nurse Technician',

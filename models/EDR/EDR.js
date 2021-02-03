@@ -539,6 +539,7 @@ const edrSchema = new mongoose.Schema({
       noteTime: {
         type: Date,
       },
+      consultationType: String,
       status: {
         type: String,
         default: 'pending',
@@ -842,7 +843,7 @@ const edrSchema = new mongoose.Schema({
       completedTime: {
         type: Date,
       },
-      
+
       createdAt: {
         type: Date,
         default: Date.now,

@@ -12,7 +12,7 @@ const {
 
 router.get('/paramedicsEdr', paramedicsEdr);
 router.get('/transferredPMEdr', transferredParamedicsEdr);
-router.get('/edrTransfer/:edrId', edrTransfer);
+router.put('/edrTransfer', edrTransfer);
 router.get('/searchPendingPMEdr/:keyword', searchPendingPMEdr);
 router.get('/searchCompletedPMEdr/:keyword', searchCompletedPMEdr);
 

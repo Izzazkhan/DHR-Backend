@@ -540,6 +540,7 @@ exports.pendingMedications = asyncHandler(async (req, res, next) => {
         patientId: 1,
         chiefComplaint: 1,
         room: 1,
+        doctorNotes: 1,
       },
     },
     {
@@ -576,7 +577,7 @@ exports.pendingMedications = asyncHandler(async (req, res, next) => {
     {
       path: 'patientId',
       model: 'patientfhir',
-      select: 'identifier name ',
+      select: 'identifier name gender age weight',
     },
     {
       path: 'room.roomId',
@@ -638,6 +639,7 @@ exports.completedMedications = asyncHandler(async (req, res, next) => {
         patientId: 1,
         chiefComplaint: 1,
         room: 1,
+        doctorNotes: 1,
       },
     },
     {
@@ -674,7 +676,7 @@ exports.completedMedications = asyncHandler(async (req, res, next) => {
     {
       path: 'patientId',
       model: 'patientfhir',
-      select: 'identifier name ',
+      select: 'identifier name gender age weight',
     },
     {
       path: 'room.roomId',
@@ -696,5 +698,132 @@ exports.completedMedications = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: medications,
+  });
+});
+
+exports.pendingAmbulanceRequest = asyncHandler(async (req, res, next) => {
+  const requests = await CCRequest.find({
+    requestedFor: 'Transfer',
+    status: 'pending',
+    costomerCareId: req.params.ccId,
+  })
+    // .select('edrId status ')
+    .populate([
+      {
+        path: 'edrId',
+        model: 'EDR',
+        select: 'patientId room chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'patientId',
+            model: 'patientfhir',
+            select: 'identifier ',
+          },
+          {
+            path: 'room.roomId',
+            model: 'room',
+            select: 'roomNo ',
+          },
+          {
+            path: 'chiefComplaint.chiefComplaintId',
+            model: 'chiefComplaint',
+            select: 'productionArea.productionAreaId',
+            populate: {
+              path: 'productionArea.productionAreaId',
+              model: 'productionArea',
+              select: 'paName',
+            },
+          },
+        ],
+      },
+      {
+        path: 'staffId',
+        model: 'staff',
+        select: 'name',
+      },
+    ]);
+  res.status(200).json({
+    success: true,
+    data: requests,
+  });
+});
+
+exports.updateAmbulanceRequest = asyncHandler(async (req, res, next) => {
+  await EDR.findOneAndUpdate(
+    { _id: req.body.edrId },
+    { $set: { patientInHospital: true } },
+    { new: true }
+  );
+  const completedRequest = await CCRequest.findOneAndUpdate(
+    { _id: req.body.requestId },
+    { $set: { status: 'completed', completedAt: Date.now() } },
+    { new: true }
+  )
+    .select('edrId status requestNo')
+    .populate([
+      {
+        path: 'edrId',
+        model: 'EDR',
+        select: 'patientId ',
+        populate: [
+          {
+            path: 'patientId',
+            model: 'patientfhir',
+            select: 'identifier ',
+          },
+        ],
+      },
+    ]);
+
+  res.status(200).json({
+    success: true,
+    data: completedRequest,
+  });
+});
+
+exports.completedAmbulanceRequest = asyncHandler(async (req, res, next) => {
+  const requests = await CCRequest.find({
+    requestedFor: 'Transfer',
+    status: 'completed',
+    costomerCareId: req.params.ccId,
+  })
+    // .select('edrId status ')
+    .populate([
+      {
+        path: 'edrId',
+        model: 'EDR',
+        select: 'patientId room chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'patientId',
+            model: 'patientfhir',
+            select: 'identifier ',
+          },
+          {
+            path: 'room.roomId',
+            model: 'room',
+            select: 'roomNo ',
+          },
+          {
+            path: 'chiefComplaint.chiefComplaintId',
+            model: 'chiefComplaint',
+            select: 'productionArea.productionAreaId',
+            populate: {
+              path: 'productionArea.productionAreaId',
+              model: 'productionArea',
+              select: 'paName',
+            },
+          },
+        ],
+      },
+      {
+        path: 'staffId',
+        model: 'staff',
+        select: 'name',
+      },
+    ]);
+  res.status(200).json({
+    success: true,
+    data: requests,
   });
 });
