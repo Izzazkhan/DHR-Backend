@@ -489,8 +489,7 @@ exports.getEOUPatients = asyncHandler(async (req, res, next) => {
 exports.searchEDPatients = asyncHandler(async (req, res, next) => {
   const patients = await EDR.find({
     currentLocation: 'ED',
-  });
-
+  }).populate('patientId');
   const arr = [];
   for (let i = 0; i < patients.length; i++) {
     const fullName =
@@ -532,7 +531,7 @@ exports.searchEDPatients = asyncHandler(async (req, res, next) => {
 exports.searchEOUPatients = asyncHandler(async (req, res, next) => {
   const patients = await EDR.find({
     currentLocation: 'EOU',
-  });
+  }).populate('patientId');
   const arr = [];
   for (let i = 0; i < patients.length; i++) {
     const fullName =
