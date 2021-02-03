@@ -272,3 +272,216 @@ exports.patientsByCC = asyncHandler(async (req, res, next) => {
     data: newArray,
   });
 });
+
+exports.getCR = asyncHandler(async (req, res, next) => {
+  const cr = await EDR.find({
+    consultationNote: { $ne: [] },
+  }).populate([
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+    },
+    {
+      path: 'consultationNote.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'consultationNote.consultant',
+      model: 'staff',
+    },
+    {
+      path: 'radRequest.serviceId',
+      model: 'RadiologyService',
+    },
+    {
+      path: 'radRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'labRequest.serviceId',
+      model: 'LaboratoryService',
+    },
+    {
+      path: 'labRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.item.itemId',
+      model: 'Item',
+    },
+    {
+      path: 'doctorNotes.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'edNurseRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'eouNurseRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'nurseTechnicianRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'anesthesiologistNote.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.reconciliationNotes.addedBy',
+      model: 'staff',
+    },
+  ]);
+  res.status(200).json({
+    success: true,
+    data: cr,
+  });
+});
+
+exports.getEDPatients = asyncHandler(async (req, res, next) => {
+  const ed = await EDR.find({
+    currentLocation: 'ED',
+  }).populate([
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+    },
+    {
+      path: 'consultationNote.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'consultationNote.consultant',
+      model: 'staff',
+    },
+    {
+      path: 'radRequest.serviceId',
+      model: 'RadiologyService',
+    },
+    {
+      path: 'radRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'labRequest.serviceId',
+      model: 'LaboratoryService',
+    },
+    {
+      path: 'labRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.item.itemId',
+      model: 'Item',
+    },
+    {
+      path: 'doctorNotes.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'edNurseRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'eouNurseRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'nurseTechnicianRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'anesthesiologistNote.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.reconciliationNotes.addedBy',
+      model: 'staff',
+    },
+  ]);
+  res.status(200).json({
+    success: true,
+    data: ed,
+  });
+});
+
+exports.getEOUPatients = asyncHandler(async (req, res, next) => {
+  const eou = await EDR.find({
+    currentLocation: 'EOU',
+  }).populate([
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+    },
+    {
+      path: 'consultationNote.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'consultationNote.consultant',
+      model: 'staff',
+    },
+    {
+      path: 'radRequest.serviceId',
+      model: 'RadiologyService',
+    },
+    {
+      path: 'radRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'labRequest.serviceId',
+      model: 'LaboratoryService',
+    },
+    {
+      path: 'labRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.item.itemId',
+      model: 'Item',
+    },
+    {
+      path: 'doctorNotes.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'edNurseRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'eouNurseRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'nurseTechnicianRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'anesthesiologistNote.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.reconciliationNotes.addedBy',
+      model: 'staff',
+    },
+  ]);
+  res.status(200).json({
+    success: true,
+    data: eou,
+  });
+});

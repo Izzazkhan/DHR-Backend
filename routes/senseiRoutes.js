@@ -8,6 +8,9 @@ const {
   // getNoOfPatientsByCC,
   getPatientByRoom,
   searchCCPatients,
+  getCR,
+  getEDPatients,
+  getEOUPatients,
 } = require('../controllers/senseiController');
 
 const router = express.Router();
@@ -15,6 +18,9 @@ router.put('/assignShifts', updateStaffShift);
 router.get('/getCCPatients', getCCPatients);
 router.get('/getPatientsByPA/:productionAreaId', getPatientsByPA);
 router.get('/patientsByCC', patientsByCC);
+router.get('/getCR', getCR);
+router.get('/getEDPatients', getEDPatients);
+router.get('/getEOUPatients', getEOUPatients);
 // router.get('/getNoOfPatientsByCC/:id', getNoOfPatientsByCC);
 router.get('/getPatientByRoom/:roomId', getPatientByRoom);
 router.get('/searchCCPatients/:keyword', searchCCPatients);

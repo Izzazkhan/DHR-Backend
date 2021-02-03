@@ -95,6 +95,7 @@ exports.patientsInDept = asyncHandler(async (req, res, next) => {
     currentLocation: req.params.currentdept,
     status: 'pending',
     patientInHospital: true,
+    room: { $ne: [] },
   })
     .populate('patientId')
     .populate('chiefComplaint.chiefComplaintId')
@@ -132,15 +133,7 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
     $or: [{ status: 'pending' }, { status: 'in_progress' }],
   });
 
-  // console.log('transfer', transfer);
   if (transfer.length > 0) {
-    // return next(
-    //   new ErrorResponse(
-    //     'Transfer request is already in progress for that patient',
-    //     400
-    //   )
-    // );
-
     return res.status(200).json({
       success: false,
       error: 'Transfer request is already in progress for that patient',
@@ -155,15 +148,15 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
     );
   }
 
-  await Staff.findOneAndUpdate(
-    { _id: customerCareStaff.id },
-    { $set: { availability: false } },
-    { new: true }
-  );
+  // await Staff.findOneAndUpdate(
+  //   { _id: customerCareStaff.id },
+  //   { $set: { availability: false } },
+  //   { new: true }
+  // );
 
   // Nurse Technician Request
   const nurseTechnician = await Staff.findOne({
-    availability: true,
+    // availability: true,
     disabled: false,
     staffType: 'Nurses',
     subType: 'Nurse Technician',

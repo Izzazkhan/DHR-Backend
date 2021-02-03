@@ -448,11 +448,12 @@ exports.addConsultationNote = asyncHandler(async (req, res, next) => {
 
   const parsed = JSON.parse(req.body.data);
   const consultationNote = {
-    requestNo,
+    consultationNo: requestNo,
     addedBy: parsed.addedBy,
     consultant: parsed.consultant,
     noteTime: Date.now(),
     notes: parsed.notes,
+    consultationType: parsed.subType,
     voiceNotes: req.file ? req.file.path : null,
     speciality: parsed.speciality,
   };
