@@ -273,23 +273,12 @@ exports.patientsByCC = asyncHandler(async (req, res, next) => {
   });
 });
 
-exports.getICR = asyncHandler(async (req, res, next) => {
-  const icr = await EDR.find({
+exports.getCR = asyncHandler(async (req, res, next) => {
+  const cr = await EDR.find({
     consultationNote: { $ne: [] },
   }).populate('patientId');
   res.status(200).json({
     success: true,
-    data: icr,
-  });
-});
-
-exports.getECR = asyncHandler(async (req, res, next) => {
-  const ecr = await EDR.find({
-    consultationNote: { $ne: [] },
-  })
-  .populate('patientId');
-  res.status(200).json({
-    success: true,
-    data: ecr,
+    data: cr,
   });
 });
