@@ -19,12 +19,16 @@ exports.paramedicsEdr = asyncHandler(async (req, res, next) => {
 });
 
 exports.edrTransfer = asyncHandler(async (req, res, next) => {
-  // const transferredEdr = await EDR.findOneAndUpdate(
-  //   { _id: req.params.edrId },
-  //   { $set: { patientInHospital: true } },
-  //   { new: true }
-  // );
-
+  const request = await CCRequest.find({
+    edrId: req.body.edrId,
+    requestedFor: 'Transfer',
+  });
+  // console.log(request);
+  if (request && request.length > 0) {
+    return next(
+      new ErrorResponse('A request is already generated for this Edr', 400)
+    );
+  }
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
   const diff =
@@ -40,10 +44,10 @@ exports.edrTransfer = asyncHandler(async (req, res, next) => {
   let endTimeCC;
   let currentTimeCC = new Date();
 
-  currentTimeCC = currentTimeCC.falsetoISOString().split('T')[1];
+  currentTimeCC = currentTimeCC.toISOString().split('T')[1];
   // console.log(currentTimeCC);
 
-  const CCrequestNo = 'TRID' + day + requestNoFormat(new Date(), 'yyHHMMss');
+  const CCrequestNo = 'ARID' + day + requestNoFormat(new Date(), 'yyHHMMss');
   const customerCares = await Staff.find({
     staffType: 'Customer Care',
     disabled: false,
@@ -59,7 +63,7 @@ exports.edrTransfer = asyncHandler(async (req, res, next) => {
   });
 
   const randomCC = Math.floor(Math.random() * (shiftCC.length - 1));
-  console.log(randomCC);
+  // console.log(randomCC);
   const customerCare = shiftCC[randomCC];
 
   const cc = await CCRequest.create({
@@ -69,7 +73,7 @@ exports.edrTransfer = asyncHandler(async (req, res, next) => {
     staffId: req.body.staffId,
     requestedFor: 'Transfer',
     requestedAt: Date.now(),
-    costomerCareId: customerCare._id,
+    customerCareId: customerCare._id,
   });
   res.status(200).json({
     success: true,
