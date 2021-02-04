@@ -492,6 +492,7 @@ exports.updateConsultationNote = asyncHandler(async (req, res, next) => {
         [`consultationNote.${note}.consultant`]: parsed.consultant,
         [`consultationNote.${note}.speciality`]: parsed.speciality,
         [`consultationNote.${note}.notes`]: parsed.notes,
+        [`consultationNote.${note}.consultationType`]: parsed.subType,
         [`consultationNote.${note}.voiceNotes`]: req.file
           ? req.file.path
           : parsed.voiceNotes,
