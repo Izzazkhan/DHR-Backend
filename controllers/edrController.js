@@ -65,6 +65,7 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
     claimed,
     generatedFrom,
     patientInHospital,
+    createdTimeStamp: Date.now(),
   });
 
   await EDR.findOneAndUpdate(
