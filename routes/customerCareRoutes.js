@@ -28,7 +28,7 @@ const {
 router.get('/getAllCustomerCares', getAllCustomerCares);
 router.get('/searchCustomerCare/:keyword', getCCStaffByKeyword);
 router.put('/assignCustomerCare', assignCC);
-router.get('/completeEOUTransfer/:transferId', completeEOUTransfer);
+router.put('/completeEOUTransfer/:transferId', completeEOUTransfer);
 router.get('/completeEDTransfer/:transferId', completeEDTransfer);
 router.get('/pendingEouTransfer/:ccId', pendingEdToEouTransfers);
 router.get('/pendingEdTransfer/:ccId', pendingEouToEdTransfers);
