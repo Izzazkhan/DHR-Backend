@@ -727,8 +727,6 @@ exports.timeInterval = asyncHandler(async (req, res, next) => {
     patient.hours = Math.trunc(float * 24);
   });
 
-  console.log(patientsTime);
-
   const patients = await EDR.populate(patientsTime, [
     {
       path: 'patientId',
