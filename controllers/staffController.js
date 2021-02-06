@@ -482,8 +482,19 @@ exports.getNurseTechnicians = asyncHandler(async (req, res, next) => {
     staffType: 'Nurses',
     subType: 'Nurse Technician',
     disabled: false,
-    availability: true,
   }).select('identifier name');
+  res.status(200).json({
+    success: true,
+    data: nurses,
+  });
+});
+
+exports.getEDNurses = asyncHandler(async (req, res, next) => {
+  const nurses = await Staff.find({
+    staffType: 'Nurses',
+    subType: 'ED Nurse',
+    disabled: false,
+  }).select('identifier name specialty shift');
   res.status(200).json({
     success: true,
     data: nurses,
