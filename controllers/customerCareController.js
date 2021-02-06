@@ -183,7 +183,7 @@ exports.pendingEouToEdTransfers = asyncHandler(async (req, res, next) => {
 exports.completeEOUTransfer = asyncHandler(async (req, res, next) => {
   const completedTransfer = await Transfer.findOneAndUpdate(
     { _id: req.params.transferId },
-    { $set: { status: 'completed', completedAt: Date.now() } },
+    { $set: { status: req.body.status, completedAt: Date.now() } },
     { new: true }
   )
     .select('edrId status')
