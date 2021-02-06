@@ -18,6 +18,10 @@ const {
   getDischarged,
   getLabTest,
   getDeceased,
+  availableEdBeds,
+  getEDCCPatients,
+  getPatientTreatment,
+  getMedicationReconciliation,
 } = require('../controllers/senseiController');
 
 const router = express.Router();
@@ -33,6 +37,10 @@ router.get('/transferToEOU', transferToEOU);
 router.get('/getDischarged', getDischarged);
 router.get('/getLabTest', getLabTest);
 router.get('/getDeceased', getDeceased);
+router.get('/availableEdBeds', availableEdBeds);
+router.get('/getEDCCPatients', getEDCCPatients);
+router.get('/getPatientTreatment', getPatientTreatment);
+router.get('/getMedicationReconciliation', getMedicationReconciliation);
 // router.get('/getNoOfPatientsByCC/:id', getNoOfPatientsByCC);
 router.get('/getPatientByRoom/:roomId', getPatientByRoom);
 router.get('/searchCCPatients/:keyword', searchCCPatients);

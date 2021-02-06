@@ -5,6 +5,7 @@ const PA = require('../models/productionArea');
 const CC = require('../models/chiefComplaint/chiefComplaint');
 const ErrorResponse = require('../utils/errorResponse');
 const EouTransfer = require('../models/patientTransferEDEOU/patientTransferEDEOU');
+const Room = require('../models/room');
 
 exports.updateStaffShift = asyncHandler(async (req, res, next) => {
   const staff = await Staff.findOne({ _id: req.body.staffId });
@@ -79,7 +80,7 @@ exports.updateStaffShift = asyncHandler(async (req, res, next) => {
 
 exports.getCCPatients = asyncHandler(async (req, res, next) => {
   const patients = await EDR.find({
-    status: 'pending',
+    status: 'Discharged',
     chiefComplaint: { $ne: [] },
     patientInHospital: true,
   }).populate([
@@ -693,6 +694,8 @@ exports.searchEOUPatients = asyncHandler(async (req, res, next) => {
   });
 });
 
+// Stats for ED Room History
+
 exports.timeInterval = asyncHandler(async (req, res, next) => {
   const patientsTime = await EDR.aggregate([
     {
@@ -852,5 +855,134 @@ exports.getDeceased = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: deceased,
+  });
+});
+
+// Stats For Current ED Room
+exports.availableEdBeds = asyncHandler(async (req, res, next) => {
+  const beds = await Room.find({ availability: true }).select('roomId roomNo');
+
+  res.status(200).json({
+    success: true,
+    data: beds,
+  });
+});
+
+exports.getEDCCPatients = asyncHandler(async (req, res, next) => {
+  const patients = await EDR.find({
+    status: 'pending',
+    chiefComplaint: { $ne: [] },
+    patientInHospital: true,
+  })
+    .select('patientId chiefComplaint')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        // populate: [
+        //   {
+        //     path: 'productionArea.productionAreaId',
+        //     model: 'productionArea',
+        //     populate: [
+        //       {
+        //         path: 'rooms.roomId',
+        //         model: 'room',
+        //       },
+        //     ],
+        //   },
+        // ],
+      },
+      // {
+      //   path: 'patientId',
+      //   model: 'patientfhir',
+      // },
+    ]);
+
+  const newArray = [];
+  for (let i = 0; i < patients.length; i++) {
+    let count = 1;
+
+    const obj = JSON.parse(JSON.stringify(patients[i]));
+    const x =
+      patients[i].chiefComplaint[patients[i].chiefComplaint.length - 1]
+        .chiefComplaintId._id;
+    for (let j = 0; j < patients.length; j++) {
+      const y =
+        patients[j].chiefComplaint[patients[j].chiefComplaint.length - 1]
+          .chiefComplaintId._id;
+      if (x === y && patients[i]._id !== patients[j]._id) {
+        count++;
+      }
+    }
+
+    obj.count = count;
+    newArray.push(obj);
+    // console.log('count', patients[i]);
+  }
+
+  res.status(200).json({
+    success: true,
+    data: newArray,
+  });
+});
+
+exports.getPatientTreatment = asyncHandler(async (req, res, next) => {
+  const patients = await EDR.find({ status: 'pending' })
+    .select('patientId chiefComlaint ')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'name identifier',
+      },
+    ]);
+
+  res.status(200).json({
+    success: true,
+    data: patients,
+  });
+});
+
+exports.getMedicationReconciliation = asyncHandler(async (req, res, next) => {
+  const notes = await EDR.find({
+    pharmacyRequest: { $elemMatch: { reconciliationNotes: { $ne: [] } } },
+  })
+    .select('patientId chiefComlaint pharmacyRequest careStream.name')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'name identifier',
+      },
+    ]);
+
+  res.status(200).json({
+    success: true,
+    data: notes,
   });
 });
