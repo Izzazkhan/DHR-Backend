@@ -3,7 +3,8 @@ const asyncHandler = require('../middleware/async');
 const EDR = require('../models/EDR/EDR');
 const PA = require('../models/productionArea');
 const CC = require('../models/chiefComplaint/chiefComplaint');
-// const ErrorResponse = require('../utils/errorResponse');
+const ErrorResponse = require('../utils/errorResponse');
+const EouTransfer = require('../models/patientTransferEDEOU/patientTransferEDEOU');
 
 exports.updateStaffShift = asyncHandler(async (req, res, next) => {
   const staff = await Staff.findOne({ _id: req.body.staffId });
@@ -738,5 +739,118 @@ exports.timeInterval = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: patients,
+  });
+});
+
+exports.transferToEOU = asyncHandler(async (req, res, next) => {
+  const transfers = await EouTransfer.find({
+    to: 'EOU',
+    status: 'completed',
+  })
+    .select('edrId')
+    .populate([
+      {
+        path: 'edrId',
+        model: 'EDR',
+        select: 'patientId room chiefComplaint',
+        populate: [
+          {
+            path: 'patientId',
+            model: 'patientfhir',
+            select: 'identifier name ',
+          },
+          {
+            path: 'room.roomId',
+            model: 'room',
+            select: 'roomNo ',
+          },
+          {
+            path: 'chiefComplaint.chiefComplaintId',
+            model: 'chiefComplaint',
+            select: 'productionArea.productionAreaId',
+            populate: {
+              path: 'productionArea.productionAreaId',
+              model: 'productionArea',
+              select: 'paName',
+            },
+          },
+        ],
+      },
+    ]);
+
+  res.status(200).json({
+    success: true,
+    data: transfers,
+  });
+});
+
+exports.getDischarged = asyncHandler(async (req, res, next) => {
+  const discharged = await EDR.find({ status: 'Discharged' })
+    .select('status patientId room careStream.name dischargeTimestamp')
+    .populate([
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'identifier name',
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+        select: 'roomNo',
+      },
+    ]);
+
+  res.status(200).json({
+    success: true,
+    data: discharged,
+  });
+});
+
+exports.getLabTest = asyncHandler(async (req, res, next) => {
+  const labs = await EDR.find({ status: 'Discharged', labRequest: { $ne: [] } })
+    .select('patientId labRequest')
+    .populate([
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'identifier name',
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+        select: 'roomId',
+      },
+    ]);
+
+  // labs.map((lab) => (lab.totalTests = lab.labRequest.length));
+  // console.log(labs[0].totalTests);
+  res.status(200).json({
+    success: true,
+    data: labs,
+  });
+});
+
+exports.getDeceased = asyncHandler(async (req, res, next) => {
+  const deceased = await EDR.find({
+    status: 'Discharged',
+    'dischargeRequest.dischargeSummary.edrCompletionReason': 'deceased',
+  })
+    .select('status patientId room careStream.name dischargeTimestamp')
+    .populate([
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'identifier name',
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+        select: 'roomId',
+      },
+    ]);
+
+  res.status(200).json({
+    success: true,
+    data: deceased,
   });
 });
