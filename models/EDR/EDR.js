@@ -1098,15 +1098,12 @@ const edrSchema = new mongoose.Schema({
   },
   updatedAt: {
     type: Date,
-    default: Date.now,
   },
   createdTimeStamp: {
     type: Date,
-    default: Date.now,
   },
   dischargeTimestamp: {
     type: Date,
-    default: Date.now,
   },
   socialWorkerStatus: {
     type: String,

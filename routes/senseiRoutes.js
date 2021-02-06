@@ -13,6 +13,7 @@ const {
   getEOUPatients,
   searchEDPatients,
   searchEOUPatients,
+  timeInterval,
 } = require('../controllers/senseiController');
 
 const router = express.Router();
@@ -23,6 +24,7 @@ router.get('/patientsByCC', patientsByCC);
 router.get('/getCR', getCR);
 router.get('/getEDPatients', getEDPatients);
 router.get('/getEOUPatients', getEOUPatients);
+router.get('/timeInterval', timeInterval);
 // router.get('/getNoOfPatientsByCC/:id', getNoOfPatientsByCC);
 router.get('/getPatientByRoom/:roomId', getPatientByRoom);
 router.get('/searchCCPatients/:keyword', searchCCPatients);
