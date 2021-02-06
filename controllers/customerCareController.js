@@ -98,7 +98,7 @@ exports.pendingEdToEouTransfers = asyncHandler(async (req, res, next) => {
   const transfers = await Transfer.find({
     to: 'EOU',
     from: 'ED',
-    status: 'pending',
+    $or: [{ status: 'pending' }, { status: 'in_progress' }],
     requestedTo: req.params.ccId,
   })
     .select('edrId status')
@@ -141,7 +141,7 @@ exports.pendingEouToEdTransfers = asyncHandler(async (req, res, next) => {
   const transfers = await Transfer.find({
     to: 'ED',
     from: 'EOU',
-    status: 'pending',
+    $or: [{ status: 'pending' }, { status: 'in_progress' }],
     requestedTo: req.params.ccId,
   })
     .select('edrId status')

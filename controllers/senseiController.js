@@ -794,9 +794,9 @@ exports.getDischarged = asyncHandler(async (req, res, next) => {
         select: 'identifier name',
       },
       {
-        path: 'room',
-        model: 'roomId',
-        // select: '',
+        path: 'room.roomId',
+        model: 'room',
+        select: 'roomNo',
       },
     ]);
 
@@ -807,7 +807,7 @@ exports.getDischarged = asyncHandler(async (req, res, next) => {
 });
 
 exports.getLabTest = asyncHandler(async (req, res, next) => {
-  const labs = await EDR.find({ labRequest: { $ne: [] } })
+  const labs = await EDR.find({ status: 'Discharged', labRequest: { $ne: [] } })
     .select('patientId labRequest')
     .populate([
       {
@@ -827,5 +827,30 @@ exports.getLabTest = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: labs,
+  });
+});
+
+exports.getDeceased = asyncHandler(async (req, res, next) => {
+  const deceased = await EDR.find({
+    status: 'Discharged',
+    'dischargeRequest.dischargeSummary.edrCompletionReason': 'deceased',
+  })
+    .select('status patientId room careStream.name dischargeTimestamp')
+    .populate([
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'identifier name',
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+        select: 'roomId',
+      },
+    ]);
+
+  res.status(200).json({
+    success: true,
+    data: deceased,
   });
 });
