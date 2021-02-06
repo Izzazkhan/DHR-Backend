@@ -36,7 +36,9 @@ const TransferToEDEOUSchema = new mongoose.Schema(
 
     updatedAt: {
       type: Date,
-      default: Date.now,
+    },
+    inProgressTime: {
+      type: Date,
     },
     completedAt: {
       type: Date,
