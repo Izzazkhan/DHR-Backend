@@ -124,7 +124,6 @@ exports.getDoctorsWithCC = asyncHandler(async (req, res, next) => {
     {
       path: 'chiefComplaint.chiefComplaintId',
       model: 'chiefComplaint',
-      select: 'chiefComplaint.chiefComplaintId',
       populate: [
         {
           path: 'productionArea.productionAreaId',
