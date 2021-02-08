@@ -382,7 +382,7 @@ exports.getSpecialityDoctor = asyncHandler(async (req, res, next) => {
     specialty: req.params.speciality,
     $or: [{ subType: 'Internal' }, { subType: 'External' }],
     disabled: false,
-    availability: true,
+    // availability: true,
   });
   // console.log(doctors);
   res.status(200).json({
@@ -413,7 +413,7 @@ exports.getSpecialityNurse = asyncHandler(async (req, res, next) => {
     specialty: req.params.speciality,
     subType: 'ED Nurse',
     disabled: false,
-    availability: true,
+    // availability: true,
   });
   // console.log(doctors);
   res.status(200).json({
@@ -429,7 +429,7 @@ exports.getEOUNurse = asyncHandler(async (req, res, next) => {
     specialty: req.params.speciality,
     subType: 'EOU Nurse',
     disabled: false,
-    availability: true,
+    // availability: true,
   });
   // console.log(doctors);
   res.status(200).json({
@@ -445,7 +445,7 @@ exports.getNurseTechnician = asyncHandler(async (req, res, next) => {
     specialty: req.params.speciality,
     subType: 'Nurse Technician',
     disabled: false,
-    availability: true,
+    // availability: true,
   });
   res.status(200).json({
     success: true,
@@ -457,7 +457,7 @@ exports.getAllHouseKeepers = asyncHandler(async (req, res, next) => {
   const houseKeepers = await Staff.find({
     staffType: 'House Keeping',
     disabled: false,
-    availability: true,
+    // availability: true,
   }).select('identifier name');
   res.status(200).json({
     success: true,
@@ -469,7 +469,7 @@ exports.getCustomerCares = asyncHandler(async (req, res, next) => {
   const houseKeepers = await Staff.find({
     staffType: 'Customer Care',
     disabled: false,
-    availability: true,
+    // availability: true,
   }).select('identifier name');
   res.status(200).json({
     success: true,
@@ -502,12 +502,21 @@ exports.getEDNurses = asyncHandler(async (req, res, next) => {
 });
 
 exports.getExternal = asyncHandler(async (req, res, next) => {
-  const externals = await Staff.find({ subType: 'External' }).select(
-    'name identifier specialty experience productionArea'
-  );
+  const externals = await Staff.find({
+    subType: 'External',
+    disabled: false,
+  }).select('name identifier specialty experience productionArea');
   res.status(200).json({
     success: true,
     data: externals,
+  });
+});
+
+exports.getAllNurses = asyncHandler(async (req, res, next) => {
+  const nurses = await Staff.find({ staffType: 'Nurses', disabled: false });
+  res.status(200).json({
+    success: true,
+    data: nurses,
   });
 });
 
