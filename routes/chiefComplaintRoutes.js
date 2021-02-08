@@ -26,6 +26,7 @@ const {
   disableChiefComplaint,
   enableChiefComplaint,
   getDoctorsWithCC,
+  getNursesWithCC,
   // filterChiefCompaints,
   assignCC,
   getCCDoctorByKeyword,
@@ -42,7 +43,6 @@ router.get('/getAllChiefComplaints', getAllchiefComplaints);
 router.get('/getChiefComplaintByKeyword/:keyword', getChiefComplaintByKeyword);
 router.put('/disableChiefComplaint/:id', disableChiefComplaint);
 router.put('/enableChiefComplaint/:id', enableChiefComplaint);
-router.get('/getDoctorsWithCC', getDoctorsWithCC);
 // router.post('/filterChiefComplaints', filterChiefCompaints);
 router.put('/assignCC', assignCC);
 router.get('/getCCDoctorByKeyword/:keyword', getCCDoctorByKeyword);
@@ -52,4 +52,6 @@ router.get('/getAvailablePA', getAvailablePA);
 router.get('/getAvailablePAwithCC', getAvailablePAwithCC);
 router.put('/assignCCtoPatient', upload.single('file'), assignCCtoPatient);
 router.get('/getPAsByCCs/:id', getPAsByCCs);
+router.get('/getDoctorsWithCC', getDoctorsWithCC);
+router.get('/getNursesWithCC', getNursesWithCC);
 module.exports = router;

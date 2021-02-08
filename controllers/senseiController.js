@@ -880,7 +880,7 @@ exports.getEDCCPatients = asyncHandler(async (req, res, next) => {
       {
         path: 'chiefComplaint.chiefComplaintId',
         model: 'chiefComplaint',
-        select: 'chiefComplaint.chiefComplaintId',
+        select: 'chiefComplaintId name',
         // populate: [
         //   {
         //     path: 'productionArea.productionAreaId',

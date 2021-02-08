@@ -392,14 +392,13 @@ exports.getSpecialityDoctor = asyncHandler(async (req, res, next) => {
 });
 
 exports.getAnesthesiologist = asyncHandler(async (req, res, next) => {
-  // console.log(req.params.speciality);
   const anesthesiologist = await Staff.find({
     staffType: 'Doctor',
     subType: 'Anesthesiologist',
     disabled: false,
     // availability: true,
   });
-  // console.log(doctors);
+
   res.status(200).json({
     success: true,
     data: anesthesiologist,
