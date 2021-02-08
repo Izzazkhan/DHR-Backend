@@ -701,7 +701,7 @@ exports.timeInterval = asyncHandler(async (req, res, next) => {
   const patientsTime = await EDR.aggregate([
     {
       $match: {
-        status: 'Discharged',
+        $and: [{ status: 'Discharged' }, { currentLocation: 'ED' }],
       },
     },
     {
@@ -766,7 +766,7 @@ exports.transferToEOU = asyncHandler(async (req, res, next) => {
           {
             path: 'room.roomId',
             model: 'room',
-            select: 'roomNo ',
+            select: 'roomNo roomId',
           },
           {
             path: 'chiefComplaint.chiefComplaintId',
@@ -789,7 +789,10 @@ exports.transferToEOU = asyncHandler(async (req, res, next) => {
 });
 
 exports.getDischarged = asyncHandler(async (req, res, next) => {
-  const discharged = await EDR.find({ status: 'Discharged' })
+  const discharged = await EDR.find({
+    status: 'Discharged',
+    currentLocation: 'ED',
+  })
     .select('status patientId room careStream.name dischargeTimestamp')
     .populate([
       {
@@ -811,7 +814,11 @@ exports.getDischarged = asyncHandler(async (req, res, next) => {
 });
 
 exports.getLabTest = asyncHandler(async (req, res, next) => {
-  const labs = await EDR.find({ status: 'Discharged', labRequest: { $ne: [] } })
+  const labs = await EDR.find({
+    status: 'Discharged',
+    labRequest: { $ne: [] },
+    currentLocation: 'ED',
+  })
     .select('patientId labRequest')
     .populate([
       {
@@ -822,7 +829,7 @@ exports.getLabTest = asyncHandler(async (req, res, next) => {
       {
         path: 'room.roomId',
         model: 'room',
-        select: 'roomId',
+        select: 'roomId roomNo',
       },
     ]);
 
@@ -838,6 +845,7 @@ exports.getDeceased = asyncHandler(async (req, res, next) => {
   const deceased = await EDR.find({
     status: 'Discharged',
     'dischargeRequest.dischargeSummary.edrCompletionReason': 'deceased',
+    currentLocation: 'ED',
   })
     .select('status patientId room careStream.name dischargeTimestamp')
     .populate([
@@ -849,7 +857,7 @@ exports.getDeceased = asyncHandler(async (req, res, next) => {
       {
         path: 'room.roomId',
         model: 'room',
-        select: 'roomId',
+        select: 'roomId roomNo',
       },
     ]);
 
@@ -872,6 +880,7 @@ exports.availableEdBeds = asyncHandler(async (req, res, next) => {
 exports.getEDCCPatients = asyncHandler(async (req, res, next) => {
   const patients = await EDR.find({
     status: 'pending',
+    currentLocation: 'ED',
     chiefComplaint: { $ne: [] },
     patientInHospital: true,
   })
@@ -929,7 +938,7 @@ exports.getEDCCPatients = asyncHandler(async (req, res, next) => {
 });
 
 exports.getPatientTreatment = asyncHandler(async (req, res, next) => {
-  const patients = await EDR.find({ status: 'pending' })
+  const patients = await EDR.find({ status: 'pending', currentLocation: 'ED' })
     .select('patientId chiefComlaint ')
     .populate([
       {
@@ -960,6 +969,7 @@ exports.getPatientTreatment = asyncHandler(async (req, res, next) => {
 exports.getMedicationReconciliation = asyncHandler(async (req, res, next) => {
   const notes = await EDR.find({
     pharmacyRequest: { $elemMatch: { reconciliationNotes: { $ne: [] } } },
+    currentLocation: 'ED',
   })
     .select('patientId chiefComlaint pharmacyRequest careStream.name')
     .populate([
@@ -992,7 +1002,7 @@ exports.currentTimeInterval = asyncHandler(async (req, res, next) => {
   const patientsTime = await EDR.aggregate([
     {
       $match: {
-        status: 'pending',
+        $and: [{ status: 'pending' }, { currentLocation: 'ED' }],
       },
     },
     {
@@ -1037,7 +1047,11 @@ exports.currentTimeInterval = asyncHandler(async (req, res, next) => {
 });
 
 exports.getCurrentLabTest = asyncHandler(async (req, res, next) => {
-  const labs = await EDR.find({ status: 'pending', labRequest: { $ne: [] } })
+  const labs = await EDR.find({
+    status: 'pending',
+    labRequest: { $ne: [] },
+    currentLocation: 'ED',
+  })
     .select('patientId labRequest')
     .populate([
       {
@@ -1061,7 +1075,11 @@ exports.getCurrentLabTest = asyncHandler(async (req, res, next) => {
 });
 
 exports.getCurrentRadTest = asyncHandler(async (req, res, next) => {
-  const rads = await EDR.find({ status: 'pending', radRequest: { $ne: [] } })
+  const rads = await EDR.find({
+    status: 'pending',
+    radRequest: { $ne: [] },
+    currentLocation: 'ED',
+  })
     .select('patientId radRequest')
     .populate([
       {
@@ -1092,10 +1110,17 @@ exports.getCriticalLabTest = asyncHandler(async (req, res, next) => {
         status: 1,
         patientId: 1,
         labRequest: 1,
+        currentLocation: 1,
       },
     },
     {
-      $match: { $and: [{ status: 'pending' }, { labRequest: { $ne: [] } }] },
+      $match: {
+        $and: [
+          { status: 'pending' },
+          { labRequest: { $ne: [] } },
+          { currentLocation: 'ED' },
+        ],
+      },
     },
     {
       $unwind: '$labRequest',
