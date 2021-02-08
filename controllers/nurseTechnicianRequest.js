@@ -84,8 +84,14 @@ exports.getpendingLabs = asyncHandler(async (req, res, next) => {
     },
     {
       $match: {
-        'labRequest.nurseTechnicianStatus': 'Not Collected',
-        'labRequest.assignedTo': mongoose.Types.ObjectId(req.params.staffId),
+        $and: [
+          { 'labRequest.nurseTechnicianStatus': 'Not Collected' },
+          {
+            'labRequest.assignedTo': mongoose.Types.ObjectId(
+              req.params.staffId
+            ),
+          },
+        ],
       },
     },
   ]);

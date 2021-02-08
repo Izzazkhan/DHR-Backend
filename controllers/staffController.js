@@ -494,7 +494,7 @@ exports.getEDNurses = asyncHandler(async (req, res, next) => {
     staffType: 'Nurses',
     subType: 'ED Nurse',
     disabled: false,
-  }).select('identifier name specialty shift');
+  }).select('identifier name specialty shiftEndTime shiftStartTime');
   res.status(200).json({
     success: true,
     data: nurses,
