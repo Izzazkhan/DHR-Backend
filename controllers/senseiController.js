@@ -247,6 +247,8 @@ exports.patientsByCC = asyncHandler(async (req, res, next) => {
   const edrCC = await EDR.find({
     chiefComplaint: { $ne: [] },
     status: 'pending',
+    currentLocation: 'ED',
+    patientInHospital: true,
   }).select('chiefComplaint.chiefComplaintId');
   let count = 0;
   const newArray = [];
@@ -890,45 +892,26 @@ exports.getEDCCPatients = asyncHandler(async (req, res, next) => {
         path: 'chiefComplaint.chiefComplaintId',
         model: 'chiefComplaint',
         select: 'chiefComplaintId name',
-        // populate: [
-        //   {
-        //     path: 'productionArea.productionAreaId',
-        //     model: 'productionArea',
-        //     populate: [
-        //       {
-        //         path: 'rooms.roomId',
-        //         model: 'room',
-        //       },
-        //     ],
-        //   },
-        // ],
       },
-      // {
-      //   path: 'patientId',
-      //   model: 'patientfhir',
-      // },
     ]);
 
   const newArray = [];
-  for (let i = 0; i < patients.length; i++) {
-    let count = 1;
-
-    const obj = JSON.parse(JSON.stringify(patients[i]));
-    const x =
-      patients[i].chiefComplaint[patients[i].chiefComplaint.length - 1]
-        .chiefComplaintId._id;
+  const cc = await CC.find();
+  for (let i = 0; i < cc.length; i++) {
+    let count = 0;
+    const obj = JSON.parse(JSON.stringify(cc[i]));
     for (let j = 0; j < patients.length; j++) {
-      const y =
-        patients[j].chiefComplaint[patients[j].chiefComplaint.length - 1]
-          .chiefComplaintId._id;
-      if (x === y && patients[i]._id !== patients[j]._id) {
+      if (
+        cc[i]._id.toString() ===
+        patients[j].chiefComplaint[
+          patients[j].chiefComplaint.length - 1
+        ].chiefComplaintId._id.toString()
+      ) {
         count++;
       }
     }
-
     obj.count = count;
     newArray.push(obj);
-    // console.log('count', patients[i]);
   }
 
   res.status(200).json({
