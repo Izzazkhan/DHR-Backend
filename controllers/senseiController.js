@@ -1123,3 +1123,39 @@ exports.getCriticalLabTest = asyncHandler(async (req, res, next) => {
     data: labs,
   });
 });
+
+exports.getDischargedRequirements = asyncHandler(async (req, res, next) => {
+  const discharged = await EDR.find({ status: 'Discharged' })
+    .select(
+      'patientId room chiefComplaint dischargeRequest.dischargeSummary.edrCompletionRequirement'
+    )
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'name identifier',
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+        select: 'roomId roomNo',
+      },
+    ]);
+
+  res.status(200).json({
+    success: true,
+    data: discharged,
+  });
+});
