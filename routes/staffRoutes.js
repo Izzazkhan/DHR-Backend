@@ -42,6 +42,7 @@ const {
   getCustomerCares,
   getNurseTechnicians,
   getEDNurses,
+  getExternal,
 } = require('../controllers/staffController');
 
 const router = express.Router();
@@ -69,4 +70,5 @@ router.get('/getAllHouseKeepers', getAllHouseKeepers);
 router.get('/getCustomerCares', getCustomerCares);
 router.get('/getNurseTechnicians', getNurseTechnicians);
 router.get('/getEDNurses', getEDNurses);
+router.get('/getExternal', getExternal);
 module.exports = router;

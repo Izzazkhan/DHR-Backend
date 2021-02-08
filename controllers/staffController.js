@@ -397,7 +397,7 @@ exports.getAnesthesiologist = asyncHandler(async (req, res, next) => {
     staffType: 'Doctor',
     subType: 'Anesthesiologist',
     disabled: false,
-    availability: true,
+    // availability: true,
   });
   // console.log(doctors);
   res.status(200).json({
@@ -494,10 +494,20 @@ exports.getEDNurses = asyncHandler(async (req, res, next) => {
     staffType: 'Nurses',
     subType: 'ED Nurse',
     disabled: false,
-  }).select('identifier name specialty shiftEndTime shiftStartTime');
+  });
   res.status(200).json({
     success: true,
     data: nurses,
+  });
+});
+
+exports.getExternal = asyncHandler(async (req, res, next) => {
+  const externals = await Staff.find({ subType: 'External' }).select(
+    'name identifier specialty experience productionArea'
+  );
+  res.status(200).json({
+    success: true,
+    data: externals,
   });
 });
 
