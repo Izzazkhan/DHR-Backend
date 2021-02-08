@@ -187,44 +187,30 @@ exports.completeEOUTransfer = asyncHandler(async (req, res, next) => {
       { _id: req.params.transferId },
       { $set: { status: req.body.status, inProgressTime: Date.now() } },
       { new: true }
-    )
-      .select('edrId status')
-      .populate([
-        {
-          path: 'edrId',
-          model: 'EDR',
-          select: 'patientId',
-          populate: [
-            {
-              path: 'patientId',
-              model: 'patientfhir',
-              select: 'identifier ',
-            },
-          ],
-        },
-      ]);
-  } else {
+    );
+  }
+  if (req.body.status === 'completed') {
     completedTransfer = await Transfer.findOneAndUpdate(
       { _id: req.params.transferId },
       { $set: { status: req.body.status, completedAt: Date.now() } },
       { new: true }
-    )
-      .select('edrId status')
-      .populate([
-        {
-          path: 'edrId',
-          model: 'EDR',
-          select: 'patientId',
-          populate: [
-            {
-              path: 'patientId',
-              model: 'patientfhir',
-              select: 'identifier ',
-            },
-          ],
-        },
-      ]);
+    );
   }
+
+  completedTransfer = await Transfer.findById(req.params.transferId).populate([
+    {
+      path: 'edrId',
+      model: 'EDR',
+      select: 'patientId',
+      populate: [
+        {
+          path: 'patientId',
+          model: 'patientfhir',
+          select: 'identifier ',
+        },
+      ],
+    },
+  ]);
 
   const updatedEDR = await EDR.findOneAndUpdate(
     { _id: completedTransfer.edrId._id },
