@@ -816,7 +816,8 @@ exports.getDischarged = asyncHandler(async (req, res, next) => {
 });
 
 exports.getLabTest = asyncHandler(async (req, res, next) => {
-  const labs = await EDR.find({
+  var labs;
+  labs = await EDR.find({
     status: 'Discharged',
     labRequest: { $ne: [] },
     currentLocation: 'ED',
@@ -834,9 +835,12 @@ exports.getLabTest = asyncHandler(async (req, res, next) => {
         select: 'roomId roomNo',
       },
     ]);
-
+  labs.forEach((element) => {
+    element.asd = 'asd';
+    console.log(element);
+  });
   // labs.map((lab) => (lab.totalTests = lab.labRequest.length));
-  // console.log(labs[0].totalTests);
+
   res.status(200).json({
     success: true,
     data: labs,
