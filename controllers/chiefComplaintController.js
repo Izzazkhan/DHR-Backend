@@ -120,7 +120,19 @@ exports.getDoctorsWithCC = asyncHandler(async (req, res, next) => {
   const doctors = await Staff.find({
     staffType: 'Doctor',
     chiefComplaint: { $ne: [] },
-  }).populate('chiefComplaint.chiefComplaintId', 'name');
+  }).populate([
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      ],
+    },
+  ]);
 
   res.status(200).json({
     success: true,
@@ -132,7 +144,20 @@ exports.getNursesWithCC = asyncHandler(async (req, res, next) => {
   const nurses = await Staff.find({
     staffType: 'Nurses',
     chiefComplaint: { $ne: [] },
-  }).populate('chiefComplaint.chiefComplaintId', 'name');
+  }).populate([
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      select: 'chiefComplaint.chiefComplaintId',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      ],
+    },
+  ]);
 
   res.status(200).json({
     success: true,
