@@ -98,7 +98,7 @@ exports.pendingEdToEouTransfers = asyncHandler(async (req, res, next) => {
   const transfers = await Transfer.find({
     to: 'EOU',
     from: 'ED',
-    status: 'pending',
+    $or: [{ status: 'pending' }, { status: 'in_progress' }],
     requestedTo: req.params.ccId,
   })
     .select('edrId status')
@@ -141,7 +141,7 @@ exports.pendingEouToEdTransfers = asyncHandler(async (req, res, next) => {
   const transfers = await Transfer.find({
     to: 'ED',
     from: 'EOU',
-    status: 'pending',
+    $or: [{ status: 'pending' }, { status: 'in_progress' }],
     requestedTo: req.params.ccId,
   })
     .select('edrId status')
@@ -181,26 +181,36 @@ exports.pendingEouToEdTransfers = asyncHandler(async (req, res, next) => {
 });
 
 exports.completeEOUTransfer = asyncHandler(async (req, res, next) => {
-  const completedTransfer = await Transfer.findOneAndUpdate(
-    { _id: req.params.transferId },
-    { $set: { status: 'completed', completedAt: Date.now() } },
-    { new: true }
-  )
-    .select('edrId status')
-    .populate([
-      {
-        path: 'edrId',
-        model: 'EDR',
-        select: 'patientId',
-        populate: [
-          {
-            path: 'patientId',
-            model: 'patientfhir',
-            select: 'identifier ',
-          },
-        ],
-      },
-    ]);
+  let completedTransfer;
+  if (req.body.status === 'in_progress') {
+    completedTransfer = await Transfer.findOneAndUpdate(
+      { _id: req.params.transferId },
+      { $set: { status: req.body.status, inProgressTime: Date.now() } },
+      { new: true }
+    );
+  }
+  if (req.body.status === 'completed') {
+    completedTransfer = await Transfer.findOneAndUpdate(
+      { _id: req.params.transferId },
+      { $set: { status: req.body.status, completedAt: Date.now() } },
+      { new: true }
+    );
+  }
+
+  completedTransfer = await Transfer.findById(req.params.transferId).populate([
+    {
+      path: 'edrId',
+      model: 'EDR',
+      select: 'patientId',
+      populate: [
+        {
+          path: 'patientId',
+          model: 'patientfhir',
+          select: 'identifier ',
+        },
+      ],
+    },
+  ]);
 
   const updatedEDR = await EDR.findOneAndUpdate(
     { _id: completedTransfer.edrId._id },
@@ -223,26 +233,50 @@ exports.completeEOUTransfer = asyncHandler(async (req, res, next) => {
 });
 
 exports.completeEDTransfer = asyncHandler(async (req, res, next) => {
-  const completedTransfer = await Transfer.findOneAndUpdate(
-    { _id: req.params.transferId },
-    { $set: { status: 'completed', completedAt: Date.now() } },
-    { new: true }
-  )
-    .select('edrId status')
-    .populate([
-      {
-        path: 'edrId',
-        model: 'EDR',
-        select: 'patientId',
-        populate: [
-          {
-            path: 'patientId',
-            model: 'patientfhir',
-            select: 'identifier ',
-          },
-        ],
-      },
-    ]);
+  let completedTransfer;
+  if (req.body.status === 'in_progress') {
+    completedTransfer = await Transfer.findOneAndUpdate(
+      { _id: req.params.transferId },
+      { $set: { status: req.body.status, inProgressTime: Date.now() } },
+      { new: true }
+    )
+      .select('edrId status')
+      .populate([
+        {
+          path: 'edrId',
+          model: 'EDR',
+          select: 'patientId',
+          populate: [
+            {
+              path: 'patientId',
+              model: 'patientfhir',
+              select: 'identifier ',
+            },
+          ],
+        },
+      ]);
+  } else {
+    completedTransfer = await Transfer.findOneAndUpdate(
+      { _id: req.params.transferId },
+      { $set: { status: req.body.status, completedAt: Date.now() } },
+      { new: true }
+    )
+      .select('edrId status')
+      .populate([
+        {
+          path: 'edrId',
+          model: 'EDR',
+          select: 'patientId',
+          populate: [
+            {
+              path: 'patientId',
+              model: 'patientfhir',
+              select: 'identifier ',
+            },
+          ],
+        },
+      ]);
+  }
 
   const updatedEDR = await EDR.findOneAndUpdate(
     { _id: completedTransfer.edrId._id },

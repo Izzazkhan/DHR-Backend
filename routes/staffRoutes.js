@@ -41,6 +41,10 @@ const {
   getAllHouseKeepers,
   getCustomerCares,
   getNurseTechnicians,
+  getEDNurses,
+  getExternal,
+  getAllNurses,
+  searchAnesthesiologist,
 } = require('../controllers/staffController');
 
 const router = express.Router();
@@ -67,5 +71,8 @@ router.get('/getNurseTechnician/:speciality', getNurseTechnician);
 router.get('/getAllHouseKeepers', getAllHouseKeepers);
 router.get('/getCustomerCares', getCustomerCares);
 router.get('/getNurseTechnicians', getNurseTechnicians);
-
+router.get('/getEDNurses', getEDNurses);
+router.get('/getExternal', getExternal);
+router.get('/getAllNurses', getAllNurses);
+router.get('/searchAnesthesiologist/:keyword', searchAnesthesiologist);
 module.exports = router;

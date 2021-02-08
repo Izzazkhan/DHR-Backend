@@ -120,7 +120,19 @@ exports.getDoctorsWithCC = asyncHandler(async (req, res, next) => {
   const doctors = await Staff.find({
     staffType: 'Doctor',
     chiefComplaint: { $ne: [] },
-  }).populate('chiefComplaint.chiefComplaintId', 'name');
+  }).populate([
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      ],
+    },
+  ]);
 
   res.status(200).json({
     success: true,
@@ -128,22 +140,51 @@ exports.getDoctorsWithCC = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.getNursesWithCC = asyncHandler(async (req, res, next) => {
+  const nurses = await Staff.find({
+    staffType: 'Nurses',
+    chiefComplaint: { $ne: [] },
+  }).populate([
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      select: 'chiefComplaint.chiefComplaintId',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      ],
+    },
+  ]);
+
+  res.status(200).json({
+    success: true,
+    data: nurses,
+  });
+});
+
 exports.assignCC = asyncHandler(async (req, res, next) => {
   // console.log(req.body);
-  const doctor = await Staff.findOne({ _id: req.body.staffId });
-  if (!doctor || doctor.disabled === true) {
+  const staff = await Staff.findOne({ _id: req.body.staffId });
+  if (!staff || staff.disabled === true) {
     return next(
-      new ErrorResponse('Could not assign Chief Complaint to this doctor', 400)
+      new ErrorResponse('Could not assign Chief Complaint to this staff', 400)
     );
   }
+  const chiefComplaintId = await CC.findOne({
+    'productionArea.productionAreaId': req.body.productionAreaId,
+  });
+  // console.log(chiefComplaintId._id);
   const chiefComplaint = {
     assignedBy: req.body.assignedBy,
-    chiefComplaintId: req.body.chiefComplaintId,
+    chiefComplaintId: chiefComplaintId._id,
     assignedTime: Date.now(),
   };
   const assignedCC = await Staff.findOneAndUpdate(
-    { _id: doctor.id },
-    { $push: { chiefComplaint }, $set: { availability: false } },
+    { _id: staff.id },
+    { $push: { chiefComplaint } },
     {
       new: true,
     }
