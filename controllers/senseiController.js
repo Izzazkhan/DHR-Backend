@@ -6,6 +6,7 @@ const CC = require('../models/chiefComplaint/chiefComplaint');
 const ErrorResponse = require('../utils/errorResponse');
 const EouTransfer = require('../models/patientTransferEDEOU/patientTransferEDEOU');
 const Room = require('../models/room');
+const { populate } = require('../models/staffFhir/staff');
 
 exports.updateStaffShift = asyncHandler(async (req, res, next) => {
   const staff = await Staff.findOne({ _id: req.body.staffId });
@@ -984,5 +985,141 @@ exports.getMedicationReconciliation = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: notes,
+  });
+});
+
+exports.currentTimeInterval = asyncHandler(async (req, res, next) => {
+  const patientsTime = await EDR.aggregate([
+    {
+      $match: {
+        status: 'pending',
+      },
+    },
+    {
+      $project: {
+        patientId: 1,
+        createdTimeStamp: 1,
+        dateDifference: {
+          $divide: [
+            {
+              $subtract: [new Date(), '$createdTimeStamp'],
+            },
+            1000 * 60 * 60 * 24,
+          ],
+        },
+      },
+    },
+  ]);
+
+  patientsTime.map(
+    (day) => (day.days = day.dateDifference.toString().split('.')[0])
+  );
+
+  patientsTime.map((patient) => {
+    const h = patient.dateDifference;
+    const int = Math.trunc(h);
+    const float = Number((h - int).toFixed(8));
+    patient.hours = Math.trunc(float * 24);
+  });
+
+  const patients = await EDR.populate(patientsTime, [
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+      select: 'identifier name gender age weight',
+    },
+  ]);
+
+  res.status(200).json({
+    success: true,
+    data: patients,
+  });
+});
+
+exports.getCurrentLabTest = asyncHandler(async (req, res, next) => {
+  const labs = await EDR.find({ status: 'pending', labRequest: { $ne: [] } })
+    .select('patientId labRequest')
+    .populate([
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'identifier name',
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+        select: 'roomId',
+      },
+    ]);
+
+  // labs.map((lab) => (lab.totalTests = lab.labRequest.length));
+  // console.log(labs[0].totalTests);
+  res.status(200).json({
+    success: true,
+    data: labs,
+  });
+});
+
+exports.getCurrentRadTest = asyncHandler(async (req, res, next) => {
+  const rads = await EDR.find({ status: 'pending', radRequest: { $ne: [] } })
+    .select('patientId radRequest')
+    .populate([
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'identifier name',
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+        select: 'roomId',
+      },
+    ]);
+
+  // labs.map((lab) => (lab.totalTests = lab.labRequest.length));
+  // console.log(labs[0].totalTests);
+  res.status(200).json({
+    success: true,
+    data: rads,
+  });
+});
+
+exports.getCriticalLabTest = asyncHandler(async (req, res, next) => {
+  const labsEdr = await EDR.aggregate([
+    {
+      $project: {
+        _id: 1,
+        status: 1,
+        patientId: 1,
+        labRequest: 1,
+      },
+    },
+    {
+      $match: { $and: [{ status: 'pending' }, { labRequest: { $ne: [] } }] },
+    },
+    {
+      $unwind: '$labRequest',
+    },
+    {
+      $match: { 'labRequest.priority': 'High' },
+    },
+  ]);
+
+  const labs = await EDR.populate(labsEdr, [
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+      select: 'identifier name',
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
+      select: 'roomId',
+    },
+  ]);
+
+  res.status(200).json({
+    success: true,
+    data: labs,
   });
 });

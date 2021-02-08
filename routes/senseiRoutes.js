@@ -22,6 +22,10 @@ const {
   getEDCCPatients,
   getPatientTreatment,
   getMedicationReconciliation,
+  currentTimeInterval,
+  getCurrentLabTest,
+  getCurrentRadTest,
+  getCriticalLabTest,
 } = require('../controllers/senseiController');
 
 const router = express.Router();
@@ -41,6 +45,10 @@ router.get('/availableEdBeds', availableEdBeds);
 router.get('/getEDCCPatients', getEDCCPatients);
 router.get('/getPatientTreatment', getPatientTreatment);
 router.get('/getMedicationReconciliation', getMedicationReconciliation);
+router.get('/currentTimeInterval', currentTimeInterval);
+router.get('/getCurrentLabTest', getCurrentLabTest);
+router.get('/getCurrentRadTest', getCurrentRadTest);
+router.get('/getCriticalLabTest', getCriticalLabTest);
 // router.get('/getNoOfPatientsByCC/:id', getNoOfPatientsByCC);
 router.get('/getPatientByRoom/:roomId', getPatientByRoom);
 router.get('/searchCCPatients/:keyword', searchCCPatients);
