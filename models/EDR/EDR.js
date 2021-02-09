@@ -979,6 +979,14 @@ const edrSchema = new mongoose.Schema({
       holdTime: {
         type: Date,
       },
+      imageTechnicianId: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      completedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
       pendingApprovalTime: {
         type: Date,
       },
