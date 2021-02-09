@@ -197,10 +197,11 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
 
 exports.getCCDoctorByKeyword = asyncHandler(async (req, res, next) => {
   const arr = [];
-  const doctorCC = await Staff.find({ staffType: 'Doctor' }).populate(
-    'chiefComplaint.chiefComplaintId'
-  );
-  // console.log(doctorCC[0].chiefComplaint[0].chiefComplaintId.name);
+  const doctorCC = await Staff.find({
+    staffType: 'Doctor',
+    chiefComplaint: { $ne: [] },
+    disabled: false,
+  }).populate('chiefComplaint.chiefComplaintId');
 
   for (let i = 0; i < doctorCC.length; i++) {
     if (
@@ -218,6 +219,39 @@ exports.getCCDoctorByKeyword = asyncHandler(async (req, res, next) => {
           .startsWith(req.params.keyword.toLowerCase()))
     ) {
       arr.push(doctorCC[i]);
+    }
+  }
+  // console.log(arr);
+  res.status(200).json({
+    success: true,
+    data: arr,
+  });
+});
+
+exports.getCCNurseByKeyword = asyncHandler(async (req, res, next) => {
+  const arr = [];
+  const nurse = await Staff.find({
+    staffType: 'Nurses',
+    chiefComplaint: { $ne: [] },
+    disabled: false,
+  }).populate('chiefComplaint.chiefComplaintId');
+
+  for (let i = 0; i < nurse.length; i++) {
+    if (
+      (nurse[i].name[0].given[0] &&
+        nurse[i].name[0].given[0]
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (nurse[i].name[0].family &&
+        nurse[i].name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (nurse[i].chiefComplaint[0].chiefComplaintId.name &&
+        nurse[i].chiefComplaint[0].chiefComplaintId.name
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase()))
+    ) {
+      arr.push(nurse[i]);
     }
   }
   // console.log(arr);
