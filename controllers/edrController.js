@@ -117,13 +117,18 @@ exports.getEDRs = asyncHandler(async (req, res, next) => {
   const Edrs = await EDR.find({ patientInHospital: true })
     .populate('patientId')
     .populate('chiefComplaint.chiefComplaintId', 'name')
-    .select('patientId dcdFormStatus status labRequest radiologyRequest');
+    .populate('room.roomId')
+    .select(
+      'patientId dcdFormStatus status labRequest radiologyRequest careStream room requestNo'
+    );
   res.status(201).json({
     success: true,
     count: Edrs.length,
     data: Edrs,
   });
 });
+
+
 exports.getPendingEDRs = asyncHandler(async (req, res, next) => {
   const Edrs = await EDR.find({ status: 'pending', patientInHospital: true })
     .populate('patientId')
@@ -156,9 +161,10 @@ exports.getSenseiPendingEDRs = asyncHandler(async (req, res, next) => {
 
 exports.getEdrPatientByKeyword = asyncHandler(async (req, res, next) => {
   const arr = [];
-  const patients = await EDR.find({ patientInHospital: true }).populate(
-    'patientId'
-  );
+  const patients = await EDR.find({ patientInHospital: true })
+    .populate('patientId')
+    .populate('chiefComplaint.chiefComplaintId')
+    .populate('room.roomId');
 
   for (let i = 0; i < patients.length; i++) {
     const fullName =
