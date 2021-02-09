@@ -4,6 +4,7 @@ const requestNoFormat = require('dateformat');
 const Staff = require('../models/staffFhir/staff');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
+const EDR = require('../models/EDR/EDR');
 
 // register a staff
 exports.registerStaff = asyncHandler(async (req, res, next) => {
@@ -654,6 +655,51 @@ exports.getAllNurses = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: nurses,
+  });
+});
+
+exports.radTestStats = asyncHandler(async (req, res, next) => {
+  const rads = await EDR.aggregate([
+    {
+      $project: {
+        radRequest: 1,
+      },
+    },
+    {
+      $unwind: '$radRequest',
+    },
+    {
+      $match: { 'radRequest.status': 'completed' },
+    },
+    {
+      $group: {
+        _id: '$_id',
+        radRequest: { $push: '$radRequest' },
+      },
+    },
+  ]);
+  const radDoctors = await Staff.find({ staffType: 'Imaging Technician' });
+
+  let count = 0;
+  const newArray = [];
+
+  for (let i = 0; i < radDoctors.length; i++) {
+    const obj = JSON.parse(JSON.stringify(radDoctors[i]));
+    count = 0;
+    for (let j = 0; j < rads.length; j++) {
+      console.log(rads[j].radRequest[j]);
+      const latestDoc = rads[j].updateRecord[rads[j].updateRecord.length - 1];
+      if (radDoctors[i]._id.toString() === latestDoc.updatedBy.toString()) {
+        count++;
+      }
+    }
+    obj.count = count;
+    newArray.push(obj);
+  }
+
+  res.status(200).json({
+    success: true,
+    data: rads,
   });
 });
 

@@ -197,28 +197,42 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
 
 exports.getCCDoctorByKeyword = asyncHandler(async (req, res, next) => {
   const arr = [];
-  const doctorCC = await Staff.find({
+  const staff = await Staff.find({
     staffType: 'Doctor',
     chiefComplaint: { $ne: [] },
     disabled: false,
-  }).populate('chiefComplaint.chiefComplaintId');
+  }).populate([
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      ],
+    },
+  ]);
 
-  for (let i = 0; i < doctorCC.length; i++) {
+  for (let i = 0; i < staff.length; i++) {
+    const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
     if (
-      (doctorCC[i].name[0].given[0] &&
-        doctorCC[i].name[0].given[0]
+      (staff[i].name[0].given[0] &&
+        staff[i].name[0].given[0]
           .toLowerCase()
           .startsWith(req.params.keyword.toLowerCase())) ||
-      (doctorCC[i].name[0].family &&
-        doctorCC[i].name[0].family
+      (staff[i].name[0].family &&
+        staff[i].name[0].family
           .toLowerCase()
           .startsWith(req.params.keyword.toLowerCase())) ||
-      (doctorCC[i].chiefComplaint[0].chiefComplaintId.name &&
-        doctorCC[i].chiefComplaint[0].chiefComplaintId.name
+      (staff[i].identifier[0].value &&
+        staff[i].identifier[0].value
           .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase()))
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase())
     ) {
-      arr.push(doctorCC[i]);
+      arr.push(staff[i]);
     }
   }
   // console.log(arr);
@@ -230,28 +244,42 @@ exports.getCCDoctorByKeyword = asyncHandler(async (req, res, next) => {
 
 exports.getCCNurseByKeyword = asyncHandler(async (req, res, next) => {
   const arr = [];
-  const nurse = await Staff.find({
+  const staff = await Staff.find({
     staffType: 'Nurses',
     chiefComplaint: { $ne: [] },
     disabled: false,
-  }).populate('chiefComplaint.chiefComplaintId');
+  }).populate([
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      ],
+    },
+  ]);
 
-  for (let i = 0; i < nurse.length; i++) {
+  for (let i = 0; i < staff.length; i++) {
+    const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
     if (
-      (nurse[i].name[0].given[0] &&
-        nurse[i].name[0].given[0]
+      (staff[i].name[0].given[0] &&
+        staff[i].name[0].given[0]
           .toLowerCase()
           .startsWith(req.params.keyword.toLowerCase())) ||
-      (nurse[i].name[0].family &&
-        nurse[i].name[0].family
+      (staff[i].name[0].family &&
+        staff[i].name[0].family
           .toLowerCase()
           .startsWith(req.params.keyword.toLowerCase())) ||
-      (nurse[i].chiefComplaint[0].chiefComplaintId.name &&
-        nurse[i].chiefComplaint[0].chiefComplaintId.name
+      (staff[i].identifier[0].value &&
+        staff[i].identifier[0].value
           .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase()))
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase())
     ) {
-      arr.push(nurse[i]);
+      arr.push(staff[i]);
     }
   }
   // console.log(arr);

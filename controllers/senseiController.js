@@ -6,7 +6,6 @@ const CC = require('../models/chiefComplaint/chiefComplaint');
 const ErrorResponse = require('../utils/errorResponse');
 const EouTransfer = require('../models/patientTransferEDEOU/patientTransferEDEOU');
 const Room = require('../models/room');
-const { populate } = require('../models/staffFhir/staff');
 
 exports.updateStaffShift = asyncHandler(async (req, res, next) => {
   const staff = await Staff.findOne({ _id: req.body.staffId });
@@ -972,6 +971,10 @@ exports.getMedicationReconciliation = asyncHandler(async (req, res, next) => {
         model: 'patientfhir',
         select: 'name identifier',
       },
+      {
+        path: 'pharmacyRequest.reconciliationNotes.addedBy',
+        model: 'staff',
+      },
     ]);
 
   res.status(200).json({
@@ -1164,5 +1167,55 @@ exports.getDischargedRequirements = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: discharged,
+  });
+});
+
+// Eou Stats
+exports.eouTimeInterval = asyncHandler(async (req, res, next) => {
+  const patientsTime = await EDR.aggregate([
+    {
+      $match: {
+        $and: [{ status: 'Discharged' }, { currentLocation: 'EOU' }],
+      },
+    },
+    {
+      $project: {
+        patientId: 1,
+        createdTimeStamp: 1,
+        dischargeTimestamp: 1,
+        dateDifference: {
+          $divide: [
+            {
+              $subtract: ['$dischargeTimestamp', '$createdTimeStamp'],
+            },
+            1000 * 60 * 60 * 24,
+          ],
+        },
+      },
+    },
+  ]);
+
+  patientsTime.map(
+    (day) => (day.days = day.dateDifference.toString().split('.')[0])
+  );
+
+  patientsTime.map((patient) => {
+    const h = patient.dateDifference;
+    const int = Math.trunc(h);
+    const float = Number((h - int).toFixed(8));
+    patient.hours = Math.trunc(float * 24);
+  });
+
+  const patients = await EDR.populate(patientsTime, [
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+      select: 'identifier name gender age weight',
+    },
+  ]);
+
+  res.status(200).json({
+    success: true,
+    data: patients,
   });
 });
