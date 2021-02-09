@@ -246,8 +246,11 @@ exports.getCCNurseByKeyword = asyncHandler(async (req, res, next) => {
         nurse[i].name[0].family
           .toLowerCase()
           .startsWith(req.params.keyword.toLowerCase())) ||
-      (nurse[i].chiefComplaint[0].chiefComplaintId.name &&
-        nurse[i].chiefComplaint[0].chiefComplaintId.name
+      (nurse[i].chiefComplaint[nurse[i].chiefComplaint.length - 1]
+        .chiefComplaintId.name &&
+        nurse[i].chiefComplaint[
+          nurse[i].chiefComplaint.length - 1
+        ].chiefComplaintId.name
           .toLowerCase()
           .startsWith(req.params.keyword.toLowerCase()))
     ) {
@@ -257,7 +260,7 @@ exports.getCCNurseByKeyword = asyncHandler(async (req, res, next) => {
   // console.log(arr);
   res.status(200).json({
     success: true,
-    data: arr,
+    data: nurse,
   });
 });
 
