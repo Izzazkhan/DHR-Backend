@@ -161,6 +161,7 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
           [`radRequest.${note}.status`]: parsed.status,
           [`radRequest.${note}.completeTime`]: parsed.completeTime,
           [`radRequest.${note}.voiceNotes`]: req.files[0].path,
+          [`radRequest.${note}.completedBy`]: parsed.completedBy,
         },
       },
       { new: true }
@@ -185,6 +186,7 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
           [`radRequest.${note}.status`]: parsed.status,
           [`radRequest.${note}.delayedReason`]: parsed.delayedReason,
           [`radRequest.${note}.activeTime`]: parsed.activeTime,
+          [`radRequest.${note}.imageTechnicianId`]: parsed.imageTechnicianId,
           [`radRequest.${note}.pendingApprovalTime`]: parsed.pendingApprovalTime,
           [`radRequest.${note}.holdTime`]: parsed.holdTime,
           [`radRequest.${note}.image`]: arr,

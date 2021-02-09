@@ -673,33 +673,61 @@ exports.radTestStats = asyncHandler(async (req, res, next) => {
     },
     {
       $group: {
-        _id: '$_id',
+        _id: 'radRequest',
         radRequest: { $push: '$radRequest' },
       },
     },
   ]);
-  const radDoctors = await Staff.find({ staffType: 'Imaging Technician' });
-
-  let count = 0;
+  const radDoctors = await Staff.find({ staffType: 'Imaging Technician' })
+    .select('identifier name chiefComplaint shiftType')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+    ]);
   const newArray = [];
+
+  console.log(rads[0]);
 
   for (let i = 0; i < radDoctors.length; i++) {
     const obj = JSON.parse(JSON.stringify(radDoctors[i]));
-    count = 0;
-    for (let j = 0; j < rads.length; j++) {
-      console.log(rads[j].radRequest[j]);
-      const latestDoc = rads[j].updateRecord[rads[j].updateRecord.length - 1];
-      if (radDoctors[i]._id.toString() === latestDoc.updatedBy.toString()) {
-        count++;
+    let count = 0;
+    let countWithTest = {};
+    const radRequest = [];
+    for (let j = 0; j < rads[0].radRequest.length; j++) {
+      if (
+        radDoctors[i]._id.toString() ===
+        rads[0].radRequest[j].imageTechnicianId.toString()
+      ) {
+        // obj.radRequest = rads[0].radRequest[j];
+        radRequest.push(rads[0].radRequest[j]);
+        // count++;
+        let key = rads[0].radRequest[j].type.replace(/\s/g, '');
+        if (key in countWithTest === false) {
+          countWithTest[key] = 1;
+        } else {
+          countWithTest[key] = countWithTest[key] + 1;
+        }
       }
     }
-    obj.count = count;
+    obj.tests = count;
+
+    console.log(countWithTest);
     newArray.push(obj);
   }
 
   res.status(200).json({
     success: true,
-    data: rads,
+    data: newArray,
   });
 });
 
