@@ -197,27 +197,89 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
 
 exports.getCCDoctorByKeyword = asyncHandler(async (req, res, next) => {
   const arr = [];
-  const doctorCC = await Staff.find({ staffType: 'Doctor' }).populate(
-    'chiefComplaint.chiefComplaintId'
-  );
-  // console.log(doctorCC[0].chiefComplaint[0].chiefComplaintId.name);
+  const staff = await Staff.find({
+    staffType: 'Doctor',
+    chiefComplaint: { $ne: [] },
+    disabled: false,
+  }).populate([
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      ],
+    },
+  ]);
 
-  for (let i = 0; i < doctorCC.length; i++) {
+  for (let i = 0; i < staff.length; i++) {
+    const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
     if (
-      (doctorCC[i].name[0].given[0] &&
-        doctorCC[i].name[0].given[0]
+      (staff[i].name[0].given[0] &&
+        staff[i].name[0].given[0]
           .toLowerCase()
           .startsWith(req.params.keyword.toLowerCase())) ||
-      (doctorCC[i].name[0].family &&
-        doctorCC[i].name[0].family
+      (staff[i].name[0].family &&
+        staff[i].name[0].family
           .toLowerCase()
           .startsWith(req.params.keyword.toLowerCase())) ||
-      (doctorCC[i].chiefComplaint[0].chiefComplaintId.name &&
-        doctorCC[i].chiefComplaint[0].chiefComplaintId.name
+      (staff[i].identifier[0].value &&
+        staff[i].identifier[0].value
           .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase()))
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase())
     ) {
-      arr.push(doctorCC[i]);
+      arr.push(staff[i]);
+    }
+  }
+  // console.log(arr);
+  res.status(200).json({
+    success: true,
+    data: arr,
+  });
+});
+
+exports.getCCNurseByKeyword = asyncHandler(async (req, res, next) => {
+  const arr = [];
+  const staff = await Staff.find({
+    staffType: 'Nurses',
+    chiefComplaint: { $ne: [] },
+    disabled: false,
+  }).populate([
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      ],
+    },
+  ]);
+
+  for (let i = 0; i < staff.length; i++) {
+    const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
+    if (
+      (staff[i].name[0].given[0] &&
+        staff[i].name[0].given[0]
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].name[0].family &&
+        staff[i].name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].identifier[0].value &&
+        staff[i].identifier[0].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase())
+    ) {
+      arr.push(staff[i]);
     }
   }
   // console.log(arr);

@@ -6,7 +6,6 @@ const CC = require('../models/chiefComplaint/chiefComplaint');
 const ErrorResponse = require('../utils/errorResponse');
 const EouTransfer = require('../models/patientTransferEDEOU/patientTransferEDEOU');
 const Room = require('../models/room');
-const { populate } = require('../models/staffFhir/staff');
 
 exports.updateStaffShift = asyncHandler(async (req, res, next) => {
   const staff = await Staff.findOne({ _id: req.body.staffId });
@@ -834,9 +833,8 @@ exports.getLabTest = asyncHandler(async (req, res, next) => {
         select: 'roomId roomNo',
       },
     ]);
-
   // labs.map((lab) => (lab.totalTests = lab.labRequest.length));
-  // console.log(labs[0].totalTests);
+
   res.status(200).json({
     success: true,
     data: labs,
@@ -972,6 +970,10 @@ exports.getMedicationReconciliation = asyncHandler(async (req, res, next) => {
         path: 'patientId',
         model: 'patientfhir',
         select: 'name identifier',
+      },
+      {
+        path: 'pharmacyRequest.reconciliationNotes.addedBy',
+        model: 'staff',
       },
     ]);
 
@@ -1165,5 +1167,177 @@ exports.getDischargedRequirements = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: discharged,
+  });
+});
+
+// Eou Stats
+exports.eouTimeInterval = asyncHandler(async (req, res, next) => {
+  const patientsTime = await EDR.aggregate([
+    {
+      $match: {
+        $and: [{ status: 'Discharged' }, { currentLocation: 'EOU' }],
+      },
+    },
+    {
+      $project: {
+        patientId: 1,
+        createdTimeStamp: 1,
+        dischargeTimestamp: 1,
+        dateDifference: {
+          $divide: [
+            {
+              $subtract: ['$dischargeTimestamp', '$createdTimeStamp'],
+            },
+            1000 * 60 * 60 * 24,
+          ],
+        },
+      },
+    },
+  ]);
+
+  patientsTime.map(
+    (day) => (day.days = day.dateDifference.toString().split('.')[0])
+  );
+
+  patientsTime.map((patient) => {
+    const h = patient.dateDifference;
+    const int = Math.trunc(h);
+    const float = Number((h - int).toFixed(8));
+    patient.hours = Math.trunc(float * 24);
+  });
+
+  const patients = await EDR.populate(patientsTime, [
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+      select: 'identifier name gender age weight',
+    },
+  ]);
+
+  res.status(200).json({
+    success: true,
+    data: patients,
+  });
+});
+
+exports.eouTransferRequest = asyncHandler(async (req, res, next) => {
+  const transfers = await EouTransfer.find({
+    to: 'EOU',
+    status: 'pending',
+  })
+    .select('edrId status')
+    .populate([
+      {
+        path: 'edrId',
+        model: 'EDR',
+        select: 'patientId room chiefComplaint',
+        populate: [
+          {
+            path: 'patientId',
+            model: 'patientfhir',
+            select: 'identifier name ',
+          },
+          {
+            path: 'room.roomId',
+            model: 'room',
+            select: 'roomNo roomId',
+          },
+          {
+            path: 'chiefComplaint.chiefComplaintId',
+            model: 'chiefComplaint',
+            select: 'productionArea.productionAreaId',
+            populate: {
+              path: 'productionArea.productionAreaId',
+              model: 'productionArea',
+              select: 'paName',
+            },
+          },
+        ],
+      },
+    ]);
+
+  res.status(200).json({
+    success: true,
+    data: transfers,
+  });
+});
+
+exports.doctorResponseTime = asyncHandler(async (req, res, next) => {
+  const time = await EDR.aggregate([
+    {
+      $project: {
+        consultationNote: 1,
+        status: 1,
+        currentLocation: 1,
+        patientId: 1,
+      },
+    },
+    {
+      $match: {
+        $and: [{ status: 'pending' }, { currentLocation: 'EOU' }],
+      },
+    },
+    {
+      $unwind: '$consultationNote',
+    },
+    {
+      $match: {
+        'consultationNote.status': 'complete',
+      },
+    },
+    {
+      $project: {
+        patientId: 1,
+        // consultationNote: 1,
+        chiefComplaint: 1,
+        'consultationNote.completionDate': 1,
+        'consultationNote.consultant': 1,
+        'consultationNote.noteTime': 1,
+        responsTime: {
+          $divide: [
+            {
+              $subtract: [
+                '$consultationNote.completionDate',
+                '$consultationNote.noteTime',
+              ],
+            },
+            1000 * 60 * 60,
+          ],
+        },
+      },
+    },
+  ]);
+
+  const patients = await EDR.populate(time, [
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+      select: 'identifier name gender age weight',
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
+      select: 'roomNo roomId',
+    },
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      select: 'productionArea.productionAreaId',
+      populate: {
+        path: 'productionArea.productionAreaId',
+        model: 'productionArea',
+        select: 'paName',
+      },
+    },
+    {
+      path: 'consultationNote.consultant',
+      model: 'staff',
+      select: 'name subType',
+    },
+  ]);
+
+  res.status(200).json({
+    success: true,
+    data: patients,
   });
 });
