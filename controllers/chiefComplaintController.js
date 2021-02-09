@@ -201,7 +201,19 @@ exports.getCCDoctorByKeyword = asyncHandler(async (req, res, next) => {
     staffType: 'Doctor',
     chiefComplaint: { $ne: [] },
     disabled: false,
-  }).populate('chiefComplaint.chiefComplaintId');
+  }).populate([
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      ],
+    },
+  ]);
 
   for (let i = 0; i < staff.length; i++) {
     const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
@@ -218,14 +230,7 @@ exports.getCCDoctorByKeyword = asyncHandler(async (req, res, next) => {
         staff[i].identifier[0].value
           .toLowerCase()
           .startsWith(req.params.keyword.toLowerCase())) ||
-      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
-      (staff[i].chiefComplaint[staff[i].chiefComplaint.length - 1]
-        .chiefComplaintId.name &&
-        staff[i].chiefComplaint[
-          staff[i].chiefComplaint.length - 1
-        ].chiefComplaintId.name
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase()))
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase())
     ) {
       arr.push(staff[i]);
     }
@@ -243,7 +248,19 @@ exports.getCCNurseByKeyword = asyncHandler(async (req, res, next) => {
     staffType: 'Nurses',
     chiefComplaint: { $ne: [] },
     disabled: false,
-  }).populate('chiefComplaint.chiefComplaintId');
+  }).populate([
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      ],
+    },
+  ]);
 
   for (let i = 0; i < staff.length; i++) {
     const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
@@ -260,14 +277,7 @@ exports.getCCNurseByKeyword = asyncHandler(async (req, res, next) => {
         staff[i].identifier[0].value
           .toLowerCase()
           .startsWith(req.params.keyword.toLowerCase())) ||
-      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
-      (staff[i].chiefComplaint[staff[i].chiefComplaint.length - 1]
-        .chiefComplaintId.name &&
-        staff[i].chiefComplaint[
-          staff[i].chiefComplaint.length - 1
-        ].chiefComplaintId.name
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase()))
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase())
     ) {
       arr.push(staff[i]);
     }
