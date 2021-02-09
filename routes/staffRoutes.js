@@ -45,6 +45,7 @@ const {
   getExternal,
   getAllNurses,
   searchAnesthesiologist,
+  searchEdNurse,
 } = require('../controllers/staffController');
 
 const router = express.Router();
@@ -75,4 +76,5 @@ router.get('/getEDNurses', getEDNurses);
 router.get('/getExternal', getExternal);
 router.get('/getAllNurses', getAllNurses);
 router.get('/searchAnesthesiologist/:keyword', searchAnesthesiologist);
+router.get('/searchEdNurse/:keyword', searchEdNurse);
 module.exports = router;

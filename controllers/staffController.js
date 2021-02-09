@@ -541,11 +541,11 @@ exports.getEDNurses = asyncHandler(async (req, res, next) => {
   });
 });
 
-exports.searchAnesthesiologist = asyncHandler(async (req, res, next) => {
+exports.searchEdNurse = asyncHandler(async (req, res, next) => {
   const arr = [];
   const staff = await Staff.find({
-    staffType: 'Doctor',
-    subType: 'Anesthesiologist',
+    staffType: 'Nurses',
+    subType: 'ED Nurse',
     disabled: false,
   });
   for (let i = 0; i < staff.length; i++) {
