@@ -1219,3 +1219,125 @@ exports.eouTimeInterval = asyncHandler(async (req, res, next) => {
     data: patients,
   });
 });
+
+exports.eouTransferRequest = asyncHandler(async (req, res, next) => {
+  const transfers = await EouTransfer.find({
+    to: 'EOU',
+    status: 'pending',
+  })
+    .select('edrId status')
+    .populate([
+      {
+        path: 'edrId',
+        model: 'EDR',
+        select: 'patientId room chiefComplaint',
+        populate: [
+          {
+            path: 'patientId',
+            model: 'patientfhir',
+            select: 'identifier name ',
+          },
+          {
+            path: 'room.roomId',
+            model: 'room',
+            select: 'roomNo roomId',
+          },
+          {
+            path: 'chiefComplaint.chiefComplaintId',
+            model: 'chiefComplaint',
+            select: 'productionArea.productionAreaId',
+            populate: {
+              path: 'productionArea.productionAreaId',
+              model: 'productionArea',
+              select: 'paName',
+            },
+          },
+        ],
+      },
+    ]);
+
+  res.status(200).json({
+    success: true,
+    data: transfers,
+  });
+});
+
+exports.doctorResponseTime = asyncHandler(async (req, res, next) => {
+  const time = await EDR.aggregate([
+    {
+      $project: {
+        consultationNote: 1,
+        status: 1,
+        currentLocation: 1,
+        patientId: 1,
+      },
+    },
+    {
+      $match: {
+        $and: [{ status: 'pending' }, { currentLocation: 'EOU' }],
+      },
+    },
+    {
+      $unwind: '$consultationNote',
+    },
+    {
+      $match: {
+        'consultationNote.status': 'complete',
+      },
+    },
+    {
+      $project: {
+        patientId: 1,
+        // consultationNote: 1,
+        chiefComplaint: 1,
+        'consultationNote.completionDate': 1,
+        'consultationNote.consultant': 1,
+        'consultationNote.noteTime': 1,
+        responsTime: {
+          $divide: [
+            {
+              $subtract: [
+                '$consultationNote.completionDate',
+                '$consultationNote.noteTime',
+              ],
+            },
+            1000 * 60 * 60,
+          ],
+        },
+      },
+    },
+  ]);
+
+  const patients = await EDR.populate(time, [
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+      select: 'identifier name gender age weight',
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
+      select: 'roomNo roomId',
+    },
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      select: 'productionArea.productionAreaId',
+      populate: {
+        path: 'productionArea.productionAreaId',
+        model: 'productionArea',
+        select: 'paName',
+      },
+    },
+    {
+      path: 'consultationNote.consultant',
+      model: 'staff',
+      select: 'name subType',
+    },
+  ]);
+
+  res.status(200).json({
+    success: true,
+    data: patients,
+  });
+});
