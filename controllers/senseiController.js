@@ -1042,7 +1042,7 @@ exports.getCurrentLabTest = asyncHandler(async (req, res, next) => {
       {
         path: 'patientId',
         model: 'patientfhir',
-        select: 'identifier name',
+        select: 'identifier name gender age weight',
       },
       {
         path: 'room.roomId',
@@ -1070,7 +1070,7 @@ exports.getCurrentRadTest = asyncHandler(async (req, res, next) => {
       {
         path: 'patientId',
         model: 'patientfhir',
-        select: 'identifier name',
+        select: 'identifier name gender age weight',
       },
       {
         path: 'room.roomId',
