@@ -36,6 +36,7 @@ const {
   getAvailablePAwithCC,
   assignCCtoPatient,
   getPAsByCCs,
+  getCCNurseByKeyword,
 } = require('../controllers/chiefComplaintController');
 
 router.post('/addChiefComplaint', addChiefComplaint);
@@ -46,6 +47,7 @@ router.put('/enableChiefComplaint/:id', enableChiefComplaint);
 // router.post('/filterChiefComplaints', filterChiefCompaints);
 router.put('/assignCC', assignCC);
 router.get('/getCCDoctorByKeyword/:keyword', getCCDoctorByKeyword);
+router.get('/getCCNurseByKeyword/:keyword', getCCNurseByKeyword);
 router.put('/assignPAtoCC', assignProductionAreaToCC);
 router.get('/searchCCandPA/:keyword', getCCandPAByKeyword);
 router.get('/getAvailablePA', getAvailablePA);
