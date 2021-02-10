@@ -289,6 +289,14 @@ exports.getAllSensei = asyncHandler(async (req, res) => {
   res.status(200).json({ success: 'true', data: sensei });
 });
 
+exports.getAllParamedics = asyncHandler(async (req, res) => {
+  const paramedics = await Staff.find({
+    staffType: 'Paramedics',
+    disabled: false,
+  }).populate('addedBy');
+  res.status(200).json({ success: 'true', data: paramedics });
+});
+
 exports.getAllDoctors = asyncHandler(async (req, res) => {
   const doctors = await Staff.find({
     staffType: 'Doctor',
@@ -339,6 +347,46 @@ exports.searchSensei = asyncHandler(async (req, res, next) => {
   const arr = [];
   const staff = await Staff.find({
     staffType: 'Sensei',
+    disabled: false,
+  }).populate('addedBy');
+  for (let i = 0; i < staff.length; i++) {
+    const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
+    if (
+      (staff[i].name[0].given[0] &&
+        staff[i].name[0].given[0]
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].name[0].family &&
+        staff[i].name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].identifier[0].value &&
+        staff[i].identifier[0].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
+      (staff[i].telecom[1].value &&
+        staff[i].telecom[1].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].nationalID &&
+        staff[i].nationalID
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase()))
+    ) {
+      arr.push(staff[i]);
+    }
+  }
+  res.status(200).json({
+    success: true,
+    data: arr,
+  });
+});
+
+exports.searchParamedics = asyncHandler(async (req, res, next) => {
+  const arr = [];
+  const staff = await Staff.find({
+    staffType: 'Paramedics',
     disabled: false,
   }).populate('addedBy');
   for (let i = 0; i < staff.length; i++) {

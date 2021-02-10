@@ -30,7 +30,7 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
   const paymentMethod = patient.paymentMethod[0].payment;
   const {
     patientId,
-    staffId,
+    generatedBy,
     consultationNote,
     residentNotes,
     pharmacyRequest,
@@ -50,7 +50,7 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
   newEDR = await EDR.create({
     requestNo,
     patientId,
-    generatedBy: staffId,
+    generatedBy: generatedBy,
     consultationNote,
     residentNotes,
     pharmacyRequest,

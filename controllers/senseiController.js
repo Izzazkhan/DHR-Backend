@@ -413,6 +413,10 @@ exports.getEDPatients = asyncHandler(async (req, res, next) => {
       path: 'pharmacyRequest.reconciliationNotes.addedBy',
       model: 'staff',
     },
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+    },
   ]);
   res.status(200).json({
     success: true,

@@ -29,10 +29,12 @@ const {
   getNurseSpecialty,
   getEDDoctors,
   getAllSensei,
+  getAllParamedics,
   getUsersFromRole,
   getAllDoctors,
   searchDoctor,
   searchSensei,
+  searchParamedics,
   getSpecialityDoctor,
   getAnesthesiologist,
   getSpecialityNurse,
@@ -59,10 +61,12 @@ router.get('/getNurseSubTypes', getNurseSubTypes);
 router.get('/getDoctorSpecialty', getDoctorSpecialty);
 router.get('/getNurseSpecialty', getNurseSpecialty);
 router.get('/getAllSensei', getAllSensei);
+router.get('/getAllParamedics', getAllParamedics);
 router.get('/getAllDoctors', getAllDoctors);
 router.get('/getUsersFromRole/:role', getUsersFromRole);
 router.get('/searchDoctor/:keyword', searchDoctor);
 router.get('/searchSensei/:keyword', searchSensei);
+router.get('/searchParamedics/:keyword', searchParamedics);
 router.get('/getSpecialityDoctor/:speciality', getSpecialityDoctor);
 router.get('/getSpecialityNurse/:speciality', getSpecialityNurse);
 router.get('/getAnesthesiologist', getAnesthesiologist);
