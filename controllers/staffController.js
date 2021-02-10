@@ -558,12 +558,25 @@ exports.getAllEOUNurses = asyncHandler(async (req, res, next) => {
 
 exports.searchEouNurses = asyncHandler(async (req, res, next) => {
   const arr = [];
-  const staff = await await Staff.find({
+  const staff = await Staff.find({
     staffType: 'Nurses',
     subType: 'EOU Nurse',
     disabled: false,
     // availability: true,
-  });
+  }).populate([
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      select: 'chiefComplaint.chiefComplaintId',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      ],
+    },
+  ]);
   for (let i = 0; i < staff.length; i++) {
     const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
     if (

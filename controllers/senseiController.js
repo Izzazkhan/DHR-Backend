@@ -617,6 +617,18 @@ exports.searchEOUPatients = asyncHandler(async (req, res, next) => {
     currentLocation: 'EOU',
   }).populate([
     {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      select: 'chiefComplaint.chiefComplaintId',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      ],
+    },
+    {
       path: 'patientId',
       model: 'patientfhir',
     },
