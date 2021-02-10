@@ -432,6 +432,21 @@ exports.getEOUPatients = asyncHandler(async (req, res, next) => {
       model: 'patientfhir',
     },
     {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      select: 'productionArea.productionAreaId',
+      populate: {
+        path: 'productionArea.productionAreaId',
+        model: 'productionArea',
+        select: 'paName',
+      },
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
+      select: 'roomNo',
+    },
+    {
       path: 'consultationNote.addedBy',
       model: 'staff',
     },
@@ -759,53 +774,40 @@ exports.transferToEOU = asyncHandler(async (req, res, next) => {
   // const weekDate = week.setDate(week.getDate() - 7);
   // console.log(weekDate);
 
-  // const transfers = await EouTransfer.aggregate([
-  //   {
-  //     $match: {
-  //       $and: [{ to: 'EOU' }, { stats: 'completed' },{} ],
-  //     },
-  //   },
-  //   {
-  //     $project: {
-
-  //     },
-  //   },
-  // ]);
-
-  // const transfers = await EouTransfer.find({
-  //   to: 'EOU',
-  //   status: 'completed',
-  // })
-  //   .select('edrId')
-  //   .populate([
-  //     {
-  //       path: 'edrId',
-  //       model: 'EDR',
-  //       select: 'patientId room chiefComplaint',
-  //       populate: [
-  //         {
-  //           path: 'patientId',
-  //           model: 'patientfhir',
-  //           select: 'identifier name ',
-  //         },
-  //         {
-  //           path: 'room.roomId',
-  //           model: 'room',
-  //           select: 'roomNo roomId',
-  //         },
-  //         {
-  //           path: 'chiefComplaint.chiefComplaintId',
-  //           model: 'chiefComplaint',
-  //           select: 'productionArea.productionAreaId',
-  //           populate: {
-  //             path: 'productionArea.productionAreaId',
-  //             model: 'productionArea',
-  //             select: 'paName',
-  //           },
-  //         },
-  //       ],
-  //     },
-  //   ]);
+  const transfers = await EouTransfer.find({
+    to: 'EOU',
+    status: 'completed',
+  })
+    .select('edrId')
+    .populate([
+      {
+        path: 'edrId',
+        model: 'EDR',
+        select: 'patientId room chiefComplaint',
+        populate: [
+          {
+            path: 'patientId',
+            model: 'patientfhir',
+            select: 'identifier name ',
+          },
+          {
+            path: 'room.roomId',
+            model: 'room',
+            select: 'roomNo roomId',
+          },
+          {
+            path: 'chiefComplaint.chiefComplaintId',
+            model: 'chiefComplaint',
+            select: 'productionArea.productionAreaId',
+            populate: {
+              path: 'productionArea.productionAreaId',
+              model: 'productionArea',
+              select: 'paName',
+            },
+          },
+        ],
+      },
+    ]);
 
   res.status(200).json({
     success: true,
