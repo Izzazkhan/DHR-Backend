@@ -395,13 +395,21 @@ exports.getAdvocate = asyncHandler(async (req, res, next) => {
 });
 
 exports.sendEmail = asyncHandler(async (req, res, next) => {
-  console.log(req.body);
-  const { sender, receiver, subject, body } = req.body;
+  // console.log(req.body);
+  const {
+    sender,
+    receiver,
+    subject,
+    body,
+    requestedTo,
+    requestedBy,
+    edrId,
+  } = req.body;
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
       user: 'pmdevteam0@gmail.com',
-      pass: 'SysJunc#@!',
+      pass: 'Pic@$$o0909',
     },
   });
   const mailOptions = {
@@ -410,8 +418,13 @@ exports.sendEmail = asyncHandler(async (req, res, next) => {
     subject: subject,
     html: `<p>${body}<p>`,
   };
+  const socialWorkerAssistance = {
+    requestedTo,
+    requestedBy,
+    requestedAt: Date.now(),
+  };
 
-  transporter.sendMail(mailOptions, (err, info) => {
+  transporter.sendMail(mailOptions, async (err, info) => {
     if (err) {
       console.log(err);
       res.status(500).json({
@@ -420,6 +433,15 @@ exports.sendEmail = asyncHandler(async (req, res, next) => {
       });
     } else {
       console.log(`Emial Sent : ${info.response}`);
+      await EDR.findOneAndUpdate(
+        { _id: edrId },
+        {
+          $push: { socialWorkerAssistance },
+        },
+        {
+          $new: true,
+        }
+      );
       res.status(200).json({
         success: true,
         data: `Email Sent Successfullly to ${receiver}`,
