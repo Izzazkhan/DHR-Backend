@@ -1161,6 +1161,21 @@ const edrSchema = new mongoose.Schema({
       },
     },
   ],
+  socialWorkerAssistance: [
+    {
+      requestedTo: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      requestedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      requestedAt: {
+        type: Date,
+      },
+    },
+  ],
 });
 
 edrSchema.plugin(mongoosePaginate);
