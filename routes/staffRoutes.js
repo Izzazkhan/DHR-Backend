@@ -29,10 +29,12 @@ const {
   getNurseSpecialty,
   getEDDoctors,
   getAllSensei,
+  getAllParamedics,
   getUsersFromRole,
   getAllDoctors,
   searchDoctor,
   searchSensei,
+  searchParamedics,
   getSpecialityDoctor,
   getAnesthesiologist,
   getSpecialityNurse,
@@ -48,6 +50,7 @@ const {
   searchEdNurse,
   searchCustomerCare,
   radTestStats,
+  searchExternalConsultant,
 } = require('../controllers/staffController');
 
 const router = express.Router();
@@ -62,10 +65,12 @@ router.get('/getNurseSubTypes', getNurseSubTypes);
 router.get('/getDoctorSpecialty', getDoctorSpecialty);
 router.get('/getNurseSpecialty', getNurseSpecialty);
 router.get('/getAllSensei', getAllSensei);
+router.get('/getAllParamedics', getAllParamedics);
 router.get('/getAllDoctors', getAllDoctors);
 router.get('/getUsersFromRole/:role', getUsersFromRole);
 router.get('/searchDoctor/:keyword', searchDoctor);
 router.get('/searchSensei/:keyword', searchSensei);
+router.get('/searchParamedics/:keyword', searchParamedics);
 router.get('/getSpecialityDoctor/:speciality', getSpecialityDoctor);
 router.get('/getSpecialityNurse/:speciality', getSpecialityNurse);
 router.get('/getAnesthesiologist', getAnesthesiologist);
@@ -81,5 +86,6 @@ router.get('/radTestStats', radTestStats);
 router.get('/searchAnesthesiologist/:keyword', searchAnesthesiologist);
 router.get('/searchEdNurse/:keyword', searchEdNurse);
 router.get('/searchCustomerCare/:keyword', searchCustomerCare);
+router.get('/searchExternalConsultant/:keyword', searchExternalConsultant);
 
 module.exports = router;
