@@ -1274,6 +1274,7 @@ exports.doctorResponseTime = asyncHandler(async (req, res, next) => {
         status: 1,
         currentLocation: 1,
         patientId: 1,
+        chiefComplaint: 1,
       },
     },
     {
@@ -1312,7 +1313,7 @@ exports.doctorResponseTime = asyncHandler(async (req, res, next) => {
     },
   ]);
 
-  const patients = await EDR.populate(time, [
+  const responseTime = await EDR.populate(time, [
     {
       path: 'patientId',
       model: 'patientfhir',
@@ -1340,10 +1341,8 @@ exports.doctorResponseTime = asyncHandler(async (req, res, next) => {
     },
   ]);
 
-  // console.log(patients);
-
   res.status(200).json({
     success: true,
-    data: time,
+    data: responseTime,
   });
 });
