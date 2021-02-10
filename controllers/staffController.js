@@ -527,6 +527,77 @@ exports.getEOUNurse = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.getAllEOUNurses = asyncHandler(async (req, res, next) => {
+  const nurses = await Staff.find({
+    staffType: 'Nurses',
+    subType: 'EOU Nurse',
+    disabled: false,
+    // availability: true,
+  })
+    .select('identifier name speciality chiefComplaint')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+    ]);
+
+  res.status(200).json({
+    success: true,
+    data: nurses,
+  });
+});
+
+exports.searchEouNurses = asyncHandler(async (req, res, next) => {
+  const arr = [];
+  const staff = await await Staff.find({
+    staffType: 'Nurses',
+    subType: 'EOU Nurse',
+    disabled: false,
+    // availability: true,
+  });
+  for (let i = 0; i < staff.length; i++) {
+    const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
+    if (
+      (staff[i].name[0].given[0] &&
+        staff[i].name[0].given[0]
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].name[0].family &&
+        staff[i].name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].identifier[0].value &&
+        staff[i].identifier[0].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
+      (staff[i].telecom[1].value &&
+        staff[i].telecom[1].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].nationalID &&
+        staff[i].nationalID
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase()))
+    ) {
+      arr.push(staff[i]);
+    }
+  }
+  res.status(200).json({
+    success: true,
+    data: arr,
+  });
+});
+
 exports.getNurseTechnician = asyncHandler(async (req, res, next) => {
   // console.log(req.params.speciality);
   const nurses = await Staff.find({
@@ -779,7 +850,7 @@ exports.radTestStats = asyncHandler(async (req, res, next) => {
     },
   ]);
   const radDoctors = await Staff.find({ staffType: 'Imaging Technician' })
-    .select('identifier name chiefComplaint shiftType')
+    .select('identifier name chiefComplaint shift')
     .populate([
       {
         path: 'chiefComplaint.chiefComplaintId',
