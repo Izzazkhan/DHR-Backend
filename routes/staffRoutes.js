@@ -50,6 +50,7 @@ const {
   searchEdNurse,
   searchCustomerCare,
   radTestStats,
+  searchExternalConsultant,
 } = require('../controllers/staffController');
 
 const router = express.Router();
@@ -85,5 +86,6 @@ router.get('/radTestStats', radTestStats);
 router.get('/searchAnesthesiologist/:keyword', searchAnesthesiologist);
 router.get('/searchEdNurse/:keyword', searchEdNurse);
 router.get('/searchCustomerCare/:keyword', searchCustomerCare);
+router.get('/searchExternalConsultant/:keyword', searchExternalConsultant);
 
 module.exports = router;
