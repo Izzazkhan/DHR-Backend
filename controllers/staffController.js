@@ -962,6 +962,97 @@ exports.radTestStats = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.searchRadTestsStats = asyncHandler(async (req, res, next) => {
+  const rads = await EDR.aggregate([
+    {
+      $project: {
+        radRequest: 1,
+      },
+    },
+    {
+      $unwind: '$radRequest',
+    },
+    {
+      $match: { 'radRequest.status': 'completed' },
+    },
+    {
+      $group: {
+        _id: 'radRequest',
+        radRequest: { $push: '$radRequest' },
+      },
+    },
+  ]);
+  const radDoctors = await Staff.find({ staffType: 'Imaging Technician' })
+    .select('identifier name chiefComplaint shift')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+    ]);
+  const staff = [];
+
+  for (let i = 0; i < radDoctors.length; i++) {
+    const obj = JSON.parse(JSON.stringify(radDoctors[i]));
+    let count = 0;
+    const countWithTest = {};
+    const radRequest = [];
+    for (let j = 0; j < rads[0].radRequest.length; j++) {
+      if (
+        radDoctors[i]._id.toString() ===
+        rads[0].radRequest[j].imageTechnicianId.toString()
+      ) {
+        // obj.radRequest = rads[0].radRequest[j];
+        radRequest.push(rads[0].radRequest[j]);
+        count++;
+        const key = rads[0].radRequest[j].type.replace(/\s/g, '');
+        if (key in countWithTest === false) {
+          countWithTest[key] = 1;
+        } else {
+          countWithTest[key] = countWithTest[key] + 1;
+        }
+      }
+    }
+    obj.rads = { ...countWithTest };
+    obj.tests = count;
+    staff.push(obj);
+  }
+
+  const arr = [];
+  for (let i = 0; i < staff.length; i++) {
+    const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
+    if (
+      (staff[i].name[0].given[0] &&
+        staff[i].name[0].given[0]
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].name[0].family &&
+        staff[i].name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].identifier[0].value &&
+        staff[i].identifier[0].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase())
+    ) {
+      arr.push(staff[i]);
+    }
+  }
+  res.status(200).json({
+    success: true,
+    data: arr,
+  });
+});
+
 exports.getUsersFromRole = asyncHandler(async (req, res) => {
   if (req.params.role === 'all') {
     const sensei = await Staff.find({}).populate('addedBy');
