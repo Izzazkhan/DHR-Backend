@@ -4,6 +4,7 @@ const requestNoFormat = require('dateformat');
 const Staff = require('../models/staffFhir/staff');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
+const EDR = require('../models/EDR/EDR');
 
 // register a staff
 exports.registerStaff = asyncHandler(async (req, res, next) => {
@@ -558,10 +559,66 @@ exports.getCustomerCares = asyncHandler(async (req, res, next) => {
     staffType: 'Customer Care',
     disabled: false,
     // availability: true,
-  }).select('identifier name');
+  })
+    .select('identifier name chiefComlaint shift')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+    ]);
   res.status(200).json({
     success: true,
     data: houseKeepers,
+  });
+});
+
+exports.searchCustomerCare = asyncHandler(async (req, res, next) => {
+  const arr = [];
+  const staff = await Staff.find({
+    staffType: 'Customer Care',
+    disabled: false,
+    // availability: true,
+  });
+  for (let i = 0; i < staff.length; i++) {
+    const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
+    if (
+      (staff[i].name[0].given[0] &&
+        staff[i].name[0].given[0]
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].name[0].family &&
+        staff[i].name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].identifier[0].value &&
+        staff[i].identifier[0].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
+      (staff[i].telecom[1].value &&
+        staff[i].telecom[1].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].nationalID &&
+        staff[i].nationalID
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase()))
+    ) {
+      arr.push(staff[i]);
+    }
+  }
+  res.status(200).json({
+    success: true,
+    data: arr,
   });
 });
 
@@ -589,6 +646,47 @@ exports.getEDNurses = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.searchEdNurse = asyncHandler(async (req, res, next) => {
+  const arr = [];
+  const staff = await Staff.find({
+    staffType: 'Nurses',
+    subType: 'ED Nurse',
+    disabled: false,
+  });
+  for (let i = 0; i < staff.length; i++) {
+    const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
+    if (
+      (staff[i].name[0].given[0] &&
+        staff[i].name[0].given[0]
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].name[0].family &&
+        staff[i].name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].identifier[0].value &&
+        staff[i].identifier[0].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
+      (staff[i].telecom[1].value &&
+        staff[i].telecom[1].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].nationalID &&
+        staff[i].nationalID
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase()))
+    ) {
+      arr.push(staff[i]);
+    }
+  }
+  res.status(200).json({
+    success: true,
+    data: arr,
+  });
+});
+
 exports.getExternal = asyncHandler(async (req, res, next) => {
   const externals = await Staff.find({
     subType: 'External',
@@ -605,6 +703,79 @@ exports.getAllNurses = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: nurses,
+  });
+});
+
+exports.radTestStats = asyncHandler(async (req, res, next) => {
+  const rads = await EDR.aggregate([
+    {
+      $project: {
+        radRequest: 1,
+      },
+    },
+    {
+      $unwind: '$radRequest',
+    },
+    {
+      $match: { 'radRequest.status': 'completed' },
+    },
+    {
+      $group: {
+        _id: 'radRequest',
+        radRequest: { $push: '$radRequest' },
+      },
+    },
+  ]);
+  const radDoctors = await Staff.find({ staffType: 'Imaging Technician' })
+    .select('identifier name chiefComplaint shiftType')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+    ]);
+  const newArray = [];
+
+  console.log(rads[0]);
+
+  for (let i = 0; i < radDoctors.length; i++) {
+    const obj = JSON.parse(JSON.stringify(radDoctors[i]));
+    let count = 0;
+    let countWithTest = {};
+    const radRequest = [];
+    for (let j = 0; j < rads[0].radRequest.length; j++) {
+      if (
+        radDoctors[i]._id.toString() ===
+        rads[0].radRequest[j].imageTechnicianId.toString()
+      ) {
+        // obj.radRequest = rads[0].radRequest[j];
+        radRequest.push(rads[0].radRequest[j]);
+        // count++;
+        let key = rads[0].radRequest[j].type.replace(/\s/g, '');
+        if (key in countWithTest === false) {
+          countWithTest[key] = 1;
+        } else {
+          countWithTest[key] = countWithTest[key] + 1;
+        }
+      }
+    }
+    obj.tests = count;
+
+    console.log(countWithTest);
+    newArray.push(obj);
+  }
+
+  res.status(200).json({
+    success: true,
+    data: newArray,
   });
 });
 
