@@ -534,7 +534,7 @@ exports.getAllEOUNurses = asyncHandler(async (req, res, next) => {
     disabled: false,
     // availability: true,
   })
-    .select('identifier name speciality chiefComplaint')
+    .select('identifier name specialty chiefComplaint')
     .populate([
       {
         path: 'chiefComplaint.chiefComplaintId',
@@ -786,7 +786,24 @@ exports.searchExternalConsultant = asyncHandler(async (req, res, next) => {
   const staff = await Staff.find({
     subType: 'External',
     disabled: false,
-  });
+  })
+    .select(
+      'identifier name speciality chiefComplaint experience telecom nationalID'
+    )
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+    ]);
   for (let i = 0; i < staff.length; i++) {
     const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
     if (
@@ -818,6 +835,52 @@ exports.searchExternalConsultant = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: arr,
+  });
+});
+
+// External Consultant Cases
+exports.externalCC = asyncHandler(async (req, res, next) => {
+  const cases = await EDR.aggregate([
+    {
+      $project: {
+        consultationNote: 1,
+        chiefComplaint: 1,
+        id: 1,
+      },
+    },
+    {
+      $unwind: '$consultationNote',
+    },
+    {
+      $match: {
+        'consultationNote.consultationType': 'External',
+      },
+    },
+  ]);
+
+  const consulatations = await EDR.populate(cases, [
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      select: 'chiefComplaint.chiefComplaintId',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      ],
+    },
+    {
+      path: 'consultationNote.consultant',
+      model: 'staff',
+      select: 'identifier name speciality',
+    },
+  ]);
+
+  res.status(200).json({
+    success: true,
+    data: consulatations,
   });
 });
 
@@ -866,8 +929,6 @@ exports.radTestStats = asyncHandler(async (req, res, next) => {
       },
     ]);
   const newArray = [];
-
-  // console.log('rads :', rads[0]);
 
   for (let i = 0; i < radDoctors.length; i++) {
     const obj = JSON.parse(JSON.stringify(radDoctors[i]));
