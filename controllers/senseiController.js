@@ -752,40 +752,60 @@ exports.timeInterval = asyncHandler(async (req, res, next) => {
 });
 
 exports.transferToEOU = asyncHandler(async (req, res, next) => {
-  const transfers = await EouTransfer.find({
-    to: 'EOU',
-    status: 'completed',
-  })
-    .select('edrId')
-    .populate([
-      {
-        path: 'edrId',
-        model: 'EDR',
-        select: 'patientId room chiefComplaint',
-        populate: [
-          {
-            path: 'patientId',
-            model: 'patientfhir',
-            select: 'identifier name ',
-          },
-          {
-            path: 'room.roomId',
-            model: 'room',
-            select: 'roomNo roomId',
-          },
-          {
-            path: 'chiefComplaint.chiefComplaintId',
-            model: 'chiefComplaint',
-            select: 'productionArea.productionAreaId',
-            populate: {
-              path: 'productionArea.productionAreaId',
-              model: 'productionArea',
-              select: 'paName',
-            },
-          },
-        ],
-      },
-    ]);
+  // const currentTime = moment().utc().toDate();
+  // const sixHours = moment().subtract(6, 'hours').utc().toDate();
+
+  // const week = new Date();
+  // const weekDate = week.setDate(week.getDate() - 7);
+  // console.log(weekDate);
+
+  // const transfers = await EouTransfer.aggregate([
+  //   {
+  //     $match: {
+  //       $and: [{ to: 'EOU' }, { stats: 'completed' },{} ],
+  //     },
+  //   },
+  //   {
+  //     $project: {
+
+  //     },
+  //   },
+  // ]);
+
+  // const transfers = await EouTransfer.find({
+  //   to: 'EOU',
+  //   status: 'completed',
+  // })
+  //   .select('edrId')
+  //   .populate([
+  //     {
+  //       path: 'edrId',
+  //       model: 'EDR',
+  //       select: 'patientId room chiefComplaint',
+  //       populate: [
+  //         {
+  //           path: 'patientId',
+  //           model: 'patientfhir',
+  //           select: 'identifier name ',
+  //         },
+  //         {
+  //           path: 'room.roomId',
+  //           model: 'room',
+  //           select: 'roomNo roomId',
+  //         },
+  //         {
+  //           path: 'chiefComplaint.chiefComplaintId',
+  //           model: 'chiefComplaint',
+  //           select: 'productionArea.productionAreaId',
+  //           populate: {
+  //             path: 'productionArea.productionAreaId',
+  //             model: 'productionArea',
+  //             select: 'paName',
+  //           },
+  //         },
+  //       ],
+  //     },
+  //   ]);
 
   res.status(200).json({
     success: true,
@@ -1306,12 +1326,21 @@ exports.doctorResponseTime = asyncHandler(async (req, res, next) => {
                 '$consultationNote.noteTime',
               ],
             },
-            1000 * 60 * 60,
+            1000 * 60 * 60 * 24,
           ],
         },
       },
     },
   ]);
+
+  time.map((day) => (day.days = day.responseTime.toString().split('.')[0]));
+
+  time.map((patient) => {
+    const h = patient.responseTime;
+    const int = Math.trunc(h);
+    const float = Number((h - int).toFixed(8));
+    patient.hours = Math.trunc(float * 24);
+  });
 
   const responseTime = await EDR.populate(time, [
     {
