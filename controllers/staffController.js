@@ -744,7 +744,7 @@ exports.radTestStats = asyncHandler(async (req, res, next) => {
     ]);
   const newArray = [];
 
-  console.log('rads :', rads[0]);
+  // console.log('rads :', rads[0]);
 
   for (let i = 0; i < radDoctors.length; i++) {
     const obj = JSON.parse(JSON.stringify(radDoctors[i]));
@@ -769,8 +769,6 @@ exports.radTestStats = asyncHandler(async (req, res, next) => {
     }
     obj.rads = { ...countWithTest };
     obj.tests = count;
-    // console.log(obj);
-    // console.log(countWithTest);
     newArray.push(obj);
   }
 

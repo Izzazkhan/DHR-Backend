@@ -1297,7 +1297,7 @@ exports.doctorResponseTime = asyncHandler(async (req, res, next) => {
         'consultationNote.completionDate': 1,
         'consultationNote.consultant': 1,
         'consultationNote.noteTime': 1,
-        responsTime: {
+        responseTime: {
           $divide: [
             {
               $subtract: [
@@ -1340,8 +1340,10 @@ exports.doctorResponseTime = asyncHandler(async (req, res, next) => {
     },
   ]);
 
+  // console.log(patients);
+
   res.status(200).json({
     success: true,
-    data: patients,
+    data: time,
   });
 });
