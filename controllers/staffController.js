@@ -696,12 +696,12 @@ exports.radTestStats = asyncHandler(async (req, res, next) => {
     ]);
   const newArray = [];
 
-  console.log(rads[0]);
+  console.log('rads :', rads[0]);
 
   for (let i = 0; i < radDoctors.length; i++) {
     const obj = JSON.parse(JSON.stringify(radDoctors[i]));
     let count = 0;
-    let countWithTest = {};
+    const countWithTest = {};
     const radRequest = [];
     for (let j = 0; j < rads[0].radRequest.length; j++) {
       if (
@@ -710,8 +710,8 @@ exports.radTestStats = asyncHandler(async (req, res, next) => {
       ) {
         // obj.radRequest = rads[0].radRequest[j];
         radRequest.push(rads[0].radRequest[j]);
-        // count++;
-        let key = rads[0].radRequest[j].type.replace(/\s/g, '');
+        count++;
+        const key = rads[0].radRequest[j].type.replace(/\s/g, '');
         if (key in countWithTest === false) {
           countWithTest[key] = 1;
         } else {
@@ -719,9 +719,10 @@ exports.radTestStats = asyncHandler(async (req, res, next) => {
         }
       }
     }
+    obj.rads = { ...countWithTest };
     obj.tests = count;
-
-    console.log(countWithTest);
+    // console.log(obj);
+    // console.log(countWithTest);
     newArray.push(obj);
   }
 
