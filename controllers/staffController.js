@@ -775,7 +775,22 @@ exports.getExternal = asyncHandler(async (req, res, next) => {
   const externals = await Staff.find({
     subType: 'External',
     disabled: false,
-  }).select('name identifier specialty experience productionArea');
+  })
+    .select('identifier name speciality chiefComplaint experience')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+    ]);
   res.status(200).json({
     success: true,
     data: externals,
@@ -801,7 +816,7 @@ exports.searchExternalConsultant = asyncHandler(async (req, res, next) => {
     disabled: false,
   })
     .select(
-      'identifier name speciality chiefComplaint experience telecom nationalID'
+      'identifier name specialty chiefComplaint experience telecom nationalID'
     )
     .populate([
       {

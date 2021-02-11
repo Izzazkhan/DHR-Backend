@@ -396,7 +396,7 @@ exports.getAdvocate = asyncHandler(async (req, res, next) => {
 
 exports.getSWAssistance = asyncHandler(async (req, res, next) => {
   const assistances = await EDR.find({
-    socialWorkerAssistance: { $ne: [] },
+    socialWorkerAssistance: { $exists: true, $ne: [] },
   })
     .select('patientId room chiefComplaint socialWorkerAssistance')
     .populate([
