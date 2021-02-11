@@ -940,3 +940,107 @@ exports.workDoneByCC = asyncHandler(async (req, res, next) => {
     data: workDone,
   });
 });
+
+exports.searchWorkDoneByCC = asyncHandler(async (req, res, next) => {
+  const request = await CCRequest.find({ status: 'completed' }).populate([
+    {
+      path: 'edrId',
+      model: 'EDR',
+      select: 'patientId room chiefComplaint.chiefComplaintId',
+      populate: [
+        {
+          path: 'patientId',
+          model: 'patientfhir',
+          select: 'identifier name',
+        },
+        {
+          path: 'room.roomId',
+          model: 'room',
+          select: 'roomNo ',
+        },
+        {
+          path: 'chiefComplaint.chiefComplaintId',
+          model: 'chiefComplaint',
+          select: 'productionArea.productionAreaId',
+          populate: {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        },
+      ],
+    },
+    {
+      path: 'costomerCareId',
+      model: 'staff',
+      select: 'identifier name',
+    },
+  ]);
+
+  const transfers = await Transfer.find({ status: 'completed' }).populate([
+    {
+      path: 'edrId',
+      model: 'EDR',
+      select: 'patientId room chiefComplaint.chiefComplaintId',
+      populate: [
+        {
+          path: 'patientId',
+          model: 'patientfhir',
+          select: 'identifier name',
+        },
+        {
+          path: 'room.roomId',
+          model: 'room',
+          select: 'roomNo ',
+        },
+        {
+          path: 'chiefComplaint.chiefComplaintId',
+          model: 'chiefComplaint',
+          select: 'productionArea.productionAreaId',
+          populate: {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        },
+      ],
+    },
+    {
+      path: 'requestedTo',
+      model: 'staff',
+      select: 'identifier name',
+    },
+  ]);
+
+  // const assistance = await Assistance.find({staffType:'Customer Care'})
+  const staff = [...request, ...transfers];
+
+  const arr = [];
+  for (let i = 0; i < staff.length; i++) {
+    const fullName =
+      staff[i].edrId.patientId.name[0].given[0] +
+      ' ' +
+      staff[i].edrId.patientId.name[0].family;
+    if (
+      (staff[i].edrId.patientId.name[0].given[0] &&
+        staff[i].edrId.patientId.name[0].given[0]
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].edrId.patientId.name[0].family &&
+        staff[i].edrId.patientId.name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].edrId.patientId.identifier[0].value &&
+        staff[i].edrId.patientId.identifier[0].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase())
+    ) {
+      arr.push(staff[i]);
+    }
+  }
+  res.status(200).json({
+    success: true,
+    data: arr,
+  });
+});
