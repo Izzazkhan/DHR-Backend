@@ -429,7 +429,7 @@ exports.getSWAssistance = asyncHandler(async (req, res, next) => {
       {
         path: 'socialWorkerAssistance.requestedTo',
         model: 'staff',
-        select: 'staffType',
+        select: 'staffType name telecom',
       },
     ]);
 
