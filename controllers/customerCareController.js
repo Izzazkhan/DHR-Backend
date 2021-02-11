@@ -7,6 +7,7 @@ const Room = require('../models/room');
 const Transfer = require('../models/patientTransferEDEOU/patientTransferEDEOU');
 const CCRequest = require('../models/customerCareRequest');
 const room = require('../models/room');
+// const Assistance = require('../models/assistance/assistance');
 
 exports.getAllCustomerCares = asyncHandler(async (req, res, next) => {
   const customerCares = await Staff.find({
@@ -859,5 +860,83 @@ exports.completedAmbulanceRequest = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: requests,
+  });
+});
+exports.workDoneByCC = asyncHandler(async (req, res, next) => {
+  const request = await CCRequest.find({ status: 'completed' }).populate([
+    {
+      path: 'edrId',
+      model: 'EDR',
+      select: 'patientId room chiefComplaint.chiefComplaintId',
+      populate: [
+        {
+          path: 'patientId',
+          model: 'patientfhir',
+          select: 'identifier name',
+        },
+        {
+          path: 'room.roomId',
+          model: 'room',
+          select: 'roomNo ',
+        },
+        {
+          path: 'chiefComplaint.chiefComplaintId',
+          model: 'chiefComplaint',
+          select: 'productionArea.productionAreaId',
+          populate: {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        },
+      ],
+    },
+    {
+      path: 'costomerCareId',
+      model: 'staff',
+      select: 'identifier name',
+    },
+  ]);
+
+  const transfers = await Transfer.find({ status: 'completed' }).populate([
+    {
+      path: 'edrId',
+      model: 'EDR',
+      select: 'patientId room chiefComplaint.chiefComplaintId',
+      populate: [
+        {
+          path: 'patientId',
+          model: 'patientfhir',
+          select: 'identifier name',
+        },
+        {
+          path: 'room.roomId',
+          model: 'room',
+          select: 'roomNo ',
+        },
+        {
+          path: 'chiefComplaint.chiefComplaintId',
+          model: 'chiefComplaint',
+          select: 'productionArea.productionAreaId',
+          populate: {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        },
+      ],
+    },
+    {
+      path: 'requestedTo',
+      model: 'staff',
+      select: 'identifier name',
+    },
+  ]);
+
+  // const assistance = await Assistance.find({staffType:'Customer Care'})
+  const workDone = [...request, ...transfers];
+  res.status(200).json({
+    success: true,
+    data: workDone,
   });
 });

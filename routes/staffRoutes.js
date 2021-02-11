@@ -54,6 +54,7 @@ const {
   getAllEOUNurses,
   searchEouNurses,
   externalCC,
+  searchExternalCC,
   searchRadTestsStats,
 } = require('../controllers/staffController');
 
@@ -89,6 +90,7 @@ router.get('/getAllNurses', getAllNurses);
 router.get('/radTestStats', radTestStats);
 router.get('/getAllEOUNurses', getAllEOUNurses);
 router.get('/externalCC', externalCC);
+router.get('/searchExternalCC/:keyword', searchExternalCC);
 router.get('/searchAnesthesiologist/:keyword', searchAnesthesiologist);
 router.get('/searchEdNurse/:keyword', searchEdNurse);
 router.get('/searchCustomerCare/:keyword', searchCustomerCare);

@@ -15,6 +15,8 @@ const {
   getMentalCare,
   getAdvocate,
   sendEmail,
+  getSWAssistance,
+  searchSWAssistance,
 } = require('../controllers/socialWorker');
 
 router.get('/getDischargedEDRs', getDischargedEDRs);
@@ -29,6 +31,8 @@ router.put('/addSurvey', addSurvey);
 router.get('/getPsychiatrist', getPsychiatrist);
 router.get('/getMentalCare', getMentalCare);
 router.get('/getAdvocate', getAdvocate);
+router.get('/getSWAssistance', getSWAssistance);
+router.get('/searchSWAssistance/:keyword', searchSWAssistance);
 router.put('/sendEmail', sendEmail);
 
 module.exports = router;

@@ -775,7 +775,22 @@ exports.getExternal = asyncHandler(async (req, res, next) => {
   const externals = await Staff.find({
     subType: 'External',
     disabled: false,
-  }).select('name identifier specialty experience productionArea');
+  })
+    .select('identifier name speciality chiefComplaint experience')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+    ]);
   res.status(200).json({
     success: true,
     data: externals,
@@ -801,7 +816,7 @@ exports.searchExternalConsultant = asyncHandler(async (req, res, next) => {
     disabled: false,
   })
     .select(
-      'identifier name speciality chiefComplaint experience telecom nationalID'
+      'identifier name specialty chiefComplaint experience telecom nationalID'
     )
     .populate([
       {
@@ -894,6 +909,76 @@ exports.externalCC = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: consulatations,
+  });
+});
+
+exports.searchExternalCC = asyncHandler(async (req, res, next) => {
+  const cases = await EDR.aggregate([
+    {
+      $project: {
+        consultationNote: 1,
+        chiefComplaint: 1,
+        id: 1,
+      },
+    },
+    {
+      $unwind: '$consultationNote',
+    },
+    {
+      $match: {
+        'consultationNote.consultationType': 'External',
+      },
+    },
+  ]);
+
+  const staff = await EDR.populate(cases, [
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      select: 'chiefComplaint.chiefComplaintId',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      ],
+    },
+    {
+      path: 'consultationNote.consultant',
+      model: 'staff',
+      select: 'identifier name speciality',
+    },
+  ]);
+
+  const arr = [];
+  for (let i = 0; i < staff.length; i++) {
+    const fullName =
+      staff[i].consultationNote.consultant.name[0].given[0] +
+      ' ' +
+      staff[i].consultationNote.consultant.name[0].family;
+    if (
+      (staff[i].consultationNote.consultant.name[0].given[0] &&
+        staff[i].consultationNote.consultant.name[0].given[0]
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].consultationNote.consultant.name[0].family &&
+        staff[i].consultationNote.consultant.name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].consultationNote.consultant.identifier[0].value &&
+        staff[i].consultationNote.consultant.identifier[0].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase())
+    ) {
+      arr.push(staff[i]);
+    }
+  }
+
+  res.status(200).json({
+    success: true,
+    data: arr,
   });
 });
 
