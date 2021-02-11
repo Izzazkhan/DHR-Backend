@@ -912,6 +912,76 @@ exports.externalCC = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.searchExternalCC = asyncHandler(async (req, res, next) => {
+  const cases = await EDR.aggregate([
+    {
+      $project: {
+        consultationNote: 1,
+        chiefComplaint: 1,
+        id: 1,
+      },
+    },
+    {
+      $unwind: '$consultationNote',
+    },
+    {
+      $match: {
+        'consultationNote.consultationType': 'External',
+      },
+    },
+  ]);
+
+  const staff = await EDR.populate(cases, [
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      select: 'chiefComplaint.chiefComplaintId',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      ],
+    },
+    {
+      path: 'consultationNote.consultant',
+      model: 'staff',
+      select: 'identifier name speciality',
+    },
+  ]);
+
+  const arr = [];
+  for (let i = 0; i < staff.length; i++) {
+    const fullName =
+      staff[i].consultationNote.consultant.name[0].given[0] +
+      ' ' +
+      staff[i].consultationNote.consultant.name[0].family;
+    if (
+      (staff[i].consultationNote.consultant.name[0].given[0] &&
+        staff[i].consultationNote.consultant.name[0].given[0]
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].consultationNote.consultant.name[0].family &&
+        staff[i].consultationNote.consultant.name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].consultationNote.consultant.identifier[0].value &&
+        staff[i].consultationNote.consultant.identifier[0].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase())
+    ) {
+      arr.push(staff[i]);
+    }
+  }
+
+  res.status(200).json({
+    success: true,
+    data: arr,
+  });
+});
+
 exports.getAllNurses = asyncHandler(async (req, res, next) => {
   const nurses = await Staff.find({ staffType: 'Nurses', disabled: false });
   res.status(200).json({
