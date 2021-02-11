@@ -4,6 +4,7 @@ const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const Staff = require('../models/staffFhir/staff');
 const EDN = require('../models/edNurseRequest');
+const CCRequests = require('../models/customerCareRequest');
 
 exports.getLab = asyncHandler(async (req, res, next) => {
   const unwindEdr = await EDR.aggregate([
@@ -162,7 +163,11 @@ exports.getPharmacy = asyncHandler(async (req, res, next) => {
 
 exports.submitRequest = asyncHandler(async (req, res, next) => {
   const { patientId, staffId, assignedBy, staffType, reason } = req.body;
-  const request = await EDN.create({
+  let request;
+  if (staffType === 'Customer Care') {
+    request = await CCRequests.create({});
+  }
+  request = await EDN.create({
     patientId,
     staffId,
     assignedBy,
@@ -187,12 +192,12 @@ exports.getHouskeepingRequests = asyncHandler(async (req, res, next) => {
 });
 
 exports.getCustomerCareRequests = asyncHandler(async (req, res, next) => {
-  const CCRequests = await EDN.find({ staffType: 'Customer Care' })
+  const ccRequests = await EDN.find({ staffType: 'Customer Care' })
     .populate('patientId', 'name identifier')
     .populate('staffId', 'name identifier');
   res.status(200).json({
     success: true,
-    data: CCRequests,
+    data: ccRequests,
   });
 });
 
