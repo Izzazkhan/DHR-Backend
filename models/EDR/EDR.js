@@ -1174,6 +1174,9 @@ const edrSchema = new mongoose.Schema({
       requestedAt: {
         type: Date,
       },
+      requiredAssistance: {
+        type: String,
+      },
     },
   ],
 });
