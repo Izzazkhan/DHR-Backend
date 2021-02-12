@@ -791,7 +791,6 @@ exports.getExternal = asyncHandler(async (req, res, next) => {
         ],
       },
     ]);
-    console.log("externals: ", externals)
   res.status(200).json({
     success: true,
     data: externals,
