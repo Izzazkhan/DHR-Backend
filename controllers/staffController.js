@@ -776,7 +776,7 @@ exports.getExternal = asyncHandler(async (req, res, next) => {
     subType: 'External',
     disabled: false,
   })
-    .select('identifier name speciality chiefComplaint experience')
+    .select('identifier name specialty chiefComplaint experience')
     .populate([
       {
         path: 'chiefComplaint.chiefComplaintId',
