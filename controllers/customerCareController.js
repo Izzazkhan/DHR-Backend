@@ -1012,15 +1012,28 @@ exports.searchWorkDoneByCC = asyncHandler(async (req, res, next) => {
     },
   ]);
 
-  // const assistance = await Assistance.find({staffType:'Customer Care'})
-  const staff = [...request, ...transfers];
+  // console.log(transfers[0].requestedTo);
+  const newTransfers = transfers.map(
+    ({ requestedTo: costomerCareId, edrId }) => ({
+      costomerCareId,
+      edrId,
+    })
+  );
+  // console.log(newTransfers);
 
+  // const assistance = await Assistance.find({staffType:'Customer Care'})
+  const staff = [...request, ...newTransfers];
+  // console.log(staff[0].costomerCareId.name[0].given[0]);
   const arr = [];
   for (let i = 0; i < staff.length; i++) {
     const fullName =
       staff[i].edrId.patientId.name[0].given[0] +
       ' ' +
       staff[i].edrId.patientId.name[0].family;
+    const ccFullName =
+      staff[i].costomerCareId.name[0].given[0] +
+      ' ' +
+      staff[i].costomerCareId.name[0].family;
     if (
       (staff[i].edrId.patientId.name[0].given[0] &&
         staff[i].edrId.patientId.name[0].given[0]
@@ -1034,7 +1047,20 @@ exports.searchWorkDoneByCC = asyncHandler(async (req, res, next) => {
         staff[i].edrId.patientId.identifier[0].value
           .toLowerCase()
           .startsWith(req.params.keyword.toLowerCase())) ||
-      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase())
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
+      (staff[i].costomerCareId.name[0].given[0] &&
+        staff[i].costomerCareId.name[0].given[0]
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].costomerCareId.name[0].family &&
+        staff[i].costomerCareId.name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].costomerCareId.identifier[0].value &&
+        staff[i].costomerCareId.identifier[0].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      ccFullName.toLowerCase().startsWith(req.params.keyword.toLowerCase())
     ) {
       arr.push(staff[i]);
     }
