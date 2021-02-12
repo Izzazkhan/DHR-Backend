@@ -38,6 +38,7 @@ const paramedics = require('./routes/paramedicstRoutes');
 const insurance = require('./routes/insurance');
 const preApproval = require('./routes/preApprovalInsurance');
 const RC = require('./routes/reimbursementClaim');
+const shift = require('./routes/shift');
 
 const dcdFormRouter = require('./routes/dcdFormroutes');
 const ChatModel = require('./models/chatRoom/chatRoom');
@@ -48,7 +49,6 @@ const subscriber = require('./routes/subscriber');
 const anesthesiaRequestRoutes = require('./routes/anesthesiaRequestRoutes');
 const consultationNotesRoutes = require('./routes/consultationNotesRoutes');
 const reconciliationNotesRoutes = require('./routes/reconciliationNotesRoutes');
-
 
 const app = express();
 
@@ -106,6 +106,7 @@ app.use('/api/edNurse', edNurse);
 app.use('/api/eouNurse', eouNurse);
 
 app.use('/api/paramedics', paramedics);
+app.use('/api/shift', shift);
 
 app.use(errorHandler);
 
