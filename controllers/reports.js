@@ -16,7 +16,7 @@ exports.roDashboard = asyncHandler(async (req, res) => {
   const secondHour = moment().subtract(5, 'hours').utc().toDate();
   const sixHour = moment().subtract(6, 'hours').utc().toDate();
 
-  //   Registrations Per Hour
+  // *  Registrations Per Hour
   const patients = await Patient.find({
     // 'processTime.processName': 'Registration Officer',
     $and: [
@@ -24,7 +24,7 @@ exports.roDashboard = asyncHandler(async (req, res) => {
       { 'processTime.processEndTime': { $lte: currentTime } },
     ],
   });
-  //   console.log(patients.length);
+
   const averageRegistrationTime = 360 / patients.length;
 
   const sixthHourPatient = await Patient.find({
@@ -34,6 +34,7 @@ exports.roDashboard = asyncHandler(async (req, res) => {
       { 'processTime.processEndTime': { $lte: currentTime } },
     ],
   }).countDocuments();
+
   const fifthHourPatient = await Patient.find({
     // 'processTime.processName': 'Registration Officer',
     $and: [
@@ -74,6 +75,18 @@ exports.roDashboard = asyncHandler(async (req, res) => {
     ],
   }).countDocuments();
 
+  //   * Pending Registration After Sensei
+  const pendingSensei = await Patient.find({
+    'processTime.processName': 'Sensei',
+    registrationStatus: 'pending',
+    $and: [
+      { 'processTime.processStartTime': { $gte: sixHour } },
+      // { 'processTime.processEndTime': { $lte: currentTime } },
+    ],
+  });
+
+  const averageSenseiRegisterTime = 360 / pendingSensei.length;
+
   // Available ED Beds
   const EdBeds = await Room.find({
     availability: true,
@@ -89,11 +102,17 @@ exports.roDashboard = asyncHandler(async (req, res) => {
     paymentMethod: 'Uninsured',
   }).countDocuments();
 
+  const totalRegistrations = await Patient.find({
+    'processTime.processName': 'Registration Officer',
+    registrationStatus: 'completed',
+  }).countDocuments();
+
   res.status(200).json({
     success: true,
     totalInsured: edrInsured,
     totalUnInsured: edrUnInsured,
     availableEdBeds: EdBeds,
+    cumulativeRegistrations: totalRegistrations,
     registrationPerHour: {
       averageTAT: averageRegistrationTime,
       sixthHourPatient,
@@ -102,6 +121,9 @@ exports.roDashboard = asyncHandler(async (req, res) => {
       thirdHourPatient,
       secondHourPatient,
       firstHourPatient,
+    },
+    pendingRegistrationSensei: {
+      averageTAT: averageSenseiRegisterTime,
     },
   });
 });
