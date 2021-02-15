@@ -94,12 +94,14 @@ exports.roDashboard = asyncHandler(async (req, res) => {
     totalInsured: edrInsured,
     totalUnInsured: edrUnInsured,
     availableEdBeds: EdBeds,
-    averageTAT: averageRegistrationTime,
-    sixthHourPatient,
-    fifthHourPatient,
-    fourthHourPatient,
-    thirdHourPatient,
-    secondHourPatient,
-    firstHourPatient,
+    registrationPerHour: {
+      averageTAT: averageRegistrationTime,
+      sixthHourPatient,
+      fifthHourPatient,
+      fourthHourPatient,
+      thirdHourPatient,
+      secondHourPatient,
+      firstHourPatient,
+    },
   });
 });
