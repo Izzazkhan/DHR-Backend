@@ -3,6 +3,7 @@ const moment = require('moment');
 const QRCode = require('qrcode');
 const requestNoFormat = require('dateformat');
 const patientFHIR = require('../models/patient/patient');
+const Room = require('../models/room');
 
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
@@ -137,23 +138,6 @@ exports.registerPatient = asyncHandler(async (req, res) => {
         // console.log(docs);
         res.status(200).json({ success: true, data: docs });
       });
-  });
-});
-
-exports.averageRegistrationTAT = asyncHandler(async (req, res, next) => {
-  const currentTime = moment().utc().toDate();
-  const sixHours = moment().subtract(6, 'hours').utc().toDate();
-  const patients = await patientFHIR.find({
-    'process.processName': 'registration',
-    $and: [
-      { 'processTime.processStartTime': { $gte: sixHours } },
-      { 'processTime.processEndTime': { $lte: currentTime } },
-    ],
-  });
-  const averageRegistrationTime = 360 / patients.length;
-  res.status(200).json({
-    success: true,
-    data: averageRegistrationTime,
   });
 });
 
