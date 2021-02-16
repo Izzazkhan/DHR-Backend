@@ -26,6 +26,7 @@ exports.roDashboard = asyncHandler(async (req, res) => {
   });
 
   const averageRegistrationTime = 360 / patients.length;
+  const arr = [];
 
   const sixthHourPatient = await Patient.find({
     // 'processTime.processName': 'Registration Officer',
@@ -34,6 +35,8 @@ exports.roDashboard = asyncHandler(async (req, res) => {
       { 'processTime.processEndTime': { $lte: currentTime } },
     ],
   }).countDocuments();
+  // arr.push({ label: lastHour, value: sixthHourPatient });
+  arr.push({ label: lastHour, value: 5 });
 
   const fifthHourPatient = await Patient.find({
     // 'processTime.processName': 'Registration Officer',
@@ -42,7 +45,8 @@ exports.roDashboard = asyncHandler(async (req, res) => {
       { 'processTime.processEndTime': { $lte: lastHour } },
     ],
   }).countDocuments();
-
+  // arr.push({ label: fifthHour, value: fifthHourPatient });
+  arr.push({ label: fifthHour, value: 4 });
   const fourthHourPatient = await Patient.find({
     // 'processTime.processName': 'Registration Officer',
     $and: [
@@ -50,6 +54,8 @@ exports.roDashboard = asyncHandler(async (req, res) => {
       { 'processTime.processEndTime': { $lte: fifthHour } },
     ],
   }).countDocuments();
+  // arr.push({ label: fourthHour, value: fourthHourPatient });
+  arr.push({ label: fourthHour, value: 10 });
 
   const thirdHourPatient = await Patient.find({
     // 'processTime.processName': 'Registration Officer',
@@ -58,6 +64,8 @@ exports.roDashboard = asyncHandler(async (req, res) => {
       { 'processTime.processEndTime': { $lte: fourthHour } },
     ],
   }).countDocuments();
+  // arr.push({ label: thirdHour, value: thirdHourPatient });
+  arr.push({ label: thirdHour, value: 12 });
 
   const secondHourPatient = await Patient.find({
     // 'processTime.processName': 'Registration Officer',
@@ -66,6 +74,8 @@ exports.roDashboard = asyncHandler(async (req, res) => {
       { 'processTime.processEndTime': { $lte: thirdHour } },
     ],
   }).countDocuments();
+  // arr.push({ label: secondHour, value: secondHourPatient });
+  arr.push({ label: secondHour, value: 9 });
 
   const firstHourPatient = await Patient.find({
     // 'processTime.processName': 'Registration Officer',
@@ -74,6 +84,8 @@ exports.roDashboard = asyncHandler(async (req, res) => {
       { 'processTime.processEndTime': { $lte: secondHour } },
     ],
   }).countDocuments();
+  // arr.push({ label: sixHour, value: firstHourPatient });
+  arr.push({ label: sixHour, value: 1 });
 
   //   * Pending Registration After Sensei
   const pendingSensei = await Patient.find({
@@ -113,15 +125,16 @@ exports.roDashboard = asyncHandler(async (req, res) => {
     totalUnInsured: edrUnInsured,
     availableEdBeds: EdBeds,
     cumulativeRegistrations: totalRegistrations,
-    registrationPerHour: {
-      averageTAT: averageRegistrationTime,
-      sixthHourPatient,
-      fifthHourPatient,
-      fourthHourPatient,
-      thirdHourPatient,
-      secondHourPatient,
-      firstHourPatient,
-    },
+    // registrationPerHour: {
+    //   averageTAT: averageRegistrationTime,
+    //   sixthHourPatient,
+    //   fifthHourPatient,
+    //   fourthHourPatient,
+    //   thirdHourPatient,
+    //   secondHourPatient,
+    //   firstHourPatient,
+    // },
+    registrationPerHour: arr,
     pendingRegistrationSensei: {
       averageTAT: averageSenseiRegisterTime,
     },
