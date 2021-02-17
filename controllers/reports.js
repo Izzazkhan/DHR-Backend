@@ -429,7 +429,7 @@ exports.roSenseiPending = asyncHandler(async (req, res, next) => {
   arr.push({ label: sixHour, value: 1 });
 
   res.status(200).json({
-    status: 'Success',
+    success: true,
     pendingRegistrationSensei: {
       averageTAT: averageSenseiRegisterTime,
       totalSenseiPending,
@@ -466,7 +466,7 @@ exports.hkDashboard = asyncHandler(async (req, res, next) => {
   }).countDocuments();
 
   res.status(200).json({
-    status: 'Success',
+    success: true,
     pendingRoom: {
       averageRoomTAT,
       totalPending: roomPending,
@@ -640,7 +640,7 @@ exports.anesthesiologistDashboard = asyncHandler(async (req, res, next) => {
   const pendingTat = 360 / pending.length;
 
   res.status(200).json({
-    status: 'Success',
+    success: true,
     totalRequests: {
       pendingTat,
       totalPending: pending.length,
