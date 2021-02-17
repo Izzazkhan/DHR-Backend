@@ -46,7 +46,7 @@ exports.roDashboard = asyncHandler(async (req, res) => {
       { 'processTime.processEndTime': { $lte: lastHour } },
     ],
   }).countDocuments();
-  arr.push({ label: fifthHour, value: fifthHourPatient });
+  // arr.push({ label: fifthHour, value: fifthHourPatient });
   arr.push({ label: fifthHour, value: 4 });
   const fourthHourPatient = await Patient.find({
     // 'processTime.processName': 'Registration Officer',
