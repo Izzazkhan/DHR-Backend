@@ -18,76 +18,235 @@ exports.roDashboard = asyncHandler(async (req, res) => {
   const sixHour = moment().subtract(6, 'hours').utc().toDate();
 
   // * Register Officer Registrations Per Hour
-  const patients = await Patient.find({
-    'processTime.processName': 'Registration Officer',
-    $and: [
-      { 'processTime.processStartTime': { $gte: sixHour } },
-      { 'processTime.processEndTime': { $lte: currentTime } },
-    ],
-  }).countDocuments();
+  const patients = await Patient.aggregate([
+    {
+      $project: {
+        processTime: 1,
+        registrationStatus: 1,
+      },
+    },
+    {
+      $unwind: '$processTime',
+    },
+    {
+      $match: {
+        $and: [
+          { 'processTime.processName': 'Registration Officer' },
+          { registrationStatus: 'completed' },
+          { 'processTime.processStartTime': { $gte: sixHour } },
+          { 'processTime.processEndTime': { $lte: currentTime } },
+        ],
+      },
+    },
+  ]);
 
-  const averageRegistrationTime = 360 / patients;
+  const averageRegistrationTime = 360 / patients.length;
   const arr = [];
 
-  const sixthHourPatient = await Patient.find({
-    'processTime.processName': 'Registration Officer',
-    $and: [
-      { 'processTime.processStartTime': { $gte: lastHour } },
-      { 'processTime.processEndTime': { $lte: currentTime } },
-    ],
-  }).countDocuments();
-  // arr.push({ label: lastHour, value: sixthHourPatient });
+  const sixthHourPatient = await Patient.aggregate([
+    {
+      $project: {
+        processTime: 1,
+        registrationStatus: 1,
+      },
+    },
+    {
+      $unwind: '$processTime',
+    },
+    {
+      $match: {
+        $and: [
+          { 'processTime.processName': 'Registration Officer' },
+          { registrationStatus: 'completed' },
+          { 'processTime.processStartTime': { $gte: lastHour } },
+          { 'processTime.processEndTime': { $lte: currentTime } },
+        ],
+      },
+    },
+  ]);
+
+  // arr.push({ label: lastHour, value: sixthHourPatient.length });
   arr.push({ label: lastHour, value: 5 });
 
-  const fifthHourPatient = await Patient.find({
-    'processTime.processName': 'Registration Officer',
-    $and: [
-      { 'processTime.processStartTime': { $gte: fifthHour } },
-      { 'processTime.processEndTime': { $lte: lastHour } },
-    ],
-  }).countDocuments();
-  // arr.push({ label: fifthHour, value: fifthHourPatient });
+  const fifthHourPatient = await Patient.aggregate([
+    {
+      $project: {
+        processTime: 1,
+        registrationStatus: 1,
+      },
+    },
+    {
+      $unwind: '$processTime',
+    },
+    {
+      $match: {
+        $and: [
+          { 'processTime.processName': 'Registration Officer' },
+          { registrationStatus: 'completed' },
+          { 'processTime.processStartTime': { $gte: fifthHour } },
+          { 'processTime.processEndTime': { $lte: lastHour } },
+        ],
+      },
+    },
+  ]);
+
+  // arr.push({ label: fifthHour, value: fifthHourPatient.length });
   arr.push({ label: fifthHour, value: 4 });
-  const fourthHourPatient = await Patient.find({
-    // 'processTime.processName': 'Registration Officer',
-    $and: [
-      { 'processTime.processStartTime': { $gte: fourthHour } },
-      { 'processTime.processEndTime': { $lte: fifthHour } },
-    ],
-  }).countDocuments();
-  // arr.push({ label: fourthHour, value: fourthHourPatient });
+
+  const fourthHourPatient = await Patient.aggregate([
+    {
+      $project: {
+        processTime: 1,
+        registrationStatus: 1,
+      },
+    },
+    {
+      $unwind: '$processTime',
+    },
+    {
+      $match: {
+        $and: [
+          { 'processTime.processName': 'Registration Officer' },
+          { registrationStatus: 'completed' },
+          { 'processTime.processStartTime': { $gte: fourthHour } },
+          { 'processTime.processEndTime': { $lte: fifthHour } },
+        ],
+      },
+    },
+  ]);
+  // arr.push({ label: fourthHour, value: fourthHourPatient.length });
   arr.push({ label: fourthHour, value: 10 });
 
-  const thirdHourPatient = await Patient.find({
-    'processTime.processName': 'Registration Officer',
-    $and: [
-      { 'processTime.processStartTime': { $gte: thirdHour } },
-      { 'processTime.processEndTime': { $lte: fourthHour } },
-    ],
-  }).countDocuments();
-  // arr.push({ label: thirdHour, value: thirdHourPatient });
+  const thirdHourPatient = await Patient.aggregate([
+    {
+      $project: {
+        processTime: 1,
+        registrationStatus: 1,
+      },
+    },
+    {
+      $unwind: '$processTime',
+    },
+    {
+      $match: {
+        $and: [
+          { 'processTime.processName': 'Registration Officer' },
+          { registrationStatus: 'completed' },
+          { 'processTime.processStartTime': { $gte: thirdHour } },
+          { 'processTime.processEndTime': { $lte: fourthHour } },
+        ],
+      },
+    },
+  ]);
+
+  // arr.push({ label: thirdHour, value: thirdHourPatient.length });
   arr.push({ label: thirdHour, value: 12 });
 
-  const secondHourPatient = await Patient.find({
-    'processTime.processName': 'Registration Officer',
-    $and: [
-      { 'processTime.processStartTime': { $gte: secondHour } },
-      { 'processTime.processEndTime': { $lte: thirdHour } },
-    ],
-  }).countDocuments();
-  // arr.push({ label: secondHour, value: secondHourPatient });
+  const secondHourPatient = await Patient.aggregate([
+    {
+      $project: {
+        processTime: 1,
+        registrationStatus: 1,
+      },
+    },
+    {
+      $unwind: '$processTime',
+    },
+    {
+      $match: {
+        $and: [
+          { 'processTime.processName': 'Registration Officer' },
+          { registrationStatus: 'completed' },
+          { 'processTime.processStartTime': { $gte: secondHour } },
+          { 'processTime.processEndTime': { $lte: thirdHour } },
+        ],
+      },
+    },
+  ]);
+
+  // arr.push({ label: secondHour, value: secondHourPatient.length });
   arr.push({ label: secondHour, value: 9 });
 
-  const firstHourPatient = await Patient.find({
-    'processTime.processName': 'Registration Officer',
-    $and: [
-      { 'processTime.processStartTime': { $gte: sixHour } },
-      { 'processTime.processEndTime': { $lte: secondHour } },
-    ],
-  }).countDocuments();
-  // arr.push({ label: sixHour, value: firstHourPatient });
+  const firstHourPatient = await Patient.aggregate([
+    {
+      $project: {
+        processTime: 1,
+        registrationStatus: 1,
+      },
+    },
+    {
+      $unwind: '$processTime',
+    },
+    {
+      $match: {
+        $and: [
+          { 'processTime.processName': 'Registration Officer' },
+          { registrationStatus: 'completed' },
+          { 'processTime.processStartTime': { $gte: sixHour } },
+          { 'processTime.processEndTime': { $lte: secondHour } },
+        ],
+      },
+    },
+  ]);
+
+  // arr.push({ label: sixHour, value: firstHourPatient.length });
   arr.push({ label: sixHour, value: 1 });
 
+  // Available ED Beds
+  const EdBeds = await Room.find({
+    availability: true,
+  }).countDocuments();
+
+  //   total Insured Patients
+  const edrInsured = await EDR.find({
+    paymentMethod: 'Insured',
+  }).countDocuments();
+
+  //   Total Un Insured Patients
+  const edrUnInsured = await EDR.find({
+    paymentMethod: 'Uninsured',
+  }).countDocuments();
+
+  const totalRegistrations = await Patient.aggregate([
+    {
+      $project: {
+        processTime: 1,
+        registrationStatus: 1,
+      },
+    },
+    {
+      $unwind: '$processTime',
+    },
+    {
+      $match: {
+        $and: [
+          { 'processTime.processName': 'Registration Officer' },
+          { registrationStatus: 'completed' },
+        ],
+      },
+    },
+  ]);
+
+  res.status(200).json({
+    success: true,
+    totalInsured: edrInsured,
+    totalUnInsured: edrUnInsured,
+    availableEdBeds: EdBeds,
+    cumulativeRegistrations: totalRegistrations.length,
+    registrationPerHour: arr,
+    averageTAT: averageRegistrationTime,
+    registeredPatients: patients.length,
+  });
+});
+
+exports.roSenseiPending = asyncHandler(async (req, res, next) => {
+  const currentTime = moment().utc().toDate();
+  const lastHour = moment().subtract(1, 'hours').utc().toDate();
+  const fifthHour = moment().subtract(2, 'hours').utc().toDate();
+  const fourthHour = moment().subtract(3, 'hours').utc().toDate();
+  const thirdHour = moment().subtract(4, 'hours').utc().toDate();
+  const secondHour = moment().subtract(5, 'hours').utc().toDate();
+  const sixHour = moment().subtract(6, 'hours').utc().toDate();
   //   * Pending Registration After Sensei
   const pendingSensei = await Patient.find({
     'processTime.processName': 'Sensei',
@@ -118,7 +277,8 @@ exports.roDashboard = asyncHandler(async (req, res) => {
   senseiArr.push({ label: lastHour, value: 5 });
 
   const fifthHourPatientSensei = await Patient.find({
-    'processTime.processName': 'Registration Officer',
+    'processTime.processName': 'Sensei',
+    registrationStatus: 'pending',
     $and: [
       { 'processTime.processStartTime': { $gte: fifthHour } },
       { 'processTime.processEndTime': { $lte: lastHour } },
@@ -127,7 +287,8 @@ exports.roDashboard = asyncHandler(async (req, res) => {
   // senseiArr.push({ label: fifthHour, value: fifthHourPatientSensei });
   senseiArr.push({ label: fifthHour, value: 4 });
   const fourthHourPatientSensei = await Patient.find({
-    'processTime.processName': 'Registration Officer',
+    'processTime.processName': 'Sensei',
+    registrationStatus: 'pending',
     $and: [
       { 'processTime.processStartTime': { $gte: fourthHour } },
       { 'processTime.processEndTime': { $lte: fifthHour } },
@@ -137,7 +298,8 @@ exports.roDashboard = asyncHandler(async (req, res) => {
   senseiArr.push({ label: fourthHour, value: 10 });
 
   const thirdHourPatientSensei = await Patient.find({
-    'processTime.processName': 'Registration Officer',
+    'processTime.processName': 'Sensei',
+    registrationStatus: 'pending',
     $and: [
       { 'processTime.processStartTime': { $gte: thirdHour } },
       { 'processTime.processEndTime': { $lte: fourthHour } },
@@ -147,7 +309,8 @@ exports.roDashboard = asyncHandler(async (req, res) => {
   senseiArr.push({ label: thirdHour, value: 12 });
 
   const secondHourPatientSensei = await Patient.find({
-    'processTime.processName': 'Registration Officer',
+    'processTime.processName': 'Sensei',
+    registrationStatus: 'pending',
     $and: [
       { 'processTime.processStartTime': { $gte: secondHour } },
       { 'processTime.processEndTime': { $lte: thirdHour } },
@@ -157,7 +320,8 @@ exports.roDashboard = asyncHandler(async (req, res) => {
   senseiArr.push({ label: secondHour, value: 9 });
 
   const firstHourPatientSensei = await Patient.find({
-    'processTime.processName': 'Registration Officer',
+    'processTime.processName': 'Sensei',
+    registrationStatus: 'pending',
     $and: [
       { 'processTime.processStartTime': { $gte: sixHour } },
       { 'processTime.processEndTime': { $lte: secondHour } },
@@ -166,38 +330,12 @@ exports.roDashboard = asyncHandler(async (req, res) => {
   // senseiArr.push({ label: sixHour, value: firstHourPatientSensei });
   senseiArr.push({ label: sixHour, value: 1 });
 
-  // Available ED Beds
-  const EdBeds = await Room.find({
-    availability: true,
-  }).countDocuments();
-
-  //   total Insured Patients
-  const edrInsured = await EDR.find({
-    paymentMethod: 'Insured',
-  }).countDocuments();
-
-  //   Total Un Insured Patients
-  const edrUnInsured = await EDR.find({
-    paymentMethod: 'Uninsured',
-  }).countDocuments();
-
-  const totalRegistrations = await Patient.find({
-    'processTime.processName': 'Registration Officer',
-    registrationStatus: 'completed',
-  }).countDocuments();
-
   res.status(200).json({
-    success: true,
-    totalInsured: edrInsured,
-    totalUnInsured: edrUnInsured,
-    availableEdBeds: EdBeds,
-    cumulativeRegistrations: totalRegistrations,
-    registrationPerHour: arr,
-    averageTAT: averageRegistrationTime,
-    registeredPatients: patients,
+    status: 'Success',
     pendingRegistrationSensei: {
       averageTAT: averageSenseiRegisterTime,
       totalSenseiPending,
+      senseiPerHour: senseiArr,
     },
   });
 });
