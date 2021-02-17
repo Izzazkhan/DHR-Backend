@@ -4,10 +4,6 @@ const shiftSchema = new mongoose.Schema({
   shiftId: {
     type: String,
   },
-  disabled: {
-    type: Boolean,
-    default: false,
-  },
   name: {
     type: String,
   },
@@ -24,13 +20,20 @@ const shiftSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
   },
-  disabledAt: {
-    type: Date,
-  },
-  disabledBy: {
-    type: mongoose.Schema.ObjectId,
-    ref: 'staff',
-  },
+  updateRecord: [
+    {
+      updatedAt: {
+        type: Date,
+      },
+      updatedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      reason: {
+        type: String,
+      },
+    },
+  ],
 });
 
 module.exports = mongoose.model('Shift', shiftSchema);
