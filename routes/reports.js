@@ -5,11 +5,11 @@ const router = express.Router();
 const {
   roDashboard,
   hkDashboard,
-  swDashboard,
+  anesthesiologistDashboard,
 } = require('../controllers/reports');
 
 router.get('/roDashboard', roDashboard);
 router.get('/hkDashboard', hkDashboard);
-router.get('/swDashboard', swDashboard);
+router.get('/anesthesiologistDB', anesthesiologistDashboard);
 
 module.exports = router;
