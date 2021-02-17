@@ -46,7 +46,7 @@ exports.roDashboard = asyncHandler(async (req, res) => {
       { 'processTime.processEndTime': { $lte: lastHour } },
     ],
   }).countDocuments();
-  arr.push({ label: fifthHour, value: fifthHourPatient });
+  // arr.push({ label: fifthHour, value: fifthHourPatient });
   arr.push({ label: fifthHour, value: 4 });
   const fourthHourPatient = await Patient.find({
     // 'processTime.processName': 'Registration Officer',
@@ -244,10 +244,15 @@ exports.hkDashboard = asyncHandler(async (req, res, next) => {
 });
 
 // Anesthesiologist Dashboard
-exports.swDashboard = asyncHandler(async (req, res, next) => {
+exports.anesthesiologistDashboard = asyncHandler(async (req, res, next) => {
   const currentTime = moment().utc().toDate();
+  const lastHour = moment().subtract(1, 'hours').utc().toDate();
+  const fifthHour = moment().subtract(2, 'hours').utc().toDate();
+  const fourthHour = moment().subtract(3, 'hours').utc().toDate();
+  const thirdHour = moment().subtract(4, 'hours').utc().toDate();
+  const secondHour = moment().subtract(5, 'hours').utc().toDate();
   const sixHour = moment().subtract(6, 'hours').utc().toDate();
-  // const totalPending = await EDR.find({ anesthesiologistNote: { $ne: [] } });
+
   const pending = await EDR.aggregate([
     {
       $project: {
@@ -255,8 +260,24 @@ exports.swDashboard = asyncHandler(async (req, res, next) => {
       },
     },
     {
+      $unwind: '$anesthesiologistNote',
+    },
+    {
       $match: {
-        anesthesiologistNote: { $ne: [] },
+        $and: [
+          { 'anesthesiologistNote.status': 'pending' },
+          { 'anesthesiologistNote.noteTime': { $gte: sixHour } },
+        ],
+      },
+    },
+  ]);
+
+  const pendingArr = [];
+  // * Per Hour Notes
+  const sixthHourNote = await EDR.aggregate([
+    {
+      $project: {
+        anesthesiologistNote: 1,
       },
     },
     {
@@ -264,10 +285,121 @@ exports.swDashboard = asyncHandler(async (req, res, next) => {
     },
     {
       $match: {
-        $and: [{ status: 'pending' }, { noteTime: { $gte: sixHour } }],
+        $and: [
+          { 'anesthesiologistNote.status': 'pending' },
+          { 'anesthesiologistNote.noteTime': { $gte: lastHour } },
+          { 'anesthesiologistNote.noteTime': { $lte: currentTime } },
+        ],
       },
     },
   ]);
+
+  pendingArr.push({ label: lastHour, value: sixthHourNote.length });
+
+  const fifthHourNote = await EDR.aggregate([
+    {
+      $project: {
+        anesthesiologistNote: 1,
+      },
+    },
+    {
+      $unwind: '$anesthesiologistNote',
+    },
+    {
+      $match: {
+        $and: [
+          { 'anesthesiologistNote.status': 'pending' },
+          { 'anesthesiologistNote.noteTime': { $gte: fifthHour } },
+          { 'anesthesiologistNote.noteTime': { $lte: lastHour } },
+        ],
+      },
+    },
+  ]);
+  pendingArr.push({ label: fifthHour, value: fifthHourNote.length });
+
+  const fourthHourNote = await EDR.aggregate([
+    {
+      $project: {
+        anesthesiologistNote: 1,
+      },
+    },
+    {
+      $unwind: '$anesthesiologistNote',
+    },
+    {
+      $match: {
+        $and: [
+          { 'anesthesiologistNote.status': 'pending' },
+          { 'anesthesiologistNote.noteTime': { $gte: fourthHour } },
+          { 'anesthesiologistNote.noteTime': { $lte: fifthHour } },
+        ],
+      },
+    },
+  ]);
+  pendingArr.push({ label: fourthHour, value: fourthHourNote.length });
+
+  const thirdHourNote = await EDR.aggregate([
+    {
+      $project: {
+        anesthesiologistNote: 1,
+      },
+    },
+    {
+      $unwind: '$anesthesiologistNote',
+    },
+    {
+      $match: {
+        $and: [
+          { 'anesthesiologistNote.status': 'pending' },
+          { 'anesthesiologistNote.noteTime': { $gte: thirdHour } },
+          { 'anesthesiologistNote.noteTime': { $lte: fourthHour } },
+        ],
+      },
+    },
+  ]);
+  pendingArr.push({ label: thirdHour, value: thirdHourNote.length });
+
+  const secondHourNote = await EDR.aggregate([
+    {
+      $project: {
+        anesthesiologistNote: 1,
+      },
+    },
+    {
+      $unwind: '$anesthesiologistNote',
+    },
+    {
+      $match: {
+        $and: [
+          { 'anesthesiologistNote.status': 'pending' },
+          { 'anesthesiologistNote.noteTime': { $gte: secondHour } },
+          { 'anesthesiologistNote.noteTime': { $lte: thirdHour } },
+        ],
+      },
+    },
+  ]);
+  pendingArr.push({ label: secondHour, value: secondHourNote.length });
+
+  const firstHourNote = await EDR.aggregate([
+    {
+      $project: {
+        anesthesiologistNote: 1,
+      },
+    },
+    {
+      $unwind: '$anesthesiologistNote',
+    },
+    {
+      $match: {
+        $and: [
+          { 'anesthesiologistNote.status': 'pending' },
+          { 'anesthesiologistNote.noteTime': { $gte: sixHour } },
+          { 'anesthesiologistNote.noteTime': { $lte: secondHour } },
+        ],
+      },
+    },
+  ]);
+  pendingArr.push({ label: sixHour, value: firstHourNote.length });
 
   const pendingTat = 360 / pending.length;
 
@@ -276,6 +408,7 @@ exports.swDashboard = asyncHandler(async (req, res, next) => {
     totalRequests: {
       pendingTat,
       totalPending: pending.length,
+      totalRequestPerHour: pendingArr,
     },
   });
 });
