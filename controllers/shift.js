@@ -130,3 +130,12 @@ exports.updateShift = asyncHandler(async (req, res, next) => {
     data: updatedShift,
   });
 });
+
+exports.getAllShifts = asyncHandler(async (req, res, next) => {
+  const shifts = await Shift.find().populate('addedBy', 'name');
+
+  res.status(200).json({
+    status: 'Success',
+    data: shifts,
+  });
+});
