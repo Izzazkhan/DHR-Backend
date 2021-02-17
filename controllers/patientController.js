@@ -163,6 +163,12 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
   if (req.files) {
     patientQR = await patientFHIR.findOne({ _id: parsed._id });
 
+    await patientFHIR.findOneAndUpdate(
+      { _id: parsed._id },
+      { $push: { processTime: parsed.time } },
+      { new: true }
+    );
+
     patient = await patientFHIR.findOneAndUpdate({ _id: parsed._id }, parsed, {
       new: true,
     });
@@ -245,6 +251,11 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
     }
   } else {
     patientQR = await patientFHIR.findOne({ _id: parsed._id });
+    await patientFHIR.findOneAndUpdate(
+      { _id: parsed._id },
+      { $push: { processTime: parsed.time } },
+      { new: true }
+    );
     patient = await patientFHIR.findOneAndUpdate({ _id: parsed._id }, parsed, {
       new: true,
     });
@@ -253,13 +264,12 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
       obj.profileNo = patient.identifier[0].value;
       obj.createdAt = patient.createdAt;
       obj.insuranceCardNumber = patient.insuranceNumber;
-      // console.log(obj);
-      // console.log(newPatient._id);
+
       QRCode.toDataURL(JSON.stringify(obj), function (err, url) {
         const base64Str = url;
         const path = './uploads/';
         const pathFormed = base64ToImage(base64Str, path);
-        // console.log(pathFormed);
+
         patientFHIR
           .findOneAndUpdate(
             { _id: patient._id },
