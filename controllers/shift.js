@@ -33,10 +33,10 @@ exports.addShift = asyncHandler(async (req, res, next) => {
   //     const dbShiftEnd = shift.endTime.toISOString().split('T')[1];
 
   //     // User Entered Shifts
-  //     let userStart = new Date(startTime);
-  //     let userEnd = new Date(endTime);
-  //     userStart = userStart.toISOString().split('T')[1];
-  //     userEnd = userEnd.toISOString().split('T')[1];
+  // let userStart = new Date(startTime);
+  // let userEnd = new Date(endTime);
+  // userStart = userStart.toISOString().split('T')[1];
+  // userEnd = userEnd.toISOString().split('T')[1];
 
   //     // Comparing Shift Times
   //     console.log('userStart:', userStart, 'dbShiftStart', dbShiftStart);
