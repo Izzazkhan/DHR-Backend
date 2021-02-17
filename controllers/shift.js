@@ -17,7 +17,7 @@ exports.addShift = asyncHandler(async (req, res, next) => {
   const { name, startTime, endTime, addedBy } = req.body;
   const shiftName = await Shift.findOne({
     name: name,
-    disabled: false,
+    // disabled: false,
   });
   if (shiftName) {
     return next(
@@ -25,22 +25,22 @@ exports.addShift = asyncHandler(async (req, res, next) => {
     );
   }
   const shifts = await Shift.find({
-    disabled: false,
+    // disabled: false,
   });
 
   //  Checking for existing shift Time
   const existingShift = shifts.filter((shift) => {
     const dbShiftStart = shift.startTime.toISOString().split('T')[1];
     const dbShiftEnd = shift.endTime.toISOString().split('T')[1];
-    if (startTime >= dbShiftStart && endTime <= dbShiftEnd) {
-      console.log(shift);
+    if (startTime >= dbShiftStart || endTime <= dbShiftEnd) {
+      // console.log(shift);
       return shift;
     }
   });
   if (existingShift) {
     return next(
       new ErrorResponse(
-        'This shift timing is overlaping an existing shift',
+        'This shift timing is overlapping an existing shift',
         400
       )
     );
