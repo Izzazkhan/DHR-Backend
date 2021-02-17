@@ -24,37 +24,37 @@ exports.addShift = asyncHandler(async (req, res, next) => {
       new ErrorResponse('A Shift with this name already exists', 400)
     );
   }
-  const shifts = await Shift.find({});
-  //  Checking for existing shift Time
-  if (shifts && shifts.length > 0) {
-    const existingShift = shifts.filter((shift) => {
-      // DB Shifts
-      const dbShiftStart = shift.startTime.toISOString().split('T')[1];
-      const dbShiftEnd = shift.endTime.toISOString().split('T')[1];
+  // const shifts = await Shift.find({});
+  // //  Checking for existing shift Time
+  // if (shifts && shifts.length > 0) {
+  //   const existingShift = shifts.filter((shift) => {
+  //     // DB Shifts
+  //     const dbShiftStart = shift.startTime.toISOString().split('T')[1];
+  //     const dbShiftEnd = shift.endTime.toISOString().split('T')[1];
 
-      // User Entered Shifts
-      let userStart = new Date(startTime);
-      let userEnd = new Date(endTime);
-      userStart = userStart.toISOString().split('T')[1];
-      userEnd = userEnd.toISOString().split('T')[1];
+  //     // User Entered Shifts
+  //     let userStart = new Date(startTime);
+  //     let userEnd = new Date(endTime);
+  //     userStart = userStart.toISOString().split('T')[1];
+  //     userEnd = userEnd.toISOString().split('T')[1];
 
-      // Comparing Shift Times
-      console.log('userStart:', userStart, 'dbShiftStart', dbShiftStart);
-      console.log('userEnd:', userEnd, 'dbShiftStart', dbShiftStart);
-      if (userStart < dbShiftEnd || userEnd > dbShiftStart) {
-        return shift;
-      }
-    });
+  //     // Comparing Shift Times
+  //     console.log('userStart:', userStart, 'dbShiftStart', dbShiftStart);
+  //     console.log('userEnd:', userEnd, 'dbShiftStart', dbShiftStart);
+  //     if (userStart < dbShiftEnd || userEnd > dbShiftStart) {
+  //       return shift;
+  //     }
+  //   });
 
-    if (existingShift && existingShift.length > 0) {
-      return next(
-        new ErrorResponse(
-          'This shift timing is overlapping an existing shift',
-          400
-        )
-      );
-    }
-  }
+  //   if (existingShift && existingShift.length > 0) {
+  //     return next(
+  //       new ErrorResponse(
+  //         'This shift timing is overlapping an existing shift',
+  //         400
+  //       )
+  //     );
+  //   }
+  // }
 
   const newShift = await Shift.create({
     name,
@@ -74,38 +74,38 @@ exports.addShift = asyncHandler(async (req, res, next) => {
 exports.updateShift = asyncHandler(async (req, res, next) => {
   const { startTime, endTime, updatedBy, reason, shiftId } = req.body;
 
-  const shifts = await Shift.find({});
+  // const shifts = await Shift.find({});
 
-  //  Checking for existing shift Time
-  if (shifts && shifts.length > 0) {
-    const existingShift = shifts.filter((shift) => {
-      // DB Shifts
-      const dbShiftStart = shift.startTime.toISOString().split('T')[1];
-      const dbShiftEnd = shift.endTime.toISOString().split('T')[1];
+  // //  Checking for existing shift Time
+  // if (shifts && shifts.length > 0) {
+  //   const existingShift = shifts.filter((shift) => {
+  //     // DB Shifts
+  //     const dbShiftStart = shift.startTime.toISOString().split('T')[1];
+  //     const dbShiftEnd = shift.endTime.toISOString().split('T')[1];
 
-      // User Entered Shifts
-      let userStart = new Date(startTime);
-      let userEnd = new Date(endTime);
-      userStart = userStart.toISOString().split('T')[1];
-      userEnd = userEnd.toISOString().split('T')[1];
+  //     // User Entered Shifts
+  //     let userStart = new Date(startTime);
+  //     let userEnd = new Date(endTime);
+  //     userStart = userStart.toISOString().split('T')[1];
+  //     userEnd = userEnd.toISOString().split('T')[1];
 
-      // Comparing Shift Times
-      // console.log('userStart:', userStart, 'dbShiftStart', dbShiftStart);
-      // console.log('userEnd:', userEnd, 'dbShiftStart', dbShiftStart);
-      if (userStart < dbShiftEnd || userEnd > dbShiftStart) {
-        return shift;
-      }
-    });
+  //     // Comparing Shift Times
+  //     // console.log('userStart:', userStart, 'dbShiftStart', dbShiftStart);
+  //     // console.log('userEnd:', userEnd, 'dbShiftStart', dbShiftStart);
+  //     if (userStart < dbShiftEnd || userEnd > dbShiftStart) {
+  //       return shift;
+  //     }
+  //   });
 
-    if (existingShift && existingShift.length > 0) {
-      return next(
-        new ErrorResponse(
-          'This shift timing is overlapping an existing shift',
-          400
-        )
-      );
-    }
-  }
+  //   if (existingShift && existingShift.length > 0) {
+  //     return next(
+  //       new ErrorResponse(
+  //         'This shift timing is overlapping an existing shift',
+  //         400
+  //       )
+  //     );
+  //   }
+  // }
 
   const updateRecord = {
     updatedBy,
