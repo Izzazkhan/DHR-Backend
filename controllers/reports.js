@@ -247,15 +247,29 @@ exports.roSenseiPending = asyncHandler(async (req, res, next) => {
   const thirdHour = moment().subtract(4, 'hours').utc().toDate();
   const secondHour = moment().subtract(5, 'hours').utc().toDate();
   const sixHour = moment().subtract(6, 'hours').utc().toDate();
+
   //   * Pending Registration After Sensei
-  const pendingSensei = await Patient.find({
-    'processTime.processName': 'Sensei',
-    // registrationStatus: 'pending',
-    $and: [
-      { 'processTime.processStartTime': { $gte: sixHour } },
-      // { 'processTime.processEndTime': { $lte: currentTime } },
-    ],
-  });
+  const pendingSensei = await Patient.aggregate([
+    {
+      $project: {
+        processTime: 1,
+        registrationStatus: 1,
+      },
+    },
+    {
+      $unwind: '$processTime',
+    },
+    {
+      $match: {
+        $and: [
+          { 'processTime.processName': 'Sensei' },
+          { registrationStatus: 'pending' },
+          { 'processTime.processStartTime': { $gte: sixHour } },
+          { 'processTime.processEndTime': { $lte: currentTime } },
+        ],
+      },
+    },
+  ]);
 
   const totalSenseiPending = pendingSensei.length;
 
@@ -263,79 +277,163 @@ exports.roSenseiPending = asyncHandler(async (req, res, next) => {
 
   // * Sensei Per Hour
 
-  const senseiArr = [];
+  const arr = [];
 
-  const sixthHourPatientSensei = await Patient.find({
-    'processTime.processName': 'Sensei',
-    registrationStatus: 'pending',
-    $and: [
-      { 'processTime.processStartTime': { $gte: lastHour } },
-      { 'processTime.processEndTime': { $lte: currentTime } },
-    ],
-  }).countDocuments();
-  // senseiArr.push({ label: lastHour, value: sixthHourPatientSensei });
-  senseiArr.push({ label: lastHour, value: 5 });
+  const sixthHourPatient = await Patient.aggregate([
+    {
+      $project: {
+        processTime: 1,
+        registrationStatus: 1,
+      },
+    },
+    {
+      $unwind: '$processTime',
+    },
+    {
+      $match: {
+        $and: [
+          { 'processTime.processName': 'Sensei' },
+          { registrationStatus: 'pending' },
+          { 'processTime.processStartTime': { $gte: lastHour } },
+          { 'processTime.processEndTime': { $lte: currentTime } },
+        ],
+      },
+    },
+  ]);
 
-  const fifthHourPatientSensei = await Patient.find({
-    'processTime.processName': 'Sensei',
-    registrationStatus: 'pending',
-    $and: [
-      { 'processTime.processStartTime': { $gte: fifthHour } },
-      { 'processTime.processEndTime': { $lte: lastHour } },
-    ],
-  }).countDocuments();
-  // senseiArr.push({ label: fifthHour, value: fifthHourPatientSensei });
-  senseiArr.push({ label: fifthHour, value: 4 });
-  const fourthHourPatientSensei = await Patient.find({
-    'processTime.processName': 'Sensei',
-    registrationStatus: 'pending',
-    $and: [
-      { 'processTime.processStartTime': { $gte: fourthHour } },
-      { 'processTime.processEndTime': { $lte: fifthHour } },
-    ],
-  }).countDocuments();
-  // senseiArr.push({ label: fourthHour, value: fourthHourPatientSensei });
-  senseiArr.push({ label: fourthHour, value: 10 });
+  // arr.push({ label: lastHour, value: sixthHourPatient.length });
+  arr.push({ label: lastHour, value: 5 });
 
-  const thirdHourPatientSensei = await Patient.find({
-    'processTime.processName': 'Sensei',
-    registrationStatus: 'pending',
-    $and: [
-      { 'processTime.processStartTime': { $gte: thirdHour } },
-      { 'processTime.processEndTime': { $lte: fourthHour } },
-    ],
-  }).countDocuments();
-  // senseiArr.push({ label: thirdHour, value: thirdHourPatientSensei });
-  senseiArr.push({ label: thirdHour, value: 12 });
+  const fifthHourPatient = await Patient.aggregate([
+    {
+      $project: {
+        processTime: 1,
+        registrationStatus: 1,
+      },
+    },
+    {
+      $unwind: '$processTime',
+    },
+    {
+      $match: {
+        $and: [
+          { 'processTime.processName': 'Sensei' },
+          { registrationStatus: 'pending' },
+          { 'processTime.processStartTime': { $gte: fifthHour } },
+          { 'processTime.processEndTime': { $lte: lastHour } },
+        ],
+      },
+    },
+  ]);
 
-  const secondHourPatientSensei = await Patient.find({
-    'processTime.processName': 'Sensei',
-    registrationStatus: 'pending',
-    $and: [
-      { 'processTime.processStartTime': { $gte: secondHour } },
-      { 'processTime.processEndTime': { $lte: thirdHour } },
-    ],
-  }).countDocuments();
-  // senseiArr.push({ label: secondHour, value: secondHourPatientSensei });
-  senseiArr.push({ label: secondHour, value: 9 });
+  // arr.push({ label: fifthHour, value: fifthHourPatient.length });
+  arr.push({ label: fifthHour, value: 4 });
 
-  const firstHourPatientSensei = await Patient.find({
-    'processTime.processName': 'Sensei',
-    registrationStatus: 'pending',
-    $and: [
-      { 'processTime.processStartTime': { $gte: sixHour } },
-      { 'processTime.processEndTime': { $lte: secondHour } },
-    ],
-  }).countDocuments();
-  // senseiArr.push({ label: sixHour, value: firstHourPatientSensei });
-  senseiArr.push({ label: sixHour, value: 1 });
+  const fourthHourPatient = await Patient.aggregate([
+    {
+      $project: {
+        processTime: 1,
+        registrationStatus: 1,
+      },
+    },
+    {
+      $unwind: '$processTime',
+    },
+    {
+      $match: {
+        $and: [
+          { 'processTime.processName': 'Sensei' },
+          { registrationStatus: 'pending' },
+          { 'processTime.processStartTime': { $gte: fourthHour } },
+          { 'processTime.processEndTime': { $lte: fifthHour } },
+        ],
+      },
+    },
+  ]);
+  // arr.push({ label: fourthHour, value: fourthHourPatient.length });
+  arr.push({ label: fourthHour, value: 10 });
+
+  const thirdHourPatient = await Patient.aggregate([
+    {
+      $project: {
+        processTime: 1,
+        registrationStatus: 1,
+      },
+    },
+    {
+      $unwind: '$processTime',
+    },
+    {
+      $match: {
+        $and: [
+          { 'processTime.processName': 'Sensei' },
+          { registrationStatus: 'pending' },
+          { 'processTime.processStartTime': { $gte: thirdHour } },
+          { 'processTime.processEndTime': { $lte: fourthHour } },
+        ],
+      },
+    },
+  ]);
+
+  // arr.push({ label: thirdHour, value: thirdHourPatient.length });
+  arr.push({ label: thirdHour, value: 12 });
+
+  const secondHourPatient = await Patient.aggregate([
+    {
+      $project: {
+        processTime: 1,
+        registrationStatus: 1,
+      },
+    },
+    {
+      $unwind: '$processTime',
+    },
+    {
+      $match: {
+        $and: [
+          { 'processTime.processName': 'Sensei' },
+          { registrationStatus: 'pending' },
+          { 'processTime.processStartTime': { $gte: secondHour } },
+          { 'processTime.processEndTime': { $lte: thirdHour } },
+        ],
+      },
+    },
+  ]);
+
+  // arr.push({ label: secondHour, value: secondHourPatient.length });
+  arr.push({ label: secondHour, value: 9 });
+
+  const firstHourPatient = await Patient.aggregate([
+    {
+      $project: {
+        processTime: 1,
+        registrationStatus: 1,
+      },
+    },
+    {
+      $unwind: '$processTime',
+    },
+    {
+      $match: {
+        $and: [
+          { 'processTime.processName': 'Sensei' },
+          { registrationStatus: 'pending' },
+          { 'processTime.processStartTime': { $gte: sixHour } },
+          { 'processTime.processEndTime': { $lte: secondHour } },
+        ],
+      },
+    },
+  ]);
+
+  // arr.push({ label: sixHour, value: firstHourPatient.length });
+  arr.push({ label: sixHour, value: 1 });
 
   res.status(200).json({
     status: 'Success',
     pendingRegistrationSensei: {
       averageTAT: averageSenseiRegisterTime,
       totalSenseiPending,
-      senseiPerHour: senseiArr,
+      senseiPerHour: arr,
     },
   });
 });
