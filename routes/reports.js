@@ -4,10 +4,11 @@ const router = express.Router();
 
 const {
   roDashboard,
-  hkDashboard,
-  anesthesiologistDashboard,
   roSenseiPending,
   roTotalPending,
+  anesthesiologistDashboard,
+  hkDashboard,
+  hkRoomPending,
 } = require('../controllers/reports');
 
 // Registration Officer
@@ -16,5 +17,6 @@ router.get('/roSenseiPending', roSenseiPending);
 router.get('/roTotalPending', roTotalPending);
 
 router.get('/hkDashboard', hkDashboard);
+router.get('/hkRoomPending', hkRoomPending);
 router.get('/anesthesiologistDB', anesthesiologistDashboard);
 module.exports = router;

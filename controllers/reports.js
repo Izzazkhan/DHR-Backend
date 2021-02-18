@@ -638,7 +638,10 @@ exports.hkDashboard = asyncHandler(async (req, res, next) => {
   // Room Cleaning Pending
   const roomPending = await HKRequests.find({
     status: 'pending',
-    assignedTime: { $gte: sixHour },
+    $and: [
+      { assignedTime: { $gte: sixHour } },
+      { assignedTime: { $lte: currentTime } },
+    ],
   }).countDocuments();
 
   const averageRoomTAT = 360 / roomPending;
@@ -646,7 +649,10 @@ exports.hkDashboard = asyncHandler(async (req, res, next) => {
   // Room Cleaning Completed
   const roomComplete = await HKRequests.find({
     status: 'completed',
-    completedAt: { $gte: sixHour },
+    $and: [
+      { completedAt: { $gte: sixHour } },
+      { completedAt: { $lte: currentTime } },
+    ],
   }).countDocuments();
 
   const averageCompleteRoomTAT = 360 / roomComplete;
@@ -668,6 +674,90 @@ exports.hkDashboard = asyncHandler(async (req, res, next) => {
       totalCompleted: roomComplete,
     },
     totalCleanedBeds,
+  });
+});
+
+exports.hkRoomPending = asyncHandler(async (req, res, next) => {
+  const currentTime = moment().utc().toDate();
+  const lastHour = moment().subtract(1, 'hours').utc().toDate();
+  const fifthHour = moment().subtract(2, 'hours').utc().toDate();
+  const fourthHour = moment().subtract(3, 'hours').utc().toDate();
+  const thirdHour = moment().subtract(4, 'hours').utc().toDate();
+  const secondHour = moment().subtract(5, 'hours').utc().toDate();
+  const sixHour = moment().subtract(6, 'hours').utc().toDate();
+
+  const arr = [];
+
+  // Room Cleaning Pending
+  const sixthHourRoom = await HKRequests.find({
+    status: 'pending',
+    $and: [
+      { assignedTime: { $gte: lastHour } },
+      { assignedTime: { $lte: currentTime } },
+    ],
+  }).countDocuments();
+
+  // arr.push({ label: lastHour, value: sixthHourRoom });
+  arr.push({ label: lastHour, value: 5 });
+
+  const fifthHourRoom = await HKRequests.find({
+    status: 'pending',
+    $and: [
+      { assignedTime: { $gte: fifthHour } },
+      { assignedTime: { $lte: lastHour } },
+    ],
+  }).countDocuments();
+
+  // arr.push({ label: fifthHour, value: fifthHourRoom });
+  arr.push({ label: fifthHour, value: 4 });
+
+  const fourthHourRoom = await HKRequests.find({
+    status: 'pending',
+    $and: [
+      { assignedTime: { $gte: fourthHour } },
+      { assignedTime: { $lte: fifthHour } },
+    ],
+  }).countDocuments();
+
+  // arr.push({ label: fourthHour, value: fourthHourRoom });
+  arr.push({ label: fourthHour, value: 10 });
+
+  const thirdHourRoom = await HKRequests.find({
+    status: 'pending',
+    $and: [
+      { assignedTime: { $gte: thirdHour } },
+      { assignedTime: { $lte: fourthHour } },
+    ],
+  }).countDocuments();
+
+  // arr.push({ label: thirdHour, value: thirdHourRoom });
+  arr.push({ label: thirdHour, value: 12 });
+
+  const secondHourRoom = await HKRequests.find({
+    status: 'pending',
+    $and: [
+      { assignedTime: { $gte: secondHour } },
+      { assignedTime: { $lte: thirdHour } },
+    ],
+  }).countDocuments();
+
+  // arr.push({ label: secondHour, value: secondHourRoom });
+  arr.push({ label: secondHour, value: 9 });
+
+  const firstHourRoom = await HKRequests.find({
+    status: 'pending',
+    $and: [
+      { assignedTime: { $gte: sixHour } },
+      { assignedTime: { $lte: secondHour } },
+    ],
+  }).countDocuments();
+
+  // arr.push({ label: sixHour, value: firstHourRoom });
+  arr.push({ label: sixHour, value: 1 });
+
+  res.status(200).json({
+    success: true,
+    cleaningPerHour: arr,
   });
 });
 
