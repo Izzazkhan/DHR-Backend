@@ -56,7 +56,7 @@ exports.updateStaffShift = asyncHandler(async (req, res, next) => {
       }
     );
     const updateRecord = {
-      updatetAt: Date.now(),
+      updatedAt: Date.now(),
       updatedBy: req.body.assignedBy,
       reason: req.body.reason,
     };

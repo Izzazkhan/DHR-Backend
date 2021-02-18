@@ -16,11 +16,7 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
     (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
   const oneDay = 1000 * 60 * 60 * 24;
   const day = Math.floor(diff / oneDay);
-  // const staff = await Staff.create(req.body);
-  // res.status(200).json({
-  //   success: true,
-  //   data: staff,
-  // });
+
   const parsed = JSON.parse(req.body.data);
   let profileId;
   switch (parsed.staffType) {
@@ -45,7 +41,7 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
     case 'Customer Care':
       profileId = 'CC' + day + requestNoFormat(new Date(), 'yyHHMMss');
       break;
-    case 'Houskeeping':
+    case 'Housekeeping':
       profileId = 'HK' + day + requestNoFormat(new Date(), 'yyHHMMss');
       break;
     case 'Social Worker':
@@ -95,6 +91,7 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
       email: parsed.email,
       password: parsed.password,
       addedBy: parsed.addedBy,
+      shift: parsed.shift,
     });
     res.status(201).json({
       success: true,
@@ -121,8 +118,7 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
       email: parsed.email,
       password: parsed.password,
       addedBy: parsed.addedBy,
-      shiftStartTime: parsed.shiftStartTime,
-      shiftEndTime: parsed.shiftEndTime,
+      shift: parsed.shift,
     });
     res.status(201).json({
       success: true,
