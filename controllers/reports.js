@@ -239,6 +239,7 @@ exports.roDashboard = asyncHandler(async (req, res) => {
   });
 });
 
+//Registration Officer Sensei Pending Dashboard
 exports.roSenseiPending = asyncHandler(async (req, res, next) => {
   const currentTime = moment().utc().toDate();
   const lastHour = moment().subtract(1, 'hours').utc().toDate();
@@ -429,11 +430,202 @@ exports.roSenseiPending = asyncHandler(async (req, res, next) => {
   arr.push({ label: sixHour, value: 1 });
 
   res.status(200).json({
-    status: 'Success',
+    success: true,
     pendingRegistrationSensei: {
       averageTAT: averageSenseiRegisterTime,
       totalSenseiPending,
       senseiPerHour: arr,
+    },
+  });
+});
+
+//Registration All Pending Dashboard
+exports.roTotalPending = asyncHandler(async (req, res, next) => {
+  const currentTime = moment().utc().toDate();
+  const lastHour = moment().subtract(1, 'hours').utc().toDate();
+  const fifthHour = moment().subtract(2, 'hours').utc().toDate();
+  const fourthHour = moment().subtract(3, 'hours').utc().toDate();
+  const thirdHour = moment().subtract(4, 'hours').utc().toDate();
+  const secondHour = moment().subtract(5, 'hours').utc().toDate();
+  const sixHour = moment().subtract(6, 'hours').utc().toDate();
+
+  //   * Pending Registration After Sensei
+  const totalPending = await Patient.aggregate([
+    {
+      $project: {
+        processTime: 1,
+        registrationStatus: 1,
+      },
+    },
+    {
+      $unwind: '$processTime',
+    },
+    {
+      $match: {
+        $and: [
+          { registrationStatus: 'pending' },
+          { 'processTime.processStartTime': { $gte: sixHour } },
+          { 'processTime.processEndTime': { $lte: currentTime } },
+        ],
+      },
+    },
+  ]);
+
+  const averageRegisterTime = 360 / totalPending.length;
+
+  // * Sensei Per Hour
+
+  const arr = [];
+
+  const sixthHourPatient = await Patient.aggregate([
+    {
+      $project: {
+        processTime: 1,
+        registrationStatus: 1,
+      },
+    },
+    {
+      $unwind: '$processTime',
+    },
+    {
+      $match: {
+        $and: [
+          { registrationStatus: 'pending' },
+          { 'processTime.processStartTime': { $gte: lastHour } },
+          { 'processTime.processEndTime': { $lte: currentTime } },
+        ],
+      },
+    },
+  ]);
+
+  // arr.push({ label: lastHour, value: sixthHourPatient.length });
+  arr.push({ label: lastHour, value: 5 });
+
+  const fifthHourPatient = await Patient.aggregate([
+    {
+      $project: {
+        processTime: 1,
+        registrationStatus: 1,
+      },
+    },
+    {
+      $unwind: '$processTime',
+    },
+    {
+      $match: {
+        $and: [
+          { registrationStatus: 'pending' },
+          { 'processTime.processStartTime': { $gte: fifthHour } },
+          { 'processTime.processEndTime': { $lte: lastHour } },
+        ],
+      },
+    },
+  ]);
+
+  // arr.push({ label: fifthHour, value: fifthHourPatient.length });
+  arr.push({ label: fifthHour, value: 4 });
+
+  const fourthHourPatient = await Patient.aggregate([
+    {
+      $project: {
+        processTime: 1,
+        registrationStatus: 1,
+      },
+    },
+    {
+      $unwind: '$processTime',
+    },
+    {
+      $match: {
+        $and: [
+          { registrationStatus: 'pending' },
+          { 'processTime.processStartTime': { $gte: fourthHour } },
+          { 'processTime.processEndTime': { $lte: fifthHour } },
+        ],
+      },
+    },
+  ]);
+  // arr.push({ label: fourthHour, value: fourthHourPatient.length });
+  arr.push({ label: fourthHour, value: 10 });
+
+  const thirdHourPatient = await Patient.aggregate([
+    {
+      $project: {
+        processTime: 1,
+        registrationStatus: 1,
+      },
+    },
+    {
+      $unwind: '$processTime',
+    },
+    {
+      $match: {
+        $and: [
+          { registrationStatus: 'pending' },
+          { 'processTime.processStartTime': { $gte: thirdHour } },
+          { 'processTime.processEndTime': { $lte: fourthHour } },
+        ],
+      },
+    },
+  ]);
+
+  // arr.push({ label: thirdHour, value: thirdHourPatient.length });
+  arr.push({ label: thirdHour, value: 12 });
+
+  const secondHourPatient = await Patient.aggregate([
+    {
+      $project: {
+        processTime: 1,
+        registrationStatus: 1,
+      },
+    },
+    {
+      $unwind: '$processTime',
+    },
+    {
+      $match: {
+        $and: [
+          { registrationStatus: 'pending' },
+          { 'processTime.processStartTime': { $gte: secondHour } },
+          { 'processTime.processEndTime': { $lte: thirdHour } },
+        ],
+      },
+    },
+  ]);
+
+  // arr.push({ label: secondHour, value: secondHourPatient.length });
+  arr.push({ label: secondHour, value: 9 });
+
+  const firstHourPatient = await Patient.aggregate([
+    {
+      $project: {
+        processTime: 1,
+        registrationStatus: 1,
+      },
+    },
+    {
+      $unwind: '$processTime',
+    },
+    {
+      $match: {
+        $and: [
+          { registrationStatus: 'pending' },
+          { 'processTime.processStartTime': { $gte: sixHour } },
+          { 'processTime.processEndTime': { $lte: secondHour } },
+        ],
+      },
+    },
+  ]);
+
+  // arr.push({ label: sixHour, value: firstHourPatient.length });
+  arr.push({ label: sixHour, value: 1 });
+
+  res.status(200).json({
+    success: true,
+    pendingRegistration: {
+      averageTAT: averageRegisterTime,
+      totalPending: totalPending.length,
+      totalPerHour: arr,
     },
   });
 });
@@ -446,7 +638,10 @@ exports.hkDashboard = asyncHandler(async (req, res, next) => {
   // Room Cleaning Pending
   const roomPending = await HKRequests.find({
     status: 'pending',
-    assignedTime: { $gte: sixHour },
+    $and: [
+      { assignedTime: { $gte: sixHour } },
+      { assignedTime: { $lte: currentTime } },
+    ],
   }).countDocuments();
 
   const averageRoomTAT = 360 / roomPending;
@@ -454,7 +649,10 @@ exports.hkDashboard = asyncHandler(async (req, res, next) => {
   // Room Cleaning Completed
   const roomComplete = await HKRequests.find({
     status: 'completed',
-    completedAt: { $gte: sixHour },
+    $and: [
+      { completedAt: { $gte: sixHour } },
+      { completedAt: { $lte: currentTime } },
+    ],
   }).countDocuments();
 
   const averageCompleteRoomTAT = 360 / roomComplete;
@@ -466,7 +664,7 @@ exports.hkDashboard = asyncHandler(async (req, res, next) => {
   }).countDocuments();
 
   res.status(200).json({
-    status: 'Success',
+    success: true,
     pendingRoom: {
       averageRoomTAT,
       totalPending: roomPending,
@@ -476,6 +674,90 @@ exports.hkDashboard = asyncHandler(async (req, res, next) => {
       totalCompleted: roomComplete,
     },
     totalCleanedBeds,
+  });
+});
+
+exports.hkRoomPending = asyncHandler(async (req, res, next) => {
+  const currentTime = moment().utc().toDate();
+  const lastHour = moment().subtract(1, 'hours').utc().toDate();
+  const fifthHour = moment().subtract(2, 'hours').utc().toDate();
+  const fourthHour = moment().subtract(3, 'hours').utc().toDate();
+  const thirdHour = moment().subtract(4, 'hours').utc().toDate();
+  const secondHour = moment().subtract(5, 'hours').utc().toDate();
+  const sixHour = moment().subtract(6, 'hours').utc().toDate();
+
+  const arr = [];
+
+  // Room Cleaning Pending
+  const sixthHourRoom = await HKRequests.find({
+    status: 'pending',
+    $and: [
+      { assignedTime: { $gte: lastHour } },
+      { assignedTime: { $lte: currentTime } },
+    ],
+  }).countDocuments();
+
+  // arr.push({ label: lastHour, value: sixthHourRoom });
+  arr.push({ label: lastHour, value: 5 });
+
+  const fifthHourRoom = await HKRequests.find({
+    status: 'pending',
+    $and: [
+      { assignedTime: { $gte: fifthHour } },
+      { assignedTime: { $lte: lastHour } },
+    ],
+  }).countDocuments();
+
+  // arr.push({ label: fifthHour, value: fifthHourRoom });
+  arr.push({ label: fifthHour, value: 4 });
+
+  const fourthHourRoom = await HKRequests.find({
+    status: 'pending',
+    $and: [
+      { assignedTime: { $gte: fourthHour } },
+      { assignedTime: { $lte: fifthHour } },
+    ],
+  }).countDocuments();
+
+  // arr.push({ label: fourthHour, value: fourthHourRoom });
+  arr.push({ label: fourthHour, value: 10 });
+
+  const thirdHourRoom = await HKRequests.find({
+    status: 'pending',
+    $and: [
+      { assignedTime: { $gte: thirdHour } },
+      { assignedTime: { $lte: fourthHour } },
+    ],
+  }).countDocuments();
+
+  // arr.push({ label: thirdHour, value: thirdHourRoom });
+  arr.push({ label: thirdHour, value: 12 });
+
+  const secondHourRoom = await HKRequests.find({
+    status: 'pending',
+    $and: [
+      { assignedTime: { $gte: secondHour } },
+      { assignedTime: { $lte: thirdHour } },
+    ],
+  }).countDocuments();
+
+  // arr.push({ label: secondHour, value: secondHourRoom });
+  arr.push({ label: secondHour, value: 9 });
+
+  const firstHourRoom = await HKRequests.find({
+    status: 'pending',
+    $and: [
+      { assignedTime: { $gte: sixHour } },
+      { assignedTime: { $lte: secondHour } },
+    ],
+  }).countDocuments();
+
+  // arr.push({ label: sixHour, value: firstHourRoom });
+  arr.push({ label: sixHour, value: 1 });
+
+  res.status(200).json({
+    success: true,
+    cleaningPerHour: arr,
   });
 });
 
@@ -640,7 +922,7 @@ exports.anesthesiologistDashboard = asyncHandler(async (req, res, next) => {
   const pendingTat = 360 / pending.length;
 
   res.status(200).json({
-    status: 'Success',
+    success: true,
     totalRequests: {
       pendingTat,
       totalPending: pending.length,
