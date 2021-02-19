@@ -23,6 +23,7 @@ const houseKeepingSchema = new mongoose.Schema({
   task: { type: String },
   status: { type: String, default: 'pending' },
   updatedAt: Date,
+  completedAt: Date,
 });
 
 module.exports = mongoose.model('houseKeeperRequest', houseKeepingSchema);

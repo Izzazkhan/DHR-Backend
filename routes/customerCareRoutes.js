@@ -23,6 +23,8 @@ const {
   pendingAmbulanceRequest,
   completedAmbulanceRequest,
   updateAmbulanceRequest,
+  workDoneByCC,
+  searchWorkDoneByCC,
 } = require('../controllers/customerCareController');
 
 router.get('/getAllCustomerCares', getAllCustomerCares);
@@ -45,4 +47,6 @@ router.get('/getCompletedSurveyEdrs', getCompletedSurveyEdrs);
 router.get('/pendingAmbulanceRequest/:ccId', pendingAmbulanceRequest);
 router.get('/completedAmbulanceRequest/:ccId', completedAmbulanceRequest);
 router.put('/updateAmbulanceRequest', updateAmbulanceRequest);
+router.get('/workDoneByCC', workDoneByCC);
+router.get('/searchWorkDoneByCC/:keyword', searchWorkDoneByCC);
 module.exports = router;

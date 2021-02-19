@@ -64,6 +64,10 @@ const {
   getSenseiPendingEdrByKeyword,
   getNurseEdrByKeyword,
   getAllDeliverInProgessPharmaRequest,
+
+  pendingDoctorNotes,
+  inprogressDoctorNotes,
+  completedDoctorNotes,
 } = require('../controllers/edrController');
 
 const router = express.Router();
@@ -168,5 +172,9 @@ router.get(
   '/getEDRsWithPharmacyRequest/:requestType',
   getEDRsWithPharmacyRequest
 );
+
+router.get('/pendingDoctorNotes', pendingDoctorNotes);
+router.get('/inprogressDoctorNotes', inprogressDoctorNotes);
+router.get('/completedDoctorNotes', completedDoctorNotes);
 
 module.exports = router;

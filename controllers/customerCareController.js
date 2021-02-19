@@ -7,6 +7,7 @@ const Room = require('../models/room');
 const Transfer = require('../models/patientTransferEDEOU/patientTransferEDEOU');
 const CCRequest = require('../models/customerCareRequest');
 const room = require('../models/room');
+// const Assistance = require('../models/assistance/assistance');
 
 exports.getAllCustomerCares = asyncHandler(async (req, res, next) => {
   const customerCares = await Staff.find({
@@ -859,5 +860,213 @@ exports.completedAmbulanceRequest = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: requests,
+  });
+});
+exports.workDoneByCC = asyncHandler(async (req, res, next) => {
+  const request = await CCRequest.find({ status: 'completed' }).populate([
+    {
+      path: 'edrId',
+      model: 'EDR',
+      select: 'patientId room chiefComplaint.chiefComplaintId',
+      populate: [
+        {
+          path: 'patientId',
+          model: 'patientfhir',
+          select: 'identifier name',
+        },
+        {
+          path: 'room.roomId',
+          model: 'room',
+          select: 'roomNo ',
+        },
+        {
+          path: 'chiefComplaint.chiefComplaintId',
+          model: 'chiefComplaint',
+          select: 'productionArea.productionAreaId',
+          populate: {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        },
+      ],
+    },
+    {
+      path: 'costomerCareId',
+      model: 'staff',
+      select: 'identifier name',
+    },
+  ]);
+
+  const transfers = await Transfer.find({ status: 'completed' }).populate([
+    {
+      path: 'edrId',
+      model: 'EDR',
+      select: 'patientId room chiefComplaint.chiefComplaintId',
+      populate: [
+        {
+          path: 'patientId',
+          model: 'patientfhir',
+          select: 'identifier name',
+        },
+        {
+          path: 'room.roomId',
+          model: 'room',
+          select: 'roomNo ',
+        },
+        {
+          path: 'chiefComplaint.chiefComplaintId',
+          model: 'chiefComplaint',
+          select: 'productionArea.productionAreaId',
+          populate: {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        },
+      ],
+    },
+    {
+      path: 'requestedTo',
+      model: 'staff',
+      select: 'identifier name',
+    },
+  ]);
+
+  // const assistance = await Assistance.find({staffType:'Customer Care'})
+  const workDone = [...request, ...transfers];
+  res.status(200).json({
+    success: true,
+    data: workDone,
+  });
+});
+
+exports.searchWorkDoneByCC = asyncHandler(async (req, res, next) => {
+  const request = await CCRequest.find({ status: 'completed' }).populate([
+    {
+      path: 'edrId',
+      model: 'EDR',
+      select: 'patientId room chiefComplaint.chiefComplaintId',
+      populate: [
+        {
+          path: 'patientId',
+          model: 'patientfhir',
+          select: 'identifier name',
+        },
+        {
+          path: 'room.roomId',
+          model: 'room',
+          select: 'roomNo ',
+        },
+        {
+          path: 'chiefComplaint.chiefComplaintId',
+          model: 'chiefComplaint',
+          select: 'productionArea.productionAreaId',
+          populate: {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        },
+      ],
+    },
+    {
+      path: 'costomerCareId',
+      model: 'staff',
+      select: 'identifier name',
+    },
+  ]);
+
+  const transfers = await Transfer.find({ status: 'completed' }).populate([
+    {
+      path: 'edrId',
+      model: 'EDR',
+      select: 'patientId room chiefComplaint.chiefComplaintId',
+      populate: [
+        {
+          path: 'patientId',
+          model: 'patientfhir',
+          select: 'identifier name',
+        },
+        {
+          path: 'room.roomId',
+          model: 'room',
+          select: 'roomNo ',
+        },
+        {
+          path: 'chiefComplaint.chiefComplaintId',
+          model: 'chiefComplaint',
+          select: 'productionArea.productionAreaId',
+          populate: {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        },
+      ],
+    },
+    {
+      path: 'requestedTo',
+      model: 'staff',
+      select: 'identifier name',
+    },
+  ]);
+
+  // console.log(transfers[0].requestedTo);
+  const newTransfers = transfers.map(
+    ({ requestedTo: costomerCareId, edrId }) => ({
+      costomerCareId,
+      edrId,
+    })
+  );
+  // console.log(newTransfers);
+
+  // const assistance = await Assistance.find({staffType:'Customer Care'})
+  const staff = [...request, ...newTransfers];
+  // console.log(staff[0].costomerCareId.name[0].given[0]);
+  const arr = [];
+  for (let i = 0; i < staff.length; i++) {
+    const fullName =
+      staff[i].edrId.patientId.name[0].given[0] +
+      ' ' +
+      staff[i].edrId.patientId.name[0].family;
+    const ccFullName =
+      staff[i].costomerCareId.name[0].given[0] +
+      ' ' +
+      staff[i].costomerCareId.name[0].family;
+    if (
+      (staff[i].edrId.patientId.name[0].given[0] &&
+        staff[i].edrId.patientId.name[0].given[0]
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].edrId.patientId.name[0].family &&
+        staff[i].edrId.patientId.name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].edrId.patientId.identifier[0].value &&
+        staff[i].edrId.patientId.identifier[0].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
+      (staff[i].costomerCareId.name[0].given[0] &&
+        staff[i].costomerCareId.name[0].given[0]
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].costomerCareId.name[0].family &&
+        staff[i].costomerCareId.name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].costomerCareId.identifier[0].value &&
+        staff[i].costomerCareId.identifier[0].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      ccFullName.toLowerCase().startsWith(req.params.keyword.toLowerCase())
+    ) {
+      arr.push(staff[i]);
+    }
+  }
+  res.status(200).json({
+    success: true,
+    data: arr,
   });
 });

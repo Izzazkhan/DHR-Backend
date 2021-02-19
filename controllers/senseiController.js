@@ -47,8 +47,6 @@ exports.updateStaffShift = asyncHandler(async (req, res, next) => {
       {
         $set: {
           shift: req.body.shift,
-          shiftStartTime: req.body.shiftStartTime,
-          shiftEndTime: req.body.shiftEndTime,
         },
       },
       {
@@ -56,7 +54,7 @@ exports.updateStaffShift = asyncHandler(async (req, res, next) => {
       }
     );
     const updateRecord = {
-      updatetAt: Date.now(),
+      updatedAt: Date.now(),
       updatedBy: req.body.assignedBy,
       reason: req.body.reason,
     };
@@ -432,6 +430,21 @@ exports.getEOUPatients = asyncHandler(async (req, res, next) => {
       model: 'patientfhir',
     },
     {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      select: 'productionArea.productionAreaId',
+      populate: {
+        path: 'productionArea.productionAreaId',
+        model: 'productionArea',
+        select: 'paName',
+      },
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
+      select: 'roomNo',
+    },
+    {
       path: 'consultationNote.addedBy',
       model: 'staff',
     },
@@ -602,6 +615,18 @@ exports.searchEOUPatients = asyncHandler(async (req, res, next) => {
     currentLocation: 'EOU',
   }).populate([
     {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      select: 'chiefComplaint.chiefComplaintId',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      ],
+    },
+    {
       path: 'patientId',
       model: 'patientfhir',
     },
@@ -752,6 +777,13 @@ exports.timeInterval = asyncHandler(async (req, res, next) => {
 });
 
 exports.transferToEOU = asyncHandler(async (req, res, next) => {
+  // const currentTime = moment().utc().toDate();
+  // const sixHours = moment().subtract(6, 'hours').utc().toDate();
+
+  // const week = new Date();
+  // const weekDate = week.setDate(week.getDate() - 7);
+  // console.log(weekDate);
+
   const transfers = await EouTransfer.find({
     to: 'EOU',
     status: 'completed',
@@ -1274,6 +1306,7 @@ exports.doctorResponseTime = asyncHandler(async (req, res, next) => {
         status: 1,
         currentLocation: 1,
         patientId: 1,
+        chiefComplaint: 1,
       },
     },
     {
@@ -1297,7 +1330,7 @@ exports.doctorResponseTime = asyncHandler(async (req, res, next) => {
         'consultationNote.completionDate': 1,
         'consultationNote.consultant': 1,
         'consultationNote.noteTime': 1,
-        responsTime: {
+        responseTime: {
           $divide: [
             {
               $subtract: [
@@ -1305,14 +1338,23 @@ exports.doctorResponseTime = asyncHandler(async (req, res, next) => {
                 '$consultationNote.noteTime',
               ],
             },
-            1000 * 60 * 60,
+            1000 * 60 * 60 * 24,
           ],
         },
       },
     },
   ]);
 
-  const patients = await EDR.populate(time, [
+  time.map((day) => (day.days = day.responseTime.toString().split('.')[0]));
+
+  time.map((patient) => {
+    const h = patient.responseTime;
+    const int = Math.trunc(h);
+    const float = Number((h - int).toFixed(8));
+    patient.hours = Math.trunc(float * 24);
+  });
+
+  const responseTime = await EDR.populate(time, [
     {
       path: 'patientId',
       model: 'patientfhir',
@@ -1342,6 +1384,6 @@ exports.doctorResponseTime = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    data: patients,
+    data: responseTime,
   });
 });

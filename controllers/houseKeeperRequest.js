@@ -74,7 +74,11 @@ exports.updateStatus = asyncHandler(async (req, res, next) => {
   const updatedStatus = await HK.findOneAndUpdate(
     { _id: req.body.requestId },
     {
-      $set: { status: 'completed', task: req.body.task, updatedAt: Date.now() },
+      $set: {
+        status: 'completed',
+        task: req.body.task,
+        completedAt: Date.now(),
+      },
     },
     { new: true }
   );
@@ -90,7 +94,11 @@ exports.updateSenseiStatus = asyncHandler(async (req, res, next) => {
   const updatedStatus = await HK.findOneAndUpdate(
     { _id: req.body.requestId },
     {
-      $set: { status: 'completed', task: req.body.task, updatedAt: Date.now() },
+      $set: {
+        status: 'completed',
+        task: req.body.task,
+        completedAt: Date.now(),
+      },
     },
     { new: true }
   );
@@ -211,7 +219,11 @@ exports.updateEDNurseStatus = asyncHandler(async (req, res, next) => {
   const updatedStatus = await HK.findOneAndUpdate(
     { _id: req.body.requestId },
     {
-      $set: { status: 'completed', task: req.body.task, updatedAt: Date.now() },
+      $set: {
+        status: 'completed',
+        task: req.body.task,
+        completedAt: Date.now(),
+      },
     },
     { new: true }
   );

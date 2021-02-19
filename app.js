@@ -20,7 +20,7 @@ const careStreamRouter = require('./routes/careStreamRoutes');
 const labServiceRouter = require('./routes/labServiceRoutes');
 const radServiceRouter = require('./routes/radServiceRoutes');
 const chiefComplaintRouter = require('./routes/chiefComplaintRoutes');
-const cutomerCareRouter = require('./routes/customerCareRoutes');
+const customerCareRouter = require('./routes/customerCareRoutes');
 const flagRouter = require('./routes/flagRoutes');
 const communicationRouter = require('./routes/communicationRoutes');
 const patientTransferEDEOURoutes = require('./routes/patientTransferEDEOURoutes');
@@ -38,6 +38,8 @@ const paramedics = require('./routes/paramedicstRoutes');
 const insurance = require('./routes/insurance');
 const preApproval = require('./routes/preApprovalInsurance');
 const RC = require('./routes/reimbursementClaim');
+const shift = require('./routes/shift');
+const reports = require('./routes/reports');
 
 const dcdFormRouter = require('./routes/dcdFormroutes');
 const ChatModel = require('./models/chatRoom/chatRoom');
@@ -48,7 +50,6 @@ const subscriber = require('./routes/subscriber');
 const anesthesiaRequestRoutes = require('./routes/anesthesiaRequestRoutes');
 const consultationNotesRoutes = require('./routes/consultationNotesRoutes');
 const reconciliationNotesRoutes = require('./routes/reconciliationNotesRoutes');
-
 
 const app = express();
 
@@ -80,7 +81,7 @@ app.use('/api/careStream', careStreamRouter);
 app.use('/api/labService', labServiceRouter);
 app.use('/api/radService', radServiceRouter);
 app.use('/api/chiefComplaint', chiefComplaintRouter);
-app.use('/api/customerCare', cutomerCareRouter);
+app.use('/api/customerCare', customerCareRouter);
 app.use('/api/dcdForm', dcdFormRouter);
 app.use('/api/sensei', senseiRouter);
 app.use('/api/chatroom', chatRouter);
@@ -106,7 +107,8 @@ app.use('/api/edNurse', edNurse);
 app.use('/api/eouNurse', eouNurse);
 
 app.use('/api/paramedics', paramedics);
-
+app.use('/api/shift', shift);
+app.use('/api/reports', reports);
 app.use(errorHandler);
 
 const DB = process.env.MONGO_URI;

@@ -26,7 +26,8 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
       versionNo: patient.identifier[0].value + '-' + requestNo + '-' + '1',
     },
   ];
-
+  // console.log(patient);
+  // console.log(patient.paymentMethod[0].payment);
   const paymentMethod = patient.paymentMethod[0].payment;
   const {
     patientId,
@@ -127,7 +128,6 @@ exports.getEDRs = asyncHandler(async (req, res, next) => {
     data: Edrs,
   });
 });
-
 
 exports.getPendingEDRs = asyncHandler(async (req, res, next) => {
   const Edrs = await EDR.find({ status: 'pending', patientInHospital: true })
@@ -346,6 +346,103 @@ exports.updateDoctorNotes = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: updatedNote,
+  });
+});
+
+// Doctor Notes API's for Admin
+exports.pendingDoctorNotes = asyncHandler(async (req, res, next) => {
+  const patients = await EDR.find({
+    status: 'pending',
+    patientInHospital: true,
+    doctorNotes: { $eq: [] },
+  })
+    .select('patientId chiefComplaint careStream.name createdTimeStamp')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'identifier name',
+      },
+    ]);
+  res.status(200).json({
+    success: true,
+    data: patients,
+  });
+});
+
+exports.inprogressDoctorNotes = asyncHandler(async (req, res, next) => {
+  const patients = await EDR.find({
+    status: 'pending',
+    patientInHospital: true,
+    doctorNotes: { $ne: [] },
+  })
+    .select('patientId chiefComplaint careStream.name createdTimeStamp')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'identifier name',
+      },
+    ]);
+  res.status(200).json({
+    success: true,
+    data: patients,
+  });
+});
+
+exports.completedDoctorNotes = asyncHandler(async (req, res, next) => {
+  const patients = await EDR.find({
+    status: { $ne: 'pending' },
+    patientInHospital: true,
+    doctorNotes: { $ne: [] },
+  })
+    .select('patientId chiefComplaint careStream.name createdTimeStamp')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'identifier name',
+      },
+    ]);
+  res.status(200).json({
+    success: true,
+    data: patients,
   });
 });
 
