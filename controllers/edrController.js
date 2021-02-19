@@ -120,7 +120,7 @@ exports.getEDRs = asyncHandler(async (req, res, next) => {
     .populate('chiefComplaint.chiefComplaintId', 'name')
     .populate('room.roomId')
     .select(
-      'patientId dcdFormStatus status labRequest radiologyRequest careStream room requestNo'
+      'patientId dcdFormStatus status labRequest careStream room requestNo radRequest'
     );
   res.status(201).json({
     success: true,
@@ -133,7 +133,7 @@ exports.getPendingEDRs = asyncHandler(async (req, res, next) => {
   const Edrs = await EDR.find({ status: 'pending', patientInHospital: true })
     .populate('patientId')
     .populate('chiefComplaint.chiefComplaintId', 'name')
-    .select('patientId dcdFormStatus status labRequest radiologyRequest');
+    .select('patientId dcdFormStatus status labRequest radRequest');
   res.status(201).json({
     success: true,
     count: Edrs.length,
@@ -150,7 +150,7 @@ exports.getSenseiPendingEDRs = asyncHandler(async (req, res, next) => {
     .populate('patientId')
     .populate('chiefComplaint.chiefComplaintId', 'name')
     .select(
-      'patientId dcdFormStatus status labRequest radiologyRequest generatedFrom patientInHospital'
+      'patientId dcdFormStatus status labRequest radRequest generatedFrom patientInHospital'
     );
   res.status(201).json({
     success: true,
@@ -933,8 +933,8 @@ exports.getEDRFromPatientIdForDischarge = asyncHandler(async (req, res) => {
       .populate('pharmacyRequest.item.itemId')
       .populate('labRequest.requester')
       .populate('labRequest.serviceId')
-      .populate('radiologyRequest.serviceId')
-      .populate('radiologyRequest.requester')
+      .populate('radRequest.serviceId')
+      .populate('radRequest.requester')
       .populate('residentNotes.doctor')
       .populate('residentNotes.doctorRef')
       .populate('dischargeRequest.dischargeMedication.requester')
