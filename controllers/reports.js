@@ -41,156 +41,57 @@ exports.roDashboard = asyncHandler(async (req, res) => {
   ]);
 
   const averageRegistrationTime = 360 / patients.length;
-  const arr = [];
 
-  const sixthHourPatient = await Patient.aggregate([
-    {
-      $project: {
-        processTime: 1,
-        registrationStatus: 1,
-      },
-    },
-    {
-      $unwind: '$processTime',
-    },
-    {
-      $match: {
-        $and: [
-          { 'processTime.processName': 'Registration Officer' },
-          { registrationStatus: 'completed' },
-          { 'processTime.processStartTime': { $gte: lastHour } },
-          { 'processTime.processEndTime': { $lte: currentTime } },
-        ],
-      },
-    },
-  ]);
-
-  // arr.push({ label: lastHour, value: sixthHourPatient.length });
-  arr.push({ label: lastHour, value: 5 });
-
-  const fifthHourPatient = await Patient.aggregate([
-    {
-      $project: {
-        processTime: 1,
-        registrationStatus: 1,
-      },
-    },
-    {
-      $unwind: '$processTime',
-    },
-    {
-      $match: {
-        $and: [
-          { 'processTime.processName': 'Registration Officer' },
-          { registrationStatus: 'completed' },
-          { 'processTime.processStartTime': { $gte: fifthHour } },
-          { 'processTime.processEndTime': { $lte: lastHour } },
-        ],
-      },
-    },
-  ]);
-
-  // arr.push({ label: fifthHour, value: fifthHourPatient.length });
-  arr.push({ label: fifthHour, value: 4 });
-
-  const fourthHourPatient = await Patient.aggregate([
-    {
-      $project: {
-        processTime: 1,
-        registrationStatus: 1,
-      },
-    },
-    {
-      $unwind: '$processTime',
-    },
-    {
-      $match: {
-        $and: [
-          { 'processTime.processName': 'Registration Officer' },
-          { registrationStatus: 'completed' },
-          { 'processTime.processStartTime': { $gte: fourthHour } },
-          { 'processTime.processEndTime': { $lte: fifthHour } },
-        ],
-      },
-    },
-  ]);
-  // arr.push({ label: fourthHour, value: fourthHourPatient.length });
-  arr.push({ label: fourthHour, value: 10 });
-
-  const thirdHourPatient = await Patient.aggregate([
-    {
-      $project: {
-        processTime: 1,
-        registrationStatus: 1,
-      },
-    },
-    {
-      $unwind: '$processTime',
-    },
-    {
-      $match: {
-        $and: [
-          { 'processTime.processName': 'Registration Officer' },
-          { registrationStatus: 'completed' },
-          { 'processTime.processStartTime': { $gte: thirdHour } },
-          { 'processTime.processEndTime': { $lte: fourthHour } },
-        ],
-      },
-    },
-  ]);
-
-  // arr.push({ label: thirdHour, value: thirdHourPatient.length });
-  arr.push({ label: thirdHour, value: 12 });
-
-  const secondHourPatient = await Patient.aggregate([
-    {
-      $project: {
-        processTime: 1,
-        registrationStatus: 1,
-      },
-    },
-    {
-      $unwind: '$processTime',
-    },
-    {
-      $match: {
-        $and: [
-          { 'processTime.processName': 'Registration Officer' },
-          { registrationStatus: 'completed' },
-          { 'processTime.processStartTime': { $gte: secondHour } },
-          { 'processTime.processEndTime': { $lte: thirdHour } },
-        ],
-      },
-    },
-  ]);
-
-  // arr.push({ label: secondHour, value: secondHourPatient.length });
-  arr.push({ label: secondHour, value: 9 });
-
-  const firstHourPatient = await Patient.aggregate([
-    {
-      $project: {
-        processTime: 1,
-        registrationStatus: 1,
-      },
-    },
-    {
-      $unwind: '$processTime',
-    },
-    {
-      $match: {
-        $and: [
-          { 'processTime.processName': 'Registration Officer' },
-          { registrationStatus: 'completed' },
-          { 'processTime.processStartTime': { $gte: sixHour } },
-          { 'processTime.processEndTime': { $lte: secondHour } },
-        ],
-      },
-    },
-  ]);
-
-  // arr.push({ label: sixHour, value: firstHourPatient.length });
-  arr.push({ label: sixHour, value: 1 });
+  // Registration Officer Completed Per Hour
+  const completedArr = [];
+  let sixthHourPatient = 0;
+  let fifthHourPatient = 0;
+  let fourthHourPatient = 0;
+  let thirdHourPatient = 0;
+  let secondHourPatient = 0;
+  let firstHourPatient = 0;
+  patients.map((p) => {
+    let hour, patientHours;
+    if (
+      p.processTime.processStartTime > lastHour &&
+      p.processTime.processEndTime < currentTime
+    ) {
+      sixthHourPatient++;
+      console.log('sixthHourPatient', sixthHourPatient);
+    } else if (
+      p.processTime.processStartTime > fifthHour &&
+      p.processTime.processEndTime < lastHour
+    ) {
+      fifthHourPatient++;
+    } else if (
+      p.processTime.processStartTime > fourthHour &&
+      p.processTime.processEndTime < fifthHour
+    ) {
+      fourthHourPatient++;
+    } else if (
+      p.processTime.processStartTime > thirdHour &&
+      p.processTime.processEndTime < fourthHour
+    ) {
+      thirdHourPatient++;
+    } else if (
+      p.processTime.processStartTime > secondHour &&
+      p.processTime.processEndTime < thirdHour
+    ) {
+      secondHourPatient++;
+    } else if (
+      p.processTime.processStartTime > sixHour &&
+      p.processTime.processEndTime < secondHour
+    ) {
+      firstHourPatient++;
+    }
+    completedArr.push({ label: sixHour, value: firstHourPatient });
+  });
+  completedArr.push({ label: lastHour, value: sixthHourPatient });
+  completedArr.push({ label: fifthHour, value: fifthHourPatient });
+  completedArr.push({ label: fourthHour, value: fourthHourPatient });
+  completedArr.push({ label: thirdHour, value: thirdHourPatient });
+  completedArr.push({ label: secondHour, value: secondHourPatient });
+  completedArr.push({ label: sixHour, value: firstHourPatient });
 
   // Available ED Beds
   const EdBeds = await Room.find({
@@ -233,7 +134,7 @@ exports.roDashboard = asyncHandler(async (req, res) => {
     totalUnInsured: edrUnInsured,
     availableEdBeds: EdBeds,
     cumulativeRegistrations: totalRegistrations.length,
-    registrationPerHour: arr,
+    registrationPerHour: completedArr,
     averageTAT: averageRegistrationTime,
     registeredPatients: patients.length,
   });
