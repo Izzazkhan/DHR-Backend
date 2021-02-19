@@ -40,7 +40,7 @@ const preApproval = require('./routes/preApprovalInsurance');
 const RC = require('./routes/reimbursementClaim');
 const shift = require('./routes/shift');
 const reports = require('./routes/reports');
-
+const adminDashboard = require('./routes/adminDashboard');
 const dcdFormRouter = require('./routes/dcdFormroutes');
 const ChatModel = require('./models/chatRoom/chatRoom');
 
@@ -109,6 +109,7 @@ app.use('/api/eouNurse', eouNurse);
 app.use('/api/paramedics', paramedics);
 app.use('/api/shift', shift);
 app.use('/api/reports', reports);
+app.use('/api/adminDashboard', adminDashboard);
 app.use(errorHandler);
 
 const DB = process.env.MONGO_URI;
