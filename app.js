@@ -43,13 +43,13 @@ const reports = require('./routes/reports');
 const adminDashboard = require('./routes/adminDashboard');
 const dcdFormRouter = require('./routes/dcdFormroutes');
 const ChatModel = require('./models/chatRoom/chatRoom');
-
 // const webRTCSocket = require('./lib/socket');
 const chatRouter = require('./routes/chatRoutes');
 const subscriber = require('./routes/subscriber');
 const anesthesiaRequestRoutes = require('./routes/anesthesiaRequestRoutes');
 const consultationNotesRoutes = require('./routes/consultationNotesRoutes');
 const reconciliationNotesRoutes = require('./routes/reconciliationNotesRoutes');
+const senseiAssistanceReqRoutes = require('./routes/senseiAssistanceReqRoutes');
 
 const app = express();
 
@@ -101,15 +101,15 @@ app.use('/api/socialWorker', socialWorker);
 app.use('/api/anesthesiarequest', anesthesiaRequestRoutes);
 app.use('/api/consultationNotes', consultationNotesRoutes);
 app.use('/api/reconciliationNotes', reconciliationNotesRoutes);
-
 app.use('/api/nurseTechnician', nurseTechnician);
 app.use('/api/edNurse', edNurse);
 app.use('/api/eouNurse', eouNurse);
-
 app.use('/api/paramedics', paramedics);
 app.use('/api/shift', shift);
 app.use('/api/reports', reports);
 app.use('/api/adminDashboard', adminDashboard);
+app.use('/api/senseiAssistanceRequest', senseiAssistanceReqRoutes);
+
 app.use(errorHandler);
 
 const DB = process.env.MONGO_URI;

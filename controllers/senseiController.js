@@ -47,8 +47,6 @@ exports.updateStaffShift = asyncHandler(async (req, res, next) => {
       {
         $set: {
           shift: req.body.shift,
-          shiftStartTime: req.body.shiftStartTime,
-          shiftEndTime: req.body.shiftEndTime,
         },
       },
       {
