@@ -871,7 +871,6 @@ exports.anesthesiologistDashboard = asyncHandler(async (req, res, next) => {
       },
     },
   ]);
-  console.log(EdCompleted);
   let EdTime = 0;
   EdCompleted.map((p) => {
     p.noteTime = new Date(p.anesthesiologistNote.noteTime);
@@ -891,6 +890,12 @@ exports.anesthesiologistDashboard = asyncHandler(async (req, res, next) => {
     {
       $project: {
         anesthesiologistNote: 1,
+        currentLocation: 1,
+      },
+    },
+    {
+      $match: {
+        currentLocation: 'ED',
       },
     },
     {
@@ -926,6 +931,12 @@ exports.anesthesiologistDashboard = asyncHandler(async (req, res, next) => {
     {
       $project: {
         anesthesiologistNote: 1,
+        currentLocation: 1,
+      },
+    },
+    {
+      $match: {
+        currentLocation: 'ED',
       },
     },
     {
@@ -961,6 +972,12 @@ exports.anesthesiologistDashboard = asyncHandler(async (req, res, next) => {
     {
       $project: {
         anesthesiologistNote: 1,
+        currentLocation: 1,
+      },
+    },
+    {
+      $match: {
+        currentLocation: 'ED',
       },
     },
     {
@@ -996,6 +1013,12 @@ exports.anesthesiologistDashboard = asyncHandler(async (req, res, next) => {
     {
       $project: {
         anesthesiologistNote: 1,
+        currentLocation: 1,
+      },
+    },
+    {
+      $match: {
+        currentLocation: 'ED',
       },
     },
     {
@@ -1031,6 +1054,12 @@ exports.anesthesiologistDashboard = asyncHandler(async (req, res, next) => {
     {
       $project: {
         anesthesiologistNote: 1,
+        currentLocation: 1,
+      },
+    },
+    {
+      $match: {
+        currentLocation: 'ED',
       },
     },
     {
@@ -1066,6 +1095,12 @@ exports.anesthesiologistDashboard = asyncHandler(async (req, res, next) => {
     {
       $project: {
         anesthesiologistNote: 1,
+        currentLocation: 1,
+      },
+    },
+    {
+      $match: {
+        currentLocation: 'ED',
       },
     },
     {
@@ -1097,6 +1132,309 @@ exports.anesthesiologistDashboard = asyncHandler(async (req, res, next) => {
 
   EDArr.push({ label: sixHour, value: firstHourEDNote.length });
 
+  // Requests in EOU
+
+  const totalEOU = await EDR.find({
+    currentLocation: 'EOU',
+    $or: [
+      {
+        $and: [
+          { 'anesthesiologistNote.noteTime': { $gte: sixHour } },
+          { 'anesthesiologistNote.noteTime': { $lte: currentTime } },
+        ],
+      },
+      {
+        $and: [
+          { 'anesthesiologistNote.completionTime': { $gte: sixHour } },
+          {
+            'anesthesiologistNote.completionTime': {
+              $lte: currentTime,
+            },
+          },
+        ],
+      },
+    ],
+  });
+
+  const EOUCompleted = await EDR.aggregate([
+    {
+      $project: {
+        anesthesiologistNote: 1,
+        currentLocation: 1,
+      },
+    },
+    {
+      $unwind: '$anesthesiologistNote',
+    },
+    {
+      $match: {
+        $and: [
+          { currentLocation: 'EOU' },
+          { 'anesthesiologistNote.status': 'complete' },
+          { 'anesthesiologistNote.completionTime': { $gte: sixHour } },
+          { 'anesthesiologistNote.completionTime': { $lte: currentTime } },
+        ],
+      },
+    },
+  ]);
+  let EOUTime = 0;
+  EOUCompleted.map((p) => {
+    p.noteTime = new Date(p.anesthesiologistNote.noteTime);
+    p.completionTime = new Date(p.anesthesiologistNote.completionTime);
+    p.t = Math.round(
+      (p.completionTime.getTime() - p.noteTime.getTime()) / (1000 * 60)
+    );
+    EOUTime += p.t;
+  });
+
+  const EOUTAT = EOUTime / EOUCompleted.length;
+
+  const EOU = [];
+  // console.log(EOU);
+  // * Per Hour Note
+  const sixthHourEOUNote = await EDR.aggregate([
+    {
+      $project: {
+        anesthesiologistNote: 1,
+        currentLocation: 1,
+      },
+    },
+    {
+      $match: {
+        currentLocation: 'EOU',
+      },
+    },
+    {
+      $unwind: '$anesthesiologistNote',
+    },
+    {
+      $match: {
+        $or: [
+          {
+            $and: [
+              { 'anesthesiologistNote.noteTime': { $gte: lastHour } },
+              { 'anesthesiologistNote.noteTime': { $lte: currentTime } },
+            ],
+          },
+          {
+            $and: [
+              { 'anesthesiologistNote.completionTime': { $gte: lastHour } },
+              {
+                'anesthesiologistNote.completionTime': {
+                  $lte: currentTime,
+                },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ]);
+
+  EOU.push({ label: lastHour, value: sixthHourEOUNote.length });
+
+  const fifthHourEOUNote = await EDR.aggregate([
+    {
+      $project: {
+        anesthesiologistNote: 1,
+        currentLocation: 1,
+      },
+    },
+    {
+      $match: {
+        currentLocation: 'EOU',
+      },
+    },
+    {
+      $unwind: '$anesthesiologistNote',
+    },
+    {
+      $match: {
+        $or: [
+          {
+            $and: [
+              { 'anesthesiologistNote.noteTime': { $gte: fifthHour } },
+              { 'anesthesiologistNote.noteTime': { $lte: lastHour } },
+            ],
+          },
+          {
+            $and: [
+              { 'anesthesiologistNote.completionTime': { $gte: fifthHour } },
+              {
+                'anesthesiologistNote.completionTime': {
+                  $lte: lastHour,
+                },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ]);
+  // console.log(fifthHourEOUNote);
+  EOU.push({ label: fifthHour, value: fifthHourEOUNote.length });
+
+  const fourthHourEOUNote = await EDR.aggregate([
+    {
+      $project: {
+        anesthesiologistNote: 1,
+        currentLocation: 1,
+      },
+    },
+    {
+      $match: {
+        currentLocation: 'EOU',
+      },
+    },
+    {
+      $unwind: '$anesthesiologistNote',
+    },
+    {
+      $match: {
+        $or: [
+          {
+            $and: [
+              { 'anesthesiologistNote.noteTime': { $gte: fourthHour } },
+              { 'anesthesiologistNote.noteTime': { $lte: fifthHour } },
+            ],
+          },
+          {
+            $and: [
+              { 'anesthesiologistNote.completionTime': { $gte: fourthHour } },
+              {
+                'anesthesiologistNote.completionTime': {
+                  $lte: fifthHour,
+                },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ]);
+  // console.log(fourthHourEOUNote);
+  EOU.push({ label: fourthHour, value: fourthHourEOUNote.length });
+
+  const thirdHourEOUNote = await EDR.aggregate([
+    {
+      $project: {
+        anesthesiologistNote: 1,
+        currentLocation: 1,
+      },
+    },
+    {
+      $match: {
+        currentLocation: 'EOU',
+      },
+    },
+    {
+      $match: {
+        $or: [
+          {
+            $and: [
+              { 'anesthesiologistNote.noteTime': { $gte: thirdHour } },
+              { 'anesthesiologistNote.noteTime': { $lte: fourthHour } },
+            ],
+          },
+          {
+            $and: [
+              { 'anesthesiologistNote.completionTime': { $gte: thirdHour } },
+              {
+                'anesthesiologistNote.completionTime': {
+                  $lte: fourthHour,
+                },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ]);
+
+  EOU.push({ label: thirdHour, value: thirdHourEOUNote.length });
+
+  const secondHourEOUNote = await EDR.aggregate([
+    {
+      $project: {
+        anesthesiologistNote: 1,
+        currentLocation: 1,
+      },
+    },
+    {
+      $match: {
+        currentLocation: 'EOU',
+      },
+    },
+    {
+      $unwind: '$anesthesiologistNote',
+    },
+    {
+      $match: {
+        $or: [
+          {
+            $and: [
+              { 'anesthesiologistNote.noteTime': { $gte: secondHour } },
+              { 'anesthesiologistNote.noteTime': { $lte: thirdHour } },
+            ],
+          },
+          {
+            $and: [
+              { 'anesthesiologistNote.completionTime': { $gte: secondHour } },
+              {
+                'anesthesiologistNote.completionTime': {
+                  $lte: thirdHour,
+                },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ]);
+
+  EOU.push({ label: secondHour, value: secondHourEOUNote.length });
+
+  const firstHourEOUNote = await EDR.aggregate([
+    {
+      $project: {
+        anesthesiologistNote: 1,
+        currentLocation: 1,
+      },
+    },
+    {
+      $match: {
+        currentLocation: 'EOU',
+      },
+    },
+    {
+      $unwind: '$anesthesiologistNote',
+    },
+    {
+      $match: {
+        $or: [
+          {
+            $and: [
+              { 'anesthesiologistNote.noteTime': { $gte: sixHour } },
+              { 'anesthesiologistNote.noteTime': { $lte: secondHour } },
+            ],
+          },
+          {
+            $and: [
+              { 'anesthesiologistNote.completionTime': { $gte: sixHour } },
+              {
+                'anesthesiologistNote.completionTime': {
+                  $lte: secondHour,
+                },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ]);
+
+  EOU.push({ label: sixHour, value: firstHourEOUNote.length });
+
   res.status(200).json({
     success: true,
     totalRequests: {
@@ -1108,6 +1446,11 @@ exports.anesthesiologistDashboard = asyncHandler(async (req, res, next) => {
       requestToCompletion: EDTAT,
       totalED: totalED.length,
       requestsPerHour: EDArr,
+    },
+    requestsInEOU: {
+      requestToCompletion: EOUTAT,
+      totalED: totalEOU.length,
+      requestsPerHour: EOU,
     },
   });
 });
@@ -1146,8 +1489,6 @@ exports.senseiDashboard = asyncHandler(async (req, res, next) => {
     const createTime = new Date(t.createdTimeStamp);
     Math.ceil(ccTime.getTime() - createTime.getTime() / (1000 * 60));
   });
-
-  console.log(time[0]);
 
   // const registerToAssign = tat.chiefComplaint(chiefComplaint)
 
