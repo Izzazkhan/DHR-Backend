@@ -521,6 +521,11 @@ exports.roTotalPending = asyncHandler(async (req, res, next) => {
   });
 });
 
+// exports.roDischargePending = asyncHandler(async (req, res, next) => {
+//   const discharge = await EDR.find({ status: 'pending' });
+
+// });
+
 // House Keeper Dashboard
 exports.hkDashboard = asyncHandler(async (req, res, next) => {
   // Room Cleaning Pending
@@ -662,6 +667,36 @@ exports.anesthesiologistDashboard = asyncHandler(async (req, res, next) => {
     },
   ]);
 
+  const completed = await EDR.aggregate([
+    {
+      $project: {
+        anesthesiologistNote: 1,
+      },
+    },
+    {
+      $unwind: '$anesthesiologistNote',
+    },
+    {
+      $match: {
+        $and: [
+          { 'anesthesiologistNote.status': 'complete' },
+          { 'anesthesiologistNote.completionTime': { $gte: sixHour } },
+        ],
+      },
+    },
+  ]);
+
+  let time = 0;
+  completed.map((p) => {
+    p.noteTime = new Date(p.anesthesiologistNote.noteTime);
+    p.completionTime = new Date(p.anesthesiologistNote.completionTime);
+    p.t = Math.round(
+      (p.completionTime.getTime() - p.noteTime.getTime()) / (1000 * 60)
+    );
+    time += p.t;
+  });
+  const pendingTat = time / completed.length;
+
   const pendingArr = [];
   // * Per Hour Notes
   const sixthHourNote = await EDR.aggregate([
@@ -791,8 +826,6 @@ exports.anesthesiologistDashboard = asyncHandler(async (req, res, next) => {
   ]);
   pendingArr.push({ label: sixHour, value: firstHourNote.length });
 
-  const pendingTat = 360 / pending.length;
-
   // Requests In ED
 
   const totalED = await EDR.find({
@@ -816,149 +849,252 @@ exports.anesthesiologistDashboard = asyncHandler(async (req, res, next) => {
       },
     ],
   });
-  const EDTAT = 360 / totalED.length;
-  const EDArr = [];
-  // * Per Hour Note
-  const sixthHourEDNote = await EDR.find({
-    currentLocation: 'ED',
-    $or: [
-      {
+
+  const EdCompleted = await EDR.aggregate([
+    {
+      $project: {
+        anesthesiologistNote: 1,
+        currentLocation: 1,
+      },
+    },
+    {
+      $unwind: '$anesthesiologistNote',
+    },
+    {
+      $match: {
         $and: [
-          { 'anesthesiologistNote.noteTime': { $gte: lastHour } },
-          { 'anesthesiologistNote.noteTime': { $lte: currentTime } },
+          { currentLocation: 'ED' },
+          { 'anesthesiologistNote.status': 'complete' },
+          { 'anesthesiologistNote.completionTime': { $gte: sixHour } },
+          { 'anesthesiologistNote.completionTime': { $lte: currentTime } },
         ],
       },
-      {
-        $and: [
-          { 'anesthesiologistNote.completionTime': { $gte: lastHour } },
+    },
+  ]);
+  console.log(EdCompleted);
+  let EdTime = 0;
+  EdCompleted.map((p) => {
+    p.noteTime = new Date(p.anesthesiologistNote.noteTime);
+    p.completionTime = new Date(p.anesthesiologistNote.completionTime);
+    p.t = Math.round(
+      (p.completionTime.getTime() - p.noteTime.getTime()) / (1000 * 60)
+    );
+    EdTime += p.t;
+  });
+
+  const EDTAT = EdTime / EdCompleted.length;
+
+  const EDArr = [];
+  // console.log(EDArr);
+  // * Per Hour Note
+  const sixthHourEDNote = await EDR.aggregate([
+    {
+      $project: {
+        anesthesiologistNote: 1,
+      },
+    },
+    {
+      $unwind: '$anesthesiologistNote',
+    },
+    {
+      $match: {
+        $or: [
           {
-            'anesthesiologistNote.completionTime': {
-              $lte: currentTime,
-            },
+            $and: [
+              { 'anesthesiologistNote.noteTime': { $gte: lastHour } },
+              { 'anesthesiologistNote.noteTime': { $lte: currentTime } },
+            ],
+          },
+          {
+            $and: [
+              { 'anesthesiologistNote.completionTime': { $gte: lastHour } },
+              {
+                'anesthesiologistNote.completionTime': {
+                  $lte: currentTime,
+                },
+              },
+            ],
           },
         ],
       },
-    ],
-  });
-  console.log(sixthHourEDNote);
+    },
+  ]);
 
   EDArr.push({ label: lastHour, value: sixthHourEDNote.length });
 
-  const fifthHourEDNote = await EDR.find({
-    currentLocation: 'ED',
-    $or: [
-      {
-        $and: [
-          { 'anesthesiologistNote.noteTime': { $gte: fifthHour } },
-          { 'anesthesiologistNote.noteTime': { $lte: lastHour } },
-        ],
+  const fifthHourEDNote = await EDR.aggregate([
+    {
+      $project: {
+        anesthesiologistNote: 1,
       },
-      {
-        $and: [
-          { 'anesthesiologistNote.completionTime': { $gte: fifthHour } },
+    },
+    {
+      $unwind: '$anesthesiologistNote',
+    },
+    {
+      $match: {
+        $or: [
           {
-            'anesthesiologistNote.completionTime': {
-              $lte: lastHour,
-            },
+            $and: [
+              { 'anesthesiologistNote.noteTime': { $gte: fifthHour } },
+              { 'anesthesiologistNote.noteTime': { $lte: lastHour } },
+            ],
+          },
+          {
+            $and: [
+              { 'anesthesiologistNote.completionTime': { $gte: fifthHour } },
+              {
+                'anesthesiologistNote.completionTime': {
+                  $lte: lastHour,
+                },
+              },
+            ],
           },
         ],
       },
-    ],
-  });
+    },
+  ]);
   // console.log(fifthHourEDNote);
   EDArr.push({ label: fifthHour, value: fifthHourEDNote.length });
 
-  const fourthHourEDNote = await EDR.find({
-    currentLocation: 'ED',
-    $or: [
-      {
-        $and: [
-          { 'anesthesiologistNote.noteTime': { $gte: fourthHour } },
-          { 'anesthesiologistNote.noteTime': { $lte: fifthHour } },
-        ],
+  const fourthHourEDNote = await EDR.aggregate([
+    {
+      $project: {
+        anesthesiologistNote: 1,
       },
-      {
-        $and: [
-          { 'anesthesiologistNote.completionTime': { $gte: fourthHour } },
+    },
+    {
+      $unwind: '$anesthesiologistNote',
+    },
+    {
+      $match: {
+        $or: [
           {
-            'anesthesiologistNote.completionTime': {
-              $lte: fifthHour,
-            },
+            $and: [
+              { 'anesthesiologistNote.noteTime': { $gte: fourthHour } },
+              { 'anesthesiologistNote.noteTime': { $lte: fifthHour } },
+            ],
+          },
+          {
+            $and: [
+              { 'anesthesiologistNote.completionTime': { $gte: fourthHour } },
+              {
+                'anesthesiologistNote.completionTime': {
+                  $lte: fifthHour,
+                },
+              },
+            ],
           },
         ],
       },
-    ],
-  });
+    },
+  ]);
   // console.log(fourthHourEDNote);
   EDArr.push({ label: fourthHour, value: fourthHourEDNote.length });
 
-  const thirdHourEDNote = await EDR.find({
-    currentLocation: 'ED',
-    $or: [
-      {
-        $and: [
-          { 'anesthesiologistNote.noteTime': { $gte: thirdHour } },
-          { 'anesthesiologistNote.noteTime': { $lte: fourthHour } },
-        ],
+  const thirdHourEDNote = await EDR.aggregate([
+    {
+      $project: {
+        anesthesiologistNote: 1,
       },
-      {
-        $and: [
-          { 'anesthesiologistNote.completionTime': { $gte: thirdHour } },
+    },
+    {
+      $unwind: '$anesthesiologistNote',
+    },
+    {
+      $match: {
+        $or: [
           {
-            'anesthesiologistNote.completionTime': {
-              $lte: fourthHour,
-            },
+            $and: [
+              { 'anesthesiologistNote.noteTime': { $gte: thirdHour } },
+              { 'anesthesiologistNote.noteTime': { $lte: fourthHour } },
+            ],
+          },
+          {
+            $and: [
+              { 'anesthesiologistNote.completionTime': { $gte: thirdHour } },
+              {
+                'anesthesiologistNote.completionTime': {
+                  $lte: fourthHour,
+                },
+              },
+            ],
           },
         ],
       },
-    ],
-  });
+    },
+  ]);
+
   EDArr.push({ label: thirdHour, value: thirdHourEDNote.length });
 
-  const secondHourEDNote = await EDR.find({
-    currentLocation: 'ED',
-    $or: [
-      {
-        $and: [
-          { 'anesthesiologistNote.noteTime': { $gte: secondHour } },
-          { 'anesthesiologistNote.noteTime': { $lte: thirdHour } },
-        ],
+  const secondHourEDNote = await EDR.aggregate([
+    {
+      $project: {
+        anesthesiologistNote: 1,
       },
-      {
-        $and: [
-          { 'anesthesiologistNote.completionTime': { $gte: secondHour } },
+    },
+    {
+      $unwind: '$anesthesiologistNote',
+    },
+    {
+      $match: {
+        $or: [
           {
-            'anesthesiologistNote.completionTime': {
-              $lte: thirdHour,
-            },
+            $and: [
+              { 'anesthesiologistNote.noteTime': { $gte: secondHour } },
+              { 'anesthesiologistNote.noteTime': { $lte: thirdHour } },
+            ],
+          },
+          {
+            $and: [
+              { 'anesthesiologistNote.completionTime': { $gte: secondHour } },
+              {
+                'anesthesiologistNote.completionTime': {
+                  $lte: thirdHour,
+                },
+              },
+            ],
           },
         ],
       },
-    ],
-  });
+    },
+  ]);
+
   EDArr.push({ label: secondHour, value: secondHourEDNote.length });
 
-  const firstHourEDNote = await EDR.find({
-    currentLocation: 'ED',
-    $or: [
-      {
-        $and: [
-          { 'anesthesiologistNote.noteTime': { $gte: sixHour } },
-          { 'anesthesiologistNote.noteTime': { $lte: secondHour } },
-        ],
+  const firstHourEDNote = await EDR.aggregate([
+    {
+      $project: {
+        anesthesiologistNote: 1,
       },
-      {
-        $and: [
-          { 'anesthesiologistNote.completionTime': { $gte: sixHour } },
+    },
+    {
+      $unwind: '$anesthesiologistNote',
+    },
+    {
+      $match: {
+        $or: [
           {
-            'anesthesiologistNote.completionTime': {
-              $lte: secondHour,
-            },
+            $and: [
+              { 'anesthesiologistNote.noteTime': { $gte: sixHour } },
+              { 'anesthesiologistNote.noteTime': { $lte: secondHour } },
+            ],
+          },
+          {
+            $and: [
+              { 'anesthesiologistNote.completionTime': { $gte: sixHour } },
+              {
+                'anesthesiologistNote.completionTime': {
+                  $lte: secondHour,
+                },
+              },
+            ],
           },
         ],
       },
-    ],
-  });
+    },
+  ]);
+
   EDArr.push({ label: sixHour, value: firstHourEDNote.length });
 
   res.status(200).json({
@@ -1025,32 +1161,102 @@ exports.senseiDashboard = asyncHandler(async (req, res, next) => {
 exports.edDoctorDashboard = asyncHandler(async (req, res, next) => {
   const diagnosesPending = await EDR.find({
     status: 'pending',
-    doctorNotes: [],
-    dcdForm: { $elemMatch: { triageAssessment: { $ne: [] } } },
+    doctorNotes: { $eq: [] },
+    dcdForm: {
+      $elemMatch: { 'triageAssessment.triageTime': { $gte: sixHour } },
+    },
   });
+
+  const completedArr = [];
+  let sixthHourPatient = 0;
+  let fifthHourPatient = 0;
+  let fourthHourPatient = 0;
+  let thirdHourPatient = 0;
+  let secondHourPatient = 0;
+  let firstHourPatient = 0;
+  diagnosesPending.map((p) => {
+    if (
+      p.dcdForm[p.dcdForm.length - 1].triageAssessment[0].triageTime >
+        lastHour &&
+      p.dcdForm[p.dcdForm.length - 1].triageAssessment[0].triageTime <
+        currentTime
+    ) {
+      sixthHourPatient++;
+      // console.log('sixthHourPatient', sixthHourPatient);
+    } else if (
+      p.dcdForm[p.dcdForm.length - 1].triageAssessment[0].triageTime >
+        fifthHour &&
+      p.dcdForm[p.dcdForm.length - 1].triageAssessment[0].triageTime < lastHour
+    ) {
+      fifthHourPatient++;
+    } else if (
+      p.dcdForm[p.dcdForm.length - 1].triageAssessment[0].triageTime >
+        fourthHour &&
+      p.dcdForm[p.dcdForm.length - 1].triageAssessment[0].triageTime < fifthHour
+    ) {
+      fourthHourPatient++;
+    } else if (
+      p.dcdForm[p.dcdForm.length - 1].triageAssessment[0].triageTime >
+        thirdHour &&
+      p.dcdForm[p.dcdForm.length - 1].triageAssessment[0].triageTime <
+        fourthHour
+    ) {
+      thirdHourPatient++;
+    } else if (
+      p.dcdForm[p.dcdForm.length - 1].triageAssessment[0].triageTime >
+        secondHour &&
+      p.dcdForm[p.dcdForm.length - 1].triageAssessment[0].triageTime < thirdHour
+    ) {
+      secondHourPatient++;
+    } else if (
+      p.dcdForm[p.dcdForm.length - 1].triageAssessment[0].triageTime >
+        sixHour &&
+      p.dcdForm[p.dcdForm.length - 1].triageAssessment[0].triageTime <
+        secondHour
+    ) {
+      firstHourPatient++;
+    }
+  });
+  completedArr.push({ label: lastHour, value: sixthHourPatient });
+  completedArr.push({ label: fifthHour, value: fifthHourPatient });
+  completedArr.push({ label: fourthHour, value: fourthHourPatient });
+  completedArr.push({ label: thirdHour, value: thirdHourPatient });
+  completedArr.push({ label: secondHour, value: secondHourPatient });
+  completedArr.push({ label: sixHour, value: firstHourPatient });
 
   const triageTAT = await EDR.find({
     status: 'pending',
     doctorNotes: { $ne: [] },
     dcdForm: { $elemMatch: { triageAssessment: { $ne: [] } } },
+    'doctorNotes.assignedTime': { $gte: sixHour },
+    // $and: [
+
+    //   { 'doctorNotes.assignedTime': { $lte: currentTime } },
+    // ],
   });
 
-  const assessmentToTriage = triageTAT.map((d) => {
-    const triageTime = new Date(
-      d.dcdForm[d.dcdForm.length - 1].triageAssessment[0].triageTime
+  let time = 0;
+  triageTAT.map((t) => {
+    t.triageTime = new Date(
+      t.dcdForm[t.dcdForm.length - 1].triageAssessment[0].triageTime
     );
 
-    console.log(triageTime.getTime());
+    t.noteTime = new Date(t.doctorNotes[0].assignedTime);
 
-    const noteTime = new Date(d.doctorNotes[0].assignedTime);
-    // console.log(noteTime.getTime(), triageTime.getTime());
-
-    return Math.ceil(noteTime.getTime() - noteTime.getTime() / (1000 * 60));
+    t.time = Math.round(
+      (t.noteTime.getTime() - t.triageTime.getTime()) / (1000 * 60)
+    );
+    time += t.time;
   });
-  console.log(assessmentToTriage);
+
+  const TAT = time / triageTAT.length;
 
   res.status(200).json({
     success: true,
-    data: diagnosesPending,
+    firstCard: {
+      TAT,
+      totalPending: diagnosesPending.length,
+      perHour: completedArr,
+    },
   });
 });
