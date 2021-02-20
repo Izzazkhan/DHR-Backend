@@ -50,6 +50,7 @@ const subscriber = require('./routes/subscriber');
 const anesthesiaRequestRoutes = require('./routes/anesthesiaRequestRoutes');
 const consultationNotesRoutes = require('./routes/consultationNotesRoutes');
 const reconciliationNotesRoutes = require('./routes/reconciliationNotesRoutes');
+const senseiAssistanceReqRoutes = require('./routes/senseiAssistanceReqRoutes');
 
 const app = express();
 
@@ -109,6 +110,9 @@ app.use('/api/eouNurse', eouNurse);
 app.use('/api/paramedics', paramedics);
 app.use('/api/shift', shift);
 app.use('/api/reports', reports);
+
+app.use('/api/senseiAssistanceRequest', senseiAssistanceReqRoutes);
+
 app.use(errorHandler);
 
 const DB = process.env.MONGO_URI;
