@@ -7,16 +7,18 @@ const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const EDR = require('../models/EDR/EDR');
 
+const currentTime = moment().utc().toDate();
+const lastHour = moment().subtract(1, 'hours').utc().toDate();
+const fifthHour = moment().subtract(2, 'hours').utc().toDate();
+const fourthHour = moment().subtract(3, 'hours').utc().toDate();
+const thirdHour = moment().subtract(4, 'hours').utc().toDate();
+const secondHour = moment().subtract(5, 'hours').utc().toDate();
+const sixHour = moment().subtract(6, 'hours').utc().toDate();
+
 // Registration Officer Dashboard Stats
 exports.roDashboard = asyncHandler(async (req, res) => {
-  const currentTime = moment().utc().toDate();
-  const lastHour = moment().subtract(1, 'hours').utc().toDate();
-  const fifthHour = moment().subtract(2, 'hours').utc().toDate();
-  const fourthHour = moment().subtract(3, 'hours').utc().toDate();
-  const thirdHour = moment().subtract(4, 'hours').utc().toDate();
-  const secondHour = moment().subtract(5, 'hours').utc().toDate();
-  const sixHour = moment().subtract(6, 'hours').utc().toDate();
-
+  // console.log('sixHour:', sixHour);
+  // console.log('currentTime:', currentTime);
   // * Register Officer Registrations Per Hour
   const patients = await Patient.aggregate([
     {
@@ -42,7 +44,7 @@ exports.roDashboard = asyncHandler(async (req, res) => {
 
   const averageRegistrationTime = 360 / patients.length;
 
-  // Registration Officer Completed Per Hour
+  //* Registration Officer Completed Per Hour
   const completedArr = [];
   let sixthHourPatient = 0;
   let fifthHourPatient = 0;
@@ -51,13 +53,13 @@ exports.roDashboard = asyncHandler(async (req, res) => {
   let secondHourPatient = 0;
   let firstHourPatient = 0;
   patients.map((p) => {
-    let hour, patientHours;
+    // let hour, patientHours;
     if (
       p.processTime.processStartTime > lastHour &&
       p.processTime.processEndTime < currentTime
     ) {
       sixthHourPatient++;
-      console.log('sixthHourPatient', sixthHourPatient);
+      // console.log('sixthHourPatient', sixthHourPatient);
     } else if (
       p.processTime.processStartTime > fifthHour &&
       p.processTime.processEndTime < lastHour
@@ -84,7 +86,6 @@ exports.roDashboard = asyncHandler(async (req, res) => {
     ) {
       firstHourPatient++;
     }
-    completedArr.push({ label: sixHour, value: firstHourPatient });
   });
   completedArr.push({ label: lastHour, value: sixthHourPatient });
   completedArr.push({ label: fifthHour, value: fifthHourPatient });
@@ -92,6 +93,11 @@ exports.roDashboard = asyncHandler(async (req, res) => {
   completedArr.push({ label: thirdHour, value: thirdHourPatient });
   completedArr.push({ label: secondHour, value: secondHourPatient });
   completedArr.push({ label: sixHour, value: firstHourPatient });
+
+  // Patients Discharge Per Hour
+  // const dischargePatient = await EDR.find({
+  //   status: 'pending',
+  // });
 
   // Available ED Beds
   const EdBeds = await Room.find({
@@ -142,14 +148,6 @@ exports.roDashboard = asyncHandler(async (req, res) => {
 
 //Registration Officer Sensei Pending Dashboard
 exports.roSenseiPending = asyncHandler(async (req, res, next) => {
-  const currentTime = moment().utc().toDate();
-  const lastHour = moment().subtract(1, 'hours').utc().toDate();
-  const fifthHour = moment().subtract(2, 'hours').utc().toDate();
-  const fourthHour = moment().subtract(3, 'hours').utc().toDate();
-  const thirdHour = moment().subtract(4, 'hours').utc().toDate();
-  const secondHour = moment().subtract(5, 'hours').utc().toDate();
-  const sixHour = moment().subtract(6, 'hours').utc().toDate();
-
   //   * Pending Registration After Sensei
   const pendingSensei = await Patient.aggregate([
     {
@@ -342,14 +340,6 @@ exports.roSenseiPending = asyncHandler(async (req, res, next) => {
 
 //Registration All Pending Dashboard
 exports.roTotalPending = asyncHandler(async (req, res, next) => {
-  const currentTime = moment().utc().toDate();
-  const lastHour = moment().subtract(1, 'hours').utc().toDate();
-  const fifthHour = moment().subtract(2, 'hours').utc().toDate();
-  const fourthHour = moment().subtract(3, 'hours').utc().toDate();
-  const thirdHour = moment().subtract(4, 'hours').utc().toDate();
-  const secondHour = moment().subtract(5, 'hours').utc().toDate();
-  const sixHour = moment().subtract(6, 'hours').utc().toDate();
-
   //   * Pending Registration After Sensei
   const totalPending = await Patient.aggregate([
     {
@@ -533,9 +523,6 @@ exports.roTotalPending = asyncHandler(async (req, res, next) => {
 
 // House Keeper Dashboard
 exports.hkDashboard = asyncHandler(async (req, res, next) => {
-  const currentTime = moment().utc().toDate();
-  const sixHour = moment().subtract(6, 'hours').utc().toDate();
-
   // Room Cleaning Pending
   const roomPending = await HKRequests.find({
     status: 'pending',
@@ -579,14 +566,6 @@ exports.hkDashboard = asyncHandler(async (req, res, next) => {
 });
 
 exports.hkRoomPending = asyncHandler(async (req, res, next) => {
-  const currentTime = moment().utc().toDate();
-  const lastHour = moment().subtract(1, 'hours').utc().toDate();
-  const fifthHour = moment().subtract(2, 'hours').utc().toDate();
-  const fourthHour = moment().subtract(3, 'hours').utc().toDate();
-  const thirdHour = moment().subtract(4, 'hours').utc().toDate();
-  const secondHour = moment().subtract(5, 'hours').utc().toDate();
-  const sixHour = moment().subtract(6, 'hours').utc().toDate();
-
   const arr = [];
 
   // Room Cleaning Pending
@@ -664,14 +643,6 @@ exports.hkRoomPending = asyncHandler(async (req, res, next) => {
 
 // Anesthesiologist Dashboard
 exports.anesthesiologistDashboard = asyncHandler(async (req, res, next) => {
-  const currentTime = moment().utc().toDate();
-  const lastHour = moment().subtract(1, 'hours').utc().toDate();
-  const fifthHour = moment().subtract(2, 'hours').utc().toDate();
-  const fourthHour = moment().subtract(3, 'hours').utc().toDate();
-  const thirdHour = moment().subtract(4, 'hours').utc().toDate();
-  const secondHour = moment().subtract(5, 'hours').utc().toDate();
-  const sixHour = moment().subtract(6, 'hours').utc().toDate();
-
   const pending = await EDR.aggregate([
     {
       $project: {
@@ -822,6 +793,174 @@ exports.anesthesiologistDashboard = asyncHandler(async (req, res, next) => {
 
   const pendingTat = 360 / pending.length;
 
+  // Requests In ED
+
+  const totalED = await EDR.find({
+    currentLocation: 'ED',
+    $or: [
+      {
+        $and: [
+          { 'anesthesiologistNote.noteTime': { $gte: sixHour } },
+          { 'anesthesiologistNote.noteTime': { $lte: currentTime } },
+        ],
+      },
+      {
+        $and: [
+          { 'anesthesiologistNote.completionTime': { $gte: sixHour } },
+          {
+            'anesthesiologistNote.completionTime': {
+              $lte: currentTime,
+            },
+          },
+        ],
+      },
+    ],
+  });
+  const EDTAT = 360 / totalED.length;
+  const EDArr = [];
+  // * Per Hour Note
+  const sixthHourEDNote = await EDR.find({
+    currentLocation: 'ED',
+    $or: [
+      {
+        $and: [
+          { 'anesthesiologistNote.noteTime': { $gte: lastHour } },
+          { 'anesthesiologistNote.noteTime': { $lte: currentTime } },
+        ],
+      },
+      {
+        $and: [
+          { 'anesthesiologistNote.completionTime': { $gte: lastHour } },
+          {
+            'anesthesiologistNote.completionTime': {
+              $lte: currentTime,
+            },
+          },
+        ],
+      },
+    ],
+  });
+  console.log(sixthHourEDNote);
+
+  EDArr.push({ label: lastHour, value: sixthHourEDNote.length });
+
+  const fifthHourEDNote = await EDR.find({
+    currentLocation: 'ED',
+    $or: [
+      {
+        $and: [
+          { 'anesthesiologistNote.noteTime': { $gte: fifthHour } },
+          { 'anesthesiologistNote.noteTime': { $lte: lastHour } },
+        ],
+      },
+      {
+        $and: [
+          { 'anesthesiologistNote.completionTime': { $gte: fifthHour } },
+          {
+            'anesthesiologistNote.completionTime': {
+              $lte: lastHour,
+            },
+          },
+        ],
+      },
+    ],
+  });
+  // console.log(fifthHourEDNote);
+  EDArr.push({ label: fifthHour, value: fifthHourEDNote.length });
+
+  const fourthHourEDNote = await EDR.find({
+    currentLocation: 'ED',
+    $or: [
+      {
+        $and: [
+          { 'anesthesiologistNote.noteTime': { $gte: fourthHour } },
+          { 'anesthesiologistNote.noteTime': { $lte: fifthHour } },
+        ],
+      },
+      {
+        $and: [
+          { 'anesthesiologistNote.completionTime': { $gte: fourthHour } },
+          {
+            'anesthesiologistNote.completionTime': {
+              $lte: fifthHour,
+            },
+          },
+        ],
+      },
+    ],
+  });
+  // console.log(fourthHourEDNote);
+  EDArr.push({ label: fourthHour, value: fourthHourEDNote.length });
+
+  const thirdHourEDNote = await EDR.find({
+    currentLocation: 'ED',
+    $or: [
+      {
+        $and: [
+          { 'anesthesiologistNote.noteTime': { $gte: thirdHour } },
+          { 'anesthesiologistNote.noteTime': { $lte: fourthHour } },
+        ],
+      },
+      {
+        $and: [
+          { 'anesthesiologistNote.completionTime': { $gte: thirdHour } },
+          {
+            'anesthesiologistNote.completionTime': {
+              $lte: fourthHour,
+            },
+          },
+        ],
+      },
+    ],
+  });
+  EDArr.push({ label: thirdHour, value: thirdHourEDNote.length });
+
+  const secondHourEDNote = await EDR.find({
+    currentLocation: 'ED',
+    $or: [
+      {
+        $and: [
+          { 'anesthesiologistNote.noteTime': { $gte: secondHour } },
+          { 'anesthesiologistNote.noteTime': { $lte: thirdHour } },
+        ],
+      },
+      {
+        $and: [
+          { 'anesthesiologistNote.completionTime': { $gte: secondHour } },
+          {
+            'anesthesiologistNote.completionTime': {
+              $lte: thirdHour,
+            },
+          },
+        ],
+      },
+    ],
+  });
+  EDArr.push({ label: secondHour, value: secondHourEDNote.length });
+
+  const firstHourEDNote = await EDR.find({
+    currentLocation: 'ED',
+    $or: [
+      {
+        $and: [
+          { 'anesthesiologistNote.noteTime': { $gte: sixHour } },
+          { 'anesthesiologistNote.noteTime': { $lte: secondHour } },
+        ],
+      },
+      {
+        $and: [
+          { 'anesthesiologistNote.completionTime': { $gte: sixHour } },
+          {
+            'anesthesiologistNote.completionTime': {
+              $lte: secondHour,
+            },
+          },
+        ],
+      },
+    ],
+  });
+  EDArr.push({ label: sixHour, value: firstHourEDNote.length });
+
   res.status(200).json({
     success: true,
     totalRequests: {
@@ -829,5 +968,89 @@ exports.anesthesiologistDashboard = asyncHandler(async (req, res, next) => {
       totalPending: pending.length,
       totalRequestPerHour: pendingArr,
     },
+    requestsInED: {
+      requestToCompletion: EDTAT,
+      totalED: totalED.length,
+      requestsPerHour: EDArr,
+    },
+  });
+});
+
+exports.senseiDashboard = asyncHandler(async (req, res, next) => {
+  // Available ED Beds
+  const EdBeds = await Room.find({
+    availability: true,
+  }).countDocuments();
+
+  // Patient Assignments to PA Pending
+  const patientPending = await EDR.find({
+    status: 'pending',
+    chiefComplaint: { $eq: [] },
+    $and: [
+      { createdTimeStamp: { $gte: sixHour } },
+      { createdTimeStamp: { $lte: currentTime } },
+    ],
+  }).countDocuments();
+
+  const tat = await EDR.find({
+    status: 'pending',
+    chiefComplaint: { $ne: [] },
+    $and: [
+      { createdTimeStamp: { $gte: sixHour } },
+      { createdTimeStamp: { $lte: currentTime } },
+    ],
+  });
+  // console.log(tat[0].chiefComplaint);
+
+  const time = tat.map((t) => {
+    const ccTime = new Date(
+      t.chiefComplaint[t.chiefComplaint.length - 1].assignedTime
+    );
+
+    const createTime = new Date(t.createdTimeStamp);
+    Math.ceil(ccTime.getTime() - createTime.getTime() / (1000 * 60));
+  });
+
+  console.log(time[0]);
+
+  // const registerToAssign = tat.chiefComplaint(chiefComplaint)
+
+  res.status(200).json({
+    success: true,
+    availableEdBeds: EdBeds,
+    patientAssignmentsPending: patientPending,
+  });
+});
+
+exports.edDoctorDashboard = asyncHandler(async (req, res, next) => {
+  const diagnosesPending = await EDR.find({
+    status: 'pending',
+    doctorNotes: [],
+    dcdForm: { $elemMatch: { triageAssessment: { $ne: [] } } },
+  });
+
+  const triageTAT = await EDR.find({
+    status: 'pending',
+    doctorNotes: { $ne: [] },
+    dcdForm: { $elemMatch: { triageAssessment: { $ne: [] } } },
+  });
+
+  const assessmentToTriage = triageTAT.map((d) => {
+    const triageTime = new Date(
+      d.dcdForm[d.dcdForm.length - 1].triageAssessment[0].triageTime
+    );
+
+    console.log(triageTime.getTime());
+
+    const noteTime = new Date(d.doctorNotes[0].assignedTime);
+    // console.log(noteTime.getTime(), triageTime.getTime());
+
+    return Math.ceil(noteTime.getTime() - noteTime.getTime() / (1000 * 60));
+  });
+  console.log(assessmentToTriage);
+
+  res.status(200).json({
+    success: true,
+    data: diagnosesPending,
   });
 });
