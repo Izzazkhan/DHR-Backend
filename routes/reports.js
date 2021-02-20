@@ -9,6 +9,8 @@ const {
   anesthesiologistDashboard,
   hkDashboard,
   hkRoomPending,
+  senseiDashboard,
+  edDoctorDashboard,
 } = require('../controllers/reports');
 
 // Registration Officer
@@ -19,4 +21,6 @@ router.get('/roTotalPending', roTotalPending);
 router.get('/hkDashboard', hkDashboard);
 router.get('/hkRoomPending', hkRoomPending);
 router.get('/anesthesiologistDB', anesthesiologistDashboard);
+router.get('/senseiDashboard', senseiDashboard);
+router.get('/edDoctorDashboard', edDoctorDashboard);
 module.exports = router;
