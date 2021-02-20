@@ -3,7 +3,7 @@ const EDR = require('../models/EDR/EDR');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const Staff = require('../models/staffFhir/staff');
-const EDN = require('../models/edNurseRequest');
+const EDN = require('../models/edNurseAssistanceRequest');
 const CCRequests = require('../models/customerCareRequest');
 
 exports.getLab = asyncHandler(async (req, res, next) => {

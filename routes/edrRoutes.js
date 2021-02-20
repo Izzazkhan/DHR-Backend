@@ -63,6 +63,7 @@ const {
   getEDRsWithPharmacyRequest,
   getSenseiPendingEdrByKeyword,
   getNurseEdrByKeyword,
+  getAllEDRByKeyword,
   getAllDeliverInProgessPharmaRequest,
 
   pendingDoctorNotes,
@@ -145,6 +146,7 @@ router.get(
 );
 
 router.get('/getNurseEdrByKeyword/:keyword', getNurseEdrByKeyword);
+router.get('/getAllEDRByKeyword/:keyword', getAllEDRByKeyword);
 
 router.get(
   '/getEDRFromPatientIdForDischarge/:_id',
