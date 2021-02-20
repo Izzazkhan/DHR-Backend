@@ -3,7 +3,7 @@ const EDR = require('../models/EDR/EDR');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const Staff = require('../models/staffFhir/staff');
-const EDN = require('../models/edNurseRequest');
+const EDN = require('../models/edNurseAssistanceRequest');
 
 exports.pendingEOUNurseEdrRequest = asyncHandler(async (req, res, next) => {
   const unwindEdr = await EDR.aggregate([

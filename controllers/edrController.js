@@ -1908,3 +1908,58 @@ exports.getNurseEdrByKeyword = asyncHandler(async (req, res, next) => {
     data: arr,
   });
 });
+
+exports.getAllEDRByKeyword = asyncHandler(async (req, res, next) => {
+  const arr = [];
+  const patients = await EDR.find({
+    $and: [{ status: { $ne: 'Completed' } }, { status: { $ne: 'completed' } }],
+  })
+    .select('patientId')
+    .populate('patientId', 'name identifier telecom nationalID gender age');
+  console.log(patients.length);
+
+  for (let i = 0; i < patients.length; i++) {
+    const fullName =
+      patients[i].patientId.name[0].given[0] +
+      ' ' +
+      patients[i].patientId.name[0].family;
+    if (
+      (patients[i].patientId.name[0].given[0] &&
+        patients[i].patientId.name[0].given[0]
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (patients[i].patientId.name[0].family &&
+        patients[i].patientId.name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (patients[i].patientId.identifier[0].value &&
+        patients[i].patientId.identifier[0].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
+      (patients[i].patientId.telecom[1].value &&
+        patients[i].patientId.telecom[1].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (patients[i].patientId.nationalID &&
+        patients[i].patientId.nationalID
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase()))
+    ) {
+      arr.push(patients[i]);
+    }
+  }
+  // const patientArr = [];
+  // for (let i = 0; i < patients.length; i++) {
+  //   if (patients[i]._id == arr[arr.length - 1]._id) {
+  //     patientArr.push(patients[i]);
+  //     break;
+  //   }
+  // }
+  // console.log(patientArr);
+
+  res.status(200).json({
+    success: true,
+    data: arr,
+  });
+});
