@@ -1592,12 +1592,137 @@ exports.edDoctorDashboard = asyncHandler(async (req, res, next) => {
 
   const TAT = time / triageTAT.length;
 
+  //* 4th Card
+  const consultantNotes = await EDR.aggregate([
+    {
+      $project: {
+        consultationNote: 1,
+        status: 1,
+      },
+    },
+    {
+      $unwind: '$consultationNote',
+    },
+    {
+      $match: {
+        $and: [
+          { status: 'pending' },
+          {
+            'consultationNote.status': 'pending',
+          },
+          {
+            'consultationNote.noteTime': { $gte: sixHour },
+          },
+          {
+            'consultationNote.noteTime': { $lte: currentTime },
+          },
+        ],
+      },
+    },
+  ]);
+
+  const fourthCardArr = [];
+  let sixthHourNote = 0;
+  let fifthHourNote = 0;
+  let fourthHourNote = 0;
+  let thirdHourNote = 0;
+  let secondHourNote = 0;
+  let firstHourNote = 0;
+  consultantNotes.map((n) => {
+    if (
+      n.consultationNote.noteTime > lastHour &&
+      n.consultationNote.noteTime < currentTime
+    ) {
+      sixthHourNote++;
+      // console.log('sixthHourNote', sixthHourNote);
+    } else if (
+      n.consultationNote.noteTime > fifthHour &&
+      n.consultationNote.noteTime < lastHour
+    ) {
+      fifthHourNote++;
+    } else if (
+      n.consultationNote.noteTime > fourthHour &&
+      n.consultationNote.noteTime < fifthHour
+    ) {
+      fourthHourNote++;
+    } else if (
+      n.consultationNote.noteTime > thirdHour &&
+      n.consultationNote.noteTime < fourthHour
+    ) {
+      thirdHourNote++;
+    } else if (
+      n.consultationNote.noteTime > secondHour &&
+      n.consultationNote.noteTime < thirdHour
+    ) {
+      secondHourNote++;
+    } else if (
+      n.consultationNote.noteTime > sixHour &&
+      n.consultationNote.noteTime < secondHour
+    ) {
+      firstHourNote++;
+    }
+  });
+  fourthCardArr.push({ label: lastHour, value: sixthHourNote });
+  fourthCardArr.push({ label: fifthHour, value: fifthHourNote });
+  fourthCardArr.push({ label: fourthHour, value: fourthHourNote });
+  fourthCardArr.push({ label: thirdHour, value: thirdHourNote });
+  fourthCardArr.push({ label: secondHour, value: secondHourNote });
+  fourthCardArr.push({ label: sixHour, value: firstHourNote });
+
+  // tat
+  const consultantCompletedNotes = await EDR.aggregate([
+    {
+      $project: {
+        consultationNote: 1,
+        status: 1,
+      },
+    },
+    {
+      $unwind: '$consultationNote',
+    },
+    {
+      $match: {
+        $and: [
+          { status: 'pending' },
+          {
+            'consultationNote.status': 'complete',
+          },
+          {
+            'consultationNote.noteTime': { $gte: sixHour },
+          },
+          {
+            'consultationNote.noteTime': { $lte: currentTime },
+          },
+        ],
+      },
+    },
+  ]);
+
+  let completed = 0;
+  consultantCompletedNotes.map((t) => {
+    t.noteStart = new Date(t.consultationNote.noteTime);
+
+    t.noteEnd = new Date(t.consultationNote.completionDate);
+
+    t.time = Math.round(
+      (t.noteEnd.getTime() - t.noteStart.getTime()) / (1000 * 60)
+    );
+    completed += t.time;
+  });
+
+  const completedNoteTAT = completed / consultantCompletedNotes.length;
+
   res.status(200).json({
     success: true,
     firstCard: {
       TAT,
       totalPending: diagnosesPending.length,
       perHour: completedArr,
+    },
+    fourthCard: {
+      TAT: completedNoteTAT,
+      totalPending: consultantNotes.length,
+      perHour: fourthCardArr,
     },
   });
 });
