@@ -1435,6 +1435,74 @@ exports.anesthesiologistDashboard = asyncHandler(async (req, res, next) => {
 
   EOU.push({ label: sixHour, value: firstHourEOUNote.length });
 
+  // * 4th Card
+  const completedTasks = await EDR.aggregate([
+    {
+      $project: {
+        anesthesiologistNote: 1,
+      },
+    },
+    {
+      $unwind: '$anesthesiologistNote',
+    },
+    {
+      $match: {
+        $and: [
+          { 'anesthesiologistNote.status': 'complete' },
+          { 'anesthesiologistNote.completionTime': { $gte: sixHour } },
+        ],
+      },
+    },
+  ]);
+
+  const completedArr = [];
+  let sixthHourPatient = 0;
+  let fifthHourPatient = 0;
+  let fourthHourPatient = 0;
+  let thirdHourPatient = 0;
+  let secondHourPatient = 0;
+  let firstHourPatient = 0;
+  completedTasks.map((t) => {
+    if (
+      t.anesthesiologistNote.completionTime > lastHour &&
+      t.anesthesiologistNote.completionTime < currentTime
+    ) {
+      sixthHourPatient++;
+      // console.log('sixthHourPatient', sixthHourPatient);
+    } else if (
+      t.anesthesiologistNote.completionTime > fifthHour &&
+      t.anesthesiologistNote.completionTime < lastHour
+    ) {
+      fifthHourPatient++;
+    } else if (
+      t.anesthesiologistNote.completionTime > fourthHour &&
+      t.anesthesiologistNote.completionTime < fifthHour
+    ) {
+      fourthHourPatient++;
+    } else if (
+      t.anesthesiologistNote.completionTime > thirdHour &&
+      t.anesthesiologistNote.completionTime < fourthHour
+    ) {
+      thirdHourPatient++;
+    } else if (
+      t.anesthesiologistNote.completionTime > secondHour &&
+      t.anesthesiologistNote.completionTime < thirdHour
+    ) {
+      secondHourPatient++;
+    } else if (
+      t.anesthesiologistNote.completionTime > sixHour &&
+      t.anesthesiologistNote.completionTime < secondHour
+    ) {
+      firstHourPatient++;
+    }
+  });
+  completedArr.push({ label: lastHour, value: sixthHourPatient });
+  completedArr.push({ label: fifthHour, value: fifthHourPatient });
+  completedArr.push({ label: fourthHour, value: fourthHourPatient });
+  completedArr.push({ label: thirdHour, value: thirdHourPatient });
+  completedArr.push({ label: secondHour, value: secondHourPatient });
+  completedArr.push({ label: sixHour, value: firstHourPatient });
+
   res.status(200).json({
     success: true,
     totalRequests: {
@@ -1451,6 +1519,11 @@ exports.anesthesiologistDashboard = asyncHandler(async (req, res, next) => {
       requestToCompletion: EOUTAT,
       totalED: totalEOU.length,
       requestsPerHour: EOU,
+    },
+    completedTask: {
+      requestToCompletion: 0,
+      totalCompleted: completedTasks.length,
+      requestsPerHour: completedArr,
     },
   });
 });
@@ -1712,6 +1785,110 @@ exports.edDoctorDashboard = asyncHandler(async (req, res, next) => {
 
   const completedNoteTAT = completed / consultantCompletedNotes.length;
 
+  // * 5th Card
+  const labPending = await EDR.aggregate([
+    {
+      $project: {
+        labRequest: 1,
+      },
+    },
+    {
+      $unwind: '$labRequest',
+    },
+    {
+      $match: {
+        $and: [
+          { 'labRequest.status': { $ne: 'completed' } },
+          { 'labRequest.requestedAt': { $gte: sixHour } },
+        ],
+      },
+    },
+  ]);
+
+  // console.log(labPending);
+
+  const fifthCardArr = [];
+  let sixthHourLab = 0;
+  let fifthHourLab = 0;
+  let fourthHourLab = 0;
+  let thirdHourLab = 0;
+  let secondHourLab = 0;
+  let firstHourLab = 0;
+  labPending.map((l) => {
+    if (
+      l.labRequest.requestedAt > lastHour &&
+      l.labRequest.requestedAt < currentTime
+    ) {
+      sixthHourLab++;
+      // console.log('sixthHourLab', sixthHourLab);
+    } else if (
+      l.labRequest.requestedAt > fifthHour &&
+      l.labRequest.requestedAt < lastHour
+    ) {
+      fifthHourLab++;
+    } else if (
+      l.labRequest.requestedAt > fourthHour &&
+      l.labRequest.requestedAt < fifthHour
+    ) {
+      fourthHourLab++;
+    } else if (
+      l.labRequest.requestedAt > thirdHour &&
+      l.labRequest.requestedAt < fourthHour
+    ) {
+      thirdHourLab++;
+    } else if (
+      l.labRequest.requestedAt > secondHour &&
+      l.labRequest.requestedAt < thirdHour
+    ) {
+      secondHourLab++;
+    } else if (
+      l.labRequest.requestedAt > sixHour &&
+      l.labRequest.requestedAt < secondHour
+    ) {
+      firstHourLab++;
+    }
+  });
+  fifthCardArr.push({ label: lastHour, value: sixthHourLab });
+  fifthCardArr.push({ label: fifthHour, value: fifthHourLab });
+  fifthCardArr.push({ label: fourthHour, value: fourthHourLab });
+  fifthCardArr.push({ label: thirdHour, value: thirdHourLab });
+  fifthCardArr.push({ label: secondHour, value: secondHourLab });
+  fifthCardArr.push({ label: sixHour, value: firstHourLab });
+
+  // TAT
+  const labCompleted = await EDR.aggregate([
+    {
+      $project: {
+        labRequest: 1,
+      },
+    },
+    {
+      $unwind: '$labRequest',
+    },
+    {
+      $match: {
+        $and: [
+          { 'labRequest.status': 'completed' },
+          { 'labRequest.completeTime': { $gte: sixHour } },
+        ],
+      },
+    },
+  ]);
+
+  let labTime = 0;
+  labCompleted.map((t) => {
+    t.labStart = new Date(t.labRequest.requestedAt);
+
+    t.labEnd = new Date(t.labRequest.completeTime);
+
+    t.time = Math.round(
+      (t.labEnd.getTime() - t.labStart.getTime()) / (1000 * 60)
+    );
+    labTime += t.time;
+  });
+
+  const completedLabTAT = labTime / labCompleted.length;
+
   res.status(200).json({
     success: true,
     firstCard: {
@@ -1723,6 +1900,11 @@ exports.edDoctorDashboard = asyncHandler(async (req, res, next) => {
       TAT: completedNoteTAT,
       totalPending: consultantNotes.length,
       perHour: fourthCardArr,
+    },
+    fifthCard: {
+      TAT: completedLabTAT,
+      totalPending: labPending.length,
+      perHour: fifthCardArr,
     },
   });
 });
