@@ -128,22 +128,32 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
 });
 
 exports.getAllStaff = asyncHandler(async (req, res, next) => {
-  const options = {
-    populate: [
-      {
-        path: 'addedBy productionArea.productionAreaId',
-        // select: ['name'],
-      },
-    ],
+  const staff = await Staff.find().populate('shift')
+    .populate('addedBy')
+    // .populate('productionArea.productionAreaId')
 
-    limit: 100,
-  };
-  const staff = await Staff.paginate({}, options);
   res.status(200).json({
     success: true,
     data: staff,
   });
 });
+
+// exports.getAllStaff = asyncHandler(async (req, res, next) => {
+//   const options = {
+//     populate: [
+//       {
+//         path: 'addedBy productionArea.productionAreaId',
+//       }
+//     ],
+//     limit: 100,
+//   };
+//   const staff = await Staff.paginate({}, options);
+
+//   res.status(200).json({
+//     success: true,
+//     data: staff,
+//   });
+// });
 
 exports.getEDDoctors = asyncHandler(async (req, res, next) => {
   const staff = await Staff.find({ staffType: 'Doctor' })
