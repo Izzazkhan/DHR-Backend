@@ -1503,6 +1503,22 @@ exports.anesthesiologistDashboard = asyncHandler(async (req, res, next) => {
   completedArr.push({ label: secondHour, value: secondHourPatient });
   completedArr.push({ label: sixHour, value: firstHourPatient });
 
+  const cumulativeRequestsCompleted = await EDR.aggregate([
+    {
+      $project: {
+        anesthesiologistNote: 1,
+      },
+    },
+    {
+      $unwind: '$anesthesiologistNote',
+    },
+    {
+      $match: {
+        'anesthesiologistNote.status': 'complete',
+      },
+    },
+  ]);
+
   res.status(200).json({
     success: true,
     totalRequests: {
@@ -1525,6 +1541,8 @@ exports.anesthesiologistDashboard = asyncHandler(async (req, res, next) => {
       totalCompleted: completedTasks.length,
       requestsPerHour: completedArr,
     },
+
+    cumulativeRequestsCompleted: cumulativeRequestsCompleted.length,
   });
 });
 
