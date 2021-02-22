@@ -2003,7 +2003,6 @@ exports.externalConsultantDB = asyncHandler(async (req, res, next) => {
     {
       $match: {
         $and: [
-          { status: 'pending' },
           {
             'consultationNote.status': 'complete',
           },
@@ -2021,6 +2020,55 @@ exports.externalConsultantDB = asyncHandler(async (req, res, next) => {
     },
   ]);
 
+  // Follow Ups Per Hour
+  const completedArr = [];
+  let sixthHourcompletedNote = 0;
+  let fifthHourcompletedNote = 0;
+  let fourthHourcompletedNote = 0;
+  let thirdHourcompletedNote = 0;
+  let secondHourcompletedNote = 0;
+  let firstHourcompletedNote = 0;
+  consultantCompletedNotes.map((n) => {
+    if (
+      n.consultationNote.completionDate > lastHour &&
+      n.consultationNote.completionDate < currentTime
+    ) {
+      sixthHourcompletedNote++;
+      // console.log('sixthHourcompletedNote', sixthHourcompletedNote);
+    } else if (
+      n.consultationNote.completionDate > fifthHour &&
+      n.consultationNote.completionDate < lastHour
+    ) {
+      fifthHourcompletedNote++;
+    } else if (
+      n.consultationNote.completionDate > fourthHour &&
+      n.consultationNote.completionDate < fifthHour
+    ) {
+      fourthHourcompletedNote++;
+    } else if (
+      n.consultationNote.completionDate > thirdHour &&
+      n.consultationNote.completionDate < fourthHour
+    ) {
+      thirdHourcompletedNote++;
+    } else if (
+      n.consultationNote.completionDate > secondHour &&
+      n.consultationNote.completionDate < thirdHour
+    ) {
+      secondHourcompletedNote++;
+    } else if (
+      n.consultationNote.completionDate > sixHour &&
+      n.consultationNote.completionDate < secondHour
+    ) {
+      firstHourcompletedNote++;
+    }
+  });
+  completedArr.push({ label: lastHour, value: sixthHourcompletedNote });
+  completedArr.push({ label: fifthHour, value: fifthHourcompletedNote });
+  completedArr.push({ label: fourthHour, value: fourthHourcompletedNote });
+  completedArr.push({ label: thirdHour, value: thirdHourcompletedNote });
+  completedArr.push({ label: secondHour, value: secondHourcompletedNote });
+  completedArr.push({ label: sixHour, value: firstHourcompletedNote });
+
   let completed = 0;
   consultantCompletedNotes.map((t) => {
     t.noteStart = new Date(t.consultationNote.noteTime);
@@ -2033,7 +2081,31 @@ exports.externalConsultantDB = asyncHandler(async (req, res, next) => {
     completed += t.time;
   });
 
+  const cumulativePatientSeen = await EDR.aggregate([
+    {
+      $project: {
+        consultationNote: 1,
+      },
+    },
+    {
+      $unwind: '$consultationNote',
+    },
+    {
+      $match: {
+        $and: [
+          {
+            'consultationNote.status': 'complete',
+          },
+          {
+            'consultationNote.consultationType': 'External',
+          },
+        ],
+      },
+    },
+  ]);
+
   const completedNoteTAT = completed / consultantCompletedNotes.length;
+  const consultedPerHour = Math.round(consultantCompletedNotes.length / 6);
   res.status(200).json({
     success: true,
     firstCard: {
@@ -2041,5 +2113,12 @@ exports.externalConsultantDB = asyncHandler(async (req, res, next) => {
       totalPending: pendingConsultation.length,
       perHour: pendingArr,
     },
+    secondCard: {
+      TAT: completedNoteTAT,
+      totalFollowUps: consultantCompletedNotes.length,
+      perHour: completedArr,
+    },
+    consultedPerHour,
+    cumulativePatientSeen: cumulativePatientSeen.length,
   });
 });
