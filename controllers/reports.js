@@ -1683,6 +1683,224 @@ exports.edDoctorDashboard = asyncHandler(async (req, res, next) => {
 
   const TAT = time / triageTAT.length;
 
+  // * 2nd Card
+  const decisionPending = await EDR.aggregate([
+    {
+      $project: {
+        status: 1,
+        doctorNotes: 1,
+        careStream: 1,
+      },
+    },
+    {
+      $match: {
+        $and: [{ careStream: { $eq: [] } }, { doctorNotes: { $ne: [] } }],
+      },
+    },
+    {
+      $unwind: '$doctorNotes',
+    },
+    {
+      $match: {
+        'doctorNotes.assignedTime': { $gte: sixHour },
+      },
+    },
+  ]);
+
+  const decisionArr = [];
+  let sixthHourDecision = 0;
+  let fifthHourDecision = 0;
+  let fourthHourDecision = 0;
+  let thirdHourDecision = 0;
+  let secondHourDecision = 0;
+  let firstHourDecision = 0;
+  decisionPending.map((p) => {
+    if (
+      p.doctorNotes.assignedTime > lastHour &&
+      p.doctorNotes.assignedTime < currentTime
+    ) {
+      sixthHourDecision++;
+      // console.log('sixthHourDecision', sixthHourDecision);
+    } else if (
+      p.doctorNotes.assignedTime > fifthHour &&
+      p.doctorNotes.assignedTime < lastHour
+    ) {
+      fifthHourDecision++;
+    } else if (
+      p.doctorNotes.assignedTime > fourthHour &&
+      p.doctorNotes.assignedTime < fifthHour
+    ) {
+      fourthHourDecision++;
+    } else if (
+      p.doctorNotes.assignedTime > thirdHour &&
+      p.doctorNotes.assignedTime < fourthHour
+    ) {
+      thirdHourDecision++;
+    } else if (
+      p.doctorNotes.assignedTime > secondHour &&
+      p.doctorNotes.assignedTime < thirdHour
+    ) {
+      secondHourDecision++;
+    } else if (
+      p.doctorNotes.assignedTime > sixHour &&
+      p.doctorNotes.assignedTime < secondHour
+    ) {
+      firstHourDecision++;
+    }
+  });
+  decisionArr.push({ label: lastHour, value: sixthHourDecision });
+  decisionArr.push({ label: fifthHour, value: fifthHourDecision });
+  decisionArr.push({ label: fourthHour, value: fourthHourDecision });
+  decisionArr.push({ label: thirdHour, value: thirdHourDecision });
+  decisionArr.push({ label: secondHour, value: secondHourDecision });
+  decisionArr.push({ label: sixHour, value: firstHourDecision });
+
+  const decisionCompleted = await EDR.aggregate([
+    {
+      $project: {
+        status: 1,
+        doctorNotes: 1,
+        careStream: 1,
+      },
+    },
+    {
+      $match: {
+        $and: [{ careStream: { $ne: [] } }, { doctorNotes: { $ne: [] } }],
+      },
+    },
+    {
+      $unwind: '$careStream',
+    },
+    {
+      $match: {
+        'careStream.assignedTime': { $gte: sixHour },
+      },
+    },
+  ]);
+
+  let decisionTime = 0;
+  decisionCompleted.map((t) => {
+    t.noteTime = new Date(t.doctorNotes[0].assignedTime);
+
+    t.careStreamTime = new Date(t.careStream.assignedTime);
+
+    t.time = Math.round(
+      (t.careStreamTime.getTime() - t.noteTime.getTime()) / (1000 * 60)
+    );
+    decisionTime += t.time;
+  });
+
+  const decisionTAT = decisionTime / decisionCompleted.length;
+
+  // // * 3rd Card
+  // const dischargePending = await EDR.aggregate([
+  //   {
+  //     $project: {
+  //       status: 1,
+  //       doctorNotes: 1,
+  //       careStream: 1,
+  //     },
+  //   },
+  //   {
+  //     $match: {
+  //       $and: [{ careStream: { $eq: [] } }, { doctorNotes: { $ne: [] } }],
+  //     },
+  //   },
+  //   {
+  //     $unwind: '$doctorNotes',
+  //   },
+  //   {
+  //     $match: {
+  //       'doctorNotes.assignedTime': { $gte: sixHour },
+  //     },
+  //   },
+  // ]);
+
+  // const decisionArr = [];
+  // let sixthHourDecision = 0;
+  // let fifthHourDecision = 0;
+  // let fourthHourDecision = 0;
+  // let thirdHourDecision = 0;
+  // let secondHourDecision = 0;
+  // let firstHourDecision = 0;
+  // decisionPending.map((p) => {
+  //   if (
+  //     p.doctorNotes.assignedTime > lastHour &&
+  //     p.doctorNotes.assignedTime < currentTime
+  //   ) {
+  //     sixthHourDecision++;
+  //     // console.log('sixthHourDecision', sixthHourDecision);
+  //   } else if (
+  //     p.doctorNotes.assignedTime > fifthHour &&
+  //     p.doctorNotes.assignedTime < lastHour
+  //   ) {
+  //     fifthHourDecision++;
+  //   } else if (
+  //     p.doctorNotes.assignedTime > fourthHour &&
+  //     p.doctorNotes.assignedTime < fifthHour
+  //   ) {
+  //     fourthHourDecision++;
+  //   } else if (
+  //     p.doctorNotes.assignedTime > thirdHour &&
+  //     p.doctorNotes.assignedTime < fourthHour
+  //   ) {
+  //     thirdHourDecision++;
+  //   } else if (
+  //     p.doctorNotes.assignedTime > secondHour &&
+  //     p.doctorNotes.assignedTime < thirdHour
+  //   ) {
+  //     secondHourDecision++;
+  //   } else if (
+  //     p.doctorNotes.assignedTime > sixHour &&
+  //     p.doctorNotes.assignedTime < secondHour
+  //   ) {
+  //     firstHourDecision++;
+  //   }
+  // });
+  // decisionArr.push({ label: lastHour, value: sixthHourDecision });
+  // decisionArr.push({ label: fifthHour, value: fifthHourDecision });
+  // decisionArr.push({ label: fourthHour, value: fourthHourDecision });
+  // decisionArr.push({ label: thirdHour, value: thirdHourDecision });
+  // decisionArr.push({ label: secondHour, value: secondHourDecision });
+  // decisionArr.push({ label: sixHour, value: firstHourDecision });
+
+  // const decisionCompleted = await EDR.aggregate([
+  //   {
+  //     $project: {
+  //       status: 1,
+  //       doctorNotes: 1,
+  //       careStream: 1,
+  //     },
+  //   },
+  //   {
+  //     $match: {
+  //       $and: [{ careStream: { $ne: [] } }, { doctorNotes: { $ne: [] } }],
+  //     },
+  //   },
+  //   {
+  //     $unwind: '$careStream',
+  //   },
+  //   {
+  //     $match: {
+  //       'careStream.assignedTime': { $gte: sixHour },
+  //     },
+  //   },
+  // ]);
+
+  // let decisionTime = 0;
+  // decisionCompleted.map((t) => {
+  //   t.noteTime = new Date(t.doctorNotes[0].assignedTime);
+
+  //   t.careStreamTime = new Date(t.careStream.assignedTime);
+
+  //   t.time = Math.round(
+  //     (t.careStreamTime.getTime() - t.noteTime.getTime()) / (1000 * 60)
+  //   );
+  //   decisionTime += t.time;
+  // });
+
+  // const decisionTAT = decisionTime / decisionCompleted.length;
+
   //* 4th Card
   const consultantNotes = await EDR.aggregate([
     {
@@ -1907,12 +2125,23 @@ exports.edDoctorDashboard = asyncHandler(async (req, res, next) => {
 
   const completedLabTAT = labTime / labCompleted.length;
 
+  // current no of patients per doctor
+  const totalPatients = await EDR.find({
+    doctorNotes: { $ne: [] },
+    status: 'pending',
+  });
+
   res.status(200).json({
     success: true,
     firstCard: {
       TAT,
       totalPending: diagnosesPending.length,
       perHour: completedArr,
+    },
+    secondCard: {
+      TAT: decisionTAT,
+      totalPending: decisionPending.length,
+      perHour: decisionArr,
     },
     fourthCard: {
       TAT: completedNoteTAT,
