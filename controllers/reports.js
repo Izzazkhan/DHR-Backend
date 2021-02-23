@@ -2369,3 +2369,217 @@ exports.externalConsultantDB = asyncHandler(async (req, res, next) => {
     cumulativePatientSeen: cumulativePatientSeen.length,
   });
 });
+
+exports.internalConsultantDB = asyncHandler(async (req, res, next) => {
+  const pendingConsultation = await EDR.aggregate([
+    {
+      $project: {
+        consultationNote: 1,
+        status: 1,
+      },
+    },
+    {
+      $unwind: '$consultationNote',
+    },
+    {
+      $match: {
+        $and: [
+          { status: 'pending' },
+          {
+            'consultationNote.status': 'pending',
+          },
+          {
+            'consultationNote.consultationType': 'Internal',
+          },
+          {
+            'consultationNote.noteTime': { $gte: sixHour },
+          },
+          {
+            'consultationNote.noteTime': { $lte: currentTime },
+          },
+        ],
+      },
+    },
+  ]);
+
+  const pendingArr = [];
+  let sixthHourNote = 0;
+  let fifthHourNote = 0;
+  let fourthHourNote = 0;
+  let thirdHourNote = 0;
+  let secondHourNote = 0;
+  let firstHourNote = 0;
+  pendingConsultation.map((n) => {
+    if (
+      n.consultationNote.noteTime > lastHour &&
+      n.consultationNote.noteTime < currentTime
+    ) {
+      sixthHourNote++;
+      // console.log('sixthHourNote', sixthHourNote);
+    } else if (
+      n.consultationNote.noteTime > fifthHour &&
+      n.consultationNote.noteTime < lastHour
+    ) {
+      fifthHourNote++;
+    } else if (
+      n.consultationNote.noteTime > fourthHour &&
+      n.consultationNote.noteTime < fifthHour
+    ) {
+      fourthHourNote++;
+    } else if (
+      n.consultationNote.noteTime > thirdHour &&
+      n.consultationNote.noteTime < fourthHour
+    ) {
+      thirdHourNote++;
+    } else if (
+      n.consultationNote.noteTime > secondHour &&
+      n.consultationNote.noteTime < thirdHour
+    ) {
+      secondHourNote++;
+    } else if (
+      n.consultationNote.noteTime > sixHour &&
+      n.consultationNote.noteTime < secondHour
+    ) {
+      firstHourNote++;
+    }
+  });
+  pendingArr.push({ label: lastHour, value: sixthHourNote });
+  pendingArr.push({ label: fifthHour, value: fifthHourNote });
+  pendingArr.push({ label: fourthHour, value: fourthHourNote });
+  pendingArr.push({ label: thirdHour, value: thirdHourNote });
+  pendingArr.push({ label: secondHour, value: secondHourNote });
+  pendingArr.push({ label: sixHour, value: firstHourNote });
+
+  // tat
+  const consultantCompletedNotes = await EDR.aggregate([
+    {
+      $project: {
+        consultationNote: 1,
+        status: 1,
+      },
+    },
+    {
+      $unwind: '$consultationNote',
+    },
+    {
+      $match: {
+        $and: [
+          {
+            'consultationNote.status': 'complete',
+          },
+          {
+            'consultationNote.consultationType': 'Internal',
+          },
+          {
+            'consultationNote.noteTime': { $gte: sixHour },
+          },
+          {
+            'consultationNote.noteTime': { $lte: currentTime },
+          },
+        ],
+      },
+    },
+  ]);
+
+  // Follow Ups Per Hour
+  const completedArr = [];
+  let sixthHourcompletedNote = 0;
+  let fifthHourcompletedNote = 0;
+  let fourthHourcompletedNote = 0;
+  let thirdHourcompletedNote = 0;
+  let secondHourcompletedNote = 0;
+  let firstHourcompletedNote = 0;
+  consultantCompletedNotes.map((n) => {
+    if (
+      n.consultationNote.completionDate > lastHour &&
+      n.consultationNote.completionDate < currentTime
+    ) {
+      sixthHourcompletedNote++;
+      // console.log('sixthHourcompletedNote', sixthHourcompletedNote);
+    } else if (
+      n.consultationNote.completionDate > fifthHour &&
+      n.consultationNote.completionDate < lastHour
+    ) {
+      fifthHourcompletedNote++;
+    } else if (
+      n.consultationNote.completionDate > fourthHour &&
+      n.consultationNote.completionDate < fifthHour
+    ) {
+      fourthHourcompletedNote++;
+    } else if (
+      n.consultationNote.completionDate > thirdHour &&
+      n.consultationNote.completionDate < fourthHour
+    ) {
+      thirdHourcompletedNote++;
+    } else if (
+      n.consultationNote.completionDate > secondHour &&
+      n.consultationNote.completionDate < thirdHour
+    ) {
+      secondHourcompletedNote++;
+    } else if (
+      n.consultationNote.completionDate > sixHour &&
+      n.consultationNote.completionDate < secondHour
+    ) {
+      firstHourcompletedNote++;
+    }
+  });
+  completedArr.push({ label: lastHour, value: sixthHourcompletedNote });
+  completedArr.push({ label: fifthHour, value: fifthHourcompletedNote });
+  completedArr.push({ label: fourthHour, value: fourthHourcompletedNote });
+  completedArr.push({ label: thirdHour, value: thirdHourcompletedNote });
+  completedArr.push({ label: secondHour, value: secondHourcompletedNote });
+  completedArr.push({ label: sixHour, value: firstHourcompletedNote });
+
+  let completed = 0;
+  consultantCompletedNotes.map((t) => {
+    t.noteStart = new Date(t.consultationNote.noteTime);
+
+    t.noteEnd = new Date(t.consultationNote.completionDate);
+
+    t.time = Math.round(
+      (t.noteEnd.getTime() - t.noteStart.getTime()) / (1000 * 60)
+    );
+    completed += t.time;
+  });
+
+  const cumulativePatientSeen = await EDR.aggregate([
+    {
+      $project: {
+        consultationNote: 1,
+      },
+    },
+    {
+      $unwind: '$consultationNote',
+    },
+    {
+      $match: {
+        $and: [
+          {
+            'consultationNote.status': 'complete',
+          },
+          {
+            'consultationNote.consultationType': 'Internal',
+          },
+        ],
+      },
+    },
+  ]);
+
+  const completedNoteTAT = completed / consultantCompletedNotes.length;
+  const consultedPerHour = Math.round(consultantCompletedNotes.length / 6);
+  res.status(200).json({
+    success: true,
+    firstCard: {
+      TAT: completedNoteTAT,
+      totalPending: pendingConsultation.length,
+      perHour: pendingArr,
+    },
+    secondCard: {
+      TAT: completedNoteTAT,
+      totalFollowUps: consultantCompletedNotes.length,
+      perHour: completedArr,
+    },
+    consultedPerHour,
+    cumulativePatientSeen: cumulativePatientSeen.length,
+  });
+});
