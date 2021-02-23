@@ -447,7 +447,7 @@ exports.completedDoctorNotes = asyncHandler(async (req, res, next) => {
 });
 
 exports.addLabRequest = asyncHandler(async (req, res, next) => {
-  // console.log(req.body);
+  console.log(req.body);
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
   const diff =
@@ -469,6 +469,7 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
     disabled: false,
     // availability: true,
   }).select('identifier name shiftStartTime shiftEndTime');
+  // console.log(nurses);
   let startTime;
   let endTime;
   const shiftNurse = nurses.filter((nurse) => {

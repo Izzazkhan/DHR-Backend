@@ -128,17 +128,23 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
 });
 
 exports.getAllStaff = asyncHandler(async (req, res, next) => {
-  const options = {
-    populate: [
+  const staff = await Staff.find()
+    .populate('addedBy shift')
+    .populate([
       {
-        path: 'addedBy productionArea.productionAreaId',
-        // select: ['name'],
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
       },
-    ],
+    ]);
 
-    limit: 100,
-  };
-  const staff = await Staff.paginate({}, options);
   res.status(200).json({
     success: true,
     data: staff,
@@ -147,7 +153,7 @@ exports.getAllStaff = asyncHandler(async (req, res, next) => {
 
 exports.getEDDoctors = asyncHandler(async (req, res, next) => {
   const staff = await Staff.find({ staffType: 'Doctor' })
-    .populate('addedBy')
+    .populate('addedBy shift')
     .populate('chiefComplaint.chiefComplaintId');
   res.status(200).json({
     success: true,
@@ -282,7 +288,7 @@ exports.getAllSensei = asyncHandler(async (req, res) => {
   const sensei = await Staff.find({
     staffType: 'Sensei',
     disabled: false,
-  }).populate('addedBy');
+  }).populate('addedBy shift');
   res.status(200).json({ success: 'true', data: sensei });
 });
 
@@ -442,7 +448,7 @@ exports.getAnesthesiologist = asyncHandler(async (req, res, next) => {
     subType: 'Anesthesiologist',
     disabled: false,
     // availability: true,
-  });
+  }).populate('shift');
 
   res.status(200).json({
     success: true,
@@ -641,6 +647,7 @@ exports.getCustomerCares = asyncHandler(async (req, res, next) => {
     // availability: true,
   })
     .select('identifier name chiefComlaint shift')
+    .populate('shift')
     .populate([
       {
         path: 'chiefComplaint.chiefComplaintId',
@@ -708,18 +715,6 @@ exports.getNurseTechnicians = asyncHandler(async (req, res, next) => {
     subType: 'Nurse Technician',
     disabled: false,
   }).select('identifier name');
-  res.status(200).json({
-    success: true,
-    data: nurses,
-  });
-});
-
-exports.getEDNurses = asyncHandler(async (req, res, next) => {
-  const nurses = await Staff.find({
-    staffType: 'Nurses',
-    subType: 'ED Nurse',
-    disabled: false,
-  });
   res.status(200).json({
     success: true,
     data: nurses,
@@ -798,7 +793,7 @@ exports.getEDNurses = asyncHandler(async (req, res, next) => {
     staffType: 'Nurses',
     subType: 'ED Nurse',
     disabled: false,
-  });
+  }).populate('shift');
   res.status(200).json({
     success: true,
     data: nurses,
