@@ -2324,10 +2324,12 @@ exports.edDoctorDashboard = asyncHandler(async (req, res, next) => {
   const completedPharmTAT = pharmacyTime / pharmacyCompleted.length;
 
   // Current No of Patients Per Doctor
-  const pendingPatients = await EDR.find({
-    status: 'pending',
-    currentLocation: 'ED',
-  });
+  // const pendingPatients = await EDR.find({
+  //   status: 'pending',
+  //   currentLocation: 'ED',
+  // });
+
+  const cumulativePatient = await EDR.find().countDocuments();
 
   res.status(200).json({
     success: true,
@@ -2367,6 +2369,7 @@ exports.edDoctorDashboard = asyncHandler(async (req, res, next) => {
       perHour: pharmacyArr,
     },
     diagnosedPerHour,
+    cumulativePatient,
   });
 });
 
