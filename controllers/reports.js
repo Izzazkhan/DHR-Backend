@@ -2093,33 +2093,42 @@ exports.edDoctorDashboard = asyncHandler(async (req, res, next) => {
     status: 'pending',
   });
 
+  // //* Patients Diagnosed Per Hour
+  const patientsDiagnosed = await EDR.find({
+    doctorNotes: { $ne: [] },
+    'doctorNotes.0.assignedTime': { $gte: sixHour },
+  });
+
+  const diagnosedPerHour = Math.round(patientsDiagnosed.length / 6);
+
   res.status(200).json({
     success: true,
-    // firstCard: {
-    //   TAT,
-    //   totalPending: diagnosesPending.length,
-    //   perHour: completedArr,
-    // },
-    // secondCard: {
-    //   TAT: decisionTAT,
-    //   totalPending: decisionPending.length,
-    //   perHour: decisionArr,
-    // },
+    firstCard: {
+      TAT,
+      totalPending: diagnosesPending.length,
+      perHour: completedArr,
+    },
+    secondCard: {
+      TAT: decisionTAT,
+      totalPending: decisionPending.length,
+      perHour: decisionArr,
+    },
     thirdCard: {
       TAT: dischargeTAT,
       totalPending: dischargePending.length,
       perHour: DischargeArr,
     },
-    // fourthCard: {
-    //   TAT: completedNoteTAT,
-    //   totalPending: consultantNotes.length,
-    //   perHour: fourthCardArr,
-    // },
-    // fifthCard: {
-    //   TAT: completedLabTAT,
-    //   totalPending: labPending.length,
-    //   perHour: fifthCardArr,
-    // },
+    fourthCard: {
+      TAT: completedNoteTAT,
+      totalPending: consultantNotes.length,
+      perHour: fourthCardArr,
+    },
+    fifthCard: {
+      TAT: completedLabTAT,
+      totalPending: labPending.length,
+      perHour: fifthCardArr,
+    },
+    diagnosedPerHour,
   });
 });
 
