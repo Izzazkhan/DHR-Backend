@@ -827,11 +827,6 @@ const edrSchema = new mongoose.Schema({
       deliveryStartTime: {
         type: Date,
       },
-      // customer care time
-      // deliveryInProgressTime: {
-      //   type: Date,
-      // },
-
       progressStartTime: {
         type: Date,
       },
