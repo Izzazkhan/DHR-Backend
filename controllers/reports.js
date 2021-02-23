@@ -2217,6 +2217,118 @@ exports.edDoctorDashboard = asyncHandler(async (req, res, next) => {
 
   const completedRadTAT = radTime / completedRad.length;
 
+  // * 7th Card
+  const pharmacyPending = await EDR.aggregate([
+    {
+      $project: {
+        pharmacyRequest: 1,
+      },
+    },
+    {
+      $unwind: '$pharmacyRequest',
+    },
+    {
+      $match: {
+        $and: [
+          { 'pharmacyRequest.status': { $ne: 'closed' } },
+          { 'pharmacyRequest.createdAt': { $gte: sixHour } },
+          { 'pharmacyRequest.createdAt': { $lte: currentTime } },
+        ],
+      },
+    },
+  ]);
+
+  // console.log(pharmacyPending);
+
+  const pharmacyArr = [];
+  let sixthHourPharmacy = 0;
+  let fifthHourPharmacy = 0;
+  let fourthHourPharmacy = 0;
+  let thirdHourPharmacy = 0;
+  let secondHourPharmacy = 0;
+  let firstHourPharmacy = 0;
+  pharmacyPending.map((p) => {
+    if (
+      p.pharmacyRequest.createdAt > lastHour &&
+      p.pharmacyRequest.createdAt < currentTime
+    ) {
+      sixthHourPharmacy++;
+      // console.log('sixthHourPharmacy', sixthHourPharmacy);
+    } else if (
+      p.pharmacyRequest.createdAt > fifthHour &&
+      p.pharmacyRequest.createdAt < lastHour
+    ) {
+      fifthHourPharmacy++;
+    } else if (
+      p.pharmacyRequest.createdAt > fourthHour &&
+      p.pharmacyRequest.createdAt < fifthHour
+    ) {
+      fourthHourPharmacy++;
+    } else if (
+      p.pharmacyRequest.createdAt > thirdHour &&
+      p.pharmacyRequest.createdAt < fourthHour
+    ) {
+      thirdHourPharmacy++;
+    } else if (
+      p.pharmacyRequest.createdAt > secondHour &&
+      p.pharmacyRequest.createdAt < thirdHour
+    ) {
+      secondHourPharmacy++;
+    } else if (
+      p.pharmacyRequest.createdAt > sixHour &&
+      p.pharmacyRequest.createdAt < secondHour
+    ) {
+      firstHourPharmacy++;
+    }
+  });
+  pharmacyArr.push({ label: lastHour, value: sixthHourPharmacy });
+  pharmacyArr.push({ label: fifthHour, value: fifthHourPharmacy });
+  pharmacyArr.push({ label: fourthHour, value: fourthHourPharmacy });
+  pharmacyArr.push({ label: thirdHour, value: thirdHourPharmacy });
+  pharmacyArr.push({ label: secondHour, value: secondHourPharmacy });
+  pharmacyArr.push({ label: sixHour, value: firstHourPharmacy });
+
+  // TAT
+  const pharmacyCompleted = await EDR.aggregate([
+    {
+      $project: {
+        pharmacyRequest: 1,
+      },
+    },
+    {
+      $unwind: '$pharmacyRequest',
+    },
+    {
+      $match: {
+        $and: [
+          { 'pharmacyRequest.status': 'delivered' },
+          { 'pharmacyRequest.deliveredTime': { $gte: sixHour } },
+          { 'pharmacyRequest.deliveredTime': { $lte: currentTime } },
+        ],
+      },
+    },
+  ]);
+
+  let pharmacyTime = 0;
+  pharmacyCompleted.map((t) => {
+    t.pharmStart = new Date(t.pharmacyRequest.createdAt);
+
+    t.pharmEnd = new Date(t.pharmacyRequest.deliveredTime);
+
+    t.time = Math.round(
+      (t.pharmEnd.getTime() - t.pharmStart.getTime()) / (1000 * 60)
+    );
+    pharmacyTime += t.time;
+  });
+
+  const completedPharmTAT = pharmacyTime / pharmacyCompleted.length;
+
+  // Current No of Patients Per Doctor
+  const pendingPatients = await EDR.find({
+    status: 'pending',
+    currentLocation: 'ED',
+  });
+
   res.status(200).json({
     success: true,
     firstCard: {
@@ -2248,6 +2360,11 @@ exports.edDoctorDashboard = asyncHandler(async (req, res, next) => {
       TAT: completedRadTAT,
       totalPending: pendingRad.length,
       perHour: radArr,
+    },
+    seventhCard: {
+      TAT: completedPharmTAT,
+      totalPending: pharmacyPending.length,
+      perHour: pharmacyArr,
     },
     diagnosedPerHour,
   });

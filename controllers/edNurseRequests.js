@@ -362,19 +362,36 @@ exports.updateMedicationStatus = asyncHandler(async (req, res, next) => {
     }
   }
 
-  // console.log(request);
-
-  const updatedRequest = await EDR.findOneAndUpdate(
-    { _id: req.body.edrId },
-    {
-      $set: {
-        [`pharmacyRequest.${request}.status`]: req.body.status,
+  let updatedRequest;
+  if (req.body.status === 'delivered') {
+    updatedRequest = await EDR.findOneAndUpdate(
+      { _id: req.body.edrId },
+      {
+        $set: {
+          [`pharmacyRequest.${request}.status`]: req.body.status,
+          [`pharmacyRequest.${request}.deliveredTime`]: Date.now(),
+        },
       },
-    },
-    { new: true }
-  )
-    .select('patientId pharmacyRequest')
-    .populate('patientId', 'Identifier');
+      { new: true }
+    )
+      .select('patientId pharmacyRequest')
+      .populate('patientId', 'Identifier');
+  }
+
+  if (req.body.status === 'closed') {
+    updatedRequest = await EDR.findOneAndUpdate(
+      { _id: req.body.edrId },
+      {
+        $set: {
+          [`pharmacyRequest.${request}.status`]: req.body.status,
+          [`pharmacyRequest.${request}.completedTime`]: Date.now(),
+        },
+      },
+      { new: true }
+    )
+      .select('patientId pharmacyRequest')
+      .populate('patientId', 'Identifier');
+  }
 
   res.status(200).json({
     success: true,
