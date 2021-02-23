@@ -2101,6 +2101,122 @@ exports.edDoctorDashboard = asyncHandler(async (req, res, next) => {
 
   const diagnosedPerHour = Math.round(patientsDiagnosed.length / 6);
 
+  // * 6th Card
+  const pendingRad = await EDR.aggregate([
+    {
+      $project: {
+        status: 1,
+        radRequest: 1,
+      },
+    },
+    {
+      $match: {
+        status: 'pending',
+      },
+    },
+    {
+      $unwind: '$radRequest',
+    },
+    {
+      $match: {
+        $and: [
+          { 'radRequest.status': 'pending approval' },
+          { 'radRequest.pendingApprovalTime': { $gte: sixHour } },
+          { 'radRequest.pendingApprovalTime': { $lte: currentTime } },
+        ],
+      },
+    },
+  ]);
+
+  const radArr = [];
+  let sixthHourRad = 0;
+  let fifthHourRad = 0;
+  let fourthHourRad = 0;
+  let thirdHourRad = 0;
+  let secondHourRad = 0;
+  let firstHourRad = 0;
+  pendingRad.map((r) => {
+    if (
+      r.radRequest.pendingApprovalTime > lastHour &&
+      r.radRequest.pendingApprovalTime < currentTime
+    ) {
+      sixthHourRad++;
+      // console.log('sixthHourRad', sixthHourRad);
+    } else if (
+      r.radRequest.pendingApprovalTime > fifthHour &&
+      r.radRequest.pendingApprovalTime < lastHour
+    ) {
+      fifthHourRad++;
+    } else if (
+      r.radRequest.pendingApprovalTime > fourthHour &&
+      r.radRequest.pendingApprovalTime < fifthHour
+    ) {
+      fourthHourRad++;
+    } else if (
+      r.radRequest.pendingApprovalTime > thirdHour &&
+      r.radRequest.pendingApprovalTime < fourthHour
+    ) {
+      thirdHourRad++;
+    } else if (
+      r.radRequest.pendingApprovalTime > secondHour &&
+      r.radRequest.pendingApprovalTime < thirdHour
+    ) {
+      secondHourRad++;
+    } else if (
+      r.radRequest.pendingApprovalTime > sixHour &&
+      r.radRequest.pendingApprovalTime < secondHour
+    ) {
+      firstHourRad++;
+    }
+  });
+  radArr.push({ label: lastHour, value: sixthHourRad });
+  radArr.push({ label: fifthHour, value: fifthHourRad });
+  radArr.push({ label: fourthHour, value: fourthHourRad });
+  radArr.push({ label: thirdHour, value: thirdHourRad });
+  radArr.push({ label: secondHour, value: secondHourRad });
+  radArr.push({ label: sixHour, value: firstHourRad });
+
+  // TAT
+  const completedRad = await EDR.aggregate([
+    {
+      $project: {
+        status: 1,
+        radRequest: 1,
+      },
+    },
+    {
+      $match: {
+        status: 'pending',
+      },
+    },
+    {
+      $unwind: '$radRequest',
+    },
+    {
+      $match: {
+        $and: [
+          { 'radRequest.status': 'completed' },
+          { 'radRequest.completeTime': { $gte: sixHour } },
+          { 'radRequest.completeTime': { $lte: currentTime } },
+        ],
+      },
+    },
+  ]);
+
+  let radTime = 0;
+  completedRad.map((t) => {
+    t.radStart = new Date(t.radRequest.requestedAt);
+
+    t.radEnd = new Date(t.radRequest.completeTime);
+
+    t.time = Math.round(
+      (t.radEnd.getTime() - t.radStart.getTime()) / (1000 * 60)
+    );
+    radTime += t.time;
+  });
+
+  const completedRadTAT = radTime / completedRad.length;
+
   res.status(200).json({
     success: true,
     firstCard: {
@@ -2127,6 +2243,11 @@ exports.edDoctorDashboard = asyncHandler(async (req, res, next) => {
       TAT: completedLabTAT,
       totalPending: labPending.length,
       perHour: fifthCardArr,
+    },
+    sixthCard: {
+      TAT: completedRadTAT,
+      totalPending: pendingRad.length,
+      perHour: radArr,
     },
     diagnosedPerHour,
   });
