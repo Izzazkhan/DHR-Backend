@@ -7,6 +7,10 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const errorHandler = require('./middleware/error');
 const webRTCSocket = require('./lib/socket');
+
+const Subscription = require('./models/subscriber/subscriber');
+const webPush = require('web-push');
+
 // Router Files
 const patientRouter = require('./routes/patientRoutes');
 const edrRouter = require('./routes/edrRoutes');
@@ -46,7 +50,6 @@ const ChatModel = require('./models/chatRoom/chatRoom');
 
 // const webRTCSocket = require('./lib/socket');
 const chatRouter = require('./routes/chatRoutes');
-const subscriber = require('./routes/subscriber');
 const anesthesiaRequestRoutes = require('./routes/anesthesiaRequestRoutes');
 const consultationNotesRoutes = require('./routes/consultationNotesRoutes');
 const reconciliationNotesRoutes = require('./routes/reconciliationNotesRoutes');
@@ -87,7 +90,6 @@ app.use('/api/dcdForm', dcdFormRouter);
 app.use('/api/sensei', senseiRouter);
 app.use('/api/chatroom', chatRouter);
 app.use('/api/flag', flagRouter);
-app.use('/api/subscriber', subscriber);
 app.use('/api/communication', communicationRouter);
 app.use('/api/patientTransfer', patientTransferEDEOURoutes);
 app.use('/api/patientclearance', patientClearance);
