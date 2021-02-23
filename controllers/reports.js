@@ -2800,3 +2800,88 @@ exports.internalConsultantDB = asyncHandler(async (req, res, next) => {
     cumulativePatientSeen: cumulativePatientSeen.length,
   });
 });
+
+//* SocialWorker Dashboard
+exports.swDashboard = asyncHandler(async (req, res, next) => {
+  const pendingPatient = await EDR.find({
+    status: 'Discharged',
+    socialWorkerStatus: 'pending',
+    dischargeTimestamp: { $gte: sixHour },
+  }).select('dischargeTimestamp');
+
+  const pendingArr = [];
+  let sixthHourPatient = 0;
+  let fifthHourPatient = 0;
+  let fourthHourPatient = 0;
+  let thirdHourPatient = 0;
+  let secondHourPatient = 0;
+  let firstHourPatient = 0;
+  pendingPatient.map((patient) => {
+    if (
+      patient.dischargeTimestamp > lastHour &&
+      patient.dischargeTimestamp < currentTime
+    ) {
+      sixthHourPatient++;
+      // console.log('sixthHourPatient', sixthHourPatient);
+    } else if (
+      patient.dischargeTimestamp > fifthHour &&
+      patient.dischargeTimestamp < lastHour
+    ) {
+      fifthHourPatient++;
+    } else if (
+      patient.dischargeTimestamp > fourthHour &&
+      patient.dischargeTimestamp < fifthHour
+    ) {
+      fourthHourPatient++;
+    } else if (
+      patient.dischargeTimestamp > thirdHour &&
+      patient.dischargeTimestamp < fourthHour
+    ) {
+      thirdHourPatient++;
+    } else if (
+      patient.dischargeTimestamp > secondHour &&
+      patient.dischargeTimestamp < thirdHour
+    ) {
+      secondHourPatient++;
+    } else if (
+      patient.dischargeTimestamp > sixHour &&
+      patient.dischargeTimestamp < secondHour
+    ) {
+      firstHourPatient++;
+    }
+  });
+  pendingArr.push({ label: lastHour, value: sixthHourPatient });
+  pendingArr.push({ label: fifthHour, value: fifthHourPatient });
+  pendingArr.push({ label: fourthHour, value: fourthHourPatient });
+  pendingArr.push({ label: thirdHour, value: thirdHourPatient });
+  pendingArr.push({ label: secondHour, value: secondHourPatient });
+  pendingArr.push({ label: sixHour, value: firstHourPatient });
+
+  const totalSurvey = await EDR.find({
+    status: 'Discharged',
+    socialWorkerStatus: 'completed',
+    survey: { $ne: [] },
+    'survey.0.surveyTime': { $gte: sixHour },
+  }).select('dischargeTimestamp survey');
+
+  let completed = 0;
+  totalSurvey.map((t) => {
+    t.start = new Date(t.dischargeTimestamp);
+
+    t.end = new Date(t.survey[0].surveyTime);
+
+    t.time = Math.round((t.end.getTime() - t.start.getTime()) / (1000 * 60));
+    completed += t.time;
+  });
+
+  const surveyTAT = completed / totalSurvey.length;
+
+  res.status(200).json({
+    success: true,
+    firstCard: {
+      TAT: surveyTAT,
+      totalPending: pendingPatient.length,
+      perHour: pendingArr,
+    },
+  });
+});

@@ -13,6 +13,7 @@ const {
   edDoctorDashboard,
   externalConsultantDB,
   internalConsultantDB,
+  swDashboard,
 } = require('../controllers/reports');
 
 // Registration Officer
@@ -27,4 +28,5 @@ router.get('/senseiDashboard', senseiDashboard);
 router.get('/edDoctorDashboard', edDoctorDashboard);
 router.get('/externalConsultantDB', externalConsultantDB);
 router.get('/internalConsultantDB', internalConsultantDB);
+router.get('/swDashboard', swDashboard);
 module.exports = router;
