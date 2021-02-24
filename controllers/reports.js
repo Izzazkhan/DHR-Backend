@@ -136,6 +136,77 @@ exports.roDashboard = asyncHandler(async (req, res) => {
     },
   ]);
 
+  // * 5th Card
+  const dischargePending = await EDR.find({
+    status: 'Discharged',
+    socialWorkerStatus: 'pending',
+    dischargeTimestamp: { $gte: sixHour },
+  });
+
+  const DischargeArr = [];
+  let sixthHourDischarge = 0;
+  let fifthHourDischarge = 0;
+  let fourthHourDischarge = 0;
+  let thirdHourDischarge = 0;
+  let secondHourDischarge = 0;
+  let firstHourDischarge = 0;
+  dischargePending.map((d) => {
+    if (d.dischargeTimestamp > lastHour && d.dischargeTimestamp < currentTime) {
+      sixthHourDischarge++;
+    } else if (
+      d.dischargeTimestamp > fifthHour &&
+      d.dischargeTimestamp < lastHour
+    ) {
+      fifthHourDischarge++;
+    } else if (
+      d.dischargeTimestamp > fourthHour &&
+      d.dischargeTimestamp < fifthHour
+    ) {
+      fourthHourDischarge++;
+    } else if (
+      d.dischargeTimestamp > thirdHour &&
+      d.dischargeTimestamp < fourthHour
+    ) {
+      thirdHourDischarge++;
+    } else if (
+      d.dischargeTimestamp > secondHour &&
+      d.dischargeTimestamp < thirdHour
+    ) {
+      secondHourDischarge++;
+    } else if (
+      d.dischargeTimestamp > sixHour &&
+      d.dischargeTimestamp < secondHour
+    ) {
+      firstHourDischarge++;
+    }
+  });
+  DischargeArr.push({ label: lastHour, value: sixthHourDischarge });
+  DischargeArr.push({ label: fifthHour, value: fifthHourDischarge });
+  DischargeArr.push({ label: fourthHour, value: fourthHourDischarge });
+  DischargeArr.push({ label: thirdHour, value: thirdHourDischarge });
+  DischargeArr.push({ label: secondHour, value: secondHourDischarge });
+  DischargeArr.push({ label: sixHour, value: firstHourDischarge });
+
+  const dischargeCompleted = await EDR.find({
+    status: 'Discharged',
+    socialWorkerStatus: 'completed',
+    'survey.0.surveyTime': { $gte: sixHour },
+  });
+
+  let dischargeTime = 0;
+  dischargeCompleted.map((t) => {
+    t.dischargeStart = new Date(t.dischargeTimestamp);
+
+    t.dischargeEnd = new Date(t.survey[0].surveyTime);
+
+    t.time = Math.round(
+      (t.dischargeEnd.getTime() - t.dischargeStart.getTime()) / (1000 * 60)
+    );
+    dischargeTime += t.time;
+  });
+
+  const dischargeTAT = dischargeTime / dischargeCompleted.length;
+
   res.status(200).json({
     success: true,
     totalInsured: edrInsured,
@@ -145,6 +216,11 @@ exports.roDashboard = asyncHandler(async (req, res) => {
     registrationPerHour: completedArr,
     averageTAT: averageRegistrationTime,
     registeredPatients: patients.length,
+    fifthCard: {
+      TAT: dischargeTAT,
+      totalPending: dischargePending.length,
+      perHour: DischargeArr,
+    },
   });
 });
 
