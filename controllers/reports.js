@@ -3004,6 +3004,21 @@ exports.swDashboard = asyncHandler(async (req, res, next) => {
 
   const interviewTAT = 360 / totalInterviews.length;
 
+  // * 5th Card - Cleared Interviews
+  const clearedInterviews = await EDR.find({
+    status: 'Discharged',
+    socialWorkerStatus: 'completed',
+    survey: { $ne: [] },
+    socialWorkerAssistance: { $eq: [] },
+  }).countDocuments();
+
+  //* 6th Card - Cumulative Interviews
+  const cumulativeInterviews = await EDR.find({
+    status: 'Discharged',
+    socialWorkerStatus: 'completed',
+    survey: { $ne: [] },
+  }).countDocuments();
+
   res.status(200).json({
     success: true,
     firstCard: {
@@ -3021,5 +3036,7 @@ exports.swDashboard = asyncHandler(async (req, res, next) => {
       totalPending: totalInterviews.length,
       perHour: InterviewArr,
     },
+    clearedInterviews,
+    cumulativeInterviews,
   });
 });
