@@ -2876,6 +2876,149 @@ exports.swDashboard = asyncHandler(async (req, res, next) => {
 
   const surveyTAT = completed / totalSurvey.length;
 
+  // * 2nd Card
+  const dischargePending = await EDR.find({
+    status: 'Discharged',
+    socialWorkerStatus: 'pending',
+    dischargeTimestamp: { $gte: sixHour },
+  });
+
+  const DischargeArr = [];
+  let sixthHourDischarge = 0;
+  let fifthHourDischarge = 0;
+  let fourthHourDischarge = 0;
+  let thirdHourDischarge = 0;
+  let secondHourDischarge = 0;
+  let firstHourDischarge = 0;
+  dischargePending.map((d) => {
+    if (d.dischargeTimestamp > lastHour && d.dischargeTimestamp < currentTime) {
+      sixthHourDischarge++;
+    } else if (
+      d.dischargeTimestamp > fifthHour &&
+      d.dischargeTimestamp < lastHour
+    ) {
+      fifthHourDischarge++;
+    } else if (
+      d.dischargeTimestamp > fourthHour &&
+      d.dischargeTimestamp < fifthHour
+    ) {
+      fourthHourDischarge++;
+    } else if (
+      d.dischargeTimestamp > thirdHour &&
+      d.dischargeTimestamp < fourthHour
+    ) {
+      thirdHourDischarge++;
+    } else if (
+      d.dischargeTimestamp > secondHour &&
+      d.dischargeTimestamp < thirdHour
+    ) {
+      secondHourDischarge++;
+    } else if (
+      d.dischargeTimestamp > sixHour &&
+      d.dischargeTimestamp < secondHour
+    ) {
+      firstHourDischarge++;
+    }
+  });
+  DischargeArr.push({ label: lastHour, value: sixthHourDischarge });
+  DischargeArr.push({ label: fifthHour, value: fifthHourDischarge });
+  DischargeArr.push({ label: fourthHour, value: fourthHourDischarge });
+  DischargeArr.push({ label: thirdHour, value: thirdHourDischarge });
+  DischargeArr.push({ label: secondHour, value: secondHourDischarge });
+  DischargeArr.push({ label: sixHour, value: firstHourDischarge });
+
+  const dischargeCompleted = await EDR.find({
+    status: 'Discharged',
+    socialWorkerStatus: 'completed',
+    'survey.0.surveyTime': { $gte: sixHour },
+  });
+
+  let dischargeTime = 0;
+  dischargeCompleted.map((t) => {
+    t.dischargeStart = new Date(t.dischargeTimestamp);
+
+    t.dischargeEnd = new Date(t.survey[0].surveyTime);
+
+    t.time = Math.round(
+      (t.dischargeEnd.getTime() - t.dischargeStart.getTime()) / (1000 * 60)
+    );
+    dischargeTime += t.time;
+  });
+
+  const dischargeTAT = dischargeTime / dischargeCompleted.length;
+
+  // * 3rd Card
+  const totalInterviews = await EDR.find({
+    status: 'Discharged',
+    socialWorkerStatus: 'completed',
+    survey: { $ne: [] },
+    'survey.0.surveyTime': { $gte: sixHour },
+  }).select('dischargeTimestamp survey');
+
+  const InterviewArr = [];
+  let sixthHourInterview = 0;
+  let fifthHourInterview = 0;
+  let fourthHourInterview = 0;
+  let thirdHourInterview = 0;
+  let secondHourInterview = 0;
+  let firstHourInterview = 0;
+  totalInterviews.map((d) => {
+    if (
+      d.survey[0].surveyTime > lastHour &&
+      d.survey[0].surveyTime < currentTime
+    ) {
+      sixthHourInterview++;
+    } else if (
+      d.survey[0].surveyTime > fifthHour &&
+      d.survey[0].surveyTime < lastHour
+    ) {
+      fifthHourInterview++;
+    } else if (
+      d.survey[0].surveyTime > fourthHour &&
+      d.survey[0].surveyTime < fifthHour
+    ) {
+      fourthHourInterview++;
+    } else if (
+      d.survey[0].surveyTime > thirdHour &&
+      d.survey[0].surveyTime < fourthHour
+    ) {
+      thirdHourInterview++;
+    } else if (
+      d.survey[0].surveyTime > secondHour &&
+      d.survey[0].surveyTime < thirdHour
+    ) {
+      secondHourInterview++;
+    } else if (
+      d.survey[0].surveyTime > sixHour &&
+      d.survey[0].surveyTime < secondHour
+    ) {
+      firstHourInterview++;
+    }
+  });
+  InterviewArr.push({ label: lastHour, value: sixthHourInterview });
+  InterviewArr.push({ label: fifthHour, value: fifthHourInterview });
+  InterviewArr.push({ label: fourthHour, value: fourthHourInterview });
+  InterviewArr.push({ label: thirdHour, value: thirdHourInterview });
+  InterviewArr.push({ label: secondHour, value: secondHourInterview });
+  InterviewArr.push({ label: sixHour, value: firstHourInterview });
+
+  const interviewTAT = 360 / totalInterviews.length;
+
+  // * 5th Card - Cleared Interviews
+  const clearedInterviews = await EDR.find({
+    status: 'Discharged',
+    socialWorkerStatus: 'completed',
+    survey: { $ne: [] },
+    socialWorkerAssistance: { $eq: [] },
+  }).countDocuments();
+
+  //* 6th Card - Cumulative Interviews
+  const cumulativeInterviews = await EDR.find({
+    status: 'Discharged',
+    socialWorkerStatus: 'completed',
+    survey: { $ne: [] },
+  }).countDocuments();
+
   res.status(200).json({
     success: true,
     firstCard: {
@@ -2883,5 +3026,17 @@ exports.swDashboard = asyncHandler(async (req, res, next) => {
       totalPending: pendingPatient.length,
       perHour: pendingArr,
     },
+    secondCard: {
+      TAT: dischargeTAT,
+      totalPending: dischargePending.length,
+      perHour: DischargeArr,
+    },
+    thirdCard: {
+      TAT: interviewTAT,
+      totalPending: totalInterviews.length,
+      perHour: InterviewArr,
+    },
+    clearedInterviews,
+    cumulativeInterviews,
   });
 });
