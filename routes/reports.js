@@ -14,6 +14,7 @@ const {
   externalConsultantDB,
   internalConsultantDB,
   swDashboard,
+  ccDashboard,
 } = require('../controllers/reports');
 
 // Registration Officer
@@ -29,4 +30,5 @@ router.get('/edDoctorDashboard', edDoctorDashboard);
 router.get('/externalConsultantDB', externalConsultantDB);
 router.get('/internalConsultantDB', internalConsultantDB);
 router.get('/swDashboard', swDashboard);
+router.get('/ccDashboard', ccDashboard);
 module.exports = router;
