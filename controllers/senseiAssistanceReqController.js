@@ -53,7 +53,7 @@ exports.completeAssistanceRequestForNurse = asyncHandler(
       { _id: req.body.requestId },
       {
         status: 'complete',
-        completionDate: Date.now,
+        completionDate: Date.now(),
         nurseNotes: req.body.nurseNotes,
       },
       { new: true }
