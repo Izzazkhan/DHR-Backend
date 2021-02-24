@@ -6,6 +6,8 @@ const HKRequests = require('../models/houseKeepingRequest');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const EDR = require('../models/EDR/EDR');
+const Transfer = require('../models/patientTransferEDEOU/patientTransferEDEOU');
+const CCRequest = require('../models/customerCareRequest');
 
 const currentTime = moment().utc().toDate();
 const lastHour = moment().subtract(1, 'hours').utc().toDate();
@@ -3038,5 +3040,146 @@ exports.swDashboard = asyncHandler(async (req, res, next) => {
     },
     clearedInterviews,
     cumulativeInterviews,
+  });
+});
+
+// // * Lab Technician Dashboard
+// exports.LTDashBoard = asyncHandler(async (req, res, next) => {
+//   const samplePending = await EDR.aggregate([
+//     {
+//       $project: {
+//         labRequest: 1,
+//       },
+//     },
+//   ]);
+// });
+
+// * Customer Care Dashboard
+exports.ccDashboard = asyncHandler(async (req, res, next) => {
+  const patientTransfer = await Transfer.find({
+    from: 'ED',
+    to: 'EOU',
+    status: 'pending',
+    createdAt: { $gte: sixHour },
+  });
+
+  const TransferArr = [];
+  let sixthHourTransfer = 0;
+  let fifthHourTransfer = 0;
+  let fourthHourTransfer = 0;
+  let thirdHourTransfer = 0;
+  let secondHourTransfer = 0;
+  let firstHourTransfer = 0;
+  patientTransfer.map((t) => {
+    if (t.createdAt > lastHour && t.createdAt < currentTime) {
+      sixthHourTransfer++;
+    } else if (t.createdAt > fifthHour && t.createdAt < lastHour) {
+      fifthHourTransfer++;
+    } else if (t.createdAt > fourthHour && t.createdAt < fifthHour) {
+      fourthHourTransfer++;
+    } else if (t.createdAt > thirdHour && t.createdAt < fourthHour) {
+      thirdHourTransfer++;
+    } else if (t.createdAt > secondHour && t.createdAt < thirdHour) {
+      secondHourTransfer++;
+    } else if (t.createdAt > sixHour && t.createdAt < secondHour) {
+      firstHourTransfer++;
+    }
+  });
+  TransferArr.push({ label: lastHour, value: sixthHourTransfer });
+  TransferArr.push({ label: fifthHour, value: fifthHourTransfer });
+  TransferArr.push({ label: fourthHour, value: fourthHourTransfer });
+  TransferArr.push({ label: thirdHour, value: thirdHourTransfer });
+  TransferArr.push({ label: secondHour, value: secondHourTransfer });
+  TransferArr.push({ label: sixHour, value: firstHourTransfer });
+
+  const transferCompleted = await Transfer.find({
+    from: 'ED',
+    to: 'EOU',
+    status: 'completed',
+    completedAt: { $gte: sixHour },
+  });
+
+  let transferTime = 0;
+  transferCompleted.map((t) => {
+    t.transferStart = new Date(t.createdAt);
+
+    t.transferEnd = new Date(t.completedAt);
+
+    t.time = Math.round(
+      (t.transferEnd.getTime() - t.transferStart.getTime()) / (1000 * 60)
+    );
+    transferTime += t.time;
+  });
+
+  const transferTAT = transferTime / transferCompleted.length;
+
+  // * 2nd Card
+  const ambulanceTransfer = await CCRequest.find({
+    requestedFor: 'Transfer',
+    status: 'pending',
+    requestedAt: { $gte: sixHour },
+  });
+
+  const AmbulanceArr = [];
+  let sixthHourAmbulance = 0;
+  let fifthHourAmbulance = 0;
+  let fourthHourAmbulance = 0;
+  let thirdHourAmbulance = 0;
+  let secondHourAmbulance = 0;
+  let firstHourAmbulance = 0;
+  ambulanceTransfer.map((t) => {
+    if (t.requestedAt > lastHour && t.requestedAt < currentTime) {
+      sixthHourAmbulance++;
+    } else if (t.requestedAt > fifthHour && t.requestedAt < lastHour) {
+      fifthHourAmbulance++;
+    } else if (t.requestedAt > fourthHour && t.requestedAt < fifthHour) {
+      fourthHourAmbulance++;
+    } else if (t.requestedAt > thirdHour && t.requestedAt < fourthHour) {
+      thirdHourAmbulance++;
+    } else if (t.requestedAt > secondHour && t.requestedAt < thirdHour) {
+      secondHourAmbulance++;
+    } else if (t.requestedAt > sixHour && t.requestedAt < secondHour) {
+      firstHourAmbulance++;
+    }
+  });
+  AmbulanceArr.push({ label: lastHour, value: sixthHourAmbulance });
+  AmbulanceArr.push({ label: fifthHour, value: fifthHourAmbulance });
+  AmbulanceArr.push({ label: fourthHour, value: fourthHourAmbulance });
+  AmbulanceArr.push({ label: thirdHour, value: thirdHourAmbulance });
+  AmbulanceArr.push({ label: secondHour, value: secondHourAmbulance });
+  AmbulanceArr.push({ label: sixHour, value: firstHourAmbulance });
+
+  const ambulanceCompleted = await CCRequest.find({
+    requestedFor: 'Transfer',
+    status: 'completed',
+    completedAt: { $gte: sixHour },
+  });
+
+  let ambulanceTime = 0;
+  ambulanceCompleted.map((t) => {
+    t.transferStart = new Date(t.requestedAt);
+
+    t.transferEnd = new Date(t.completedAt);
+
+    t.time = Math.round(
+      (t.transferEnd.getTime() - t.transferStart.getTime()) / (1000 * 60)
+    );
+    ambulanceTime += t.time;
+  });
+
+  const ambulanceTAT = ambulanceTime / ambulanceCompleted.length;
+
+  res.status(200).json({
+    success: true,
+    firstCard: {
+      TAT: transferTAT,
+      totalPending: patientTransfer.length,
+      perHour: TransferArr,
+    },
+    secondCard: {
+      TAT: ambulanceTAT,
+      totalPending: ambulanceTransfer.length,
+      perHour: AmbulanceArr,
+    },
   });
 });
