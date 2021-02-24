@@ -652,6 +652,7 @@ exports.updateMedicationStatus = asyncHandler(async (req, res, next) => {
     {
       $set: {
         [`pharmacyRequest.${request}.status`]: 'delivery_in_progress',
+        [`pharmacyRequest.${request}.deliveryInProgressTime`]: Date.now(),
       },
     },
     { new: true }

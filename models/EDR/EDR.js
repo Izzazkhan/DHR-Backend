@@ -710,10 +710,6 @@ const edrSchema = new mongoose.Schema({
     },
   ],
   pharmacyRequest: [
-    // {
-    //   type: mongoose.Schema.ObjectId,
-    //   ref: 'pharmacyRequest',
-    // },
     {
       pharmacyRequestNo: {
         type: String,
@@ -824,10 +820,11 @@ const edrSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'staff',
       },
-      deliveryStartTime: {
+
+      progressStartTime: {
         type: Date,
       },
-      progressStartTime: {
+      deliveryInProgressTime: {
         type: Date,
       },
 

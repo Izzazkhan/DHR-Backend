@@ -3169,6 +3169,203 @@ exports.ccDashboard = asyncHandler(async (req, res, next) => {
 
   const ambulanceTAT = ambulanceTime / ambulanceCompleted.length;
 
+  // * 3rd Card
+  const pharmacyRequest = await EDR.aggregate([
+    {
+      $project: {
+        pharmacyRequest: 1,
+      },
+    },
+    {
+      $unwind: '$pharmacyRequest',
+    },
+    {
+      $match: {
+        $and: [
+          { 'pharmacyRequest.status': 'in_progress' },
+          { 'pharmacyRequest.progressStartTime': { $gte: sixHour } },
+        ],
+      },
+    },
+  ]);
+
+  const PharmacyArr = [];
+  let sixthHourPharmacy = 0;
+  let fifthHourPharmacy = 0;
+  let fourthHourPharmacy = 0;
+  let thirdHourPharmacy = 0;
+  let secondHourPharmacy = 0;
+  let firstHourPharmacy = 0;
+  pharmacyRequest.map((t) => {
+    if (
+      t.pharmacyRequest.progressStartTime > lastHour &&
+      t.pharmacyRequest.progressStartTime < currentTime
+    ) {
+      sixthHourPharmacy++;
+    } else if (
+      t.pharmacyRequest.progressStartTime > fifthHour &&
+      t.pharmacyRequest.progressStartTime < lastHour
+    ) {
+      fifthHourPharmacy++;
+    } else if (
+      t.pharmacyRequest.progressStartTime > fourthHour &&
+      t.pharmacyRequest.progressStartTime < fifthHour
+    ) {
+      fourthHourPharmacy++;
+    } else if (
+      t.pharmacyRequest.progressStartTime > thirdHour &&
+      t.pharmacyRequest.progressStartTime < fourthHour
+    ) {
+      thirdHourPharmacy++;
+    } else if (
+      t.pharmacyRequest.progressStartTime > secondHour &&
+      t.pharmacyRequest.progressStartTime < thirdHour
+    ) {
+      secondHourPharmacy++;
+    } else if (
+      t.pharmacyRequest.progressStartTime > sixHour &&
+      t.pharmacyRequest.progressStartTime < secondHour
+    ) {
+      firstHourPharmacy++;
+    }
+  });
+  PharmacyArr.push({ label: lastHour, value: sixthHourPharmacy });
+  PharmacyArr.push({ label: fifthHour, value: fifthHourPharmacy });
+  PharmacyArr.push({ label: fourthHour, value: fourthHourPharmacy });
+  PharmacyArr.push({ label: thirdHour, value: thirdHourPharmacy });
+  PharmacyArr.push({ label: secondHour, value: secondHourPharmacy });
+  PharmacyArr.push({ label: sixHour, value: firstHourPharmacy });
+
+  const pharmacyCompleted = await EDR.aggregate([
+    {
+      $project: {
+        pharmacyRequest: 1,
+      },
+    },
+    {
+      $unwind: '$pharmacyRequest',
+    },
+    {
+      $match: {
+        $and: [
+          { 'pharmacyRequest.status': 'delivered' },
+          { 'pharmacyRequest.deliveredTime': { $gte: sixHour } },
+        ],
+      },
+    },
+  ]);
+  let pharmacyTime = 0;
+  pharmacyCompleted.map((t) => {
+    t.transferStart = new Date(t.pharmacyRequest.progressStartTime);
+
+    t.transferEnd = new Date(t.pharmacyRequest.deliveredTime);
+
+    t.time = Math.round(
+      (t.transferEnd.getTime() - t.transferStart.getTime()) / (1000 * 60)
+    );
+    pharmacyTime += t.time;
+  });
+
+  const pharmacyTAT = pharmacyTime / pharmacyCompleted.length;
+
+  // * 4th Card
+  const dischargeTransfer = await CCRequest.find({
+    requestedFor: 'Discharge',
+    status: 'pending',
+    requestedAt: { $gte: sixHour },
+  });
+
+  const DischargeArr = [];
+  let sixthHourDischarge = 0;
+  let fifthHourDischarge = 0;
+  let fourthHourDischarge = 0;
+  let thirdHourDischarge = 0;
+  let secondHourDischarge = 0;
+  let firstHourDischarge = 0;
+  dischargeTransfer.map((t) => {
+    if (t.requestedAt > lastHour && t.requestedAt < currentTime) {
+      sixthHourDischarge++;
+    } else if (t.requestedAt > fifthHour && t.requestedAt < lastHour) {
+      fifthHourDischarge++;
+    } else if (t.requestedAt > fourthHour && t.requestedAt < fifthHour) {
+      fourthHourDischarge++;
+    } else if (t.requestedAt > thirdHour && t.requestedAt < fourthHour) {
+      thirdHourDischarge++;
+    } else if (t.requestedAt > secondHour && t.requestedAt < thirdHour) {
+      secondHourDischarge++;
+    } else if (t.requestedAt > sixHour && t.requestedAt < secondHour) {
+      firstHourDischarge++;
+    }
+  });
+  DischargeArr.push({ label: lastHour, value: sixthHourDischarge });
+  DischargeArr.push({ label: fifthHour, value: fifthHourDischarge });
+  DischargeArr.push({ label: fourthHour, value: fourthHourDischarge });
+  DischargeArr.push({ label: thirdHour, value: thirdHourDischarge });
+  DischargeArr.push({ label: secondHour, value: secondHourDischarge });
+  DischargeArr.push({ label: sixHour, value: firstHourDischarge });
+
+  const dischargeCompleted = await CCRequest.find({
+    requestedFor: 'Discharge',
+    status: 'completed',
+    completedAt: { $gte: sixHour },
+  });
+
+  let dischargeTime = 0;
+  dischargeCompleted.map((t) => {
+    t.transferStart = new Date(t.requestedAt);
+
+    t.transferEnd = new Date(t.completedAt);
+
+    t.time = Math.round(
+      (t.transferEnd.getTime() - t.transferStart.getTime()) / (1000 * 60)
+    );
+    dischargeTime += t.time;
+  });
+
+  const dischargeTAT = dischargeTime / dischargeCompleted.length;
+
+  // * 7th Card
+  const allTasks = await CCRequest.find({
+    status: 'completed',
+    completedAt: { $gte: sixHour },
+  });
+
+  const TaskArr = [];
+  let sixthHourTask = 0;
+  let fifthHourTask = 0;
+  let fourthHourTask = 0;
+  let thirdHourTask = 0;
+  let secondHourTask = 0;
+  let firstHourTask = 0;
+  allTasks.map((t) => {
+    if (t.completedAt > lastHour && t.completedAt < currentTime) {
+      sixthHourTask++;
+    } else if (t.completedAt > fifthHour && t.completedAt < lastHour) {
+      fifthHourTask++;
+    } else if (t.completedAt > fourthHour && t.completedAt < fifthHour) {
+      fourthHourTask++;
+    } else if (t.completedAt > thirdHour && t.completedAt < fourthHour) {
+      thirdHourTask++;
+    } else if (t.completedAt > secondHour && t.completedAt < thirdHour) {
+      secondHourTask++;
+    } else if (t.completedAt > sixHour && t.completedAt < secondHour) {
+      firstHourTask++;
+    }
+  });
+  TaskArr.push({ label: lastHour, value: sixthHourTask });
+  TaskArr.push({ label: fifthHour, value: fifthHourTask });
+  TaskArr.push({ label: fourthHour, value: fourthHourTask });
+  TaskArr.push({ label: thirdHour, value: thirdHourTask });
+  TaskArr.push({ label: secondHour, value: secondHourTask });
+  TaskArr.push({ label: sixHour, value: firstHourTask });
+
+  const taskTAT = 360 / allTasks.length;
+
+  // Cumulative Total Tasks
+  const cumulativeTasks = await CCRequest.find({
+    status: 'completed',
+  }).countDocuments();
+
   res.status(200).json({
     success: true,
     firstCard: {
@@ -3181,5 +3378,21 @@ exports.ccDashboard = asyncHandler(async (req, res, next) => {
       totalPending: ambulanceTransfer.length,
       perHour: AmbulanceArr,
     },
+    thirdCard: {
+      TAT: pharmacyTAT,
+      totalPending: pharmacyRequest.length,
+      perHour: PharmacyArr,
+    },
+    fifthCard: {
+      TAT: dischargeTAT,
+      totalPending: dischargeTransfer.length,
+      perHour: DischargeArr,
+    },
+    seventhCard: {
+      TAT: taskTAT,
+      totalPending: allTasks.length,
+      perHour: TaskArr,
+    },
+    cumulativeTasks,
   });
 });
