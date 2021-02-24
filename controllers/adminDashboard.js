@@ -7,7 +7,8 @@ const CareStreams = require('../models/CareStreams/CareStreams');
 const LabServices = require('../models/service/lab')
 const RadServices = require('../models/service/radiology')
 const Item = require('../models/item')
-const Vendor = require('../models/vendor')
+const Staff = require('../models/staffFhir/staff')
+const Shifts = require('../models/shift')
 
 // Most Selected Chief Complaints
 exports.chiefComplaints = asyncHandler(async (req, res) => {
@@ -604,6 +605,34 @@ exports.dashboard = asyncHandler(async (req, res) => {
         totalMedication += d.selected
     })
 
+    const doctors = await Staff.find({
+        shift: { $exists: true },
+        staffType: 'Doctor',
+        disabled: false,
+        availability: true,
+        chiefComplaint: { $ne: [] }
+    })
+        .select('shift')
+        .populate('shift')
+
+    const DoctorsInMorning = doctors.filter((d) => d.shift.name === "Morning")
+    const DoctorsInEvening = doctors.filter((d) => d.shift.name === "Evening")
+    const DoctorsInNight = doctors.filter((d) => d.shift.name === "Night")
+
+    const nurses = await Staff.find({
+        shift: { $exists: true },
+        staffType: 'Nurses',
+        disabled: false,
+        availability: true,
+        chiefComplaint: { $ne: [] }
+    })
+        .select('shift')
+        .populate('shift')
+
+    const NursesInMorning = nurses.filter((d) => d.shift.name === "Morning")
+    const NursesInEvening = nurses.filter((d) => d.shift.name === "Evening")
+    const NursesInNight = nurses.filter((d) => d.shift.name === "Night")
+
     res.status(200).json({
         success: true,
         data: {
@@ -611,7 +640,79 @@ exports.dashboard = asyncHandler(async (req, res) => {
             totalCS,
             totalLabServices,
             totalRadServices,
-            totalMedication
+            totalMedication,
+            DoctorsInMorning: DoctorsInMorning.length,
+            DoctorsInEvening: DoctorsInEvening.length,
+            DoctorsInNight: DoctorsInNight.length,
+            NursesInMorning: NursesInMorning.length,
+            NursesInEvening: NursesInEvening.length,
+            NursesInNight: NursesInNight.length
         }
+    });
+});
+
+// Doctors assigned in shifts
+exports.doctorsAssigned = asyncHandler(async (req, res) => {
+
+    const doctors = await Staff.find({
+        shift: { $exists: true },
+        staffType: 'Doctor',
+        disabled: false,
+        availability: true,
+        chiefComplaint: { $ne: [] }
+    })
+        .select('specialty subType identifier name staffType shift chiefComplaint createdAt')
+        .populate('shift')
+        .populate([
+            {
+                path: 'chiefComplaint.chiefComplaintId',
+                model: 'chiefComplaint',
+                select: 'chiefComplaint.chiefComplaintId',
+                populate: [
+                    {
+                        path: 'productionArea.productionAreaId',
+                        model: 'productionArea',
+                        select: 'paName',
+                    },
+                ],
+            },
+        ]);
+
+    res.status(200).json({
+        success: true,
+        data: doctors
+    });
+});
+
+// Nurses assigned in shifts
+exports.nursesAssigned = asyncHandler(async (req, res) => {
+
+    const nurses = await Staff.find({
+        shift: { $exists: true },
+        staffType: 'Nurses',
+        disabled: false,
+        availability: true,
+        chiefComplaint: { $ne: [] }
+    })
+        .select('specialty subType identifier name staffType shift chiefComplaint createdAt')
+        .populate('shift')
+        .populate([
+            {
+                path: 'chiefComplaint.chiefComplaintId',
+                model: 'chiefComplaint',
+                select: 'chiefComplaint.chiefComplaintId',
+                populate: [
+                    {
+                        path: 'productionArea.productionAreaId',
+                        model: 'productionArea',
+                        select: 'paName',
+                    },
+                ],
+            },
+        ]);
+
+    res.status(200).json({
+        success: true,
+        data: nurses
     });
 });

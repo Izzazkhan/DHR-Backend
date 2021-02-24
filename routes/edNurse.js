@@ -14,6 +14,7 @@ const {
   completeRequest,
   completedEDNurseEdrRequest,
   updateMedicationStatus,
+  dashboardData
 } = require('../controllers/edNurseRequests');
 
 router.get('/getLab', getLab);
@@ -27,5 +28,6 @@ router.get('/pendingEDNurseEdrRequest/:nurseId', pendingEDNurseEdrRequest);
 router.put('/completeRequest', completeRequest);
 router.put('/updateMedicationStatus', updateMedicationStatus);
 router.get('/completedEDNurseEdrRequest/:nurseId', completedEDNurseEdrRequest);
+router.get('/getDashboardData/:nurseId', dashboardData);
 
 module.exports = router;
