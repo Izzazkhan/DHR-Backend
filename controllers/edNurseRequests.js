@@ -211,7 +211,7 @@ exports.getHouskeepingRequests = asyncHandler(async (req, res, next) => {
   });
 });
 
-exports.getHouskeepingRequests = asyncHandler(async (req, res, next) => {
+exports.getHouskeepingRequestsById = asyncHandler(async (req, res, next) => {
   const HKRequests = await EDN.find({ staffType: 'Housekeeping', staffId:req.params.staffId })
     .populate('patientId', 'name identifier')
     .populate('staffId', 'name identifier');
