@@ -164,7 +164,7 @@ exports.getPharmacy = asyncHandler(async (req, res, next) => {
 });
 
 exports.submitRequest = asyncHandler(async (req, res, next) => {
-  const { patientId, staffId, assignedBy, staffType, reason } = req.body;
+  const { patientId, staffId, assignedBy, staffType, reason, remarks } = req.body;
   let request;
   if (staffType === 'Customer Care') {
     request = await CCRequests.create({});
@@ -175,6 +175,7 @@ exports.submitRequest = asyncHandler(async (req, res, next) => {
     assignedBy,
     staffType,
     reason,
+    remarks
   });
 
   res.status(200).json({
