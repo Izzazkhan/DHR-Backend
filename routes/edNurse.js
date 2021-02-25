@@ -7,6 +7,7 @@ const {
   getRad,
   getPharmacy,
   submitRequest,
+  updateSubmitRequest,
   getHouskeepingRequests,
   getCustomerCareRequests,
   getNurseTechnicianRequests,
@@ -24,6 +25,7 @@ router.get('/getHKRequests', getHouskeepingRequests);
 router.get('/getCCRequests', getCustomerCareRequests);
 router.get('/getNTRequests', getNurseTechnicianRequests);
 router.post('/submitRequest', submitRequest);
+router.put('/updateSubmitRequest', updateSubmitRequest);
 router.get('/pendingEDNurseEdrRequest/:nurseId', pendingEDNurseEdrRequest);
 router.put('/completeRequest', completeRequest);
 router.put('/updateMedicationStatus', updateMedicationStatus);

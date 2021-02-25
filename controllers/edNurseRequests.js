@@ -164,7 +164,7 @@ exports.getPharmacy = asyncHandler(async (req, res, next) => {
 });
 
 exports.submitRequest = asyncHandler(async (req, res, next) => {
-  const { patientId, staffId, assignedBy, staffType, reason, remarks } = req.body;
+  const { patientId, staffId, assignedBy, staffType, reason } = req.body;
   let request;
   if (staffType === 'Customer Care') {
     request = await CCRequests.create({});
@@ -174,8 +174,24 @@ exports.submitRequest = asyncHandler(async (req, res, next) => {
     staffId,
     assignedBy,
     staffType,
-    reason,
-    remarks
+    reason
+  });
+
+  res.status(200).json({
+    success: true,
+    data: request,
+  });
+});
+
+exports.updateSubmitRequest = asyncHandler(async (req, res, next) => {
+
+  const { requestId, remarks } = req.body;
+
+const request = await EDN.findOneAndUpdate({_id:requestId},{
+  $set:{
+  status:"complete",
+  remarks:remarks
+  }
   });
 
   res.status(200).json({
