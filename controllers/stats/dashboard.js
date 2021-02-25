@@ -136,7 +136,7 @@ exports.cpDashboard = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    firsCard: {
+    firstCard: {
       TAT: orderTAT,
       totalPending: pendingOrders.length,
       perHour,
@@ -363,5 +363,125 @@ exports.itDashboard = asyncHandler(async (req, res, next) => {
       perHour: patientsPerHour,
     },
     cumulativePatients: cumulativePatients.length,
+  });
+});
+
+// * Rad Doctor Dashboard
+exports.rdDashboard = asyncHandler(async (req, res, next) => {
+  const pendingRad = await EDR.aggregate([
+    {
+      $project: {
+        status: 1,
+        radRequest: 1,
+      },
+    },
+    {
+      $match: {
+        status: 'pending',
+      },
+    },
+    {
+      $unwind: '$radRequest',
+    },
+    {
+      $match: {
+        $and: [
+          { 'radRequest.status': 'pending approval' },
+          { 'radRequest.pendingApprovalTime': { $gte: sixHour } },
+          { 'radRequest.pendingApprovalTime': { $lte: currentTime } },
+        ],
+      },
+    },
+  ]);
+  pendingRad.map((o) =>
+    compareDataForSixHours(o.radRequest.pendingApprovalTime)
+  );
+
+  const radsPerHour = JSON.parse(JSON.stringify(arr));
+  clearAllTime();
+
+  //   TAT
+  const completedRad = await EDR.aggregate([
+    {
+      $project: {
+        status: 1,
+        radRequest: 1,
+      },
+    },
+    {
+      $match: {
+        status: 'pending',
+      },
+    },
+    {
+      $unwind: '$radRequest',
+    },
+    {
+      $match: {
+        $and: [
+          { 'radRequest.status': 'completed' },
+          { 'radRequest.completeTime': { $gte: sixHour } },
+          { 'radRequest.completeTime': { $lte: currentTime } },
+        ],
+      },
+    },
+  ]);
+
+  let radTime = 0;
+  completedRad.map((t) => {
+    t.radStart = new Date(t.radRequest.pendingApprovalTime);
+
+    t.radEnd = new Date(t.radRequest.completeTime);
+
+    t.time = Math.round(
+      (t.radEnd.getTime() - t.radStart.getTime()) / (1000 * 60)
+    );
+    radTime += t.time;
+  });
+
+  const completedRadTAT = radTime / completedRad.length;
+
+  //   * 2nd Card
+  completedRad.map((o) => compareDataForSixHours(o.radRequest.completeTime));
+
+  const completedPerHour = JSON.parse(JSON.stringify(arr));
+  clearAllTime();
+
+  // *  Cumulative Notes
+  const cumulativeNotes = await EDR.aggregate([
+    {
+      $project: {
+        status: 1,
+        radRequest: 1,
+      },
+    },
+    {
+      $match: {
+        status: 'pending',
+      },
+    },
+    {
+      $unwind: '$radRequest',
+    },
+    {
+      $match: {
+        'radRequest.status': 'completed',
+      },
+    },
+  ]);
+
+  res.status(200).json({
+    success: true,
+    firstCard: {
+      TAT: completedRadTAT,
+      totalPending: pendingRad.length,
+      perHour: radsPerHour,
+    },
+    secondCard: {
+      TAT: completedRadTAT,
+      totalPending: completedRad.length,
+      perHour: completedPerHour,
+    },
+    cumulativeNotes: cumulativeNotes.length,
   });
 });
