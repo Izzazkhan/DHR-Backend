@@ -18,7 +18,11 @@ const {
 } = require('../controllers/reports');
 
 const { senseiDashboard } = require('../controllers/stats/senseiDashboard');
-const { cpDashboard, itDashboard } = require('../controllers/stats/dashboard');
+const {
+  cpDashboard,
+  itDashboard,
+  rdDashboard,
+} = require('../controllers/stats/dashboard');
 
 // Registration Officer
 router.get('/roDashboard', roDashboard);
@@ -36,4 +40,5 @@ router.get('/swDashboard', swDashboard);
 router.get('/ccDashboard', ccDashboard);
 router.get('/cpDashboard', cpDashboard);
 router.get('/itDashboard', itDashboard);
+router.get('/rdDashboard', rdDashboard);
 module.exports = router;
