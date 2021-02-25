@@ -9,8 +9,11 @@ const {
   submitRequest,
   updateSubmitRequest,
   getHouskeepingRequests,
+  getHouskeepingRequestsById,
   getCustomerCareRequests,
+  getCustomerCareRequestsById,
   getNurseTechnicianRequests,
+  getNurseTechnicianRequestsById,
   pendingEDNurseEdrRequest,
   completeRequest,
   completedEDNurseEdrRequest,
@@ -22,8 +25,11 @@ router.get('/getLab', getLab);
 router.get('/getRad', getRad);
 router.get('/getPharmacy', getPharmacy);
 router.get('/getHKRequests', getHouskeepingRequests);
+router.get('/getHKRequestsById/:staffId', getHouskeepingRequestsById);
 router.get('/getCCRequests', getCustomerCareRequests);
+router.get('/getCCRequestsById/:staffId', getCustomerCareRequestsById);
 router.get('/getNTRequests', getNurseTechnicianRequests);
+router.get('/getNTRequestsById/:staffId', getNurseTechnicianRequestsById);
 router.post('/submitRequest', submitRequest);
 router.put('/updateSubmitRequest', updateSubmitRequest);
 router.get('/pendingEDNurseEdrRequest/:nurseId', pendingEDNurseEdrRequest);

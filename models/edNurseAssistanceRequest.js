@@ -16,7 +16,15 @@ const edNurseSchema = new mongoose.Schema({
   staffType: String,
   reason: String,
   status:{type:String,default:"pending"},
-  remarks:{type:String}
+  remarks:{type:String},
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 module.exports = mongoose.model('assistanceRequest', edNurseSchema);
