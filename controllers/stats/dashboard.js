@@ -14,9 +14,17 @@ const thirdHour = moment().subtract(4, 'hours').utc().toDate();
 const secondHour = moment().subtract(5, 'hours').utc().toDate();
 const sixHour = moment().subtract(6, 'hours').utc().toDate();
 
-// Clinical Pharmacist Dashboard
-exports.cpDashboard = asyncHandler(async (req, res, next) => {
-  let arr = [
+let arr = [
+  { label: lastHour, value: 0 },
+  { label: fifthHour, value: 0 },
+  { label: fourthHour, value: 0 },
+  { label: thirdHour, value: 0 },
+  { label: secondHour, value: 0 },
+  { label: sixHour, value: 0 },
+];
+
+function clearAllTime() {
+  arr = [
     { label: lastHour, value: 0 },
     { label: fifthHour, value: 0 },
     { label: fourthHour, value: 0 },
@@ -24,34 +32,25 @@ exports.cpDashboard = asyncHandler(async (req, res, next) => {
     { label: secondHour, value: 0 },
     { label: sixHour, value: 0 },
   ];
+}
 
-  function clearAllTime() {
-    arr = [
-      { label: lastHour, value: 0 },
-      { label: fifthHour, value: 0 },
-      { label: fourthHour, value: 0 },
-      { label: thirdHour, value: 0 },
-      { label: secondHour, value: 0 },
-      { label: sixHour, value: 0 },
-    ];
+function compareDataForSixHours(dateTime) {
+  if (dateTime > lastHour && dateTime < currentTime) {
+    arr[0] = { label: arr[0].label, value: arr[0].value + 1 };
+  } else if (dateTime > fifthHour && dateTime < lastHour) {
+    arr[1] = { label: arr[1].label, value: arr[1].value + 1 };
+  } else if (dateTime > fourthHour && dateTime < fifthHour) {
+    arr[2] = { label: arr[2].label, value: arr[2].value + 1 };
+  } else if (dateTime > thirdHour && dateTime < fourthHour) {
+    arr[3] = { label: arr[3].label, value: arr[3].value + 1 };
+  } else if (dateTime > secondHour && dateTime < thirdHour) {
+    arr[4] = { label: arr[4].label, value: arr[4].value + 1 };
+  } else if (dateTime > sixHour && dateTime < secondHour) {
+    arr[5] = { label: arr[5].label, value: arr[5].value + 1 };
   }
-
-  function compareDataForSixHours(dateTime) {
-    if (dateTime > lastHour && dateTime < currentTime) {
-      arr[0] = { label: arr[0].label, value: arr[0].value + 1 };
-    } else if (dateTime > fifthHour && dateTime < lastHour) {
-      arr[1] = { label: arr[1].label, value: arr[1].value + 1 };
-    } else if (dateTime > fourthHour && dateTime < fifthHour) {
-      arr[2] = { label: arr[2].label, value: arr[2].value + 1 };
-    } else if (dateTime > thirdHour && dateTime < fourthHour) {
-      arr[3] = { label: arr[3].label, value: arr[3].value + 1 };
-    } else if (dateTime > secondHour && dateTime < thirdHour) {
-      arr[4] = { label: arr[4].label, value: arr[4].value + 1 };
-    } else if (dateTime > sixHour && dateTime < secondHour) {
-      arr[5] = { label: arr[5].label, value: arr[5].value + 1 };
-    }
-  }
-
+}
+// Clinical Pharmacist Dashboard
+exports.cpDashboard = asyncHandler(async (req, res, next) => {
   const pendingOrders = await EDR.aggregate([
     {
       $project: {
@@ -71,9 +70,7 @@ exports.cpDashboard = asyncHandler(async (req, res, next) => {
     },
   ]);
 
-  pendingOrders.map((o) => {
-    compareDataForSixHours(o.pharmacyRequest.createdAt);
-  });
+  pendingOrders.map((o) => compareDataForSixHours(o.pharmacyRequest.createdAt));
 
   const perHour = JSON.parse(JSON.stringify(arr));
   clearAllTime();
@@ -150,5 +147,221 @@ exports.cpDashboard = asyncHandler(async (req, res, next) => {
       perHour: CompletedPerHour,
     },
     cumulativeOrders: cumulativeOrders.length,
+  });
+});
+
+// * Imaging Technician Dashboard
+exports.itDashboard = asyncHandler(async (req, res, next) => {
+  function compareData(hold, active, requested) {
+    if (
+      (hold > lastHour && hold < currentTime) ||
+      (active > lastHour && active < currentTime) ||
+      (requested > lastHour && requested < currentTime)
+    ) {
+      arr[0] = { label: arr[0].label, value: arr[0].value + 1 };
+    } else if (
+      (hold > fifthHour && hold < lastHour) ||
+      (active > fifthHour && active < lastHour) ||
+      (requested > fifthHour && requested < lastHour)
+    ) {
+      arr[1] = { label: arr[1].label, value: arr[1].value + 1 };
+    } else if (
+      (hold > fourthHour && hold < fifthHour) ||
+      (active > fourthHour && active < fifthHour) ||
+      (requested > fourthHour && requested < fifthHour)
+    ) {
+      arr[2] = { label: arr[2].label, value: arr[2].value + 1 };
+    } else if (
+      (hold > thirdHour && hold < fourthHour) ||
+      (active > thirdHour && active < fourthHour) ||
+      (requested > thirdHour && requested < fourthHour)
+    ) {
+      arr[3] = { label: arr[3].label, value: arr[3].value + 1 };
+    } else if (
+      (hold > secondHour && hold < thirdHour) ||
+      (active > secondHour && active < thirdHour) ||
+      (requested > secondHour && requested < thirdHour)
+    ) {
+      arr[4] = { label: arr[4].label, value: arr[4].value + 1 };
+    } else if (
+      (hold > sixHour && hold < secondHour) ||
+      (active > sixHour && active < secondHour) ||
+      (requested > sixHour && requested < secondHour)
+    ) {
+      arr[5] = { label: arr[5].label, value: arr[5].value + 1 };
+    }
+  }
+  const pendingRads = await EDR.aggregate([
+    {
+      $project: {
+        radRequest: 1,
+      },
+    },
+    {
+      $unwind: '$radRequest',
+    },
+    {
+      $match: {
+        $and: [
+          {
+            $or: [
+              { 'radRequest.status': 'pending' },
+              { 'radRequest.status': 'active' },
+              { 'radRequest.status': 'hold' },
+            ],
+          },
+          {
+            $or: [
+              { 'radRequest.holdTime': { $gte: sixHour } },
+              { 'radRequest.activeTime': { $gte: sixHour } },
+              { 'radRequest.requestedAt': { $gte: sixHour } },
+            ],
+          },
+        ],
+      },
+    },
+  ]);
+
+  pendingRads.map((o) =>
+    compareData(
+      o.radRequest.holdTime,
+      o.radRequest.activeTime,
+      o.radRequest.requestedAt
+    )
+  );
+
+  const perHour = JSON.parse(JSON.stringify(arr));
+  clearAllTime();
+
+  //   TAT
+  const completedRads = await EDR.aggregate([
+    {
+      $project: {
+        radRequest: 1,
+      },
+    },
+    {
+      $unwind: '$radRequest',
+    },
+    {
+      $match: {
+        $and: [
+          { 'radRequest.status': 'pending approval' },
+          { 'radRequest.pendingApprovalTime': { $gte: sixHour } },
+        ],
+      },
+    },
+  ]);
+
+  let radTime = 0;
+  completedRads.forEach((t) => {
+    t.startTime = new Date(t.radRequest.requestedAt);
+    t.endTime = new Date(t.radRequest.pendingApprovalTime);
+    t.time = Math.round(
+      (t.endTime.getTime() - t.startTime.getTime()) / (1000 * 60)
+    );
+    radTime += t.time;
+  });
+  const orderTAT =
+    completedRads.length > 0 ? radTime / completedRads.length : 0;
+
+  // * 2nd Card
+
+  completedRads.map((o) =>
+    compareDataForSixHours(o.radRequest.pendingApprovalTime)
+  );
+
+  const completedPerHour = JSON.parse(JSON.stringify(arr));
+  clearAllTime();
+
+  //   TAT
+  const approvedRads = await EDR.aggregate([
+    {
+      $project: {
+        radRequest: 1,
+      },
+    },
+    {
+      $unwind: '$radRequest',
+    },
+    {
+      $match: {
+        $and: [
+          { 'radRequest.status': 'completed' },
+          { 'radRequest.completeTime': { $gte: sixHour } },
+        ],
+      },
+    },
+  ]);
+
+  let approvedTime = 0;
+  approvedRads.forEach((t) => {
+    t.startTime = new Date(t.radRequest.requestedAt);
+    t.endTime = new Date(t.radRequest.completeTime);
+    t.time = Math.round(
+      (t.endTime.getTime() - t.startTime.getTime()) / (1000 * 60)
+    );
+    approvedTime += t.time;
+  });
+  const approvedTAT =
+    approvedRads.length > 0 ? approvedTime / approvedRads.length : 0;
+
+  // * 3rd Card
+  const patients = await EDR.aggregate([
+    {
+      $project: {
+        radRequest: 1,
+      },
+    },
+    {
+      $unwind: '$radRequest',
+    },
+    {
+      $match: {
+        'radRequest.requestedAt': { $gte: sixHour },
+      },
+    },
+  ]);
+
+  patients.map((o) => compareDataForSixHours(o.radRequest.requestedAt));
+
+  const patientsPerHour = JSON.parse(JSON.stringify(arr));
+  clearAllTime();
+
+  //  * Cumulative Patients
+  const cumulativePatients = await EDR.aggregate([
+    {
+      $project: {
+        radRequest: 1,
+      },
+    },
+    {
+      $unwind: '$radRequest',
+    },
+    {
+      $match: {
+        'radRequest.status': 'pending approval',
+      },
+    },
+  ]);
+
+  res.status(200).json({
+    success: true,
+    firstCard: {
+      TAT: orderTAT,
+      totalPending: pendingRads.length,
+      perHour,
+    },
+    secondCard: {
+      TAT: approvedTAT,
+      totalPending: completedRads.length,
+      perHour: completedPerHour,
+    },
+    thirdCard: {
+      TAT: orderTAT,
+      totalPending: patients.length,
+      perHour: patientsPerHour,
+    },
+    cumulativePatients: cumulativePatients.length,
   });
 });
