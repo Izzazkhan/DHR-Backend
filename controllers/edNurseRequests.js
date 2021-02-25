@@ -192,7 +192,8 @@ const request = await EDN.findOneAndUpdate({_id:requestId},{
   status:"complete",
   remarks:remarks
   }
-  });
+  },
+  { new: true });
 
   res.status(200).json({
     success: true,
@@ -202,6 +203,16 @@ const request = await EDN.findOneAndUpdate({_id:requestId},{
 
 exports.getHouskeepingRequests = asyncHandler(async (req, res, next) => {
   const HKRequests = await EDN.find({ staffType: 'Housekeeping' })
+    .populate('patientId', 'name identifier')
+    .populate('staffId', 'name identifier');
+  res.status(200).json({
+    success: true,
+    data: HKRequests,
+  });
+});
+
+exports.getHouskeepingRequests = asyncHandler(async (req, res, next) => {
+  const HKRequests = await EDN.find({ staffType: 'Housekeeping', staffId:req.params.staffId })
     .populate('patientId', 'name identifier')
     .populate('staffId', 'name identifier');
   res.status(200).json({
