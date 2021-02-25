@@ -9,13 +9,20 @@ const {
   anesthesiologistDashboard,
   hkDashboard,
   hkRoomPending,
-  senseiDashboard,
+  // senseiDashboard,
   edDoctorDashboard,
   externalConsultantDB,
   internalConsultantDB,
   swDashboard,
   ccDashboard,
 } = require('../controllers/reports');
+
+
+
+
+const {
+senseiDashboard
+} = require('../controllers/stats/senseiDashboard');
 
 // Registration Officer
 router.get('/roDashboard', roDashboard);
