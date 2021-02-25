@@ -136,7 +136,7 @@ exports.cpDashboard = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    firsCard: {
+    firstCard: {
       TAT: orderTAT,
       totalPending: pendingOrders.length,
       perHour,
