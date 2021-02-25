@@ -895,6 +895,9 @@ const edrSchema = new mongoose.Schema({
       activeTime: {
         type: Date,
       },
+      collectedTime: {
+        type: Date,
+      },
       completeTime: {
         type: Date,
       },
@@ -1131,6 +1134,8 @@ const edrSchema = new mongoose.Schema({
       bloodPressure: String,
       cbcLevel: String,
       status: String,
+      transferTime: Date,
+      observedTime: Date,
     },
   ],
   nurseTechnicianStatus: {

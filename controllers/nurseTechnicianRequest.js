@@ -40,7 +40,7 @@ exports.addReport = asyncHandler(async (req, res, next) => {
           .bloodPressure,
         [`transferOfCare.${latestTransfer}.cbcLevel`]: req.body.cbcLevel,
         [`transferOfCare.${latestTransfer}.status`]: 'Observed',
-        nurseTechnicianStatus: 'completed',
+        [`transferOfCare.${latestTransfer}.observedTime`]: Date.now(),
       },
     },
     {
@@ -173,6 +173,7 @@ exports.completeLab = asyncHandler(async (req, res, next) => {
     {
       $set: {
         [`labRequest.${labId}.nurseTechnicianStatus`]: 'Collected',
+        [`labRequest.${labId}.collectedTime`]: Date.now(),
       },
     },
     { new: true }
