@@ -221,6 +221,8 @@ exports.getHouskeepingRequestsById = asyncHandler(async (req, res, next) => {
   });
 });
 
+
+
 exports.getCustomerCareRequests = asyncHandler(async (req, res, next) => {
   const ccRequests = await EDN.find({ staffType: 'Customer Care' })
     .populate('patientId', 'name identifier')
@@ -228,6 +230,16 @@ exports.getCustomerCareRequests = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: ccRequests,
+  });
+});
+
+exports.getCustomerCareRequestsById = asyncHandler(async (req, res, next) => {
+  const HKRequests = await EDN.find({ staffType: 'Customer Care', staffId:req.params.staffId })
+    .populate('patientId', 'name identifier')
+    .populate('staffId', 'name identifier');
+  res.status(200).json({
+    success: true,
+    data: HKRequests,
   });
 });
 
@@ -241,6 +253,15 @@ exports.getNurseTechnicianRequests = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.getNurseTechnicianRequestsById = asyncHandler(async (req, res, next) => {
+  const NTRequests = await EDN.find({ staffType: 'Nurse Technician', staffId:req.params.staffId })
+    .populate('patientId', 'name identifier')
+    .populate('staffId', 'name identifier');
+  res.status(200).json({
+    success: true,
+    data: NTRequests,
+  });
+});
 exports.pendingEDNurseEdrRequest = asyncHandler(async (req, res, next) => {
   const unwindEdr = await EDR.aggregate([
     {
