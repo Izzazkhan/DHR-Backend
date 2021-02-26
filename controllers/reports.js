@@ -9,16 +9,27 @@ const EDR = require('../models/EDR/EDR');
 const Transfer = require('../models/patientTransferEDEOU/patientTransferEDEOU');
 const CCRequest = require('../models/customerCareRequest');
 
-const currentTime = moment().utc().toDate();
-const lastHour = moment().subtract(1, 'hours').utc().toDate();
-const fifthHour = moment().subtract(2, 'hours').utc().toDate();
-const fourthHour = moment().subtract(3, 'hours').utc().toDate();
-const thirdHour = moment().subtract(4, 'hours').utc().toDate();
-const secondHour = moment().subtract(5, 'hours').utc().toDate();
-const sixHour = moment().subtract(6, 'hours').utc().toDate();
+let currentTime = moment().utc().toDate();
+let lastHour = moment().subtract(1, 'hours').utc().toDate();
+let fifthHour = moment().subtract(2, 'hours').utc().toDate();
+let fourthHour = moment().subtract(3, 'hours').utc().toDate();
+let thirdHour = moment().subtract(4, 'hours').utc().toDate();
+let secondHour = moment().subtract(5, 'hours').utc().toDate();
+let sixHour = moment().subtract(6, 'hours').utc().toDate();
+
+function setLastSixHours() {
+  currentTime = moment().utc().toDate();
+  lastHour = moment().subtract(1, 'hours').utc().toDate();
+  fifthHour = moment().subtract(2, 'hours').utc().toDate();
+  fourthHour = moment().subtract(3, 'hours').utc().toDate();
+  thirdHour = moment().subtract(4, 'hours').utc().toDate();
+  secondHour = moment().subtract(5, 'hours').utc().toDate();
+  sixHour = moment().subtract(6, 'hours').utc().toDate();
+}
 
 // Registration Officer Dashboard Stats
 exports.roDashboard = asyncHandler(async (req, res) => {
+  setLastSixHours();
   // console.log('sixHour:', sixHour);
   // console.log('currentTime:', currentTime);
   // * Register Officer Registrations Per Hour
@@ -227,6 +238,8 @@ exports.roDashboard = asyncHandler(async (req, res) => {
 //Registration Officer Sensei Pending Dashboard
 exports.roSenseiPending = asyncHandler(async (req, res, next) => {
   //   * Pending Registration After Sensei
+  setLastSixHours();
+
   const pendingSensei = await Patient.aggregate([
     {
       $project: {
@@ -418,6 +431,8 @@ exports.roSenseiPending = asyncHandler(async (req, res, next) => {
 
 //Registration All Pending Dashboard
 exports.roTotalPending = asyncHandler(async (req, res, next) => {
+  setLastSixHours();
+
   //   * Pending Registration After Sensei
   const totalPending = await Patient.aggregate([
     {
@@ -607,6 +622,8 @@ exports.roTotalPending = asyncHandler(async (req, res, next) => {
 // House Keeper Dashboard
 exports.hkDashboard = asyncHandler(async (req, res, next) => {
   // Room Cleaning Pending
+  setLastSixHours();
+
   const roomPending = await HKRequests.find({
     status: 'pending',
     $and: [
@@ -649,6 +666,8 @@ exports.hkDashboard = asyncHandler(async (req, res, next) => {
 });
 
 exports.hkRoomPending = asyncHandler(async (req, res, next) => {
+  setLastSixHours();
+
   const arr = [];
 
   // Room Cleaning Pending
@@ -726,6 +745,8 @@ exports.hkRoomPending = asyncHandler(async (req, res, next) => {
 
 // Anesthesiologist Dashboard
 exports.anesthesiologistDashboard = asyncHandler(async (req, res, next) => {
+  setLastSixHours();
+
   const pending = await EDR.aggregate([
     {
       $project: {
@@ -1625,6 +1646,8 @@ exports.anesthesiologistDashboard = asyncHandler(async (req, res, next) => {
 });
 
 exports.senseiDashboard = asyncHandler(async (req, res, next) => {
+  setLastSixHours();
+
   // Available ED Beds
   const EdBeds = await Room.find({
     availability: true,
@@ -1669,6 +1692,8 @@ exports.senseiDashboard = asyncHandler(async (req, res, next) => {
 });
 
 exports.edDoctorDashboard = asyncHandler(async (req, res, next) => {
+  setLastSixHours();
+
   const diagnosesPending = await EDR.find({
     status: 'pending',
     doctorNotes: { $eq: [] },
@@ -2451,6 +2476,8 @@ exports.edDoctorDashboard = asyncHandler(async (req, res, next) => {
 });
 
 exports.externalConsultantDB = asyncHandler(async (req, res, next) => {
+  setLastSixHours();
+
   const pendingConsultation = await EDR.aggregate([
     {
       $project: {
@@ -2665,6 +2692,8 @@ exports.externalConsultantDB = asyncHandler(async (req, res, next) => {
 });
 
 exports.internalConsultantDB = asyncHandler(async (req, res, next) => {
+  setLastSixHours();
+
   const pendingConsultation = await EDR.aggregate([
     {
       $project: {
@@ -2880,6 +2909,8 @@ exports.internalConsultantDB = asyncHandler(async (req, res, next) => {
 
 //* SocialWorker Dashboard
 exports.swDashboard = asyncHandler(async (req, res, next) => {
+  setLastSixHours();
+
   const pendingPatient = await EDR.find({
     status: 'Discharged',
     socialWorkerStatus: 'pending',
@@ -3131,6 +3162,8 @@ exports.swDashboard = asyncHandler(async (req, res, next) => {
 
 // * Customer Care Dashboard
 exports.ccDashboard = asyncHandler(async (req, res, next) => {
+  setLastSixHours();
+
   const patientTransfer = await Transfer.find({
     from: 'ED',
     to: 'EOU',

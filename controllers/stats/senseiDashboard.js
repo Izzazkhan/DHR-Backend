@@ -6,15 +6,15 @@ const asyncHandler = require('../../middleware/async');
 const ErrorResponse = require('../../utils/errorResponse');
 const EDR = require('../../models/EDR/EDR');
 
-const currentTime = moment().utc().toDate();
-const lastHour = moment().subtract(1, 'hours').utc().toDate();
-const fifthHour = moment().subtract(2, 'hours').utc().toDate();
-const fourthHour = moment().subtract(3, 'hours').utc().toDate();
-const thirdHour = moment().subtract(4, 'hours').utc().toDate();
-const secondHour = moment().subtract(5, 'hours').utc().toDate();
-const sixHour = moment().subtract(6, 'hours').utc().toDate();
-
 exports.senseiDashboard = asyncHandler(async (req, res, next) => {
+  const currentTime = moment().utc().toDate();
+  const lastHour = moment().subtract(1, 'hours').utc().toDate();
+  const fifthHour = moment().subtract(2, 'hours').utc().toDate();
+  const fourthHour = moment().subtract(3, 'hours').utc().toDate();
+  const thirdHour = moment().subtract(4, 'hours').utc().toDate();
+  const secondHour = moment().subtract(5, 'hours').utc().toDate();
+  const sixHour = moment().subtract(6, 'hours').utc().toDate();
+
   let arr = [
     { label: lastHour, value: 0 },
     { label: fifthHour, value: 0 },
@@ -118,206 +118,228 @@ exports.senseiDashboard = asyncHandler(async (req, res, next) => {
   const perHourTriagePending = JSON.parse(JSON.stringify(arr));
   clearAllTime();
 
-  //   const diagnosesPending = await EDR.find({
-  //     status: 'pending',
-  //     doctorNotes: { $eq: [] },
-  //     dcdForm: {
-  //       $elemMatch: { 'triageAssessment.triageTime': { $gte: sixHour } },
-  //     },
-  //   });
+  //diagnose pending
+  const diagnosePending = await EDR.find({
+    status: 'pending',
+    doctorNotes: { $eq: [] },
+    createdTimeStamp: { $gte: sixHour },
+  });
 
-  //   const completedArr = [];
-  //   let sixthHourPatient = 0;
-  //   let fifthHourPatient = 0;
-  //   let fourthHourPatient = 0;
-  //   let thirdHourPatient = 0;
-  //   let secondHourPatient = 0;
-  //   let firstHourPatient = 0;
-  //   diagnosesPending.map((p) => {
-  //     if (
-  //       p.dcdForm[p.dcdForm.length - 1].triageAssessment[0].triageTime >
-  //         lastHour &&
-  //       p.dcdForm[p.dcdForm.length - 1].triageAssessment[0].triageTime <
-  //         currentTime
-  //     ) {
-  //       sixthHourPatient++;
-  //       // console.log('sixthHourPatient', sixthHourPatient);
-  //     } else if (
-  //       p.dcdForm[p.dcdForm.length - 1].triageAssessment[0].triageTime >
-  //         fifthHour &&
-  //       p.dcdForm[p.dcdForm.length - 1].triageAssessment[0].triageTime < lastHour
-  //     ) {
-  //       fifthHourPatient++;
-  //     } else if (
-  //       p.dcdForm[p.dcdForm.length - 1].triageAssessment[0].triageTime >
-  //         fourthHour &&
-  //       p.dcdForm[p.dcdForm.length - 1].triageAssessment[0].triageTime < fifthHour
-  //     ) {
-  //       fourthHourPatient++;
-  //     } else if (
-  //       p.dcdForm[p.dcdForm.length - 1].triageAssessment[0].triageTime >
-  //         thirdHour &&
-  //       p.dcdForm[p.dcdForm.length - 1].triageAssessment[0].triageTime <
-  //         fourthHour
-  //     ) {
-  //       thirdHourPatient++;
-  //     } else if (
-  //       p.dcdForm[p.dcdForm.length - 1].triageAssessment[0].triageTime >
-  //         secondHour &&
-  //       p.dcdForm[p.dcdForm.length - 1].triageAssessment[0].triageTime < thirdHour
-  //     ) {
-  //       secondHourPatient++;
-  //     } else if (
-  //       p.dcdForm[p.dcdForm.length - 1].triageAssessment[0].triageTime >
-  //         sixHour &&
-  //       p.dcdForm[p.dcdForm.length - 1].triageAssessment[0].triageTime <
-  //         secondHour
-  //     ) {
-  //       firstHourPatient++;
-  //     }
-  //   });
-  //   completedArr.push({ label: lastHour, value: sixthHourPatient });
-  //   completedArr.push({ label: fifthHour, value: fifthHourPatient });
-  //   completedArr.push({ label: fourthHour, value: fourthHourPatient });
-  //   completedArr.push({ label: thirdHour, value: thirdHourPatient });
-  //   completedArr.push({ label: secondHour, value: secondHourPatient });
-  //   completedArr.push({ label: sixHour, value: firstHourPatient });
+  const diagnosesPendingTAT = await EDR.find({
+    // status: 'pending',
+    createdTimeStamp: { $gte: sixHour },
+    doctorNotes: { $ne: [] },
+    dcdForm: {
+      $elemMatch: { triageAssessment: { $ne: [] } },
+    },
+  });
 
-  //   const triageTAT = await EDR.find({
-  //     status: 'pending',
-  //     doctorNotes: { $ne: [] },
-  //     dcdForm: { $elemMatch: { triageAssessment: { $ne: [] } } },
-  //     'doctorNotes.assignedTime': { $gte: sixHour },
-  //     // $and: [
+  let totalTimeBetweenTriageAndNotes = 0;
+  diagnosesPendingTAT.forEach((t) => {
+    t.createdTimeStamp = new Date(t.doctorNotes[0].assignedTime);
+    t.noteTime = new Date(t.dcdForm[0].triageAssessment[0].triageTime);
+    t.time = Math.round(
+      (t.createdTimeStamp.getTime() - t.noteTime.getTime()) / (1000 * 60)
+    );
+    totalTimeBetweenTriageAndNotes += t.time;
+  });
+  const TATForTriageToNotes =
+    diagnosesPendingTAT.length > 0
+      ? totalTimeBetweenTriageAndNotes / diagnosesPendingTAT.length
+      : 0;
 
-  //     //   { 'doctorNotes.assignedTime': { $lte: currentTime } },
-  //     // ],
-  //   });
+  diagnosePending.map((p) => {
+    compareDataForSixHours(p.createdTimeStamp);
+  });
+  const perHourDiagnosePending = JSON.parse(JSON.stringify(arr));
+  clearAllTime();
 
-  //   let time = 0;
-  //   triageTAT.map((t) => {
-  //     t.triageTime = new Date(
-  //       t.dcdForm[t.dcdForm.length - 1].triageAssessment[0].triageTime
-  //     );
+  // * 4rh Card
+  const decisionPending = await EDR.aggregate([
+    {
+      $project: {
+        status: 1,
+        doctorNotes: 1,
+        careStream: 1,
+      },
+    },
+    {
+      $match: {
+        $and: [{ careStream: { $eq: [] } }, { doctorNotes: { $ne: [] } }],
+      },
+    },
+    {
+      $unwind: '$doctorNotes',
+    },
+    {
+      $match: {
+        'doctorNotes.assignedTime': { $gte: sixHour },
+      },
+    },
+  ]);
 
-  //     t.noteTime = new Date(t.doctorNotes[0].assignedTime);
+  decisionPending.map((p) => {
+    compareDataForSixHours(p.doctorNotes.assignedTime);
+  });
+  const decisionPendingPerHour = JSON.parse(JSON.stringify(arr));
+  clearAllTime();
 
-  //     t.time = Math.round(
-  //       (t.noteTime.getTime() - t.triageTime.getTime()) / (1000 * 60)
-  //     );
-  //     time += t.time;
-  //   });
+  const decisionCompleted = await EDR.aggregate([
+    {
+      $project: {
+        status: 1,
+        doctorNotes: 1,
+        careStream: 1,
+      },
+    },
+    {
+      $match: {
+        $and: [{ careStream: { $ne: [] } }, { doctorNotes: { $ne: [] } }],
+      },
+    },
+    {
+      $unwind: '$careStream',
+    },
+    {
+      $match: {
+        'careStream.assignedTime': { $gte: sixHour },
+      },
+    },
+  ]);
 
-  //   const TAT = time / triageTAT.length;
+  let decisionTime = 0;
+  decisionCompleted.map((t) => {
+    t.noteTime = new Date(t.doctorNotes[0].assignedTime);
+    t.careStreamTime = new Date(t.careStream.assignedTime);
+    t.time = Math.round(
+      (t.careStreamTime.getTime() - t.noteTime.getTime()) / (1000 * 60)
+    );
+    decisionTime += t.time;
+  });
 
-  //   // * 2nd Card
-  //   const decisionPending = await EDR.aggregate([
-  //     {
-  //       $project: {
-  //         status: 1,
-  //         doctorNotes: 1,
-  //         careStream: 1,
-  //       },
-  //     },
-  //     {
-  //       $match: {
-  //         $and: [{ careStream: { $eq: [] } }, { doctorNotes: { $ne: [] } }],
-  //       },
-  //     },
-  //     {
-  //       $unwind: '$doctorNotes',
-  //     },
-  //     {
-  //       $match: {
-  //         'doctorNotes.assignedTime': { $gte: sixHour },
-  //       },
-  //     },
-  //   ]);
+  const decisionTAT = decisionTime / decisionCompleted.length;
 
-  //   const decisionArr = [];
-  //   let sixthHourDecision = 0;
-  //   let fifthHourDecision = 0;
-  //   let fourthHourDecision = 0;
-  //   let thirdHourDecision = 0;
-  //   let secondHourDecision = 0;
-  //   let firstHourDecision = 0;
-  //   decisionPending.map((p) => {
-  //     if (
-  //       p.doctorNotes.assignedTime > lastHour &&
-  //       p.doctorNotes.assignedTime < currentTime
-  //     ) {
-  //       sixthHourDecision++;
-  //       // console.log('sixthHourDecision', sixthHourDecision);
-  //     } else if (
-  //       p.doctorNotes.assignedTime > fifthHour &&
-  //       p.doctorNotes.assignedTime < lastHour
-  //     ) {
-  //       fifthHourDecision++;
-  //     } else if (
-  //       p.doctorNotes.assignedTime > fourthHour &&
-  //       p.doctorNotes.assignedTime < fifthHour
-  //     ) {
-  //       fourthHourDecision++;
-  //     } else if (
-  //       p.doctorNotes.assignedTime > thirdHour &&
-  //       p.doctorNotes.assignedTime < fourthHour
-  //     ) {
-  //       thirdHourDecision++;
-  //     } else if (
-  //       p.doctorNotes.assignedTime > secondHour &&
-  //       p.doctorNotes.assignedTime < thirdHour
-  //     ) {
-  //       secondHourDecision++;
-  //     } else if (
-  //       p.doctorNotes.assignedTime > sixHour &&
-  //       p.doctorNotes.assignedTime < secondHour
-  //     ) {
-  //       firstHourDecision++;
-  //     }
-  //   });
-  //   decisionArr.push({ label: lastHour, value: sixthHourDecision });
-  //   decisionArr.push({ label: fifthHour, value: fifthHourDecision });
-  //   decisionArr.push({ label: fourthHour, value: fourthHourDecision });
-  //   decisionArr.push({ label: thirdHour, value: thirdHourDecision });
-  //   decisionArr.push({ label: secondHour, value: secondHourDecision });
-  //   decisionArr.push({ label: sixHour, value: firstHourDecision });
+  // * 5th Card
+  const labPending = await EDR.aggregate([
+    {
+      $project: {
+        labRequest: 1,
+      },
+    },
+    {
+      $unwind: '$labRequest',
+    },
+    {
+      $match: {
+        $and: [
+          { 'labRequest.status': { $ne: 'completed' } },
+          { 'labRequest.requestedAt': { $gte: sixHour } },
+        ],
+      },
+    },
+  ]);
 
-  //   const decisionCompleted = await EDR.aggregate([
-  //     {
-  //       $project: {
-  //         status: 1,
-  //         doctorNotes: 1,
-  //         careStream: 1,
-  //       },
-  //     },
-  //     {
-  //       $match: {
-  //         $and: [{ careStream: { $ne: [] } }, { doctorNotes: { $ne: [] } }],
-  //       },
-  //     },
-  //     {
-  //       $unwind: '$careStream',
-  //     },
-  //     {
-  //       $match: {
-  //         'careStream.assignedTime': { $gte: sixHour },
-  //       },
-  //     },
-  //   ]);
+  labPending.map((l) => {
+    compareDataForSixHours(l.labRequest.requestedAt);
+  });
+  const labPendingPerHour = JSON.parse(JSON.stringify(arr));
+  clearAllTime();
 
-  //   let decisionTime = 0;
-  //   decisionCompleted.map((t) => {
-  //     t.noteTime = new Date(t.doctorNotes[0].assignedTime);
+  // TAT
+  const labCompleted = await EDR.aggregate([
+    {
+      $project: {
+        labRequest: 1,
+      },
+    },
+    {
+      $unwind: '$labRequest',
+    },
+    {
+      $match: {
+        $and: [
+          { 'labRequest.status': 'completed' },
+          { 'labRequest.completeTime': { $gte: sixHour } },
+        ],
+      },
+    },
+  ]);
 
-  //     t.careStreamTime = new Date(t.careStream.assignedTime);
+  let labTime = 0;
+  labCompleted.map((t) => {
+    t.labStart = new Date(t.labRequest.requestedAt);
+    t.labEnd = new Date(t.labRequest.completeTime);
+    t.time = Math.round(
+      (t.labEnd.getTime() - t.labStart.getTime()) / (1000 * 60)
+    );
+    labTime += t.time;
+  });
 
-  //     t.time = Math.round(
-  //       (t.careStreamTime.getTime() - t.noteTime.getTime()) / (1000 * 60)
-  //     );
-  //     decisionTime += t.time;
-  //   });
+  const completedLabTAT = labTime / labCompleted.length;
 
-  //   const decisionTAT = decisionTime / decisionCompleted.length;
+  // * 6th Card
+  const pendingRad = await EDR.aggregate([
+    {
+      $project: {
+        status: 1,
+        radRequest: 1,
+      },
+    },
+    {
+      $unwind: '$radRequest',
+    },
+    {
+      $match: {
+        $and: [
+          { 'radRequest.status': 'pending approval' },
+          { 'radRequest.pendingApprovalTime': { $gte: sixHour } },
+          { 'radRequest.pendingApprovalTime': { $lte: currentTime } },
+        ],
+      },
+    },
+  ]);
+
+  pendingRad.map((r) => {
+    compareDataForSixHours(r.radRequest.pendingApprovalTime);
+  });
+  const radPendingPerHour = JSON.parse(JSON.stringify(arr));
+  clearAllTime();
+
+  // TAT
+  const completedRad = await EDR.aggregate([
+    {
+      $project: {
+        status: 1,
+        radRequest: 1,
+      },
+    },
+    {
+      $unwind: '$radRequest',
+    },
+    {
+      $match: {
+        $and: [
+          { 'radRequest.status': 'completed' },
+          { 'radRequest.completeTime': { $gte: sixHour } },
+          { 'radRequest.completeTime': { $lte: currentTime } },
+        ],
+      },
+    },
+  ]);
+
+  let radTime = 0;
+  completedRad.map((t) => {
+    t.radStart = new Date(t.radRequest.requestedAt);
+    t.radEnd = new Date(t.radRequest.completeTime);
+    t.time = Math.round(
+      (t.radEnd.getTime() - t.radStart.getTime()) / (1000 * 60)
+    );
+    radTime += t.time;
+  });
+
+  const completedRadTAT = radTime / completedRad.length;
+
+  const cumulativePatient = await EDR.find().countDocuments();
 
   //   // * 3rd Card
   //   const dischargePending = await EDR.find({
@@ -510,110 +532,6 @@ exports.senseiDashboard = asyncHandler(async (req, res, next) => {
 
   //   const completedNoteTAT = completed / consultantCompletedNotes.length;
 
-  //   // * 5th Card
-  //   const labPending = await EDR.aggregate([
-  //     {
-  //       $project: {
-  //         labRequest: 1,
-  //       },
-  //     },
-  //     {
-  //       $unwind: '$labRequest',
-  //     },
-  //     {
-  //       $match: {
-  //         $and: [
-  //           { 'labRequest.status': { $ne: 'completed' } },
-  //           { 'labRequest.requestedAt': { $gte: sixHour } },
-  //         ],
-  //       },
-  //     },
-  //   ]);
-
-  //   // console.log(labPending);
-
-  //   const fifthCardArr = [];
-  //   let sixthHourLab = 0;
-  //   let fifthHourLab = 0;
-  //   let fourthHourLab = 0;
-  //   let thirdHourLab = 0;
-  //   let secondHourLab = 0;
-  //   let firstHourLab = 0;
-  //   labPending.map((l) => {
-  //     if (
-  //       l.labRequest.requestedAt > lastHour &&
-  //       l.labRequest.requestedAt < currentTime
-  //     ) {
-  //       sixthHourLab++;
-  //       // console.log('sixthHourLab', sixthHourLab);
-  //     } else if (
-  //       l.labRequest.requestedAt > fifthHour &&
-  //       l.labRequest.requestedAt < lastHour
-  //     ) {
-  //       fifthHourLab++;
-  //     } else if (
-  //       l.labRequest.requestedAt > fourthHour &&
-  //       l.labRequest.requestedAt < fifthHour
-  //     ) {
-  //       fourthHourLab++;
-  //     } else if (
-  //       l.labRequest.requestedAt > thirdHour &&
-  //       l.labRequest.requestedAt < fourthHour
-  //     ) {
-  //       thirdHourLab++;
-  //     } else if (
-  //       l.labRequest.requestedAt > secondHour &&
-  //       l.labRequest.requestedAt < thirdHour
-  //     ) {
-  //       secondHourLab++;
-  //     } else if (
-  //       l.labRequest.requestedAt > sixHour &&
-  //       l.labRequest.requestedAt < secondHour
-  //     ) {
-  //       firstHourLab++;
-  //     }
-  //   });
-  //   fifthCardArr.push({ label: lastHour, value: sixthHourLab });
-  //   fifthCardArr.push({ label: fifthHour, value: fifthHourLab });
-  //   fifthCardArr.push({ label: fourthHour, value: fourthHourLab });
-  //   fifthCardArr.push({ label: thirdHour, value: thirdHourLab });
-  //   fifthCardArr.push({ label: secondHour, value: secondHourLab });
-  //   fifthCardArr.push({ label: sixHour, value: firstHourLab });
-
-  //   // TAT
-  //   const labCompleted = await EDR.aggregate([
-  //     {
-  //       $project: {
-  //         labRequest: 1,
-  //       },
-  //     },
-  //     {
-  //       $unwind: '$labRequest',
-  //     },
-  //     {
-  //       $match: {
-  //         $and: [
-  //           { 'labRequest.status': 'completed' },
-  //           { 'labRequest.completeTime': { $gte: sixHour } },
-  //         ],
-  //       },
-  //     },
-  //   ]);
-
-  //   let labTime = 0;
-  //   labCompleted.map((t) => {
-  //     t.labStart = new Date(t.labRequest.requestedAt);
-
-  //     t.labEnd = new Date(t.labRequest.completeTime);
-
-  //     t.time = Math.round(
-  //       (t.labEnd.getTime() - t.labStart.getTime()) / (1000 * 60)
-  //     );
-  //     labTime += t.time;
-  //   });
-
-  //   const completedLabTAT = labTime / labCompleted.length;
-
   //   // current no of patients per doctor
   //   const totalPatients = await EDR.find({
   //     doctorNotes: { $ne: [] },
@@ -627,122 +545,6 @@ exports.senseiDashboard = asyncHandler(async (req, res, next) => {
   //   });
 
   //   const diagnosedPerHour = Math.round(patientsDiagnosed.length / 6);
-
-  //   // * 6th Card
-  //   const pendingRad = await EDR.aggregate([
-  //     {
-  //       $project: {
-  //         status: 1,
-  //         radRequest: 1,
-  //       },
-  //     },
-  //     {
-  //       $match: {
-  //         status: 'pending',
-  //       },
-  //     },
-  //     {
-  //       $unwind: '$radRequest',
-  //     },
-  //     {
-  //       $match: {
-  //         $and: [
-  //           { 'radRequest.status': 'pending approval' },
-  //           { 'radRequest.pendingApprovalTime': { $gte: sixHour } },
-  //           { 'radRequest.pendingApprovalTime': { $lte: currentTime } },
-  //         ],
-  //       },
-  //     },
-  //   ]);
-
-  //   const radArr = [];
-  //   let sixthHourRad = 0;
-  //   let fifthHourRad = 0;
-  //   let fourthHourRad = 0;
-  //   let thirdHourRad = 0;
-  //   let secondHourRad = 0;
-  //   let firstHourRad = 0;
-  //   pendingRad.map((r) => {
-  //     if (
-  //       r.radRequest.pendingApprovalTime > lastHour &&
-  //       r.radRequest.pendingApprovalTime < currentTime
-  //     ) {
-  //       sixthHourRad++;
-  //       // console.log('sixthHourRad', sixthHourRad);
-  //     } else if (
-  //       r.radRequest.pendingApprovalTime > fifthHour &&
-  //       r.radRequest.pendingApprovalTime < lastHour
-  //     ) {
-  //       fifthHourRad++;
-  //     } else if (
-  //       r.radRequest.pendingApprovalTime > fourthHour &&
-  //       r.radRequest.pendingApprovalTime < fifthHour
-  //     ) {
-  //       fourthHourRad++;
-  //     } else if (
-  //       r.radRequest.pendingApprovalTime > thirdHour &&
-  //       r.radRequest.pendingApprovalTime < fourthHour
-  //     ) {
-  //       thirdHourRad++;
-  //     } else if (
-  //       r.radRequest.pendingApprovalTime > secondHour &&
-  //       r.radRequest.pendingApprovalTime < thirdHour
-  //     ) {
-  //       secondHourRad++;
-  //     } else if (
-  //       r.radRequest.pendingApprovalTime > sixHour &&
-  //       r.radRequest.pendingApprovalTime < secondHour
-  //     ) {
-  //       firstHourRad++;
-  //     }
-  //   });
-  //   radArr.push({ label: lastHour, value: sixthHourRad });
-  //   radArr.push({ label: fifthHour, value: fifthHourRad });
-  //   radArr.push({ label: fourthHour, value: fourthHourRad });
-  //   radArr.push({ label: thirdHour, value: thirdHourRad });
-  //   radArr.push({ label: secondHour, value: secondHourRad });
-  //   radArr.push({ label: sixHour, value: firstHourRad });
-
-  //   // TAT
-  //   const completedRad = await EDR.aggregate([
-  //     {
-  //       $project: {
-  //         status: 1,
-  //         radRequest: 1,
-  //       },
-  //     },
-  //     {
-  //       $match: {
-  //         status: 'pending',
-  //       },
-  //     },
-  //     {
-  //       $unwind: '$radRequest',
-  //     },
-  //     {
-  //       $match: {
-  //         $and: [
-  //           { 'radRequest.status': 'completed' },
-  //           { 'radRequest.completeTime': { $gte: sixHour } },
-  //           { 'radRequest.completeTime': { $lte: currentTime } },
-  //         ],
-  //       },
-  //     },
-  //   ]);
-
-  //   let radTime = 0;
-  //   completedRad.map((t) => {
-  //     t.radStart = new Date(t.radRequest.requestedAt);
-
-  //     t.radEnd = new Date(t.radRequest.completeTime);
-
-  //     t.time = Math.round(
-  //       (t.radEnd.getTime() - t.radStart.getTime()) / (1000 * 60)
-  //     );
-  //     radTime += t.time;
-  //   });
-
-  //   const completedRadTAT = radTime / completedRad.length;
 
   //   // * 7th Card
   //   const pharmacyPending = await EDR.aggregate([
@@ -856,13 +658,10 @@ exports.senseiDashboard = asyncHandler(async (req, res, next) => {
   //   //   currentLocation: 'ED',
   //   // });
 
-  //   const cumulativePatient = await EDR.find().countDocuments();
-
   res.status(200).json({
     success: true,
 
     EdBeds,
-
     firstCard: {
       totalPending: patientsPendingForProductionArea.length,
       TAT: TATForRegToPA,
@@ -875,32 +674,32 @@ exports.senseiDashboard = asyncHandler(async (req, res, next) => {
       perHour: perHourTriagePending,
     },
 
-    // thirdCard: {
-    //   TAT: dischargeTAT,
-    //   totalPending: dischargePending.length,
-    //   perHour: DischargeArr,
-    // },
-    // fourthCard: {
-    //   TAT: completedNoteTAT,
-    //   totalPending: consultantNotes.length,
-    //   perHour: fourthCardArr,
-    // },
-    // fifthCard: {
-    //   TAT: completedLabTAT,
-    //   totalPending: labPending.length,
-    //   perHour: fifthCardArr,
-    // },
-    // sixthCard: {
-    //   TAT: completedRadTAT,
-    //   totalPending: pendingRad.length,
-    //   perHour: radArr,
-    // },
+    thirdCard: {
+      TAT: TATForTriageToNotes,
+      totalPending: diagnosePending.length,
+      perHour: perHourDiagnosePending,
+    },
+    fourthCard: {
+      TAT: decisionTAT,
+      totalPending: decisionPending.length,
+      perHour: decisionPendingPerHour,
+    },
+    fifthCard: {
+      TAT: completedLabTAT,
+      totalPending: labPending.length,
+      perHour: labPendingPerHour,
+    },
+    sixthCard: {
+      TAT: completedRadTAT,
+      totalPending: pendingRad.length,
+      perHour: radPendingPerHour,
+    },
     // seventhCard: {
     //   TAT: completedPharmTAT,
     //   totalPending: pharmacyPending.length,
     //   perHour: pharmacyArr,
     // },
     // diagnosedPerHour,
-    // cumulativePatient,
+    cumulativePatient,
   });
 });
