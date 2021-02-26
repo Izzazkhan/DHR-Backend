@@ -49,6 +49,47 @@ function compareDataForSixHours(dateTime) {
     arr[5] = { label: arr[5].label, value: arr[5].value + 1 };
   }
 }
+
+// For 3 times
+function compareData(hold, active, requested) {
+  if (
+    (hold > lastHour && hold < currentTime) ||
+    (active > lastHour && active < currentTime) ||
+    (requested > lastHour && requested < currentTime)
+  ) {
+    arr[0] = { label: arr[0].label, value: arr[0].value + 1 };
+  } else if (
+    (hold > fifthHour && hold < lastHour) ||
+    (active > fifthHour && active < lastHour) ||
+    (requested > fifthHour && requested < lastHour)
+  ) {
+    arr[1] = { label: arr[1].label, value: arr[1].value + 1 };
+  } else if (
+    (hold > fourthHour && hold < fifthHour) ||
+    (active > fourthHour && active < fifthHour) ||
+    (requested > fourthHour && requested < fifthHour)
+  ) {
+    arr[2] = { label: arr[2].label, value: arr[2].value + 1 };
+  } else if (
+    (hold > thirdHour && hold < fourthHour) ||
+    (active > thirdHour && active < fourthHour) ||
+    (requested > thirdHour && requested < fourthHour)
+  ) {
+    arr[3] = { label: arr[3].label, value: arr[3].value + 1 };
+  } else if (
+    (hold > secondHour && hold < thirdHour) ||
+    (active > secondHour && active < thirdHour) ||
+    (requested > secondHour && requested < thirdHour)
+  ) {
+    arr[4] = { label: arr[4].label, value: arr[4].value + 1 };
+  } else if (
+    (hold > sixHour && hold < secondHour) ||
+    (active > sixHour && active < secondHour) ||
+    (requested > sixHour && requested < secondHour)
+  ) {
+    arr[5] = { label: arr[5].label, value: arr[5].value + 1 };
+  }
+}
 // Clinical Pharmacist Dashboard
 exports.cpDashboard = asyncHandler(async (req, res, next) => {
   const pendingOrders = await EDR.aggregate([
@@ -152,45 +193,6 @@ exports.cpDashboard = asyncHandler(async (req, res, next) => {
 
 // * Imaging Technician Dashboard
 exports.itDashboard = asyncHandler(async (req, res, next) => {
-  function compareData(hold, active, requested) {
-    if (
-      (hold > lastHour && hold < currentTime) ||
-      (active > lastHour && active < currentTime) ||
-      (requested > lastHour && requested < currentTime)
-    ) {
-      arr[0] = { label: arr[0].label, value: arr[0].value + 1 };
-    } else if (
-      (hold > fifthHour && hold < lastHour) ||
-      (active > fifthHour && active < lastHour) ||
-      (requested > fifthHour && requested < lastHour)
-    ) {
-      arr[1] = { label: arr[1].label, value: arr[1].value + 1 };
-    } else if (
-      (hold > fourthHour && hold < fifthHour) ||
-      (active > fourthHour && active < fifthHour) ||
-      (requested > fourthHour && requested < fifthHour)
-    ) {
-      arr[2] = { label: arr[2].label, value: arr[2].value + 1 };
-    } else if (
-      (hold > thirdHour && hold < fourthHour) ||
-      (active > thirdHour && active < fourthHour) ||
-      (requested > thirdHour && requested < fourthHour)
-    ) {
-      arr[3] = { label: arr[3].label, value: arr[3].value + 1 };
-    } else if (
-      (hold > secondHour && hold < thirdHour) ||
-      (active > secondHour && active < thirdHour) ||
-      (requested > secondHour && requested < thirdHour)
-    ) {
-      arr[4] = { label: arr[4].label, value: arr[4].value + 1 };
-    } else if (
-      (hold > sixHour && hold < secondHour) ||
-      (active > sixHour && active < secondHour) ||
-      (requested > sixHour && requested < secondHour)
-    ) {
-      arr[5] = { label: arr[5].label, value: arr[5].value + 1 };
-    }
-  }
   const pendingRads = await EDR.aggregate([
     {
       $project: {
@@ -659,6 +661,8 @@ exports.ntDashboard = asyncHandler(async (req, res, next) => {
   const tasksPerHour = JSON.parse(JSON.stringify(arr));
   clearAllTime();
 
+  // Cumulative Total Time
+
   res.status(200).json({
     success: true,
     firstCard: {
@@ -676,5 +680,381 @@ exports.ntDashboard = asyncHandler(async (req, res, next) => {
       totalPending: transferPending.length,
       tasksPerHour,
     },
+  });
+});
+
+//* Lab Technician Dashboard
+exports.ltDashboard = asyncHandler(async (req, res, next) => {
+  const labPending = await EDR.aggregate([
+    {
+      $project: {
+        labRequest: 1,
+      },
+    },
+    {
+      $unwind: '$labRequest',
+    },
+    {
+      $match: {
+        $and: [
+          { 'labRequest.type': { $ne: 'Blood' } },
+          { 'labRequest.nurseTechnicianStatus': 'Not Collected' },
+          { 'labRequest.requestedAt': { $gte: sixHour } },
+        ],
+      },
+    },
+  ]);
+
+  labPending.map((o) => compareDataForSixHours(o.labRequest.requestedAt));
+
+  const perHour = JSON.parse(JSON.stringify(arr));
+  clearAllTime();
+
+  //   TAT
+
+  const labCompleted = await EDR.aggregate([
+    {
+      $project: {
+        labRequest: 1,
+      },
+    },
+    {
+      $unwind: '$labRequest',
+    },
+    {
+      $match: {
+        $and: [
+          { 'labRequest.type': { $ne: 'Blood' } },
+          { 'labRequest.nurseTechnicianStatus': 'Collected' },
+          { 'labRequest.collectedTime': { $gte: sixHour } },
+        ],
+      },
+    },
+  ]);
+  let labTime = 0;
+  labCompleted.map((t) => {
+    t.labStart = new Date(t.labRequest.requestedAt);
+
+    t.labEnd = new Date(t.labRequest.collectedTime);
+
+    t.time = Math.round(
+      (t.labEnd.getTime() - t.labStart.getTime()) / (1000 * 60)
+    );
+    labTime += t.time;
+  });
+
+  const completedLabTAT = Math.round(labTime / labCompleted.length);
+
+  // * 2nd Card
+  const resultsPending = await EDR.aggregate([
+    {
+      $project: {
+        labRequest: 1,
+      },
+    },
+    {
+      $unwind: '$labRequest',
+    },
+    {
+      $match: {
+        $and: [
+          { 'labRequest.type': { $ne: 'Blood' } },
+          {
+            $or: [
+              { 'labRequest.status': 'pending' },
+              { 'labRequest.status': 'active' },
+              { 'labRequest.status': 'hold' },
+            ],
+          },
+          {
+            $or: [
+              { 'labRequest.holdTime': { $gte: sixHour } },
+              { 'labRequest.activeTime': { $gte: sixHour } },
+              { 'labRequest.requestedAt': { $gte: sixHour } },
+            ],
+          },
+        ],
+      },
+    },
+  ]);
+
+  resultsPending.map((o) =>
+    compareData(
+      o.labRequest.holdTime,
+      o.labRequest.activeTime,
+      o.labRequest.requestedAt
+    )
+  );
+
+  const pendingResultsPerHour = JSON.parse(JSON.stringify(arr));
+  clearAllTime();
+
+  // TAT
+  const completedResult = await EDR.aggregate([
+    {
+      $project: {
+        labRequest: 1,
+      },
+    },
+    {
+      $unwind: '$labRequest',
+    },
+    {
+      $match: {
+        $and: [
+          { 'labRequest.status': 'completed' },
+          { 'labRequest.type': { $ne: 'Blood' } },
+          { 'labRequest.completeTime': { $gte: sixHour } },
+        ],
+      },
+    },
+  ]);
+
+  let resultTime = 0;
+  completedResult.map((t) => {
+    t.labStart = new Date(t.labRequest.collectedTime);
+
+    t.labEnd = new Date(t.labRequest.completeTime);
+
+    t.time = Math.round(
+      (t.labEnd.getTime() - t.labStart.getTime()) / (1000 * 60)
+    );
+    resultTime += t.time;
+  });
+
+  const resultTAT = Math.round(resultTime / completedResult.length);
+
+  // * 3rd Card
+
+  const bloodPending = await EDR.aggregate([
+    {
+      $project: {
+        labRequest: 1,
+      },
+    },
+    {
+      $unwind: '$labRequest',
+    },
+    {
+      $match: {
+        $and: [
+          { 'labRequest.type': 'Blood' },
+          { 'labRequest.nurseTechnicianStatus': 'Not Collected' },
+          { 'labRequest.requestedAt': { $gte: sixHour } },
+        ],
+      },
+    },
+  ]);
+
+  bloodPending.map((o) => compareDataForSixHours(o.labRequest.requestedAt));
+
+  const bloodPerHour = JSON.parse(JSON.stringify(arr));
+  clearAllTime();
+
+  //   TAT
+
+  const bloodCompleted = await EDR.aggregate([
+    {
+      $project: {
+        labRequest: 1,
+      },
+    },
+    {
+      $unwind: '$labRequest',
+    },
+    {
+      $match: {
+        $and: [
+          { 'labRequest.type': 'Blood' },
+          { 'labRequest.nurseTechnicianStatus': 'Collected' },
+          { 'labRequest.collectedTime': { $gte: sixHour } },
+        ],
+      },
+    },
+  ]);
+  let bloodTime = 0;
+  bloodCompleted.map((t) => {
+    t.labStart = new Date(t.labRequest.requestedAt);
+
+    t.labEnd = new Date(t.labRequest.collectedTime);
+
+    t.time = Math.round(
+      (t.labEnd.getTime() - t.labStart.getTime()) / (1000 * 60)
+    );
+    bloodTime += t.time;
+  });
+
+  const bloodTAT = Math.round(bloodTime / bloodCompleted.length);
+
+  // * 4th Card
+  const bloodResultsPending = await EDR.aggregate([
+    {
+      $project: {
+        labRequest: 1,
+      },
+    },
+    {
+      $unwind: '$labRequest',
+    },
+    {
+      $match: {
+        $and: [
+          { 'labRequest.type': 'Blood' },
+          {
+            $or: [
+              { 'labRequest.status': 'pending' },
+              { 'labRequest.status': 'active' },
+              { 'labRequest.status': 'hold' },
+            ],
+          },
+          {
+            $or: [
+              { 'labRequest.holdTime': { $gte: sixHour } },
+              { 'labRequest.activeTime': { $gte: sixHour } },
+              { 'labRequest.requestedAt': { $gte: sixHour } },
+            ],
+          },
+        ],
+      },
+    },
+  ]);
+
+  bloodResultsPending.map((o) =>
+    compareData(
+      o.labRequest.holdTime,
+      o.labRequest.activeTime,
+      o.labRequest.requestedAt
+    )
+  );
+
+  const bloodResultsPerHour = JSON.parse(JSON.stringify(arr));
+  clearAllTime();
+
+  // TAT
+  const completedBloodResult = await EDR.aggregate([
+    {
+      $project: {
+        labRequest: 1,
+      },
+    },
+    {
+      $unwind: '$labRequest',
+    },
+    {
+      $match: {
+        $and: [
+          { 'labRequest.status': 'completed' },
+          { 'labRequest.type': 'Blood' },
+          { 'labRequest.completeTime': { $gte: sixHour } },
+        ],
+      },
+    },
+  ]);
+
+  let bloodResultTime = 0;
+  completedBloodResult.map((t) => {
+    t.labStart = new Date(t.labRequest.collectedTime);
+
+    t.labEnd = new Date(t.labRequest.completeTime);
+
+    t.time = Math.round(
+      (t.labEnd.getTime() - t.labStart.getTime()) / (1000 * 60)
+    );
+    bloodResultTime += t.time;
+  });
+
+  const bloodResultTAT = Math.round(
+    bloodResultTime / completedBloodResult.length
+  );
+
+  // * 5th Card
+  completedResult.map((o) => compareDataForSixHours(o.labRequest.completeTime));
+
+  const TestPerHour = JSON.parse(JSON.stringify(arr));
+  clearAllTime();
+  const testTAT = Math.round(360 / completedResult.length);
+
+  // * 6th Card
+  completedBloodResult.map((o) =>
+    compareDataForSixHours(o.labRequest.completeTime)
+  );
+
+  const bloodTestPerHour = JSON.parse(JSON.stringify(arr));
+  clearAllTime();
+  const bloodTestTAT = Math.round(360 / completedBloodResult.length);
+
+  // * 7th Card
+  const cumulativeTests = await EDR.aggregate([
+    {
+      $project: {
+        labRequest: 1,
+      },
+    },
+    {
+      $unwind: '$labRequest',
+    },
+    {
+      $match: {
+        $and: [
+          { 'labRequest.status': 'completed' },
+          { 'labRequest.type': { $ne: 'Blood' } },
+        ],
+      },
+    },
+  ]);
+
+  // * 8th Card
+  const cumulativeBloodTest = await EDR.aggregate([
+    {
+      $project: {
+        labRequest: 1,
+      },
+    },
+    {
+      $unwind: '$labRequest',
+    },
+    {
+      $match: {
+        $and: [
+          { 'labRequest.status': 'completed' },
+          { 'labRequest.type': 'Blood' },
+        ],
+      },
+    },
+  ]);
+  res.status(200).json({
+    success: true,
+    firstCard: {
+      TAT: completedLabTAT,
+      totalPending: labPending.length,
+      perHour,
+    },
+    secondCard: {
+      TAT: resultTAT,
+      totalPending: resultsPending.length,
+      perHour: pendingResultsPerHour,
+    },
+    thirdCard: {
+      TAT: bloodTAT,
+      totalPending: bloodPending.length,
+      perHour: bloodPerHour,
+    },
+    fourthCard: {
+      TAT: bloodResultTAT,
+      totalPending: bloodResultsPending.length,
+      perHour: bloodResultsPerHour,
+    },
+    fifthCard: {
+      TAT: testTAT,
+      totalPending: completedResult.length,
+      perHour: TestPerHour,
+    },
+    sixthCard: {
+      TAT: bloodTestTAT,
+      totalPending: completedBloodResult.length,
+      perHour: bloodTestPerHour,
+    },
+    cumulativeTests: cumulativeTests.length,
+    cumulativeBloodTest: cumulativeBloodTest.length,
   });
 });
