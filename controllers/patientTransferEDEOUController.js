@@ -169,6 +169,7 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
   const nurseId = {
     nurseTechnicianId: nurseTechnician._id,
     status: 'To Be Observed',
+    transferTime: Date.now(),
   };
 
   await EDR.findOneAndUpdate(
@@ -177,11 +178,11 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
     { new: true }
   );
 
-  await EDR.findOneAndUpdate(
-    { _id: req.body.edrId },
-    { $set: { nurseTechnicianStatus: 'pending' } },
-    { new: true }
-  );
+  // await EDR.findOneAndUpdate(
+  //   { _id: req.body.edrId },
+  //   { $set: { nurseTechnicianStatus: 'pending' } },
+  //   { new: true }
+  // );
 
   const customerCare = {
     assignedBy: req.body.assignedBy,

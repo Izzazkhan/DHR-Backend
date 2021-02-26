@@ -22,6 +22,7 @@ const {
   cpDashboard,
   itDashboard,
   rdDashboard,
+  ntDashboard,
 } = require('../controllers/stats/dashboard');
 
 // Registration Officer
@@ -41,4 +42,5 @@ router.get('/ccDashboard', ccDashboard);
 router.get('/cpDashboard', cpDashboard);
 router.get('/itDashboard', itDashboard);
 router.get('/rdDashboard', rdDashboard);
+router.get('/ntDashboard', ntDashboard);
 module.exports = router;
