@@ -9,6 +9,7 @@ const RadServices = require('../models/service/radiology')
 const Item = require('../models/item')
 const Staff = require('../models/staffFhir/staff')
 const Shifts = require('../models/shift')
+const patientFHIR = require('../models/patient/patient');
 
 // Most Selected Chief Complaints
 exports.chiefComplaints = asyncHandler(async (req, res) => {
@@ -318,7 +319,33 @@ exports.medication = asyncHandler(async (req, res) => {
 
 // Dashboard Comulative Data.
 exports.dashboard = asyncHandler(async (req, res) => {
+
+    const currentTime = moment().utc().toDate();
+    const lastHour = moment().subtract(1, 'hours').utc().toDate();
+    const fifthHour = moment().subtract(2, 'hours').utc().toDate();
+    const fourthHour = moment().subtract(3, 'hours').utc().toDate();
+    const thirdHour = moment().subtract(4, 'hours').utc().toDate();
+    const secondHour = moment().subtract(5, 'hours').utc().toDate();
     const sixHour = moment().subtract(6, 'hours').utc().toDate();
+    const sevenHour = moment().subtract(7, 'hours').utc().toDate();
+    const eightHour = moment().subtract(8, 'hours').utc().toDate();
+    const nineHour = moment().subtract(9, 'hours').utc().toDate();
+    const tenHour = moment().subtract(10, 'hours').utc().toDate();
+    const elevenHour = moment().subtract(11, 'hours').utc().toDate();
+    const twelveHour = moment().subtract(12, 'hours').utc().toDate();
+    const thirteenHour = moment().subtract(13, 'hours').utc().toDate();
+    const fourteenHour = moment().subtract(14, 'hours').utc().toDate();
+    const fifteenHour = moment().subtract(15, 'hours').utc().toDate();
+    const sixteenHour = moment().subtract(16, 'hours').utc().toDate();
+    const seventeenHour = moment().subtract(17, 'hours').utc().toDate();
+    const eighteenHour = moment().subtract(18, 'hours').utc().toDate();
+    const nineteenHour = moment().subtract(19, 'hours').utc().toDate();
+    const twentyHour = moment().subtract(20, 'hours').utc().toDate();
+    const twentyOneHour = moment().subtract(21, 'hours').utc().toDate();
+    const twentyTwoHour = moment().subtract(22, 'hours').utc().toDate();
+    const twetyThreeHour = moment().subtract(23, 'hours').utc().toDate();
+    const twentyFourHour = moment().subtract(24, 'hours').utc().toDate();
+
     // Patients who were assigned a chief complaint in the last 6 hours
     const assignedChiefComplaints = await EDR.aggregate([
         {
@@ -633,6 +660,129 @@ exports.dashboard = asyncHandler(async (req, res) => {
     const NursesInEvening = nurses.filter((d) => d.shift.name === "Evening")
     const NursesInNight = nurses.filter((d) => d.shift.name === "Night")
 
+    let arr = [
+        { label: lastHour, value: 0 },
+        { label: fifthHour, value: 0 },
+        { label: fourthHour, value: 0 },
+        { label: thirdHour, value: 0 },
+        { label: secondHour, value: 0 },
+        { label: sixHour, value: 0 },
+        { label: sevenHour, value: 0 },
+        { label: eightHour, value: 0 },
+        { label: nineHour, value: 0 },
+        { label: tenHour, value: 0 },
+        { label: elevenHour, value: 0 },
+        { label: twelveHour, value: 0 },
+        { label: thirteenHour, value: 0 },
+        { label: fourteenHour, value: 0 },
+        { label: fifteenHour, value: 0 },
+        { label: sixteenHour, value: 0 },
+        { label: seventeenHour, value: 0 },
+        { label: eighteenHour, value: 0 },
+        { label: nineteenHour, value: 0 },
+        { label: twentyHour, value: 0 },
+        { label: twentyOneHour, value: 0 },
+        { label: twentyTwoHour, value: 0 },
+        { label: twetyThreeHour, value: 0 },
+        { label: twentyFourHour, value: 0 }
+    ];
+
+    function clearAllTime() {
+        arr = [
+            { label: lastHour, value: 0 },
+            { label: fifthHour, value: 0 },
+            { label: fourthHour, value: 0 },
+            { label: thirdHour, value: 0 },
+            { label: secondHour, value: 0 },
+            { label: sixHour, value: 0 },
+            { label: sevenHour, value: 0 },
+            { label: eightHour, value: 0 },
+            { label: nineHour, value: 0 },
+            { label: tenHour, value: 0 },
+            { label: elevenHour, value: 0 },
+            { label: twelveHour, value: 0 },
+            { label: thirteenHour, value: 0 },
+            { label: fourteenHour, value: 0 },
+            { label: fifteenHour, value: 0 },
+            { label: sixteenHour, value: 0 },
+            { label: seventeenHour, value: 0 },
+            { label: eighteenHour, value: 0 },
+            { label: nineteenHour, value: 0 },
+            { label: twentyHour, value: 0 },
+            { label: twentyOneHour, value: 0 },
+            { label: twentyTwoHour, value: 0 },
+            { label: twetyThreeHour, value: 0 },
+            { label: twentyFourHour, value: 0 }
+        ];
+    }
+
+    function compareDataForTwentyFourHours(dateTime) {
+        if (dateTime > lastHour && dateTime < currentTime) {
+            arr[0] = { label: arr[0].label, value: arr[0].value + 1 };
+        } else if (dateTime > fifthHour && dateTime < lastHour) {
+            arr[1] = { label: arr[1].label, value: arr[1].value + 1 };
+        } else if (dateTime > fourthHour && dateTime < fifthHour) {
+            arr[2] = { label: arr[2].label, value: arr[2].value + 1 };
+        } else if (dateTime > thirdHour && dateTime < fourthHour) {
+            arr[3] = { label: arr[3].label, value: arr[3].value + 1 };
+        } else if (dateTime > secondHour && dateTime < thirdHour) {
+            arr[4] = { label: arr[4].label, value: arr[4].value + 1 };
+        } else if (dateTime > sixHour && dateTime < secondHour) {
+            arr[5] = { label: arr[5].label, value: arr[5].value + 1 };
+        } else if (dateTime > sevenHour && dateTime < sixHour) {
+            arr[0] = { label: arr[6].label, value: arr[6].value + 1 };
+        } else if (dateTime > eightHour && dateTime < sevenHour) {
+            arr[1] = { label: arr[7].label, value: arr[7].value + 1 };
+        } else if (dateTime > nineHour && dateTime < eightHour) {
+            arr[2] = { label: arr[8].label, value: arr[8].value + 1 };
+        } else if (dateTime > tenHour && dateTime < nineHour) {
+            arr[3] = { label: arr[9].label, value: arr[9].value + 1 };
+        } else if (dateTime > elevenHour && dateTime < tenHour) {
+            arr[4] = { label: arr[10].label, value: arr[10].value + 1 };
+        } else if (dateTime > twelveHour && dateTime < elevenHour) {
+            arr[5] = { label: arr[11].label, value: arr[11].value + 1 };
+        } else if (dateTime > thirteenHour && dateTime < twelveHour) {
+            arr[0] = { label: arr[12].label, value: arr[12].value + 1 };
+        } else if (dateTime > fourteenHour && dateTime < thirteenHour) {
+            arr[1] = { label: arr[13].label, value: arr[13].value + 1 };
+        } else if (dateTime > fifteenHour && dateTime < fourteenHour) {
+            arr[2] = { label: arr[14].label, value: arr[14].value + 1 };
+        } else if (dateTime > sixteenHour && dateTime < fifteenHour) {
+            arr[3] = { label: arr[15].label, value: arr[15].value + 1 };
+        } else if (dateTime > seventeenHour && dateTime < sixteenHour) {
+            arr[4] = { label: arr[16].label, value: arr[16].value + 1 };
+        } else if (dateTime > eighteenHour && dateTime < seventeenHour) {
+            arr[5] = { label: arr[17].label, value: arr[17].value + 1 };
+        } else if (dateTime > nineteenHour && dateTime < eighteenHour) {
+            arr[0] = { label: arr[18].label, value: arr[18].value + 1 };
+        } else if (dateTime > twentyHour && dateTime < nineteenHour) {
+            arr[1] = { label: arr[19].label, value: arr[19].value + 1 };
+        } else if (dateTime > twentyOneHour && dateTime < twentyHour) {
+            arr[2] = { label: arr[20].label, value: arr[20].value + 1 };
+        } else if (dateTime > twentyTwoHour && dateTime < twentyOneHour) {
+            arr[3] = { label: arr[21].label, value: arr[21].value + 1 };
+        } else if (dateTime > twetyThreeHour && dateTime < twentyTwoHour) {
+            arr[4] = { label: arr[22].label, value: arr[22].value + 1 };
+        } else if (dateTime > twentyFourHour && dateTime < twetyThreeHour) {
+            arr[5] = { label: arr[23].label, value: arr[23].value + 1 };
+        }
+    }
+
+    const patientsRegistered = await patientFHIR.find({
+        createdAt: { $gte: twentyFourHour }
+    });
+
+    patientsRegistered.map((p) => {
+        compareDataForTwentyFourHours(p.createdAt);
+    });
+
+    const patientsRegisteredPerHour = JSON.parse(JSON.stringify(arr));
+
+    const peakValue = Math.max.apply(Math, patientsRegisteredPerHour.map(function (o) { return o.value; }))
+    var peakTime = patientsRegisteredPerHour.find(function (o) { return o.value == peakValue; })
+
+    clearAllTime();
+
     res.status(200).json({
         success: true,
         data: {
@@ -646,7 +796,12 @@ exports.dashboard = asyncHandler(async (req, res) => {
             DoctorsInNight: DoctorsInNight.length,
             NursesInMorning: NursesInMorning.length,
             NursesInEvening: NursesInEvening.length,
-            NursesInNight: NursesInNight.length
+            NursesInNight: NursesInNight.length,
+            peakTimeForPatients: {
+                totalPatients: patientsRegistered.length,
+                perHour: patientsRegisteredPerHour,
+                peakTime: peakTime.label
+            }
         }
     });
 });
