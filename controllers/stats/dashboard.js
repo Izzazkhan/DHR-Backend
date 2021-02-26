@@ -659,6 +659,8 @@ exports.ntDashboard = asyncHandler(async (req, res, next) => {
   const tasksPerHour = JSON.parse(JSON.stringify(arr));
   clearAllTime();
 
+  // Cumulative Total Time
+
   res.status(200).json({
     success: true,
     firstCard: {
