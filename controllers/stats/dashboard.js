@@ -675,11 +675,11 @@ exports.ntDashboard = asyncHandler(async (req, res, next) => {
       totalPending: transferPending.length,
       transferPerHour,
     },
-    thirdCard: {
-      TAT: completedTransferTAT,
-      totalPending: transferPending.length,
-      tasksPerHour,
-    },
+    // thirdCard: {
+    //   TAT: completedTransferTAT,
+    //   totalPending: transferPending.length,
+    //   tasksPerHour,
+    // },
   });
 });
 
