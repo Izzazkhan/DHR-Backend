@@ -488,39 +488,39 @@ exports.rdDashboard = asyncHandler(async (req, res, next) => {
 
 // * Nurse Technician Dashboard
 exports.ntDashboard = asyncHandler(async (req, res, next) => {
-  function compareData(observedTime, collectedTime) {
-    if (
-      (observedTime > lastHour && observedTime < currentTime) ||
-      (collectedTime > lastHour && collectedTime < currentTime)
-    ) {
-      arr[0] = { label: arr[0].label, value: arr[0].value + 1 };
-    } else if (
-      (observedTime > fifthHour && observedTime < lastHour) ||
-      (collectedTime > fifthHour && collectedTime < lastHour)
-    ) {
-      arr[1] = { label: arr[1].label, value: arr[1].value + 1 };
-    } else if (
-      (observedTime > fourthHour && observedTime < fifthHour) ||
-      (collectedTime > fourthHour && collectedTime < fifthHour)
-    ) {
-      arr[2] = { label: arr[2].label, value: arr[2].value + 1 };
-    } else if (
-      (observedTime > thirdHour && observedTime < fourthHour) ||
-      (collectedTime > thirdHour && collectedTime < fourthHour)
-    ) {
-      arr[3] = { label: arr[3].label, value: arr[3].value + 1 };
-    } else if (
-      (observedTime > secondHour && observedTime < thirdHour) ||
-      (collectedTime > secondHour && collectedTime < thirdHour)
-    ) {
-      arr[4] = { label: arr[4].label, value: arr[4].value + 1 };
-    } else if (
-      (observedTime > sixHour && observedTime < secondHour) ||
-      (collectedTime > sixHour && collectedTime < secondHour)
-    ) {
-      arr[5] = { label: arr[5].label, value: arr[5].value + 1 };
-    }
-  }
+  // function compareData(observedTime, collectedTime) {
+  //   if (
+  //     (observedTime > lastHour && observedTime < currentTime) ||
+  //     (collectedTime > lastHour && collectedTime < currentTime)
+  //   ) {
+  //     arr[0] = { label: arr[0].label, value: arr[0].value + 1 };
+  //   } else if (
+  //     (observedTime > fifthHour && observedTime < lastHour) ||
+  //     (collectedTime > fifthHour && collectedTime < lastHour)
+  //   ) {
+  //     arr[1] = { label: arr[1].label, value: arr[1].value + 1 };
+  //   } else if (
+  //     (observedTime > fourthHour && observedTime < fifthHour) ||
+  //     (collectedTime > fourthHour && collectedTime < fifthHour)
+  //   ) {
+  //     arr[2] = { label: arr[2].label, value: arr[2].value + 1 };
+  //   } else if (
+  //     (observedTime > thirdHour && observedTime < fourthHour) ||
+  //     (collectedTime > thirdHour && collectedTime < fourthHour)
+  //   ) {
+  //     arr[3] = { label: arr[3].label, value: arr[3].value + 1 };
+  //   } else if (
+  //     (observedTime > secondHour && observedTime < thirdHour) ||
+  //     (collectedTime > secondHour && collectedTime < thirdHour)
+  //   ) {
+  //     arr[4] = { label: arr[4].label, value: arr[4].value + 1 };
+  //   } else if (
+  //     (observedTime > sixHour && observedTime < secondHour) ||
+  //     (collectedTime > sixHour && collectedTime < secondHour)
+  //   ) {
+  //     arr[5] = { label: arr[5].label, value: arr[5].value + 1 };
+  //   }
+  // }
   const labPending = await EDR.aggregate([
     {
       $project: {
@@ -646,18 +646,20 @@ exports.ntDashboard = asyncHandler(async (req, res, next) => {
   const totalTasks = JSON.parse(JSON.stringify(labCompleted));
   for (let i = 0; i < transferCompleted.length; i++) {
     const obj = JSON.parse(JSON.stringify(transferCompleted[i]));
-    obj.collectedTime = obj.observedTime;
+    // console.log(obj);
+    obj.collectedTime = obj.transferOfCare.observedTime;
     totalTasks.push(obj);
   }
 
   totalTasks.map((o) =>
-    compareData(o.transferOfCare.collectedTime, o.labRequest.collectedTime)
+    // console.log(o)
+    compareDataForSixHours(o.collectedTime)
   );
 
   const tasksPerHour = JSON.parse(JSON.stringify(arr));
   clearAllTime();
 
-  const sampleTask = await res.status(200).json({
+  res.status(200).json({
     success: true,
     firstCard: {
       TAT: completedLabTAT,
@@ -668,6 +670,11 @@ exports.ntDashboard = asyncHandler(async (req, res, next) => {
       TAT: completedTransferTAT,
       totalPending: transferPending.length,
       transferPerHour,
+    },
+    thirdCard: {
+      TAT: completedTransferTAT,
+      totalPending: transferPending.length,
+      tasksPerHour,
     },
   });
 });
