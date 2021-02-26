@@ -910,6 +910,13 @@ const edrSchema = new mongoose.Schema({
       voiceNotes: {
         type: String,
       },
+      completedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      // pendingApprovalTime: {
+      //   type: Date,
+      // },
       updateRecord: [
         {
           updatedAt: {

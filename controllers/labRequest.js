@@ -158,6 +158,7 @@ exports.updateLabRequest = asyncHandler(async (req, res, next) => {
       $set: {
         [`labRequest.${note}.status`]: parsed.status,
         [`labRequest.${note}.delayedReason`]: parsed.delayedReason,
+        [`labRequest.${note}.completedBy`]: parsed.staffId,
         [`labRequest.${note}.activeTime`]: parsed.activeTime,
         [`labRequest.${note}.completeTime`]: parsed.completeTime,
         [`labRequest.${note}.holdTime`]: parsed.holdTime,
