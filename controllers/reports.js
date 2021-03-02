@@ -1712,42 +1712,42 @@ exports.edDoctorDashboard = asyncHandler(async (req, res, next) => {
   diagnosesPending.map((p) => {
     if (
       p.dcdForm[p.dcdForm.length - 1].triageAssessment[0].triageTime >
-      lastHour &&
+        lastHour &&
       p.dcdForm[p.dcdForm.length - 1].triageAssessment[0].triageTime <
-      currentTime
+        currentTime
     ) {
       sixthHourPatient++;
       // console.log('sixthHourPatient', sixthHourPatient);
     } else if (
       p.dcdForm[p.dcdForm.length - 1].triageAssessment[0].triageTime >
-      fifthHour &&
+        fifthHour &&
       p.dcdForm[p.dcdForm.length - 1].triageAssessment[0].triageTime < lastHour
     ) {
       fifthHourPatient++;
     } else if (
       p.dcdForm[p.dcdForm.length - 1].triageAssessment[0].triageTime >
-      fourthHour &&
+        fourthHour &&
       p.dcdForm[p.dcdForm.length - 1].triageAssessment[0].triageTime < fifthHour
     ) {
       fourthHourPatient++;
     } else if (
       p.dcdForm[p.dcdForm.length - 1].triageAssessment[0].triageTime >
-      thirdHour &&
+        thirdHour &&
       p.dcdForm[p.dcdForm.length - 1].triageAssessment[0].triageTime <
-      fourthHour
+        fourthHour
     ) {
       thirdHourPatient++;
     } else if (
       p.dcdForm[p.dcdForm.length - 1].triageAssessment[0].triageTime >
-      secondHour &&
+        secondHour &&
       p.dcdForm[p.dcdForm.length - 1].triageAssessment[0].triageTime < thirdHour
     ) {
       secondHourPatient++;
     } else if (
       p.dcdForm[p.dcdForm.length - 1].triageAssessment[0].triageTime >
-      sixHour &&
+        sixHour &&
       p.dcdForm[p.dcdForm.length - 1].triageAssessment[0].triageTime <
-      secondHour
+        secondHour
     ) {
       firstHourPatient++;
     }
@@ -1773,7 +1773,9 @@ exports.edDoctorDashboard = asyncHandler(async (req, res, next) => {
   let time = 0;
   triageTAT.map((t) => {
     t.triageTime = new Date(
-      t.dcdForm[t.dcdForm.length - 1].triageAssessment[t.dcdForm[t.dcdForm.length - 1].triageAssessment.length - 1].triageTime
+      t.dcdForm[t.dcdForm.length - 1].triageAssessment[
+        t.dcdForm[t.dcdForm.length - 1].triageAssessment.length - 1
+      ].triageTime
     );
     t.noteTime = new Date(t.doctorNotes[0].assignedTime);
 
@@ -3148,17 +3150,6 @@ exports.swDashboard = asyncHandler(async (req, res, next) => {
     cumulativeInterviews,
   });
 });
-
-// // * Lab Technician Dashboard
-// exports.LTDashBoard = asyncHandler(async (req, res, next) => {
-//   const samplePending = await EDR.aggregate([
-//     {
-//       $project: {
-//         labRequest: 1,
-//       },
-//     },
-//   ]);
-// });
 
 // * Customer Care Dashboard
 exports.ccDashboard = asyncHandler(async (req, res, next) => {

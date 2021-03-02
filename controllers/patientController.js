@@ -4,6 +4,7 @@ const QRCode = require('qrcode');
 const requestNoFormat = require('dateformat');
 const patientFHIR = require('../models/patient/patient');
 const Room = require('../models/room');
+const Notification = require('../components/notification');
 
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
@@ -25,9 +26,7 @@ exports.registerPatient = asyncHandler(async (req, res) => {
     },
   ];
   const parsed = JSON.parse(req.body.data);
-  // console.log(parsed.photo);
-  // console.log(parsed);
-  // console.log(req.files.file);
+
   if (parsed.photo && parsed.photo.length > 0) {
     parsed.photo[0].url = req.files.file[0].path;
   } else {
@@ -117,6 +116,7 @@ exports.registerPatient = asyncHandler(async (req, res) => {
     //   data: newPatient,
     // });
   }
+
   const obj = {};
   obj.profileNo = newPatient.identifier[0].value;
   obj.createdAt = newPatient.createdAt;
