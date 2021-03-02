@@ -447,7 +447,7 @@ exports.completedDoctorNotes = asyncHandler(async (req, res, next) => {
 });
 
 exports.addLabRequest = asyncHandler(async (req, res, next) => {
-  console.log(req.body);
+  // console.log(req.body);
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
   const diff =
@@ -458,32 +458,19 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
   const day = Math.floor(diff / oneDay);
 
   // Sample Collection Task
-  let currentTime = new Date();
 
-  currentTime = currentTime.toISOString().split('T')[1];
+  const currentStaff = await Staff.findById(req.body.staffId).select('shift');
 
-  // console.log(currentTime);
   const nurses = await Staff.find({
     staffType: 'Nurses',
     subType: 'Nurse Technician',
     disabled: false,
+    shift: currentStaff.shift,
     // availability: true,
   }).select('identifier name shiftStartTime shiftEndTime');
-  // console.log(nurses);
-  let startTime;
-  let endTime;
-  const shiftNurse = nurses.filter((nurse) => {
-    startTime = nurse.shiftStartTime.toISOString().split('T')[1];
-    endTime = nurse.shiftEndTime.toISOString().split('T')[1];
-    if (currentTime >= startTime && currentTime <= endTime) {
-      return nurse;
-    }
-  });
-  // console.log(shiftNurse);
 
-  const random = Math.floor(Math.random() * (shiftNurse.length - 1));
-  const nurseTechnician = shiftNurse[random];
-  const nurseTechnicianId = nurseTechnician._id;
+  const random = Math.floor(Math.random() * (nurses.length - 1));
+  const nurseTechnician = nurses[random];
 
   const requestId = `LR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
 
@@ -497,7 +484,7 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
     priority: req.body.priority,
     requestedBy: req.body.staffId,
     requestedAt: Date.now(),
-    assignedTo: nurseTechnicianId,
+    assignedTo: nurseTechnician._id,
     reason: req.body.reason,
     notes: req.body.notes,
   };
