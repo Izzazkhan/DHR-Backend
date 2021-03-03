@@ -376,6 +376,7 @@ exports.dashboard = asyncHandler(async (req, res) => {
             },
         },
     ])
+
     for (let i = 0; i < chiefComplaints.length; i++) {
         if (assignedChiefComplaints.length > 0) {
             for (let j = 0; j < assignedChiefComplaints.length; j++) {
@@ -426,6 +427,7 @@ exports.dashboard = asyncHandler(async (req, res) => {
             },
         },
     ])
+
     for (let i = 0; i < careStreams.length; i++) {
         if (assignedCareStreams.length > 0) {
             for (let j = 0; j < assignedCareStreams.length; j++) {
@@ -477,6 +479,7 @@ exports.dashboard = asyncHandler(async (req, res) => {
             },
         },
     ])
+
     for (let i = 0; i < labServices.length; i++) {
         labServices[i].lastRequested = ''
         if (requestedLabReq.length > 0) {
@@ -535,6 +538,7 @@ exports.dashboard = asyncHandler(async (req, res) => {
             },
         },
     ])
+
     for (let i = 0; i < radServices.length; i++) {
         radServices[i].lastRequested = ''
         if (requestedRadReq.length > 0) {
