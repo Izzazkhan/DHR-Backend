@@ -1713,11 +1713,13 @@ exports.deliverPharmcayRequest = asyncHandler(async (req, res, next) => {
     // availability: true,
   }).select('identifier name shiftStartTime shiftEndTime');
   const shiftCC = customerCares.filter((CC) => {
-    startTimeCC = CC.shiftStartTime.toISOString().split('T')[1];
-    endTimeCC = CC.shiftEndTime.toISOString().split('T')[1];
-    if (currentTimeCC >= startTimeCC && currentTimeCC <= endTimeCC) {
-      console.log(CC);
-      return CC;
+    if (CC.shiftStartTime && CC.shiftEndTime) {
+      startTimeCC = CC.shiftStartTime.toISOString().split('T')[1];
+      endTimeCC = CC.shiftEndTime.toISOString().split('T')[1];
+      if (currentTimeCC >= startTimeCC && currentTimeCC <= endTimeCC) {
+        console.log(CC);
+        return CC;
+      }
     }
   });
   const randomCC = Math.floor(Math.random() * (shiftCC.length - 1));
