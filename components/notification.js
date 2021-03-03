@@ -13,10 +13,11 @@ webpush.setVapidDetails(
   PUBLIC_VAPID_KEYS,
   PRIVATE_VAPID_KEYS
 );
-var notification = function (title, message, staffType, route, searchId) {
+var notification = function (title, message, body, staffType, route, searchId) {
   const payload = JSON.stringify({
     title: title,
     message: message,
+    body: body,
     route: route,
   });
   Staff.find({ staffType: staffType }).then((user, err) => {
@@ -39,6 +40,7 @@ var notification = function (title, message, staffType, route, searchId) {
         Notification.create({
           title: title,
           message: message,
+          body: body,
           route: route,
           searchId: patient,
           sendTo: array,

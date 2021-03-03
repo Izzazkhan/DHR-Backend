@@ -74,11 +74,6 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       // claimed,
       // status,
     });
-    // res.status(201).json({
-    //   success: true,
-    //   data: newPatient,
-    // });
-    // }
   } else {
     newPatient = await patientFHIR.create({
       identifier: MRN,
@@ -110,24 +105,69 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       // claimed,
       // status,
     });
+  }
 
-    // res.status(201).json({
-    //   success: true,
-    //   data: newPatient,
-    // });
+  // * Sending Notifications
+
+  // Notification From Sensei
+  if (
+    newPatient.processTime[newPatient.processTime.length - 1].processName ===
+    'Sensei'
+  ) {
+    Notification(
+      'ADT_A04',
+      +'Details from Sensei',
+      +'A new Patient with MRN ' +
+        newPatient.identifier[0].value +
+        ' has been registered',
+      'Registration Officer',
+      '/home/rcm/patientAssessment',
+      newPatient._id
+    );
+  }
+
+  // Notification from Paramedics
+  if (
+    newPatient.processTime[newPatient.processTime.length - 1].processName ===
+    'Paramedics'
+  ) {
+    Notification(
+      'ADT_A04',
+      +'Details from Paramedics',
+      +'A new Patient with MRN ' +
+        newPatient.identifier[0].value +
+        ' has been registered',
+      'Registration Officer',
+      '/home/rcm/patientAssessment',
+      newPatient._id
+    );
+  }
+
+  // Notification from RO to Sensei
+  if (
+    newPatient.processTime[newPatient.processTime.length - 1].processName ===
+    'Registration Officer'
+  ) {
+    Notification(
+      'ADT_A04',
+      +'Patient Details',
+      +'A new Patient with MRN ' +
+        newPatient.identifier[0].value +
+        ' has been registered',
+      'Sensei',
+      '/home/rcm/patientAssessment',
+      newPatient._id
+    );
   }
 
   const obj = {};
   obj.profileNo = newPatient.identifier[0].value;
   obj.createdAt = newPatient.createdAt;
   obj.insuranceCardNumber = newPatient.insuranceNumber;
-  // console.log(obj);
-  // console.log(newPatient._id);
   QRCode.toDataURL(JSON.stringify(obj), function (err, url) {
     const base64Str = url;
     const path = './uploads/';
     const pathFormed = base64ToImage(base64Str, path);
-    // console.log(pathFormed);
     patientFHIR
       .findOneAndUpdate(
         { _id: newPatient._id },
