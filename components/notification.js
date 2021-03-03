@@ -4,23 +4,21 @@ const Notification = require('../models/notification/notification');
 const Patient = require('../models/patient/patient');
 const Staff = require('../models/staffFhir/staff');
 
-const PUBLIC_VAPID_KEYS =
-  'BFEBei7caOyJKWAgdHw65VQ043Cu1Tv5WYUe1FX8Gxu9pxV87WcN5Q5R0mv3 -BWp2tVqXbFNOjlfgqARHPmOV7c';
-const PRIVATE_VAPID_KEYS = 'pSFLgLt1F3Zikuf5vhFbjehCkSex7lVV9HMcCXuyxPw';
-
+const privateVapidKey = 'Lp4OiMe4L3NN10tNBiTT-rLFmdrAr1dP_nqy7L1kPf8';
+const publicVapidKey =
+  'BP1BVnxpitLeUvjKLq3-POa76eUksEZymf09ECp9wxmRXdPQ4zatupyT91JAhK6xFDcdsoMXN17cp0d0rEWYpkg';
 webpush.setVapidDetails(
   'mailto:pmdevteam0@gmail.com',
-  PUBLIC_VAPID_KEYS,
-  PRIVATE_VAPID_KEYS
+  publicVapidKey,
+  privateVapidKey
 );
-var notification = function (title, message, body, staffType, route, searchId) {
+var notification = function (title, message, staffType, route, searchId) {
   const payload = JSON.stringify({
     title: title,
     message: message,
-    body: body,
     route: route,
   });
-  Staff.find({ staffType: staffType }).then((user, err) => {
+  Staff.findOne({ staffType: staffType }).then((user, err) => {
     var array = [];
     for (var j = 0; j < user.length; j++) {
       array.push({
@@ -28,19 +26,15 @@ var notification = function (title, message, body, staffType, route, searchId) {
         read: false,
       });
     }
-    //fix this yourself
     Patient.findOne({ _id: searchId })
       .select({
         identifier: 1,
         name: 1,
-        chiefComplaint: 1,
-        room: 1,
       })
       .then((patient, err) => {
         Notification.create({
           title: title,
           message: message,
-          body: body,
           route: route,
           searchId: patient,
           sendTo: array,
@@ -97,32 +91,3 @@ var notification = function (title, message, body, staffType, route, searchId) {
 };
 
 module.exports = notification;
-
-// const webpush = require('web-push');
-// const StaffType = require('../models/staffType/staffType');
-// const User = require('../models/user/user');
-// const asyncHandler = require('../middleware/async');
-// const ErrorResponse = require('../utils/errorResponse');
-// const Notification = require('../models/notification/notification');
-
-// webpush.setVapidDetails(
-//   'mailto:pmdevteam0@gmail.com',
-//   process.env.PUBLIC_VAPID_KEYS,
-//   process.env.PRIVATE_VAPID_KEYS
-// );
-
-// const notification = asyncHandler(async (title, body, type, route) => {
-//   const payload = JSON.stringify(title, body, route);
-//   const staff = await StaffType.findOne({ type: type });
-//   const users = await User.findById(staff._id);
-//   const userArray = users.map((user) => ({
-//     userId: user._id,
-//     read: false,
-//   }));
-//   const newNotification = await Notification.create({
-//     title,
-//     body,
-//     route,
-//     sendTo: userArray,
-//   });
-// });

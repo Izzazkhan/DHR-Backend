@@ -141,6 +141,17 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       '/home/rcm/patientAssessment',
       newPatient._id
     );
+
+    Notification(
+      'ADT_A04',
+      +'Patient Details',
+      +'A new Patient with MRN ' +
+        newPatient.identifier[0].value +
+        ' has been registered',
+      'Sensei',
+      '/home/rcm/patientAssessment',
+      newPatient._id
+    );
   }
 
   // Notification from RO to Sensei

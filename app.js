@@ -53,6 +53,7 @@ const anesthesiaRequestRoutes = require('./routes/anesthesiaRequestRoutes');
 const consultationNotesRoutes = require('./routes/consultationNotesRoutes');
 const reconciliationNotesRoutes = require('./routes/reconciliationNotesRoutes');
 const senseiAssistanceReqRoutes = require('./routes/senseiAssistanceReqRoutes');
+const codeBlue = require('./routes/codeBlue');
 
 const app = express();
 
@@ -111,6 +112,7 @@ app.use('/api/shift', shift);
 app.use('/api/reports', reports);
 app.use('/api/adminDashboard', adminDashboard);
 app.use('/api/senseiAssistanceRequest', senseiAssistanceReqRoutes);
+app.use('/api/codeBlue', codeBlue);
 
 app.use(errorHandler);
 

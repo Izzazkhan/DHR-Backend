@@ -7,6 +7,7 @@ const Patient = require('../models/patient/patient');
 const HK = require('../models/houseKeepingRequest');
 const Staff = require('../models/staffFhir/staff');
 const CCRequest = require('../models/customerCareRequest');
+const Notification = require('../components/notification');
 
 exports.generateEDR = asyncHandler(async (req, res, next) => {
   // console.log(req.body);
@@ -555,7 +556,27 @@ exports.addConsultationNote = asyncHandler(async (req, res, next) => {
       new: true,
     }
   );
-  // console.log(addedNote);
+  if (parsed.subType === 'Internal') {
+    Notification(
+      '',
+      +'',
+      +'Ed Doctor has requested an Internal Consultant',
+      'Sensei',
+      '/home/rcm/patientAssessment',
+      ''
+    );
+  }
+
+  if (parsed.subType === 'External') {
+    Notification(
+      '',
+      +'',
+      +'Ed Doctor has requested an External Consultant',
+      'Sensei',
+      '/home/rcm/patientAssessment',
+      ''
+    );
+  }
   res.status(200).json({
     success: true,
     data: addedNote,
@@ -1189,6 +1210,15 @@ exports.addAnesthesiologistNote = asyncHandler(async (req, res, next) => {
   //   { $set: { availability: false } },
   //   { new: true }
   // );
+
+  Notification(
+    '',
+    +'',
+    +'Ed Doctor has requested an anesthesiologist',
+    'Sensei',
+    '/home/rcm/patientAssessment',
+    ''
+  );
 
   res.status(200).json({
     success: true,
