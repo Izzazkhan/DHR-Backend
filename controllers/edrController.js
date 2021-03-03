@@ -447,7 +447,7 @@ exports.completedDoctorNotes = asyncHandler(async (req, res, next) => {
 });
 
 exports.addLabRequest = asyncHandler(async (req, res, next) => {
-  console.log(req.body);
+  // console.log(req.body);
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
   const diff =
@@ -458,32 +458,18 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
   const day = Math.floor(diff / oneDay);
 
   // Sample Collection Task
-  let currentTime = new Date();
+  const currentStaff = await Staff.findById(req.body.staffId).select('shift');
 
-  currentTime = currentTime.toISOString().split('T')[1];
-
-  // console.log(currentTime);
   const nurses = await Staff.find({
     staffType: 'Nurses',
     subType: 'Nurse Technician',
     disabled: false,
+    shift: currentStaff.shift,
     // availability: true,
   }).select('identifier name shiftStartTime shiftEndTime');
-  // console.log(nurses);
-  let startTime;
-  let endTime;
-  const shiftNurse = nurses.filter((nurse) => {
-    startTime = nurse.shiftStartTime.toISOString().split('T')[1];
-    endTime = nurse.shiftEndTime.toISOString().split('T')[1];
-    if (currentTime >= startTime && currentTime <= endTime) {
-      return nurse;
-    }
-  });
-  // console.log(shiftNurse);
 
-  const random = Math.floor(Math.random() * (shiftNurse.length - 1));
-  const nurseTechnician = shiftNurse[random];
-  const nurseTechnicianId = nurseTechnician._id;
+  const random = Math.floor(Math.random() * (nurses.length - 1));
+  const nurseTechnician = nurses[random];
 
   const requestId = `LR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
 
@@ -497,7 +483,7 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
     priority: req.body.priority,
     requestedBy: req.body.staffId,
     requestedAt: Date.now(),
-    assignedTo: nurseTechnicianId,
+    assignedTo: nurseTechnician._id,
     reason: req.body.reason,
     notes: req.body.notes,
   };
@@ -990,43 +976,28 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
   }
 
   // HouseKeeping Request
-  let currentTime = new Date();
-
-  currentTime = currentTime.toISOString().split('T')[1];
-  // console.log(currentTime);
   const latestCC = edr.chiefComplaint.length - 1;
   const productionAreaId =
     edr.chiefComplaint[latestCC].chiefComplaintId.productionArea[0]
       .productionAreaId._id;
   const latestRoom = edr.room.length - 1;
   const roomId = edr.room[latestRoom].roomId._id;
+  const currentStaff = await Staff.findById(req.body.staffId).select('shift');
 
   const houseKeepers = await Staff.find({
-    // availability: true,
     disabled: false,
     staffType: 'House Keeping',
+    shift: currentStaff.shift,
   });
-  let startTime;
-  let endTime;
-  const shiftHK = houseKeepers.filter((hk) => {
-    startTime = hk.shiftStartTime.toISOString().split('T')[1];
-    endTime = hk.shiftEndTime.toISOString().split('T')[1];
-    if (currentTime >= startTime && currentTime <= endTime) {
-      return hk;
-    }
-  });
-  const random = Math.floor(Math.random() * (shiftHK.length - 1));
-  const houseKeeper = shiftHK[random];
-  const houseKeeperId = houseKeeper._id;
-
-  // console.log(houseKeeperId);
+  const random = Math.floor(Math.random() * (houseKeepers.length - 1));
+  const houseKeeper = houseKeepers[random];
 
   // Discharge Request
   edr = await EDR.findOneAndUpdate({ _id: _id }, req.body, {
     new: true,
   }).populate('patientId');
 
-  // Generating Houskeeping Request Id
+  // Generating Housekeeping Request Id
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
   const diff =
@@ -1041,7 +1012,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
   await HK.create({
     requestNo,
     requestedBy: 'Sensei',
-    houseKeeperId,
+    houseKeeperId: houseKeeper._id,
     productionAreaId,
     roomId,
     // status,
@@ -1054,35 +1025,19 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     req.body.dischargeRequest.dischargeSummary.edrCompletionRequirement ===
     'withCare'
   ) {
-    // console.log('hereee');
-    let startTimeCC;
-    let endTimeCC;
-    let currentTimeCC = new Date();
-
-    currentTimeCC = currentTimeCC.toISOString().split('T')[1];
-    // console.log(currentTimeCC);
-
-    const CCrequestNo = 'DDID' + day + requestNoFormat(new Date(), 'yyHHMMss');
+    const CCRequestNo = 'DDID' + day + requestNoFormat(new Date(), 'yyHHMMss');
     const customerCares = await Staff.find({
       staffType: 'Customer Care',
       disabled: false,
+      shift: currentStaff.shift,
       // availability: true,
     }).select('identifier name shiftStartTime shiftEndTime');
-    const shiftCC = customerCares.filter((CC) => {
-      startTimeCC = CC.shiftStartTime.toISOString().split('T')[1];
-      endTimeCC = CC.shiftEndTime.toISOString().split('T')[1];
-      if (currentTimeCC >= startTimeCC && currentTimeCC <= endTimeCC) {
-        console.log(CC);
-        return CC;
-      }
-    });
 
-    const randomCC = Math.floor(Math.random() * (shiftCC.length - 1));
-    console.log(randomCC);
-    const customerCare = shiftCC[randomCC];
+    const randomCC = Math.floor(Math.random() * (customerCares.length - 1));
+    const customerCare = customerCares[randomCC];
 
     await CCRequest.create({
-      requestNo: CCrequestNo,
+      requestNo: CCRequestNo,
       edrId: _id,
       status: 'pending',
       dischargeStatus:

@@ -9,6 +9,9 @@ exports.getSubscriber = asyncHandler(async (req, res) => {
 
 
 exports.postSubscriber = asyncHandler(async (req, res) => {
+
+  console.log("Subscribe a user here : ", req.body)
+
   const obj = {
     user: req.body.user,
     endpoint: req.body.subscription.endpoint,

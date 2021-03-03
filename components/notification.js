@@ -4,15 +4,20 @@ const Notification = require('../models/notification/notification');
 const Patient = require('../models/patient/patient');
 const Staff = require('../models/staffFhir/staff');
 
+const PUBLIC_VAPID_KEYS =
+  'BP1BVnxpitLeUvjKLq3-POa76eUksEZymf09ECp9wxmRXdPQ4zatupyT91JAhK6xFDcdsoMXN17cp0d0rEWYpkg';
+const PRIVATE_VAPID_KEYS = 'Lp4OiMe4L3NN10tNBiTT-rLFmdrAr1dP_nqy7L1kPf8';
+
 webpush.setVapidDetails(
   'mailto:pmdevteam0@gmail.com',
-  process.env.PUBLIC_VAPID_KEYS,
-  process.env.PRIVATE_VAPID_KEYS
+  PUBLIC_VAPID_KEYS,
+  PRIVATE_VAPID_KEYS
 );
-var notification = function (title, message, staffType, route, searchId) {
+var notification = function (title, message, body, staffType, route, searchId) {
   const payload = JSON.stringify({
     title: title,
     message: message,
+    body: body,
     route: route,
   });
   Staff.find({ staffType: staffType }).then((user, err) => {
@@ -26,31 +31,32 @@ var notification = function (title, message, staffType, route, searchId) {
     //fix this yourself
     Patient.findOne({ _id: searchId })
       .select({
-        profileNo: 1,
-        firstName: 1,
-        lastName: 1,
-        SIN: 1,
-        mobileNumber: 1,
-        phoneNumber: 1,
-        age: 1,
-        gender: 1,
-        drugAllergy: 1,
-        weight: 1,
+        identifier: 1,
+        name: 1,
+        chiefComplaint: 1,
+        room: 1,
       })
-      .then((patient, err) => {
+      .then((patient) => {
         Notification.create({
           title: title,
           message: message,
+          body: body,
           route: route,
           searchId: patient,
           sendTo: array,
-        }).then((test, err) => {});
-      });
+        }).then(res => {
+          // console.log("response of notification create : ", res)
+        }).catch((err) => {
+          console.log("Catch notify create err : ", err)
+        })
+      }).catch((e) => {
+        console.log("patient find error : ", e)
+      })
 
     for (let i = 0; i < user.length; i++) {
       Subscription.find({ user: user[i]._id }, (err, subscriptions) => {
         if (err) {
-          console.error(`Error occurred while getting subscriptions`);
+          console.log(`Error occurred while getting subscriptions`);
           res.status(500).json({
             error: 'Technical error occurred',
           });
@@ -74,7 +80,9 @@ var notification = function (title, message, staffType, route, searchId) {
                     .sort({ $natural: -1 })
                     .then((not, err) => {
                       globalVariable.io.emit('get_data', not);
-                    });
+                    }).catch((e) => {
+                      console.log('Error in Notification find : ', e)
+                    })
                   resolve({
                     status: true,
                     endpoint: subscription.endpoint,
@@ -82,6 +90,7 @@ var notification = function (title, message, staffType, route, searchId) {
                   });
                 })
                 .catch((err) => {
+                  console.log('Error in subscription : ', err)
                   reject({
                     status: false,
                     endpoint: subscription.endpoint,
