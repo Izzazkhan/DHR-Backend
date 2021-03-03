@@ -22,6 +22,8 @@
     "class-methods-use-this": "off",
     "prefer-destructuring": ["off", { "object": true, "array": false }],
     "no-unused-vars": ["warn", { "argsIgnorePattern": "req|res|next|val" }],
-    "no-plusplus": "off"
+    "no-plusplus": "off",
+    "no-var": "off",
+    "vars-on-top": "off"
   }
 }

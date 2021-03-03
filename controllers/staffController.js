@@ -646,7 +646,7 @@ exports.getCustomerCares = asyncHandler(async (req, res, next) => {
     disabled: false,
     // availability: true,
   })
-    .select('identifier name chiefComlaint shift')
+    .select('identifier name chiefComplaint shift')
     .populate('shift')
     .populate([
       {

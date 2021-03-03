@@ -5,11 +5,11 @@ const http = require('http');
 const socketIO = require('socket.io');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const webPush = require('web-push');
 const errorHandler = require('./middleware/error');
 const webRTCSocket = require('./lib/socket');
 
 const Subscription = require('./models/subscriber/subscriber');
-const webPush = require('web-push');
 
 // Router Files
 const patientRouter = require('./routes/patientRoutes');

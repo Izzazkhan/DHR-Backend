@@ -6,13 +6,23 @@ const asyncHandler = require('../../middleware/async');
 const ErrorResponse = require('../../utils/errorResponse');
 const EDR = require('../../models/EDR/EDR');
 
-const currentTime = moment().utc().toDate();
-const lastHour = moment().subtract(1, 'hours').utc().toDate();
-const fifthHour = moment().subtract(2, 'hours').utc().toDate();
-const fourthHour = moment().subtract(3, 'hours').utc().toDate();
-const thirdHour = moment().subtract(4, 'hours').utc().toDate();
-const secondHour = moment().subtract(5, 'hours').utc().toDate();
-const sixHour = moment().subtract(6, 'hours').utc().toDate();
+let currentTime = moment().utc().toDate();
+let lastHour = moment().subtract(1, 'hours').utc().toDate();
+let fifthHour = moment().subtract(2, 'hours').utc().toDate();
+let fourthHour = moment().subtract(3, 'hours').utc().toDate();
+let thirdHour = moment().subtract(4, 'hours').utc().toDate();
+let secondHour = moment().subtract(5, 'hours').utc().toDate();
+let sixHour = moment().subtract(6, 'hours').utc().toDate();
+
+function setLastSixHours() {
+  currentTime = moment().utc().toDate();
+  lastHour = moment().subtract(1, 'hours').utc().toDate();
+  fifthHour = moment().subtract(2, 'hours').utc().toDate();
+  fourthHour = moment().subtract(3, 'hours').utc().toDate();
+  thirdHour = moment().subtract(4, 'hours').utc().toDate();
+  secondHour = moment().subtract(5, 'hours').utc().toDate();
+  sixHour = moment().subtract(6, 'hours').utc().toDate();
+}
 
 let arr = [
   { label: lastHour, value: 0 },
@@ -92,6 +102,7 @@ function compareData(hold, active, requested) {
 }
 // Clinical Pharmacist Dashboard
 exports.cpDashboard = asyncHandler(async (req, res, next) => {
+  setLastSixHours();
   const pendingOrders = await EDR.aggregate([
     {
       $project: {
@@ -193,6 +204,7 @@ exports.cpDashboard = asyncHandler(async (req, res, next) => {
 
 // * Imaging Technician Dashboard
 exports.itDashboard = asyncHandler(async (req, res, next) => {
+  setLastSixHours();
   const pendingRads = await EDR.aggregate([
     {
       $project: {
@@ -370,6 +382,7 @@ exports.itDashboard = asyncHandler(async (req, res, next) => {
 
 // * Rad Doctor Dashboard
 exports.rdDashboard = asyncHandler(async (req, res, next) => {
+  setLastSixHours();
   const pendingRad = await EDR.aggregate([
     {
       $project: {
@@ -490,6 +503,7 @@ exports.rdDashboard = asyncHandler(async (req, res, next) => {
 
 // * Nurse Technician Dashboard
 exports.ntDashboard = asyncHandler(async (req, res, next) => {
+  setLastSixHours();
   // function compareData(observedTime, collectedTime) {
   //   if (
   //     (observedTime > lastHour && observedTime < currentTime) ||
@@ -685,6 +699,7 @@ exports.ntDashboard = asyncHandler(async (req, res, next) => {
 
 //* Lab Technician Dashboard
 exports.ltDashboard = asyncHandler(async (req, res, next) => {
+  setLastSixHours();
   const labPending = await EDR.aggregate([
     {
       $project: {
