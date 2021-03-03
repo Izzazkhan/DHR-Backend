@@ -4,15 +4,20 @@ const Notification = require('../models/notification/notification');
 const Patient = require('../models/patient/patient');
 const Staff = require('../models/staffFhir/staff');
 
+const PUBLIC_VAPID_KEYS =
+  'BFEBei7caOyJKWAgdHw65VQ043Cu1Tv5WYUe1FX8Gxu9pxV87WcN5Q5R0mv3 -BWp2tVqXbFNOjlfgqARHPmOV7c';
+const PRIVATE_VAPID_KEYS = 'pSFLgLt1F3Zikuf5vhFbjehCkSex7lVV9HMcCXuyxPw';
+
 webpush.setVapidDetails(
   'mailto:pmdevteam0@gmail.com',
-  process.env.PUBLIC_VAPID_KEYS,
-  process.env.PRIVATE_VAPID_KEYS
+  PUBLIC_VAPID_KEYS,
+  PRIVATE_VAPID_KEYS
 );
-var notification = function (title, message, staffType, route, searchId) {
+var notification = function (title, message, body, staffType, route, searchId) {
   const payload = JSON.stringify({
     title: title,
     message: message,
+    body: body,
     route: route,
   });
   Staff.find({ staffType: staffType }).then((user, err) => {
@@ -26,21 +31,16 @@ var notification = function (title, message, staffType, route, searchId) {
     //fix this yourself
     Patient.findOne({ _id: searchId })
       .select({
-        profileNo: 1,
-        firstName: 1,
-        lastName: 1,
-        SIN: 1,
-        mobileNumber: 1,
-        phoneNumber: 1,
-        age: 1,
-        gender: 1,
-        drugAllergy: 1,
-        weight: 1,
+        identifier: 1,
+        name: 1,
+        chiefComplaint: 1,
+        room: 1,
       })
       .then((patient, err) => {
         Notification.create({
           title: title,
           message: message,
+          body: body,
           route: route,
           searchId: patient,
           sendTo: array,
