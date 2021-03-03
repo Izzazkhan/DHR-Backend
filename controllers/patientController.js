@@ -106,7 +106,7 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       // status,
     });
   }
-
+  console.log("Patient Id : ", newPatient._id)
   // * Sending Notifications
 
   // Notification From Sensei
@@ -116,10 +116,10 @@ exports.registerPatient = asyncHandler(async (req, res) => {
   ) {
     Notification(
       'ADT_A04',
-      +'Details from Sensei',
-      +'A new Patient with MRN ' +
-        newPatient.identifier[0].value +
-        ' has been registered',
+      'Details from Sensei',
+      'A new Patient with MRN' +
+      newPatient.identifier[0].value +
+      ' has been registered',
       'Registration Officer',
       '/home/rcm/patientAssessment',
       newPatient._id
@@ -133,10 +133,10 @@ exports.registerPatient = asyncHandler(async (req, res) => {
   ) {
     Notification(
       'ADT_A04',
-      +'Details from Paramedics',
-      +'A new Patient with MRN ' +
-        newPatient.identifier[0].value +
-        ' has been registered',
+      'Details from Paramedics',
+      'A new Patient with MRN ' +
+      newPatient.identifier[0].value +
+      ' has been registered',
       'Registration Officer',
       '/home/rcm/patientAssessment',
       newPatient._id
@@ -150,10 +150,10 @@ exports.registerPatient = asyncHandler(async (req, res) => {
   ) {
     Notification(
       'ADT_A04',
-      +'Patient Details',
-      +'A new Patient with MRN ' +
-        newPatient.identifier[0].value +
-        ' has been registered',
+      'Patient Details',
+      'A new Patient with MRN ' +
+      newPatient.identifier[0].value +
+      ' has been registered',
       'Sensei',
       '/home/rcm/patientAssessment',
       newPatient._id

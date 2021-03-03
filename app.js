@@ -9,7 +9,7 @@ const webPush = require('web-push');
 const errorHandler = require('./middleware/error');
 const webRTCSocket = require('./lib/socket');
 
-const Subscription = require('./models/subscriber/subscriber');
+// const Subscription = require('./models/subscriber/subscriber');
 
 // Router Files
 const patientRouter = require('./routes/patientRoutes');
@@ -53,6 +53,7 @@ const anesthesiaRequestRoutes = require('./routes/anesthesiaRequestRoutes');
 const consultationNotesRoutes = require('./routes/consultationNotesRoutes');
 const reconciliationNotesRoutes = require('./routes/reconciliationNotesRoutes');
 const senseiAssistanceReqRoutes = require('./routes/senseiAssistanceReqRoutes');
+const subscriber = require('./routes/subscriber');
 
 const app = express();
 
@@ -111,6 +112,7 @@ app.use('/api/shift', shift);
 app.use('/api/reports', reports);
 app.use('/api/adminDashboard', adminDashboard);
 app.use('/api/senseiAssistanceRequest', senseiAssistanceReqRoutes);
+app.use('/api/subscriber', subscriber);
 
 app.use(errorHandler);
 
