@@ -7,6 +7,7 @@ const Patient = require('../models/patient/patient');
 const HK = require('../models/houseKeepingRequest');
 const Staff = require('../models/staffFhir/staff');
 const CCRequest = require('../models/customerCareRequest');
+const Notification = require('../components/notification');
 
 exports.generateEDR = asyncHandler(async (req, res, next) => {
   // console.log(req.body);
@@ -131,9 +132,32 @@ exports.getEDRs = asyncHandler(async (req, res, next) => {
 
 exports.getPendingEDRs = asyncHandler(async (req, res, next) => {
   const Edrs = await EDR.find({ status: 'pending', patientInHospital: true })
-    .populate('patientId')
-    .populate('chiefComplaint.chiefComplaintId', 'name')
-    .select('patientId dcdFormStatus status labRequest radRequest');
+
+    .select('patientId dcdFormStatus status labRequest radRequest')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'identifier name',
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+        select: 'roomNo',
+      },
+    ]);
   res.status(201).json({
     success: true,
     count: Edrs.length,
@@ -156,6 +180,56 @@ exports.getSenseiPendingEDRs = asyncHandler(async (req, res, next) => {
     success: true,
     count: Edrs.length,
     data: Edrs,
+  });
+});
+
+exports.getPendingDcd = asyncHandler(async (req, res, next) => {
+  const pendingDCD = await EDR.find({
+    dcdFormStatus: 'pending',
+    status: 'pending',
+  })
+    .select('patientId chiefComplaint.chiefComplaintId')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'identifier name',
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+        select: 'roomNo',
+      },
+    ]);
+
+  res.status(200).json({
+    success: true,
+    data: pendingDCD,
+  });
+});
+
+exports.updatedDcdFormStatus = asyncHandler(async (req, res, next) => {
+  const updatedDcd = await EDR.findOneAndUpdate(
+    { _id: req.body.edrId },
+    { $set: { dcdFormStatus: 'completed' } },
+    { new: true }
+  );
+
+  res.status(200).json({
+    success: true,
+    data: updatedDcd,
   });
 });
 
@@ -555,7 +629,25 @@ exports.addConsultationNote = asyncHandler(async (req, res, next) => {
       new: true,
     }
   );
-  // console.log(addedNote);
+  if (parsed.subType === 'Internal') {
+    Notification(
+      'Internal Consultant Request',
+      'Ed Doctor has requested an Internal Consultant',
+      'Sensei',
+      '/home/rcm/patientAssessment',
+      ''
+    );
+  }
+
+  if (parsed.subType === 'External') {
+    Notification(
+      'External Consultant Request',
+      'Ed Doctor has requested an External Consultant',
+      'Sensei',
+      '/home/rcm/patientAssessment',
+      ''
+    );
+  }
   res.status(200).json({
     success: true,
     data: addedNote,
@@ -1048,6 +1140,14 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       costomerCareId: customerCare._id,
     });
   }
+
+  // Notification(
+  //   'ADT_A03',
+  //   'Patient has been discharged/dispositioned with customer care',
+  //   'Sensei',
+  //   '/home/rcm/patientAssessment',
+  //   patient._id
+  // );
   res.status(200).json({ success: true, data: edr });
 });
 
@@ -1189,6 +1289,15 @@ exports.addAnesthesiologistNote = asyncHandler(async (req, res, next) => {
   //   { $set: { availability: false } },
   //   { new: true }
   // );
+
+  Notification(
+    '',
+    +'',
+    +'Ed Doctor has requested an anesthesiologist',
+    'Sensei',
+    '/home/rcm/patientAssessment',
+    ''
+  );
 
   res.status(200).json({
     success: true,
@@ -1593,7 +1702,7 @@ exports.getAllCompletedRadRequests = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: response });
 });
 
-exports.addPharmcayRequest = asyncHandler(async (req, res, next) => {
+exports.addPharmacyRequest = asyncHandler(async (req, res, next) => {
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
   const diff =
@@ -1617,6 +1726,15 @@ exports.addPharmcayRequest = asyncHandler(async (req, res, next) => {
     {
       new: true,
     }
+  ).populate('patientId');
+
+  Notification(
+    'Medication Request',
+    'ED Doctor has requested Medication from Clinical Pharmacist for' +
+      addedNote.patientId.name,
+    'Sensei',
+    '/home/rcm/patientAssessment',
+    addedNote.patientId._id
   );
 
   res.status(200).json({
@@ -1649,46 +1767,19 @@ exports.updatePharmcayRequest = asyncHandler(async (req, res, next) => {
 });
 
 exports.deliverPharmcayRequest = asyncHandler(async (req, res, next) => {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 0);
-  const diff =
-    now -
-    start +
-    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
-  const oneDay = 1000 * 60 * 60 * 24;
-  const day = Math.floor(diff / oneDay);
+  const currentStaff = await Staff.findById(req.body.pharmacist).select(
+    'shift'
+  );
 
-  let endTimeCC, startTimeCC;
-  let currentTimeCC = new Date();
-  currentTimeCC = currentTimeCC.toISOString().split('T')[1];
-  const CCrequestNo = 'PHRD' + day + requestNoFormat(new Date(), 'yyHHMMss');
   const customerCares = await Staff.find({
     staffType: 'Customer Care',
     disabled: false,
+    shift: currentStaff.shift,
     // availability: true,
   }).select('identifier name shiftStartTime shiftEndTime');
-  const shiftCC = customerCares.filter((CC) => {
-    if (CC.shiftStartTime && CC.shiftEndTime) {
-      startTimeCC = CC.shiftStartTime.toISOString().split('T')[1];
-      endTimeCC = CC.shiftEndTime.toISOString().split('T')[1];
-      if (currentTimeCC >= startTimeCC && currentTimeCC <= endTimeCC) {
-        console.log(CC);
-        return CC;
-      }
-    }
-  });
-  const randomCC = Math.floor(Math.random() * (shiftCC.length - 1));
+  const randomCC = Math.floor(Math.random() * (customerCares.length - 1));
   // console.log(randomCC);
-  const customerCare = shiftCC[randomCC];
-  // await CCRequest.create({
-  //   requestNo: CCrequestNo,
-  //   edrId: req.body.edrId,
-  //   status: 'pending',
-  //   requestedFor: 'Medication Request',
-  //   requestedAt: Date.now(),
-  //   costomerCareId: customerCare._id,
-  //   pharmacyRequestId: req.body._id,
-  // });
+  const customerCare = customerCares[randomCC];
 
   const addedNote = await EDR.findOne({
     _id: req.body.edrId,

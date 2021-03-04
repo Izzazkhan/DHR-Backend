@@ -106,7 +106,7 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       // status,
     });
   }
-  console.log("Patient Id : ", newPatient._id)
+
   // * Sending Notifications
 
   // Notification From Sensei
@@ -117,9 +117,6 @@ exports.registerPatient = asyncHandler(async (req, res) => {
     Notification(
       'ADT_A04',
       'Details from Sensei',
-      'A new Patient with MRN' +
-      newPatient.identifier[0].value +
-      ' has been registered',
       'Registration Officer',
       '/home/rcm/patientAssessment',
       newPatient._id
@@ -134,10 +131,15 @@ exports.registerPatient = asyncHandler(async (req, res) => {
     Notification(
       'ADT_A04',
       'Details from Paramedics',
-      'A new Patient with MRN ' +
-      newPatient.identifier[0].value +
-      ' has been registered',
       'Registration Officer',
+      '/home/rcm/patientAssessment',
+      newPatient._id
+    );
+
+    Notification(
+      'ADT_A04',
+      'Patient Details',
+      'Sensei',
       '/home/rcm/patientAssessment',
       newPatient._id
     );
@@ -151,9 +153,6 @@ exports.registerPatient = asyncHandler(async (req, res) => {
     Notification(
       'ADT_A04',
       'Patient Details',
-      'A new Patient with MRN ' +
-      newPatient.identifier[0].value +
-      ' has been registered',
       'Sensei',
       '/home/rcm/patientAssessment',
       newPatient._id
@@ -265,6 +264,57 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
       );
     }
     // res.status(200).json({ success: true, data: patient });
+    // * Sending Notifications
+
+    // Notification From Sensei
+    if (
+      patient.processTime[patient.processTime.length - 1].processName ===
+      'Sensei'
+    ) {
+      Notification(
+        'ADT_A04',
+        'Details from Sensei',
+        'Registration Officer',
+        '/home/rcm/patientAssessment',
+        patient._id
+      );
+    }
+
+    // Notification from Paramedics
+    if (
+      patient.processTime[patient.processTime.length - 1].processName ===
+      'Paramedics'
+    ) {
+      Notification(
+        'ADT_A04',
+        'Details from Paramedics',
+        'Registration Officer',
+        '/home/rcm/patientAssessment',
+        patient._id
+      );
+
+      Notification(
+        'ADT_A04',
+        'Patient Details',
+        'Sensei',
+        '/home/rcm/patientAssessment',
+        patient._id
+      );
+    }
+
+    // Notification from RO to Sensei
+    if (
+      patient.processTime[patient.processTime.length - 1].processName ===
+      'Registration Officer'
+    ) {
+      Notification(
+        'ADT_A04',
+        'Patient Details',
+        'Sensei',
+        '/home/rcm/patientAssessment',
+        patient._id
+      );
+    }
     if (!patientQR.QR) {
       const obj = {};
       obj.profileNo = patient.identifier[0].value;
@@ -299,6 +349,58 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
     patient = await patientFHIR.findOneAndUpdate({ _id: parsed._id }, parsed, {
       new: true,
     });
+
+    // * Sending Notifications
+
+    // Notification From Sensei
+    if (
+      patient.processTime[patient.processTime.length - 1].processName ===
+      'Sensei'
+    ) {
+      Notification(
+        'ADT_A04',
+        'Details from Sensei',
+        'Registration Officer',
+        '/home/rcm/patientAssessment',
+        patient._id
+      );
+    }
+
+    // Notification from Paramedics
+    if (
+      patient.processTime[patient.processTime.length - 1].processName ===
+      'Paramedics'
+    ) {
+      Notification(
+        'ADT_A04',
+        'Details from Paramedics',
+        'Registration Officer',
+        '/home/rcm/patientAssessment',
+        patient._id
+      );
+
+      Notification(
+        'ADT_A04',
+        'Patient Details',
+        'Sensei',
+        '/home/rcm/patientAssessment',
+        patient._id
+      );
+    }
+
+    // Notification from RO to Sensei
+    if (
+      patient.processTime[patient.processTime.length - 1].processName ===
+      'Registration Officer'
+    ) {
+      Notification(
+        'ADT_A04',
+        'Patient Details',
+        'Sensei',
+        '/home/rcm/patientAssessment',
+        patient._id
+      );
+    }
     if (!patientQR.QR) {
       const obj = {};
       obj.profileNo = patient.identifier[0].value;

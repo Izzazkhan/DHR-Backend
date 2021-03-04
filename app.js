@@ -54,6 +54,7 @@ const consultationNotesRoutes = require('./routes/consultationNotesRoutes');
 const reconciliationNotesRoutes = require('./routes/reconciliationNotesRoutes');
 const senseiAssistanceReqRoutes = require('./routes/senseiAssistanceReqRoutes');
 const subscriber = require('./routes/subscriber');
+const codeBlue = require('./routes/codeBlue');
 
 const app = express();
 
@@ -113,6 +114,7 @@ app.use('/api/reports', reports);
 app.use('/api/adminDashboard', adminDashboard);
 app.use('/api/senseiAssistanceRequest', senseiAssistanceReqRoutes);
 app.use('/api/subscriber', subscriber);
+app.use('/api/codeBlue', codeBlue);
 
 app.use(errorHandler);
 
