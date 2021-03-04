@@ -8,8 +8,8 @@ exports.addCodeBlueTeam = asyncHandler(async (req, res, next) => {
   const newTeam = await CodeBlue.create({
     createdBy: addedBy,
     teamName,
-    doctors: edNurse,
-    nurses: edDoctor,
+    doctors: edDoctor,
+    nurses: edNurse,
     anesthesiologists: anesthesiologist,
     createdAt: Date.now(),
   });
@@ -31,9 +31,32 @@ exports.getCodeBlueTeam = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateCodeBlueTeam = asyncHandler(async (req, res, next) => {
+  const { addedBy, teamName, edNurse, edDoctor, anesthesiologist } = req.body;
+  const updateRecord = {
+    updatedAt: Date.now(),
+    updatedBy: req.body.updatedBy,
+    reason: req.body.reason,
+  };
+  await CodeBlue.findByIdAndUpdate(
+    req.body.teamId,
+    {
+      $push: {
+        updateRecord,
+      },
+    },
+    { new: true }
+  );
   const updatedTeam = await CodeBlue.findByIdAndUpdate(
     req.body.teamId,
-    req.body,
+    {
+      $set: {
+        createdBy: addedBy,
+        teamName,
+        doctors: edDoctor,
+        nurses: edNurse,
+        anesthesiologists: anesthesiologist,
+      },
+    },
     { new: true }
   ).populate('doctors nurses anesthesiologists addedBy');
 

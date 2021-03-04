@@ -27,6 +27,20 @@ const codeBlueSchema = new mongoose.Schema({
     },
   ],
   createdAt: Date,
+  updateRecord: [
+    {
+      updatedAt: {
+        type: Date,
+      },
+      updatedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      reason: {
+        type: String,
+      },
+    },
+  ],
 });
 
 module.exports = mongoose.model('CodeBlue', codeBlueSchema);
