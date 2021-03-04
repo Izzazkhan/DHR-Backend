@@ -183,6 +183,56 @@ exports.getSenseiPendingEDRs = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.getPendingDcd = asyncHandler(async (req, res, next) => {
+  const pendingDCD = await EDR.find({
+    dcdFormStatus: 'pending',
+    status: 'pending',
+  })
+    .select('patientId chiefComplaint.chiefComplaintId')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'identifier name',
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+        select: 'roomNo',
+      },
+    ]);
+
+  res.status(200).json({
+    success: true,
+    data: pendingDCD,
+  });
+});
+
+exports.updatedDcdFormStatus = asyncHandler(async (req, res, next) => {
+  const updatedDcd = await EDR.findOneAndUpdate(
+    { _id: req.body.edrId },
+    { $set: { dcdFormStatus: 'completed' } },
+    { new: true }
+  );
+
+  res.status(200).json({
+    success: true,
+    data: updatedDcd,
+  });
+});
+
 exports.getEdrPatientByKeyword = asyncHandler(async (req, res, next) => {
   const arr = [];
   const patients = await EDR.find({ patientInHospital: true })

@@ -69,11 +69,16 @@ const {
   pendingDoctorNotes,
   inprogressDoctorNotes,
   completedDoctorNotes,
+
+  getPendingDcd,
+  updatedDcdFormStatus,
 } = require('../controllers/edrController');
 
 const router = express.Router();
 
 router.post('/generateEDR', generateEDR);
+router.get('/getPendingDcd', getPendingDcd);
+router.put('/updatedDcdFormStatus', updatedDcdFormStatus);
 router.get('/getSingleEdr/:id', getEDRById);
 router.get('/getEDRs', getEDRs);
 router.get('/getPendingEDRs', getPendingEDRs);
