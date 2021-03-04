@@ -6,7 +6,7 @@ exports.addCodeBlueTeam = asyncHandler(async (req, res, next) => {
   const { addedBy, teamName, edNurse, edDoctor, anesthesiologist } = req.body;
 
   const newTeam = await CodeBlue.create({
-    addedBy,
+    createdBy: addedBy,
     teamName,
     doctors: edNurse,
     nurses: edDoctor,

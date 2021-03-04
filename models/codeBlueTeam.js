@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const codeBlueSchema = new mongoose.Schema({
-  addedBy: {
+  createdBy: {
     type: mongoose.Schema.ObjectId,
     ref: 'staff',
   },
