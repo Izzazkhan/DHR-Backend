@@ -5,6 +5,10 @@ const codeBlueSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'staff',
   },
+  status: {
+    type: String,
+    default: 'Un_Assigned',
+  },
   teamName: {
     type: String,
   },

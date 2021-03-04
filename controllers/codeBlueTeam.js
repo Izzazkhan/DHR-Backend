@@ -73,6 +73,13 @@ exports.assignCodeBlueTeam = asyncHandler(async (req, res, next) => {
     assignedTime: Date.now(),
     assignedBy: req.body.assignedBy,
   };
+
+  await CodeBlue.findOneAndUpdate(
+    { _id: req.body.teamId },
+    { $set: { status: 'Assigned' } },
+    { new: true }
+  );
+
   const assignedTeam = await EDR.findOneAndUpdate(
     { _id: req.body.edrId },
     { $push: { codeBlueTeam } },
