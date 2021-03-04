@@ -1679,46 +1679,19 @@ exports.updatePharmcayRequest = asyncHandler(async (req, res, next) => {
 });
 
 exports.deliverPharmcayRequest = asyncHandler(async (req, res, next) => {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 0);
-  const diff =
-    now -
-    start +
-    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
-  const oneDay = 1000 * 60 * 60 * 24;
-  const day = Math.floor(diff / oneDay);
+  const currentStaff = await Staff.findById(req.body.pharmacist).select(
+    'shift'
+  );
 
-  let endTimeCC, startTimeCC;
-  let currentTimeCC = new Date();
-  currentTimeCC = currentTimeCC.toISOString().split('T')[1];
-  const CCrequestNo = 'PHRD' + day + requestNoFormat(new Date(), 'yyHHMMss');
   const customerCares = await Staff.find({
     staffType: 'Customer Care',
     disabled: false,
+    shift: currentStaff.shift,
     // availability: true,
   }).select('identifier name shiftStartTime shiftEndTime');
-  const shiftCC = customerCares.filter((CC) => {
-    if (CC.shiftStartTime && CC.shiftEndTime) {
-      startTimeCC = CC.shiftStartTime.toISOString().split('T')[1];
-      endTimeCC = CC.shiftEndTime.toISOString().split('T')[1];
-      if (currentTimeCC >= startTimeCC && currentTimeCC <= endTimeCC) {
-        console.log(CC);
-        return CC;
-      }
-    }
-  });
-  const randomCC = Math.floor(Math.random() * (shiftCC.length - 1));
+  const randomCC = Math.floor(Math.random() * (customerCares.length - 1));
   // console.log(randomCC);
-  const customerCare = shiftCC[randomCC];
-  // await CCRequest.create({
-  //   requestNo: CCrequestNo,
-  //   edrId: req.body.edrId,
-  //   status: 'pending',
-  //   requestedFor: 'Medication Request',
-  //   requestedAt: Date.now(),
-  //   costomerCareId: customerCare._id,
-  //   pharmacyRequestId: req.body._id,
-  // });
+  const customerCare = customerCares[randomCC];
 
   const addedNote = await EDR.findOne({
     _id: req.body.edrId,
