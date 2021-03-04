@@ -56,7 +56,7 @@ const {
   getAllCompletedLabRequests,
   getAllCompletedRadRequests,
 
-  addPharmcayRequest,
+  addPharmacyRequest,
   updatePharmcayRequest,
   deliverPharmcayRequest,
 
@@ -162,7 +162,7 @@ router.get('/getAllCompletedRadRequests', getAllCompletedRadRequests);
 router.get('/getAllPendingLabRequests', getAllPendingLabRequests);
 router.get('/getAllCompletedLabRequests', getAllCompletedLabRequests);
 
-router.put('/addPharmacyRequest', addPharmcayRequest);
+router.put('/addPharmacyRequest', addPharmacyRequest);
 router.put('/updatePharmacyRequest', updatePharmcayRequest);
 router.put('/deliverPharmcayRequest', deliverPharmcayRequest);
 router.get(

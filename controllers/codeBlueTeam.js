@@ -1,5 +1,6 @@
 const CodeBlue = require('../models/codeBlueTeam');
 const asyncHandler = require('../middleware/async');
+const EDR = require('../models/EDR/EDR');
 const ErrorResponse = require('../utils/errorResponse');
 
 exports.addCodeBlueTeam = asyncHandler(async (req, res, next) => {
@@ -63,5 +64,23 @@ exports.updateCodeBlueTeam = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: updatedTeam,
+  });
+});
+
+exports.assignCodeBlueTeam = asyncHandler(async (req, res, next) => {
+  const codeBlueTeam = {
+    teamId: req.body.teamId,
+    assignedTime: Date.now(),
+    assignedBy: req.body.assignedBy,
+  };
+  const assignedTeam = await EDR.findOneAndUpdate(
+    { _id: req.body.edrId },
+    { $push: { codeBlueTeam } },
+    { new: true }
+  );
+
+  res.status(200).json({
+    success: true,
+    data: assignedTeam,
   });
 });

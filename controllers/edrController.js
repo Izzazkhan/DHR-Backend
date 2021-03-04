@@ -581,9 +581,8 @@ exports.addConsultationNote = asyncHandler(async (req, res, next) => {
   );
   if (parsed.subType === 'Internal') {
     Notification(
-      '',
-      +'',
-      +'Ed Doctor has requested an Internal Consultant',
+      'Internal Consultant Request',
+      'Ed Doctor has requested an Internal Consultant',
       'Sensei',
       '/home/rcm/patientAssessment',
       ''
@@ -592,9 +591,8 @@ exports.addConsultationNote = asyncHandler(async (req, res, next) => {
 
   if (parsed.subType === 'External') {
     Notification(
-      '',
-      +'',
-      +'Ed Doctor has requested an External Consultant',
+      'External Consultant Request',
+      'Ed Doctor has requested an External Consultant',
       'Sensei',
       '/home/rcm/patientAssessment',
       ''
@@ -1092,6 +1090,14 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       costomerCareId: customerCare._id,
     });
   }
+
+  // Notification(
+  //   'ADT_A03',
+  //   'Patient has been discharged/dispositioned with customer care',
+  //   'Sensei',
+  //   '/home/rcm/patientAssessment',
+  //   patient._id
+  // );
   res.status(200).json({ success: true, data: edr });
 });
 
@@ -1646,7 +1652,7 @@ exports.getAllCompletedRadRequests = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: response });
 });
 
-exports.addPharmcayRequest = asyncHandler(async (req, res, next) => {
+exports.addPharmacyRequest = asyncHandler(async (req, res, next) => {
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
   const diff =
@@ -1670,6 +1676,15 @@ exports.addPharmcayRequest = asyncHandler(async (req, res, next) => {
     {
       new: true,
     }
+  ).populate('patientId');
+
+  Notification(
+    'Medication Request',
+    'ED Doctor has requested Medication from Clinical Pharmacist for' +
+      addedNote.patientId.name,
+    'Sensei',
+    '/home/rcm/patientAssessment',
+    addedNote.patientId._id
   );
 
   res.status(200).json({

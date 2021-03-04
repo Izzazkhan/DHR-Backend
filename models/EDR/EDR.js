@@ -1165,6 +1165,19 @@ const edrSchema = new mongoose.Schema({
       },
     },
   ],
+  codeBlueTeam: [
+    {
+      teamId: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'CodeBlue',
+      },
+      assignedTime: Date,
+      assignedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+    },
+  ],
   socialWorkerAssistance: [
     {
       requestedTo: {

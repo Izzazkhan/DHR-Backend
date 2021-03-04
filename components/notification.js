@@ -29,6 +29,30 @@ var notification = function (title, message, staffType, route, searchId) {
     }
     //fix this yourself
     Patient.findOne({ _id: searchId })
+      .populate([
+        {
+          path: 'chiefComplaint.chiefComplaintId',
+          model: 'chiefComplaint',
+          select: 'chiefComplaint.chiefComplaintId',
+          populate: [
+            {
+              path: 'productionArea.productionAreaId',
+              model: 'productionArea',
+              select: 'paName',
+            },
+          ],
+        },
+        {
+          path: 'patientId',
+          model: 'patientfhir',
+          select: 'identifier name',
+        },
+        {
+          path: 'room.roomId',
+          model: 'room',
+          select: 'roomNo',
+        },
+      ])
       .select({
         identifier: 1,
         name: 1,
