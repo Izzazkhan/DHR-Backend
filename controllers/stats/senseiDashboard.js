@@ -338,79 +338,69 @@ exports.senseiDashboard = asyncHandler(async (req, res, next) => {
   });
 
   const completedRadTAT = radTime / completedRad.length;
-
   const cumulativePatient = await EDR.find().countDocuments();
 
-  //   // * 3rd Card
-  //   const dischargePending = await EDR.find({
-  //     status: 'Discharged',
-  //     socialWorkerStatus: 'pending',
-  //     dischargeTimestamp: { $gte: sixHour },
-  //   });
+  // * 3rd Card
+  const dischargePending = await EDR.find({
+    status: 'Discharged',
+    socialWorkerStatus: 'pending',
+    dischargeTimestamp: { $gte: sixHour },
+  });
 
-  //   const DischargeArr = [];
-  //   let sixthHourDischarge = 0;
-  //   let fifthHourDischarge = 0;
-  //   let fourthHourDischarge = 0;
-  //   let thirdHourDischarge = 0;
-  //   let secondHourDischarge = 0;
-  //   let firstHourDischarge = 0;
-  //   dischargePending.map((d) => {
-  //     if (d.dischargeTimestamp > lastHour && d.dischargeTimestamp < currentTime) {
-  //       sixthHourDischarge++;
-  //     } else if (
-  //       d.dischargeTimestamp > fifthHour &&
-  //       d.dischargeTimestamp < lastHour
-  //     ) {
-  //       fifthHourDischarge++;
-  //     } else if (
-  //       d.dischargeTimestamp > fourthHour &&
-  //       d.dischargeTimestamp < fifthHour
-  //     ) {
-  //       fourthHourDischarge++;
-  //     } else if (
-  //       d.dischargeTimestamp > thirdHour &&
-  //       d.dischargeTimestamp < fourthHour
-  //     ) {
-  //       thirdHourDischarge++;
-  //     } else if (
-  //       d.dischargeTimestamp > secondHour &&
-  //       d.dischargeTimestamp < thirdHour
-  //     ) {
-  //       secondHourDischarge++;
-  //     } else if (
-  //       d.dischargeTimestamp > sixHour &&
-  //       d.dischargeTimestamp < secondHour
-  //     ) {
-  //       firstHourDischarge++;
-  //     }
-  //   });
-  //   DischargeArr.push({ label: lastHour, value: sixthHourDischarge });
-  //   DischargeArr.push({ label: fifthHour, value: fifthHourDischarge });
-  //   DischargeArr.push({ label: fourthHour, value: fourthHourDischarge });
-  //   DischargeArr.push({ label: thirdHour, value: thirdHourDischarge });
-  //   DischargeArr.push({ label: secondHour, value: secondHourDischarge });
-  //   DischargeArr.push({ label: sixHour, value: firstHourDischarge });
+  dischargePending.map((d) => {
+    compareDataForSixHours(d.dischargeTimestamp);
+  });
 
-  //   const dischargeCompleted = await EDR.find({
-  //     status: 'Discharged',
-  //     socialWorkerStatus: 'completed',
-  //     'survey.0.surveyTime': { $gte: sixHour },
-  //   });
+  const dischargePerHour = JSON.parse(JSON.stringify(arr));
+  clearAllTime();
 
-  //   let dischargeTime = 0;
-  //   dischargeCompleted.map((t) => {
-  //     t.dischargeStart = new Date(t.dischargeTimestamp);
+  const dischargeCompleted = await EDR.find({
+    status: 'Discharged',
+    socialWorkerStatus: 'completed',
+    'survey.0.surveyTime': { $gte: sixHour },
+  });
 
-  //     t.dischargeEnd = new Date(t.survey[0].surveyTime);
+  let dischargeTime = 0;
+  dischargeCompleted.map((t) => {
+    t.dischargeStart = new Date(t.dischargeTimestamp);
+    t.dischargeEnd = new Date(t.survey[0].surveyTime);
+    t.time = Math.round(
+      (t.dischargeEnd.getTime() - t.dischargeStart.getTime()) / (1000 * 60)
+    );
+    dischargeTime += t.time;
+  });
 
-  //     t.time = Math.round(
-  //       (t.dischargeEnd.getTime() - t.dischargeStart.getTime()) / (1000 * 60)
-  //     );
-  //     dischargeTime += t.time;
-  //   });
+  const dischargeTAT = dischargeTime / dischargeCompleted.length;
 
-  //   const dischargeTAT = dischargeTime / dischargeCompleted.length;
+  //per hour assignment
+  const totalEDRInLastSixHours = await EDR.find({
+    createdTimeStamp: { $gte: sixHour },
+  });
+
+  const dischargedEdrWithInSixHours = await EDR.find({
+    dischargeTimestamp: { $gte: sixHour },
+    status: 'Discharged',
+  });
+  let timeFromCreationToDischarged = 0;
+  dischargedEdrWithInSixHours.map((t) => {
+    t.dischargeStart = new Date(t.dischargeTimestamp);
+    t.dischargeEnd = new Date(t.createdTimeStamp);
+    t.time = Math.round(
+      (t.dischargeEnd.getTime() - t.dischargeStart.getTime()) / (1000 * 60)
+    );
+    dischargeTime += t.time;
+  });
+
+  const timeBetweenCreationAndDischargePerPatient =
+    timeFromCreationToDischarged / dischargedEdrWithInSixHours.length;
+
+  const edrPerHour = totalEDRInLastSixHours.length / 6;
+  totalEDRInLastSixHours.map((d) => {
+    compareDataForSixHours(d.createdTimeStamp);
+  });
+
+  const edrWithSixHours = JSON.parse(JSON.stringify(arr));
+  clearAllTime();
 
   //   //* 4th Card
   //   const consultantNotes = await EDR.aggregate([
@@ -700,6 +690,18 @@ exports.senseiDashboard = asyncHandler(async (req, res, next) => {
     //   perHour: pharmacyArr,
     // },
     // diagnosedPerHour,
+
+    ninthCard: {
+      TAT: dischargeTAT,
+      totalPending: dischargePending.length,
+      perHour: dischargePerHour,
+    },
+
+    tenthCard: {
+      TAT: timeBetweenCreationAndDischargePerPatient,
+      totalPending: edrPerHour,
+      perHour: edrWithSixHours,
+    },
     cumulativePatient,
   });
 });
