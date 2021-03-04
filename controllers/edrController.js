@@ -132,9 +132,32 @@ exports.getEDRs = asyncHandler(async (req, res, next) => {
 
 exports.getPendingEDRs = asyncHandler(async (req, res, next) => {
   const Edrs = await EDR.find({ status: 'pending', patientInHospital: true })
-    .populate('patientId')
-    .populate('chiefComplaint.chiefComplaintId', 'name')
-    .select('patientId dcdFormStatus status labRequest radRequest');
+
+    .select('patientId dcdFormStatus status labRequest radRequest')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'identifier name',
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+        select: 'roomNo',
+      },
+    ]);
   res.status(201).json({
     success: true,
     count: Edrs.length,
