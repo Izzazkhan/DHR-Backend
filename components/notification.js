@@ -1,7 +1,7 @@
 const webpush = require('web-push');
 const Subscription = require('../models/subscriber/subscriber');
 const Notification = require('../models/notification/notification');
-const Patient = require('../models/patient/patient');
+const EDR = require('../models/EDR/EDR');
 const Staff = require('../models/staffFhir/staff');
 
 const PUBLIC_VAPID_KEYS =
@@ -13,11 +13,19 @@ webpush.setVapidDetails(
   PUBLIC_VAPID_KEYS,
   PRIVATE_VAPID_KEYS
 );
-var notification = function (title, message, staffType, route, searchId) {
+var notification = function (
+  title,
+  message,
+  staffType,
+  sendFrom,
+  route,
+  searchId
+) {
   const payload = JSON.stringify({
     title: title,
     message: message,
     route: route,
+    sendFrom: sendFrom,
   });
   Staff.find({ staffType: staffType }).then((user, err) => {
     var array = [];
@@ -27,8 +35,8 @@ var notification = function (title, message, staffType, route, searchId) {
         read: false,
       });
     }
-    //fix this yourself
-    Patient.findOne({ _id: searchId })
+
+    EDR.findOne({ _id: searchId })
       .populate([
         {
           path: 'chiefComplaint.chiefComplaintId',
@@ -66,6 +74,7 @@ var notification = function (title, message, staffType, route, searchId) {
           route: route,
           searchId: patient,
           sendTo: array,
+          sendFrom: sendFrom,
         })
           .then((res) => {
             // console.log("response of notification create : ", res)
