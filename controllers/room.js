@@ -150,7 +150,7 @@ exports.assignRoom = asyncHandler(async (req, res, next) => {
 
   // Notification From Sensei
   Notification(
-    'ADT_A04',
+    'Details from Sensei',
     'Details from Sensei',
     'Registration Officer',
     'Sensei',

@@ -19,7 +19,8 @@ var notification = function (
   staffType,
   sendFrom,
   route,
-  patientId
+  patientId,
+  roPatient
 ) {
   const payload = JSON.stringify({
     title: title,
@@ -75,6 +76,7 @@ var notification = function (
       sendTo: array,
       sendFrom: sendFrom,
       patient: patientId,
+      roPatient,
     });
     //     .then((res) => {
     //       // console.log("response of notification create : ", res)

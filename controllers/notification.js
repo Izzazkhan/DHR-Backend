@@ -36,6 +36,11 @@ exports.getNotification = asyncHandler(async (req, res) => {
           },
         ],
       },
+      {
+        path: 'roPatient',
+        model: 'patientfhir',
+        select: 'identifier name insuranceNumber',
+      },
     ])
     .sort({ $natural: -1 });
   res.status(200).json({ success: true, data: not });

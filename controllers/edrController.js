@@ -100,15 +100,6 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
       '/dashboard/home/pendingregistration',
       newEDR._id
     );
-
-    Notification(
-      'ADT_A04',
-      'Patient Details',
-      'Sensei',
-      'Paramedics',
-      '/dashboard/home/pendingregistration',
-      newEDR._id
-    );
   }
 
   res.status(201).json({

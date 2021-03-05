@@ -118,7 +118,9 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       'ADT_A04',
       'Patient Details',
       'Sensei',
+      'Registration Officer',
       '/home/rcm/patientAssessment',
+      '',
       newPatient._id
     );
   }

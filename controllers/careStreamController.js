@@ -4,6 +4,8 @@ const asyncHandler = require('../middleware/async');
 const CareStream = require('../models/CareStreams/CareStreams');
 const EDR = require('../models/EDR/EDR');
 const Items = require('../models/item');
+const Staff = require('../models/staffFhir/staff');
+const Notification = require('../components/notification');
 
 exports.addCareStream = asyncHandler(async (req, res, next) => {
   const {
@@ -250,6 +252,20 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     { new: true }
   );
 
+  const currentStaff = await Staff.findById(req.body.staffId).select(
+    'staffType'
+  );
+
+  if (currentStaff.staffType === 'Paramedics') {
+    Notification(
+      'Patient Details',
+      'Patient Details',
+      'Sensei',
+      'Paramedics',
+      '/dashboard/home/pendingregistration',
+      req.body.data.edrId
+    );
+  }
   res.status(200).json({
     success: true,
     data: assignedCareStream,
