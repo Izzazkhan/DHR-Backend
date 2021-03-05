@@ -4,37 +4,39 @@ const Notification = require('../models/notification/notification');
 
 exports.getNotification = asyncHandler(async (req, res) => {
   const not = await Notification.find({ 'sendTo.userId': req.params.id })
-    .populate('sendTo.userId')
+    // .populate('sendTo.userId')
     .populate([
       {
-        path: 'chiefComplaint.chiefComplaintId',
-        model: 'chiefComplaint',
-        select: 'chiefComplaint.chiefComplaintId',
+        path: 'patient',
+        model: 'EDR',
+        select: 'chiefComplaint.chiefComplaintId patientId room',
+
         populate: [
           {
-            path: 'productionArea.productionAreaId',
-            model: 'productionArea',
-            select: 'paName',
+            path: 'chiefComplaint.chiefComplaintId',
+            model: 'chiefComplaint',
+            select: 'chiefComplaint.chiefComplaintId',
+            populate: [
+              {
+                path: 'productionArea.productionAreaId',
+                model: 'productionArea',
+                select: 'paName',
+              },
+            ],
+          },
+          {
+            path: 'patientId',
+            model: 'patientfhir',
+            select: 'identifier name',
+          },
+          {
+            path: 'room.roomId',
+            model: 'room',
+            select: 'roomNo',
           },
         ],
       },
-      {
-        path: 'patientId',
-        model: 'patientfhir',
-        select: 'identifier name',
-      },
-      {
-        path: 'room.roomId',
-        model: 'room',
-        select: 'roomNo',
-      },
     ])
-    .select({
-      identifier: 1,
-      name: 1,
-      chiefComplaint: 1,
-      room: 1,
-    })
     .sort({ $natural: -1 });
   res.status(200).json({ success: true, data: not });
 });
