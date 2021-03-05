@@ -88,6 +88,29 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
   );
   newEDR = await EDR.findOne({ _id: newEDR._id }).populate('patientId');
 
+  // * Sending Notifications
+
+  // Notification from Paramedics
+  if (newEDR.generatedFrom === 'Paramedics') {
+    Notification(
+      'ADT_A04',
+      'Details from Paramedics',
+      'Registration Officer',
+      'Paramedics',
+      '/dashboard/home/pendingregistration',
+      newEDR._id
+    );
+
+    Notification(
+      'ADT_A04',
+      'Patient Details',
+      'Sensei',
+      'Paramedics',
+      '/dashboard/home/pendingregistration',
+      newEDR._id
+    );
+  }
+
   res.status(201).json({
     success: true,
     data: newEDR,

@@ -109,42 +109,6 @@ exports.registerPatient = asyncHandler(async (req, res) => {
 
   // * Sending Notifications
 
-  // Notification From Sensei
-  if (
-    newPatient.processTime[newPatient.processTime.length - 1].processName ===
-    'Sensei'
-  ) {
-    Notification(
-      'ADT_A04',
-      'Details from Sensei',
-      'Registration Officer',
-      '/home/rcm/patientAssessment',
-      newPatient._id
-    );
-  }
-
-  // Notification from Paramedics
-  if (
-    newPatient.processTime[newPatient.processTime.length - 1].processName ===
-    'Paramedics'
-  ) {
-    Notification(
-      'ADT_A04',
-      'Details from Paramedics',
-      'Registration Officer',
-      '/home/rcm/patientAssessment',
-      newPatient._id
-    );
-
-    Notification(
-      'ADT_A04',
-      'Patient Details',
-      'Sensei',
-      '/home/rcm/patientAssessment',
-      newPatient._id
-    );
-  }
-
   // Notification from RO to Sensei
   if (
     newPatient.processTime[newPatient.processTime.length - 1].processName ===
