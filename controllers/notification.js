@@ -4,7 +4,7 @@ const Notification = require('../models/notification/notification');
 
 exports.getNotification = asyncHandler(async (req, res) => {
   const not = await Notification.find({ 'sendTo.userId': req.params.id })
-    // .populate('sendTo.userId')
+    .populate('sendTo.userId')
     .populate([
       {
         path: 'patient',
