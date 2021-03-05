@@ -22,6 +22,10 @@ const notificationSchema = new mongoose.Schema({
       },
     },
   ],
+  patient: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'patientfhir',
+  },
   sendFrom: {
     type: String,
   },
