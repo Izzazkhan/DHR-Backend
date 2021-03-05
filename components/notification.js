@@ -110,6 +110,7 @@ var notification = function (
                 .then((value) => {
                   Notification.find({ 'sendTo.userId': user[i]._id })
                     .populate('sendTo.userId')
+                    .populate('patient')
                     .limit(1)
                     .sort({ $natural: -1 })
                     .then((not, err) => {
