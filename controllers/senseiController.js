@@ -78,7 +78,7 @@ exports.updateStaffShift = asyncHandler(async (req, res, next) => {
 
 exports.getCCPatients = asyncHandler(async (req, res, next) => {
   const patients = await EDR.find({
-    status: 'Discharged',
+    status: 'pending',
     chiefComplaint: { $ne: [] },
     patientInHospital: true,
   }).populate([

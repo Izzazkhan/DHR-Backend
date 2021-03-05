@@ -4,6 +4,7 @@ const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const EDR = require('../models/EDR/EDR');
 const ProductionArea = require('../models/productionArea');
+const Notification = require('../components/notification');
 
 exports.getRooms = asyncHandler(async (req, res) => {
   const getRooms = await Room.find();
@@ -23,10 +24,12 @@ exports.getAvailableRoomsAganistPA = asyncHandler(async (req, res) => {
     _id: req.params.paId,
     disabled: false,
     availability: true,
-  }).select('rooms').populate({
-    path: 'rooms.roomId',
-    match: { availability: true, disabled: false },
-  });
+  })
+    .select('rooms')
+    .populate({
+      path: 'rooms.roomId',
+      match: { availability: true, disabled: false },
+    });
 
   res.status(200).json({ success: true, data: paWithRooms });
 });
@@ -143,6 +146,16 @@ exports.assignRoom = asyncHandler(async (req, res, next) => {
     { _id: req.body.roomId },
     { $set: { availability: false } },
     { new: true }
+  );
+
+  // Notification From Sensei
+  Notification(
+    'ADT_A04',
+    'Details from Sensei',
+    'Registration Officer',
+    'Sensei',
+    '/dashboard/home/pendingregistration',
+    req.body.edrId
   );
   // const checkBed = await Room.findOne({ 'beds._id': req.body.bedId }).select(
   //   'beds'
