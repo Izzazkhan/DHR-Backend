@@ -24,7 +24,7 @@ const notificationSchema = new mongoose.Schema({
   ],
   patient: {
     type: mongoose.Schema.ObjectId,
-    ref: 'patientfhir',
+    ref: 'EDR',
   },
   sendFrom: {
     type: String,
