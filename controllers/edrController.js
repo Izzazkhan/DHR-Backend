@@ -1130,6 +1130,69 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     assignedTime: Date.now(),
   });
 
+  // Social Worker Notifications
+  if (
+    req.body.dischargeRequest.dischargeSummary.edrCompletionReason ===
+    'admitted'
+  ) {
+    Notification(
+      'ADT_A01',
+      'Patient Admitted',
+      'Social Worker',
+      'Admitted',
+      '/home/rcm/patientAssessment',
+      edr._id,
+      ''
+    );
+  }
+
+  if (
+    req.body.dischargeRequest.dischargeSummary.edrCompletionReason ===
+    'discharged'
+  ) {
+    Notification(
+      'ADT_A03  ',
+      'Patient Discharged',
+      'Social Worker',
+      'Discharged',
+      '/home/rcm/patientAssessment',
+      edr._id,
+      ''
+    );
+  }
+
+  if (
+    req.body.dischargeRequest.dischargeSummary.edrCompletionReason ===
+    'transferred'
+  ) {
+    Notification(
+      'ADT_A02',
+      'Patient Transferred',
+      'Social Worker',
+      'Transferred',
+      '/home/rcm/patientAssessment',
+      edr._id,
+      ''
+    );
+  }
+
+  if (
+    req.body.dischargeRequest.dischargeSummary.edrCompletionReason ===
+    'deceased'
+  ) {
+    Notification(
+      'PID.30',
+      'Patient Died',
+      'Social Worker',
+      'Deceased',
+      '/home/rcm/patientAssessment',
+      edr._id,
+      ''
+    );
+  }
+
+  // Sensei Notifications
+
   if (
     req.body.dischargeRequest.dischargeSummary.edrCompletionRequirement ===
     'withoutCare'
