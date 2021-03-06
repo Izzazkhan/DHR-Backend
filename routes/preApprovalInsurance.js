@@ -1,7 +1,7 @@
 const express = require('express');
 
 const {
-  getEDRandIPR,
+  getPreApprovalEDR,
   getEDRandIPRKeyword,
   addPAR,
   updatePAR,
@@ -9,9 +9,9 @@ const {
 
 const router = express.Router();
 
-router.get('/getedrandipr', getEDRandIPR);
-// router.get('/getedrandipr/:keyword', getEDRandIPRKeyword);
-// router.post('/addpar', addPAR);
-// router.put('/updatepar', updatePAR);
+router.get('/getedrandipr', getPreApprovalEDR);
+router.get('/getedrandipr/:keyword', getEDRandIPRKeyword);
+router.post('/addpar', addPAR);
+router.put('/updatepar', updatePAR);
 
 module.exports = router;

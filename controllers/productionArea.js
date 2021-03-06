@@ -4,7 +4,7 @@ const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 
 exports.getPAs = asyncHandler(async (req, res) => {
-  const getPAs = await PA.find().populate('rooms.roomId');
+  const getPAs = await PA.find({ disabled: false }).populate('rooms.roomId');
   res.status(200).json({ success: true, data: getPAs });
 });
 

@@ -76,6 +76,14 @@ exports.getAllLabServices = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.AllLabServices = asyncHandler(async (req, res, next) => {
+  const labServices = await Lab.find();
+  res.status(200).json({
+    success: true,
+    data: labServices,
+  });
+});
+
 exports.disableLabService = asyncHandler(async (req, res) => {
   const lab = await Lab.findOne({ _id: req.params.id });
   if (lab.availability === false) {
@@ -131,6 +139,31 @@ exports.getLabServiceByKeyword = asyncHandler(async (req, res, next) => {
     {
       $match: {
         disabled: false,
+        $or: [
+          {
+            name: { $regex: req.params.keyword, $options: 'i' },
+          },
+          {
+            type: { $regex: req.params.keyword, $options: 'i' },
+          },
+          {
+            'identifier.value': { $regex: req.params.keyword, $options: 'i' },
+          },
+        ],
+      },
+    },
+  ]).limit(50);
+
+  res.status(200).json({
+    success: true,
+    data: labService,
+  });
+});
+
+exports.LabServiceByKeyword = asyncHandler(async (req, res, next) => {
+  const labService = await Lab.aggregate([
+    {
+      $match: {
         $or: [
           {
             name: { $regex: req.params.keyword, $options: 'i' },

@@ -96,17 +96,9 @@ const staffSchema = new mongoose.Schema(
 
     email: {
       type: String,
-      // required: [true, 'Please add an email'],
-      // unique: true,
-      // match: [
-      //   /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-      //   'Please add a valid email',
-      // ],
     },
     password: {
       type: String,
-      // required: [true, 'Please add a password'],
-      // minlength: 6,
     },
     communication: [
       {
@@ -145,34 +137,16 @@ const staffSchema = new mongoose.Schema(
         },
         assignedBy: {
           type: mongoose.Schema.ObjectId,
+          ref: 'staff',
         },
         assignedTime: {
           type: Date,
         },
       },
     ],
-    productionArea: [
-      {
-        productionAreaId: {
-          type: mongoose.Schema.ObjectId,
-          ref: 'productionArea',
-        },
-        assignedBy: {
-          type: mongoose.Schema.ObjectId,
-        },
-        assignedTime: {
-          type: Date,
-        },
-      },
-    ],
-    shiftStartTime: {
-      type: Date,
-    },
-    shiftEndTime: {
-      type: Date,
-    },
     shift: {
-      type: String,
+      type: mongoose.Schema.ObjectId,
+      ref: 'Shift',
     },
   },
 

@@ -6,6 +6,12 @@ const edrSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'patientfhir',
   },
+  generatedFrom: {
+    type: String,
+  },
+  patientInHospital: {
+    type: Boolean,
+  },
   transfer: [
     {
       reason: String,
@@ -58,7 +64,24 @@ const edrSchema = new mongoose.Schema({
       ],
       medications: [
         {
-          type: String,
+          itemName: {
+            type: String,
+          },
+          requestedQty: {
+            type: Number,
+          },
+          dosage: {
+            type: Number,
+          },
+          frequency: {
+            type: Number,
+          },
+          duration: {
+            type: Number,
+          },
+          price: {
+            type: Number,
+          },
         },
       ],
       mdNotification: [
@@ -483,6 +506,7 @@ const edrSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'staff',
   },
+
   doctorNotes: [
     {
       notes: String,
@@ -492,8 +516,11 @@ const edrSchema = new mongoose.Schema({
       },
       voiceNotes: String,
       assignedTime: Date,
+      code: [{ type: String }],
+      section: String,
     },
   ],
+
   consultationNote: [
     {
       consultationNo: {
@@ -512,11 +539,21 @@ const edrSchema = new mongoose.Schema({
       noteTime: {
         type: Date,
       },
+      consultationType: String,
       status: {
         type: String,
         default: 'pending',
       },
       speciality: {
+        type: String,
+      },
+      consultantNotes: {
+        type: String,
+      },
+      completionDate: {
+        type: Date,
+      },
+      consultantVoiceNotes: {
         type: String,
       },
     },
@@ -542,6 +579,18 @@ const edrSchema = new mongoose.Schema({
       status: {
         type: String,
         default: 'pending',
+      },
+      suggessions: {
+        type: String,
+      },
+      delayReason: {
+        type: String,
+      },
+      completionTime: {
+        type: Date,
+      },
+      delayTime: {
+        type: Date,
       },
     },
   ],
@@ -570,6 +619,7 @@ const edrSchema = new mongoose.Schema({
       speciality: {
         type: String,
       },
+      completedAt: Date,
     },
   ],
   eouNurseRequest: [
@@ -661,10 +711,143 @@ const edrSchema = new mongoose.Schema({
   ],
   pharmacyRequest: [
     {
-      type: mongoose.Schema.ObjectId,
-      ref: 'pharmacyRequest',
+      pharmacyRequestNo: {
+        type: String,
+      },
+
+      generatedFrom: {
+        type: String,
+      },
+
+      requestedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+
+      pharmacist: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+
+      reconciliationNotes: [
+        {
+          pharmacistComments: {
+            type: String,
+          },
+
+          requesterComments: {
+            type: String,
+          },
+
+          pharmacistAudioNotes: {
+            type: String,
+          },
+
+          status: {
+            type: String,
+          },
+
+          createdAt: {
+            type: Date,
+            default: Date.now,
+          },
+
+          updatedAt: {
+            type: Date,
+            default: Date.now,
+          },
+
+          completedAt: {
+            type: Date,
+            default: Date.now,
+          },
+
+          addedBy: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
+          },
+        },
+      ],
+
+      item: [
+        {
+          itemId: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'Item',
+          },
+          itemType: {
+            type: String,
+          },
+          itemName: {
+            type: String,
+          },
+          requestedQty: {
+            type: Number,
+          },
+          priority: {
+            type: String,
+          },
+          schedule: {
+            type: String,
+          },
+          dosage: {
+            type: Number,
+          },
+          frequency: {
+            type: Number,
+          },
+          duration: {
+            type: Number,
+          },
+          form: {
+            type: String,
+          },
+          size: { type: String },
+          make_model: { type: String },
+          additionalNotes: { type: String },
+          price: {
+            type: Number,
+          },
+        },
+      ],
+      status: {
+        type: String,
+      },
+      secondStatus: {
+        type: String,
+      },
+      customerCareId: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+
+      progressStartTime: {
+        type: Date,
+      },
+      deliveryInProgressTime: {
+        type: Date,
+      },
+
+      deliveredTime: {
+        type: Date,
+      },
+
+      completedTime: {
+        type: Date,
+      },
+
+      createdAt: {
+        type: Date,
+        default: Date.now,
+      },
+
+      updatedAt: {
+        type: Date,
+        default: Date.now,
+      },
     },
   ],
+
   labRequest: [
     {
       serviceId: {
@@ -674,6 +857,14 @@ const edrSchema = new mongoose.Schema({
       requestId: {
         type: String,
       },
+      assignedTo: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      nurseTechnicianStatus: {
+        type: String,
+        default: 'Not Collected',
+      },
       name: {
         type: String,
       },
@@ -681,8 +872,9 @@ const edrSchema = new mongoose.Schema({
         type: String,
       },
       price: {
-        type: String,
+        type: Number,
       },
+      image: [{ type: String }],
       status: {
         type: String,
         default: 'pending',
@@ -700,6 +892,31 @@ const edrSchema = new mongoose.Schema({
       notes: {
         type: String,
       },
+      activeTime: {
+        type: Date,
+      },
+      collectedTime: {
+        type: Date,
+      },
+      completeTime: {
+        type: Date,
+      },
+      holdTime: {
+        type: Date,
+      },
+      delayedReason: {
+        type: String,
+      },
+      voiceNotes: {
+        type: String,
+      },
+      completedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      // pendingApprovalTime: {
+      //   type: Date,
+      // },
       updateRecord: [
         {
           updatedAt: {
@@ -728,12 +945,16 @@ const edrSchema = new mongoose.Schema({
       name: {
         type: String,
       },
+      voiceNotes: {
+        type: String,
+      },
       type: {
         type: String,
       },
       price: {
-        type: String,
+        type: Number,
       },
+      image: [{ type: String }],
       status: {
         type: String,
         default: 'pending',
@@ -749,6 +970,29 @@ const edrSchema = new mongoose.Schema({
         ref: 'staff',
       },
       notes: {
+        type: String,
+      },
+      activeTime: {
+        type: Date,
+      },
+      completeTime: {
+        type: Date,
+      },
+      holdTime: {
+        type: Date,
+      },
+      imageTechnicianId: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      completedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      pendingApprovalTime: {
+        type: Date,
+      },
+      delayedReason: {
         type: String,
       },
       updateRecord: [
@@ -772,7 +1016,13 @@ const edrSchema = new mongoose.Schema({
       dischargeNotes: {
         type: String,
       },
-      otherNotes: {
+      followUpInstruction: {
+        type: String,
+      },
+      edrCompletionReason: {
+        type: String,
+      },
+      edrCompletionRequirement: {
         type: String,
       },
     },
@@ -837,6 +1087,7 @@ const edrSchema = new mongoose.Schema({
       default: 'pending',
     },
   },
+
   inPatientRequest: {},
   status: {
     type: String,
@@ -857,21 +1108,94 @@ const edrSchema = new mongoose.Schema({
   },
   updatedAt: {
     type: Date,
-    default: Date.now,
   },
   createdTimeStamp: {
     type: Date,
-    default: Date.now,
   },
   dischargeTimestamp: {
     type: Date,
-    default: Date.now,
   },
-
+  socialWorkerStatus: {
+    type: String,
+    default: 'pending',
+  },
+  requiredAssistance: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: 'staff',
+    },
+  ],
   currentLocation: {
     type: String,
     default: 'ED',
   },
+  transferOfCare: [
+    {
+      nurseTechnicianId: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      diseaseName: String,
+      fever: String,
+      sugarLevel: String,
+      bloodPressure: String,
+      cbcLevel: String,
+      status: String,
+      transferTime: Date,
+      observedTime: Date,
+    },
+  ],
+  nurseTechnicianStatus: {
+    type: String,
+  },
+  survey: [
+    {
+      requestId: String,
+      data: [
+        {
+          key: String,
+          value: [{ name: String, value: String }],
+          text: String,
+        },
+      ],
+      surveyTime: Date,
+      surveyBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+    },
+  ],
+  codeBlueTeam: [
+    {
+      teamId: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'CodeBlue',
+      },
+      assignedTime: Date,
+      assignedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+    },
+  ],
+  socialWorkerAssistance: [
+    {
+      requestedTo: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      requestedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      requestedAt: {
+        type: Date,
+      },
+      requiredAssistance: {
+        type: String,
+      },
+    },
+  ],
 });
 
 edrSchema.plugin(mongoosePaginate);

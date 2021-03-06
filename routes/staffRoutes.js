@@ -29,15 +29,33 @@ const {
   getNurseSpecialty,
   getEDDoctors,
   getAllSensei,
+  getAllParamedics,
   getUsersFromRole,
   getAllDoctors,
   searchDoctor,
   searchSensei,
+  searchParamedics,
   getSpecialityDoctor,
   getAnesthesiologist,
   getSpecialityNurse,
   getEOUNurse,
   getNurseTechnician,
+  getAllHouseKeepers,
+  getCustomerCares,
+  getNurseTechnicians,
+  getEDNurses,
+  getExternal,
+  getAllNurses,
+  searchAnesthesiologist,
+  searchEdNurse,
+  searchCustomerCare,
+  radTestStats,
+  searchExternalConsultant,
+  getAllEOUNurses,
+  searchEouNurses,
+  externalCC,
+  searchExternalCC,
+  searchRadTestsStats,
 } = require('../controllers/staffController');
 
 const router = express.Router();
@@ -52,13 +70,32 @@ router.get('/getNurseSubTypes', getNurseSubTypes);
 router.get('/getDoctorSpecialty', getDoctorSpecialty);
 router.get('/getNurseSpecialty', getNurseSpecialty);
 router.get('/getAllSensei', getAllSensei);
+router.get('/getAllParamedics', getAllParamedics);
 router.get('/getAllDoctors', getAllDoctors);
 router.get('/getUsersFromRole/:role', getUsersFromRole);
 router.get('/searchDoctor/:keyword', searchDoctor);
 router.get('/searchSensei/:keyword', searchSensei);
+router.get('/searchParamedics/:keyword', searchParamedics);
 router.get('/getSpecialityDoctor/:speciality', getSpecialityDoctor);
 router.get('/getSpecialityNurse/:speciality', getSpecialityNurse);
 router.get('/getAnesthesiologist', getAnesthesiologist);
 router.get('/getEOUNurse/:speciality', getEOUNurse);
 router.get('/getNurseTechnician/:speciality', getNurseTechnician);
+router.get('/getAllHouseKeepers', getAllHouseKeepers);
+router.get('/getCustomerCares', getCustomerCares);
+router.get('/getNurseTechnicians', getNurseTechnicians);
+router.get('/getEDNurses', getEDNurses);
+router.get('/getExternal', getExternal);
+router.get('/getAllNurses', getAllNurses);
+router.get('/radTestStats', radTestStats);
+router.get('/getAllEOUNurses', getAllEOUNurses);
+router.get('/externalCC', externalCC);
+router.get('/searchExternalCC/:keyword', searchExternalCC);
+router.get('/searchAnesthesiologist/:keyword', searchAnesthesiologist);
+router.get('/searchEdNurse/:keyword', searchEdNurse);
+router.get('/searchCustomerCare/:keyword', searchCustomerCare);
+router.get('/searchExternalConsultant/:keyword', searchExternalConsultant);
+router.get('/searchEouNurses/:keyword', searchEouNurses);
+router.get('/searchRadTestsStats/:keyword', searchRadTestsStats);
+
 module.exports = router;

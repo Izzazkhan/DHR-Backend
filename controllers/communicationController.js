@@ -26,7 +26,7 @@ exports.addCommunicationRequest = asyncHandler(async (req, res, next) => {
     filteredEmails.push(receiver[index].telecom[0].value);
   }
 
-  console.log('filteredEmails', filteredEmails);
+  // console.log('filteredEmails', filteredEmails);
   const senderEmail = sender.telecom[0].value;
 
   const transporter = nodemailer.createTransport({

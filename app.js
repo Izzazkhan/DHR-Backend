@@ -5,8 +5,12 @@ const http = require('http');
 const socketIO = require('socket.io');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const webPush = require('web-push');
 const errorHandler = require('./middleware/error');
 const webRTCSocket = require('./lib/socket');
+
+// const Subscription = require('./models/subscriber/subscriber');
+
 // Router Files
 const patientRouter = require('./routes/patientRoutes');
 const edrRouter = require('./routes/edrRoutes');
@@ -20,19 +24,38 @@ const careStreamRouter = require('./routes/careStreamRoutes');
 const labServiceRouter = require('./routes/labServiceRoutes');
 const radServiceRouter = require('./routes/radServiceRoutes');
 const chiefComplaintRouter = require('./routes/chiefComplaintRoutes');
-const cutomerCareRouter = require('./routes/customerCareRoutes');
+const customerCareRouter = require('./routes/customerCareRoutes');
 const flagRouter = require('./routes/flagRoutes');
 const communicationRouter = require('./routes/communicationRoutes');
 const patientTransferEDEOURoutes = require('./routes/patientTransferEDEOURoutes');
+const patientClearance = require('./routes/patientClearance');
+const codes = require('./routes/codes');
+const radRequest = require('./routes/radRequest');
+const labRequest = require('./routes/labRequest');
+const houseKeeperRequest = require('./routes/houseKeeperRequest');
+const socialWorker = require('./routes/socialWorker');
+const item = require('./routes/item');
+const nurseTechnician = require('./routes/nurseTechnicianRequest');
+const edNurse = require('./routes/edNurse');
+const eouNurse = require('./routes/eouNurse');
+const paramedics = require('./routes/paramedicstRoutes');
 const insurance = require('./routes/insurance');
 const preApproval = require('./routes/preApprovalInsurance');
-
+const RC = require('./routes/reimbursementClaim');
+const shift = require('./routes/shift');
+const reports = require('./routes/reports');
+const adminDashboard = require('./routes/adminDashboard');
 const dcdFormRouter = require('./routes/dcdFormroutes');
 const ChatModel = require('./models/chatRoom/chatRoom');
-
 // const webRTCSocket = require('./lib/socket');
 const chatRouter = require('./routes/chatRoutes');
+const anesthesiaRequestRoutes = require('./routes/anesthesiaRequestRoutes');
+const consultationNotesRoutes = require('./routes/consultationNotesRoutes');
+const reconciliationNotesRoutes = require('./routes/reconciliationNotesRoutes');
+const senseiAssistanceReqRoutes = require('./routes/senseiAssistanceReqRoutes');
 const subscriber = require('./routes/subscriber');
+const codeBlue = require('./routes/codeBlue');
+const notification = require('./routes/notification');
 
 const app = express();
 
@@ -52,6 +75,7 @@ app.use(cors());
 app.use('/uploads', express.static('uploads'));
 
 // Mounting Routes
+app.use('/api/item', item);
 app.use('/api/dhrPatient', patientRouter);
 app.use('/api/edr', edrRouter);
 app.use('/api/pharm', pharmRouter);
@@ -63,16 +87,36 @@ app.use('/api/careStream', careStreamRouter);
 app.use('/api/labService', labServiceRouter);
 app.use('/api/radService', radServiceRouter);
 app.use('/api/chiefComplaint', chiefComplaintRouter);
-app.use('/api/customerCare', cutomerCareRouter);
+app.use('/api/customerCare', customerCareRouter);
 app.use('/api/dcdForm', dcdFormRouter);
 app.use('/api/sensei', senseiRouter);
 app.use('/api/chatroom', chatRouter);
 app.use('/api/flag', flagRouter);
-app.use('/api/subscriber', subscriber);
 app.use('/api/communication', communicationRouter);
 app.use('/api/patientTransfer', patientTransferEDEOURoutes);
+app.use('/api/patientclearance', patientClearance);
+app.use('/api/codes', codes);
 app.use('/api/insurance', insurance);
 app.use('/api/par', preApproval);
+app.use('/api/reimbursementclaim', RC);
+app.use('/api/radRequest', radRequest);
+app.use('/api/labRequest', labRequest);
+app.use('/api/houseKeeper', houseKeeperRequest);
+app.use('/api/socialWorker', socialWorker);
+app.use('/api/anesthesiarequest', anesthesiaRequestRoutes);
+app.use('/api/consultationNotes', consultationNotesRoutes);
+app.use('/api/reconciliationNotes', reconciliationNotesRoutes);
+app.use('/api/nurseTechnician', nurseTechnician);
+app.use('/api/edNurse', edNurse);
+app.use('/api/eouNurse', eouNurse);
+app.use('/api/paramedics', paramedics);
+app.use('/api/shift', shift);
+app.use('/api/reports', reports);
+app.use('/api/adminDashboard', adminDashboard);
+app.use('/api/senseiAssistanceRequest', senseiAssistanceReqRoutes);
+app.use('/api/subscriber', subscriber);
+app.use('/api/codeBlue', codeBlue);
+app.use('/api/notifications', notification);
 
 app.use(errorHandler);
 

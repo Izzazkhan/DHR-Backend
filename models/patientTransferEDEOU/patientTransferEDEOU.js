@@ -26,7 +26,7 @@ const TransferToEDEOUSchema = new mongoose.Schema(
     },
 
     status: {
-      type: String
+      type: String,
     },
 
     createdAt: {
@@ -36,7 +36,12 @@ const TransferToEDEOUSchema = new mongoose.Schema(
 
     updatedAt: {
       type: Date,
-      default: Date.now,
+    },
+    inProgressTime: {
+      type: Date,
+    },
+    completedAt: {
+      type: Date,
     },
   },
   {

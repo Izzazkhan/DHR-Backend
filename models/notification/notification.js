@@ -22,6 +22,17 @@ const notificationSchema = new mongoose.Schema({
       },
     },
   ],
+  patient: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'EDR',
+  },
+  sendFrom: {
+    type: String,
+  },
+  roPatient: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'patientfhir',
+  },
   date: {
     type: Date,
     default: Date.now,

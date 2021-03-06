@@ -7,6 +7,7 @@ exports.getSubscriber = asyncHandler(async (req, res) => {
   });
 });
 
+
 exports.postSubscriber = asyncHandler(async (req, res) => {
   const obj = {
     user: req.body.user,

@@ -4,6 +4,7 @@ const requestNoFormat = require('dateformat');
 const Staff = require('../models/staffFhir/staff');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
+const EDR = require('../models/EDR/EDR');
 
 // register a staff
 exports.registerStaff = asyncHandler(async (req, res, next) => {
@@ -15,11 +16,7 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
     (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
   const oneDay = 1000 * 60 * 60 * 24;
   const day = Math.floor(diff / oneDay);
-  // const staff = await Staff.create(req.body);
-  // res.status(200).json({
-  //   success: true,
-  //   data: staff,
-  // });
+
   const parsed = JSON.parse(req.body.data);
   let profileId;
   switch (parsed.staffType) {
@@ -44,7 +41,7 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
     case 'Customer Care':
       profileId = 'CC' + day + requestNoFormat(new Date(), 'yyHHMMss');
       break;
-    case 'Houskeeping':
+    case 'Housekeeping':
       profileId = 'HK' + day + requestNoFormat(new Date(), 'yyHHMMss');
       break;
     case 'Social Worker':
@@ -94,6 +91,7 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
       email: parsed.email,
       password: parsed.password,
       addedBy: parsed.addedBy,
+      shift: parsed.shift,
     });
     res.status(201).json({
       success: true,
@@ -120,8 +118,7 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
       email: parsed.email,
       password: parsed.password,
       addedBy: parsed.addedBy,
-      shiftStartTime: parsed.shiftStartTime,
-      shiftEndTime: parsed.shiftEndTime,
+      shift: parsed.shift,
     });
     res.status(201).json({
       success: true,
@@ -131,17 +128,23 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
 });
 
 exports.getAllStaff = asyncHandler(async (req, res, next) => {
-  const options = {
-    populate: [
+  const staff = await Staff.find()
+    .populate('addedBy shift')
+    .populate([
       {
-        path: 'addedBy productionArea.productionAreaId',
-        // select: ['name'],
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
       },
-    ],
+    ]);
 
-    limit: 100,
-  };
-  const staff = await Staff.paginate({}, options);
   res.status(200).json({
     success: true,
     data: staff,
@@ -150,7 +153,7 @@ exports.getAllStaff = asyncHandler(async (req, res, next) => {
 
 exports.getEDDoctors = asyncHandler(async (req, res, next) => {
   const staff = await Staff.find({ staffType: 'Doctor' })
-    .populate('addedBy')
+    .populate('addedBy shift')
     .populate('chiefComplaint.chiefComplaintId');
   res.status(200).json({
     success: true,
@@ -285,8 +288,16 @@ exports.getAllSensei = asyncHandler(async (req, res) => {
   const sensei = await Staff.find({
     staffType: 'Sensei',
     disabled: false,
-  }).populate('addedBy');
+  }).populate('addedBy shift');
   res.status(200).json({ success: 'true', data: sensei });
+});
+
+exports.getAllParamedics = asyncHandler(async (req, res) => {
+  const paramedics = await Staff.find({
+    staffType: 'Paramedics',
+    disabled: false,
+  }).populate('addedBy');
+  res.status(200).json({ success: 'true', data: paramedics });
 });
 
 exports.getAllDoctors = asyncHandler(async (req, res) => {
@@ -337,7 +348,50 @@ exports.searchDoctor = asyncHandler(async (req, res, next) => {
 
 exports.searchSensei = asyncHandler(async (req, res, next) => {
   const arr = [];
-  const staff = await Staff.find({ staffType: 'Sensei', disabled: false });
+  const staff = await Staff.find({
+    staffType: 'Sensei',
+    disabled: false,
+  }).populate('addedBy');
+  for (let i = 0; i < staff.length; i++) {
+    const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
+    if (
+      (staff[i].name[0].given[0] &&
+        staff[i].name[0].given[0]
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].name[0].family &&
+        staff[i].name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].identifier[0].value &&
+        staff[i].identifier[0].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
+      (staff[i].telecom[1].value &&
+        staff[i].telecom[1].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].nationalID &&
+        staff[i].nationalID
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase()))
+    ) {
+      arr.push(staff[i]);
+    }
+  }
+  res.status(200).json({
+    success: true,
+    data: arr,
+  });
+});
+
+exports.searchParamedics = asyncHandler(async (req, res, next) => {
+  const arr = [];
+  const staff = await Staff.find({
+    staffType: 'Paramedics',
+    disabled: false,
+  }).populate('addedBy');
   for (let i = 0; i < staff.length; i++) {
     const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
     if (
@@ -379,7 +433,7 @@ exports.getSpecialityDoctor = asyncHandler(async (req, res, next) => {
     specialty: req.params.speciality,
     $or: [{ subType: 'Internal' }, { subType: 'External' }],
     disabled: false,
-    availability: true,
+    // availability: true,
   });
   // console.log(doctors);
   res.status(200).json({
@@ -389,17 +443,57 @@ exports.getSpecialityDoctor = asyncHandler(async (req, res, next) => {
 });
 
 exports.getAnesthesiologist = asyncHandler(async (req, res, next) => {
-  // console.log(req.params.speciality);
   const anesthesiologist = await Staff.find({
     staffType: 'Doctor',
     subType: 'Anesthesiologist',
     disabled: false,
-    availability: true,
-  });
-  // console.log(doctors);
+    // availability: true,
+  }).populate('shift');
+
   res.status(200).json({
     success: true,
     data: anesthesiologist,
+  });
+});
+
+exports.searchAnesthesiologist = asyncHandler(async (req, res, next) => {
+  const arr = [];
+  const staff = await Staff.find({
+    staffType: 'Doctor',
+    subType: 'Anesthesiologist',
+    disabled: false,
+  });
+  for (let i = 0; i < staff.length; i++) {
+    const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
+    if (
+      (staff[i].name[0].given[0] &&
+        staff[i].name[0].given[0]
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].name[0].family &&
+        staff[i].name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].identifier[0].value &&
+        staff[i].identifier[0].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
+      (staff[i].telecom[1].value &&
+        staff[i].telecom[1].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].nationalID &&
+        staff[i].nationalID
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase()))
+    ) {
+      arr.push(staff[i]);
+    }
+  }
+  res.status(200).json({
+    success: true,
+    data: arr,
   });
 });
 
@@ -410,7 +504,7 @@ exports.getSpecialityNurse = asyncHandler(async (req, res, next) => {
     specialty: req.params.speciality,
     subType: 'ED Nurse',
     disabled: false,
-    availability: true,
+    // availability: true,
   });
   // console.log(doctors);
   res.status(200).json({
@@ -426,12 +520,96 @@ exports.getEOUNurse = asyncHandler(async (req, res, next) => {
     specialty: req.params.speciality,
     subType: 'EOU Nurse',
     disabled: false,
-    availability: true,
+    // availability: true,
   });
   // console.log(doctors);
   res.status(200).json({
     success: true,
     data: nurses,
+  });
+});
+
+exports.getAllEOUNurses = asyncHandler(async (req, res, next) => {
+  const nurses = await Staff.find({
+    staffType: 'Nurses',
+    subType: 'EOU Nurse',
+    disabled: false,
+    // availability: true,
+  })
+    .select('identifier name specialty chiefComplaint')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+    ]);
+
+  res.status(200).json({
+    success: true,
+    data: nurses,
+  });
+});
+
+exports.searchEouNurses = asyncHandler(async (req, res, next) => {
+  const arr = [];
+  const staff = await Staff.find({
+    staffType: 'Nurses',
+    subType: 'EOU Nurse',
+    disabled: false,
+    // availability: true,
+  }).populate([
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      select: 'chiefComplaint.chiefComplaintId',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      ],
+    },
+  ]);
+  for (let i = 0; i < staff.length; i++) {
+    const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
+    if (
+      (staff[i].name[0].given[0] &&
+        staff[i].name[0].given[0]
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].name[0].family &&
+        staff[i].name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].identifier[0].value &&
+        staff[i].identifier[0].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
+      (staff[i].telecom[1].value &&
+        staff[i].telecom[1].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].nationalID &&
+        staff[i].nationalID
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase()))
+    ) {
+      arr.push(staff[i]);
+    }
+  }
+  res.status(200).json({
+    success: true,
+    data: arr,
   });
 });
 
@@ -442,11 +620,525 @@ exports.getNurseTechnician = asyncHandler(async (req, res, next) => {
     specialty: req.params.speciality,
     subType: 'Nurse Technician',
     disabled: false,
-    availability: true,
+    // availability: true,
   });
   res.status(200).json({
     success: true,
     data: nurses,
+  });
+});
+
+exports.getAllHouseKeepers = asyncHandler(async (req, res, next) => {
+  const houseKeepers = await Staff.find({
+    staffType: 'House Keeping',
+    disabled: false,
+    // availability: true,
+  }).select('identifier name');
+  res.status(200).json({
+    success: true,
+    data: houseKeepers,
+  });
+});
+
+exports.getCustomerCares = asyncHandler(async (req, res, next) => {
+  const houseKeepers = await Staff.find({
+    staffType: 'Customer Care',
+    disabled: false,
+    // availability: true,
+  })
+    .select('identifier name chiefComplaint shift')
+    .populate('shift')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+    ]);
+  res.status(200).json({
+    success: true,
+    data: houseKeepers,
+  });
+});
+
+exports.searchCustomerCare = asyncHandler(async (req, res, next) => {
+  const arr = [];
+  const staff = await Staff.find({
+    staffType: 'Customer Care',
+    disabled: false,
+    // availability: true,
+  });
+  for (let i = 0; i < staff.length; i++) {
+    const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
+    if (
+      (staff[i].name[0].given[0] &&
+        staff[i].name[0].given[0]
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].name[0].family &&
+        staff[i].name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].identifier[0].value &&
+        staff[i].identifier[0].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
+      (staff[i].telecom[1].value &&
+        staff[i].telecom[1].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].nationalID &&
+        staff[i].nationalID
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase()))
+    ) {
+      arr.push(staff[i]);
+    }
+  }
+  res.status(200).json({
+    success: true,
+    data: arr,
+  });
+});
+
+exports.getNurseTechnicians = asyncHandler(async (req, res, next) => {
+  const nurses = await Staff.find({
+    staffType: 'Nurses',
+    subType: 'Nurse Technician',
+    disabled: false,
+  }).select('identifier name');
+  res.status(200).json({
+    success: true,
+    data: nurses,
+  });
+});
+
+exports.searchEdNurse = asyncHandler(async (req, res, next) => {
+  const arr = [];
+  const staff = await Staff.find({
+    staffType: 'Nurses',
+    subType: 'ED Nurse',
+    disabled: false,
+  });
+  for (let i = 0; i < staff.length; i++) {
+    const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
+    if (
+      (staff[i].name[0].given[0] &&
+        staff[i].name[0].given[0]
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].name[0].family &&
+        staff[i].name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].identifier[0].value &&
+        staff[i].identifier[0].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
+      (staff[i].telecom[1].value &&
+        staff[i].telecom[1].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].nationalID &&
+        staff[i].nationalID
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase()))
+    ) {
+      arr.push(staff[i]);
+    }
+  }
+  res.status(200).json({
+    success: true,
+    data: arr,
+  });
+});
+
+exports.getExternal = asyncHandler(async (req, res, next) => {
+  const externals = await Staff.find({
+    subType: 'External',
+    disabled: false,
+  })
+    .select('identifier name specialty chiefComplaint experience')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+    ]);
+  res.status(200).json({
+    success: true,
+    data: externals,
+  });
+});
+
+exports.getEDNurses = asyncHandler(async (req, res, next) => {
+  const nurses = await Staff.find({
+    staffType: 'Nurses',
+    subType: 'ED Nurse',
+    disabled: false,
+  }).populate('shift');
+  res.status(200).json({
+    success: true,
+    data: nurses,
+  });
+});
+
+exports.searchExternalConsultant = asyncHandler(async (req, res, next) => {
+  const arr = [];
+  const staff = await Staff.find({
+    subType: 'External',
+    disabled: false,
+  })
+    .select(
+      'identifier name specialty chiefComplaint experience telecom nationalID'
+    )
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+    ]);
+  for (let i = 0; i < staff.length; i++) {
+    const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
+    if (
+      (staff[i].name[0].given[0] &&
+        staff[i].name[0].given[0]
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].name[0].family &&
+        staff[i].name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].identifier[0].value &&
+        staff[i].identifier[0].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
+      (staff[i].telecom[1].value &&
+        staff[i].telecom[1].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].nationalID &&
+        staff[i].nationalID
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase()))
+    ) {
+      arr.push(staff[i]);
+    }
+  }
+  res.status(200).json({
+    success: true,
+    data: arr,
+  });
+});
+
+// External Consultant Cases
+exports.externalCC = asyncHandler(async (req, res, next) => {
+  const cases = await EDR.aggregate([
+    {
+      $project: {
+        consultationNote: 1,
+        chiefComplaint: 1,
+        id: 1,
+      },
+    },
+    {
+      $unwind: '$consultationNote',
+    },
+    {
+      $match: {
+        'consultationNote.consultationType': 'External',
+      },
+    },
+  ]);
+
+  const consulatations = await EDR.populate(cases, [
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      select: 'chiefComplaint.chiefComplaintId',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      ],
+    },
+    {
+      path: 'consultationNote.consultant',
+      model: 'staff',
+      select: 'identifier name speciality',
+    },
+  ]);
+
+  res.status(200).json({
+    success: true,
+    data: consulatations,
+  });
+});
+
+exports.searchExternalCC = asyncHandler(async (req, res, next) => {
+  const cases = await EDR.aggregate([
+    {
+      $project: {
+        consultationNote: 1,
+        chiefComplaint: 1,
+        id: 1,
+      },
+    },
+    {
+      $unwind: '$consultationNote',
+    },
+    {
+      $match: {
+        'consultationNote.consultationType': 'External',
+      },
+    },
+  ]);
+
+  const staff = await EDR.populate(cases, [
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      select: 'chiefComplaint.chiefComplaintId',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      ],
+    },
+    {
+      path: 'consultationNote.consultant',
+      model: 'staff',
+      select: 'identifier name speciality',
+    },
+  ]);
+
+  const arr = [];
+  for (let i = 0; i < staff.length; i++) {
+    const fullName =
+      staff[i].consultationNote.consultant.name[0].given[0] +
+      ' ' +
+      staff[i].consultationNote.consultant.name[0].family;
+    if (
+      (staff[i].consultationNote.consultant.name[0].given[0] &&
+        staff[i].consultationNote.consultant.name[0].given[0]
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].consultationNote.consultant.name[0].family &&
+        staff[i].consultationNote.consultant.name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].consultationNote.consultant.identifier[0].value &&
+        staff[i].consultationNote.consultant.identifier[0].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase())
+    ) {
+      arr.push(staff[i]);
+    }
+  }
+
+  res.status(200).json({
+    success: true,
+    data: arr,
+  });
+});
+
+exports.getAllNurses = asyncHandler(async (req, res, next) => {
+  const nurses = await Staff.find({ staffType: 'Nurses', disabled: false });
+  res.status(200).json({
+    success: true,
+    data: nurses,
+  });
+});
+
+exports.radTestStats = asyncHandler(async (req, res, next) => {
+  const rads = await EDR.aggregate([
+    {
+      $project: {
+        radRequest: 1,
+      },
+    },
+    {
+      $unwind: '$radRequest',
+    },
+    {
+      $match: { 'radRequest.status': 'completed' },
+    },
+    {
+      $group: {
+        _id: 'radRequest',
+        radRequest: { $push: '$radRequest' },
+      },
+    },
+  ]);
+  const radDoctors = await Staff.find({ staffType: 'Imaging Technician' })
+    .select('identifier name chiefComplaint shift')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+    ]);
+  const newArray = [];
+
+  for (let i = 0; i < radDoctors.length; i++) {
+    const obj = JSON.parse(JSON.stringify(radDoctors[i]));
+    let count = 0;
+    const countWithTest = {};
+    const radRequest = [];
+    for (let j = 0; j < rads[0].radRequest.length; j++) {
+      if (
+        radDoctors[i]._id.toString() ===
+        rads[0].radRequest[j].imageTechnicianId.toString()
+      ) {
+        // obj.radRequest = rads[0].radRequest[j];
+        radRequest.push(rads[0].radRequest[j]);
+        count++;
+        const key = rads[0].radRequest[j].type.replace(/\s/g, '');
+        if (key in countWithTest === false) {
+          countWithTest[key] = 1;
+        } else {
+          countWithTest[key] = countWithTest[key] + 1;
+        }
+      }
+    }
+    obj.rads = { ...countWithTest };
+    obj.tests = count;
+    newArray.push(obj);
+  }
+
+  res.status(200).json({
+    success: true,
+    data: newArray,
+  });
+});
+
+exports.searchRadTestsStats = asyncHandler(async (req, res, next) => {
+  const rads = await EDR.aggregate([
+    {
+      $project: {
+        radRequest: 1,
+      },
+    },
+    {
+      $unwind: '$radRequest',
+    },
+    {
+      $match: { 'radRequest.status': 'completed' },
+    },
+    {
+      $group: {
+        _id: 'radRequest',
+        radRequest: { $push: '$radRequest' },
+      },
+    },
+  ]);
+  const radDoctors = await Staff.find({ staffType: 'Imaging Technician' })
+    .select('identifier name chiefComplaint shift')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+    ]);
+  const staff = [];
+
+  for (let i = 0; i < radDoctors.length; i++) {
+    const obj = JSON.parse(JSON.stringify(radDoctors[i]));
+    let count = 0;
+    const countWithTest = {};
+    const radRequest = [];
+    for (let j = 0; j < rads[0].radRequest.length; j++) {
+      if (
+        radDoctors[i]._id.toString() ===
+        rads[0].radRequest[j].imageTechnicianId.toString()
+      ) {
+        // obj.radRequest = rads[0].radRequest[j];
+        radRequest.push(rads[0].radRequest[j]);
+        count++;
+        const key = rads[0].radRequest[j].type.replace(/\s/g, '');
+        if (key in countWithTest === false) {
+          countWithTest[key] = 1;
+        } else {
+          countWithTest[key] = countWithTest[key] + 1;
+        }
+      }
+    }
+    obj.rads = { ...countWithTest };
+    obj.tests = count;
+    staff.push(obj);
+  }
+
+  const arr = [];
+  for (let i = 0; i < staff.length; i++) {
+    const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
+    if (
+      (staff[i].name[0].given[0] &&
+        staff[i].name[0].given[0]
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].name[0].family &&
+        staff[i].name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].identifier[0].value &&
+        staff[i].identifier[0].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase())
+    ) {
+      arr.push(staff[i]);
+    }
+  }
+  res.status(200).json({
+    success: true,
+    data: arr,
   });
 });
 

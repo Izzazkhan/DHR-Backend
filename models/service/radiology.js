@@ -14,7 +14,7 @@ const radiologyServiceSchema = new mongoose.Schema({
     type: String,
   },
   price: {
-    type: String,
+    type: Number,
   },
   status: {
     type: String,
@@ -27,7 +27,7 @@ const radiologyServiceSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
   },
   availability: { type: Boolean },
-  disabled: { type: Boolean },
+  disabled: { type: Boolean, default: false },
   updateRecord: [
     {
       updatedAt: {

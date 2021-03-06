@@ -14,7 +14,7 @@ const LaboratoryServiceSchema = new mongoose.Schema({
     type: String,
   },
   price: {
-    type: String,
+    type: Number,
   },
   status: {
     type: String,
@@ -28,7 +28,7 @@ const LaboratoryServiceSchema = new mongoose.Schema({
     ref: 'staff',
   },
   availability: { type: Boolean },
-  disabled: { type: Boolean },
+  disabled: { type: Boolean, default: false },
   updateRecord: [
     {
       updatedAt: {

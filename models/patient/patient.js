@@ -72,6 +72,9 @@ const patientSchema = new mongoose.Schema({
   coveredFamilyMember: [contact.contact],
   coverageDetails: { type: String },
   insuranceDetails: { type: String },
+  QR: {
+    type: String,
+  },
   insuranceCard: { type: String },
   processTime: [
     {
@@ -81,20 +84,15 @@ const patientSchema = new mongoose.Schema({
       processEndTime: {
         type: Date,
       },
-      // role: {
-      //   type: String,
-      // },
-      senderID: {
+      staffId: {
         type: mongoose.Schema.ObjectId,
         ref: 'staff',
       },
       processName: {
         type: String,
-        enum: ['registration', 'sensie', 'paramedics'],
       },
     },
   ],
-
   createdAt: {
     type: Date,
     default: Date.now,

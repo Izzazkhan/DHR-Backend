@@ -3,6 +3,9 @@ const asyncHandler = require('../middleware/async');
 // const ErrorResponse = require('../utils/errorResponse');
 const CareStream = require('../models/CareStreams/CareStreams');
 const EDR = require('../models/EDR/EDR');
+const Items = require('../models/item');
+const Staff = require('../models/staffFhir/staff');
+const Notification = require('../components/notification');
 
 exports.addCareStream = asyncHandler(async (req, res, next) => {
   const {
@@ -56,6 +59,16 @@ exports.getAllCareStreams = asyncHandler(async (req, res, next) => {
     data: careStreams,
   });
 });
+
+exports.getAllEnableDisableCareStreams = asyncHandler(
+  async (req, res, next) => {
+    const careStreams = await CareStream.paginate({});
+    res.status(200).json({
+      success: true,
+      data: careStreams,
+    });
+  }
+);
 
 exports.disableCareStream = asyncHandler(async (req, res) => {
   const careStream = await CareStream.findOne({ _id: req.params.id });
@@ -138,8 +151,8 @@ exports.getMedicationsByIdCareStreams = asyncHandler(async (req, res, next) => {
 exports.getCSPatients = asyncHandler(async (req, res, next) => {
   const csPatients = await EDR.find({
     status: 'pending',
-    careStream: { $eq: [] },
-    room: { $ne: [] },
+    // careStream: { $eq: [] },
+    // room: { $ne: [] },
   }).populate('patientId');
 
   res.status(200).json({
@@ -149,13 +162,12 @@ exports.getCSPatients = asyncHandler(async (req, res, next) => {
 });
 
 exports.asignCareStream = asyncHandler(async (req, res, next) => {
-  // console.log(req.body.data);
-  req.body.data = req.body;
   const edrCheck = await EDR.find({ _id: req.body.data.edrId }).populate(
     'patientId'
   );
-  // const latestEdr = edrCheck.length - 1;
+
   const latestCS = edrCheck[0].careStream.length - 1;
+  // console.log(latestCS);
   const updatedVersion = latestCS + 2;
 
   const versionNo = edrCheck[0].requestNo + '-' + updatedVersion;
@@ -177,12 +189,83 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     reason: req.body.data.reason,
     status: req.body.data.status,
   };
+
+  const pharmacyRequest = edrCheck[0].pharmacyRequest;
+
+  if (req.body.data.medications && req.body.data.medications.length > 0) {
+    for (let i = 0; i < req.body.data.medications.length; i++) {
+      const item = await Items.findOne({
+        name: req.body.data.medications[i].itemName,
+      });
+
+      const now = new Date();
+      const start = new Date(now.getFullYear(), 0, 0);
+      const diff =
+        now -
+        start +
+        (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
+      const oneDay = 1000 * 60 * 60 * 24;
+      const day = Math.floor(diff / oneDay);
+      const pharmacyRequestNo = `PHR${day}${requestNoFormat(
+        new Date(),
+        'yyHHMM'
+      )}`;
+
+      let pharmaObj = {
+        pharmacyRequestNo,
+        requestedBy: req.body.data.staffId,
+        reconciliationNotes: [],
+        generatedFrom: 'CareStream Request',
+        item: {
+          itemId: item._id,
+          itemType: item.medClass.toLowerCase(),
+          itemName: item.name,
+          requestedQty: req.body.data.medications[i].requestedQty,
+          priority: '',
+          schedule: '',
+          dosage: req.body.data.medications[i].dosage,
+          frequency: req.body.data.medications[i].frequency,
+          duration: req.body.data.medications[i].duration,
+          form: '',
+          size: '',
+          make_model: '',
+          additionalNotes: '',
+        },
+        status: 'pending',
+        secondStatus: 'pending',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      pharmacyRequest.push(pharmaObj);
+    }
+
+    await EDR.findOneAndUpdate(
+      { _id: req.body.data.edrId },
+      { $set: { pharmacyRequest: pharmacyRequest } },
+      { new: true }
+    );
+  }
+
   const assignedCareStream = await EDR.findOneAndUpdate(
     { _id: req.body.data.edrId },
     { $push: { careStream } },
     { new: true }
   );
 
+  const currentStaff = await Staff.findById(req.body.staffId).select(
+    'staffType'
+  );
+
+  if (currentStaff.staffType === 'Paramedics') {
+    Notification(
+      'Patient Details',
+      'Patient Details',
+      'Sensei',
+      'Paramedics',
+      '/dashboard/home/pendingregistration',
+      req.body.data.edrId
+    );
+  }
   res.status(200).json({
     success: true,
     data: assignedCareStream,
@@ -266,6 +349,22 @@ exports.getPatientsWithCSByKeyword = asyncHandler(async (req, res, next) => {
       path: 'careStream.careStreamId',
       model: 'careStream',
     },
+    {
+      path: 'consultationNote.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'consultationNote.consultant',
+      model: 'staff',
+    },
+    {
+      path: 'radRequest.serviceId',
+      model: 'RadiologyService',
+    },
+    {
+      path: 'labRequest.serviceId',
+      model: 'LaboratoryService',
+    },
   ]);
 
   for (let i = 0; i < patients.length; i++) {
@@ -308,25 +407,28 @@ exports.getPatientsWithCSByKeyword = asyncHandler(async (req, res, next) => {
 exports.getEDRswithCS = asyncHandler(async (req, res, next) => {
   const patients = await EDR.find({
     status: 'pending',
-    careStream: { $ne: [] },
+    // careStream: { $ne: [] },
     room: { $ne: [] },
   }).populate([
     {
       path: 'chiefComplaint.chiefComplaintId',
       model: 'chiefComplaint',
-
       populate: [
         {
           path: 'productionArea.productionAreaId',
           model: 'productionArea',
-          // populate: [
-          //   {
-          //     path: 'rooms.roomId',
-          //     model: 'room',
-          //   },
-          // ],
+          populate: [
+            {
+              path: 'rooms.roomId',
+              model: 'room',
+            },
+          ],
         },
       ],
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
     },
     {
       path: 'patientId',
@@ -345,12 +447,56 @@ exports.getEDRswithCS = asyncHandler(async (req, res, next) => {
       model: 'staff',
     },
     {
+      path: 'room.roomId',
+      model: 'room',
+    },
+    {
       path: 'radRequest.serviceId',
       model: 'RadiologyService',
     },
     {
+      path: 'radRequest.requestedBy',
+      model: 'staff',
+    },
+    {
       path: 'labRequest.serviceId',
       model: 'LaboratoryService',
+    },
+    {
+      path: 'labRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.item.itemId',
+      model: 'Item',
+    },
+    {
+      path: 'doctorNotes.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'edNurseRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'eouNurseRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'nurseTechnicianRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'anesthesiologistNote.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.reconciliationNotes.addedBy',
+      model: 'staff',
     },
   ]);
 

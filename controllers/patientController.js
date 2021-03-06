@@ -1,10 +1,17 @@
+const base64ToImage = require('base64-to-image');
 const moment = require('moment');
+const QRCode = require('qrcode');
 const requestNoFormat = require('dateformat');
 const patientFHIR = require('../models/patient/patient');
+const Room = require('../models/room');
+const Notification = require('../components/notification');
+
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
+const EDR = require('../models/EDR/EDR');
 
 exports.registerPatient = asyncHandler(async (req, res) => {
+  let newPatient;
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
   const diff =
@@ -18,10 +25,10 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       value: 'KHMC' + day + requestNoFormat(new Date(), 'yyHHMMss'),
     },
   ];
+
+  // newPatient = await patientFHIR.create(req.body);
   const parsed = JSON.parse(req.body.data);
-  // console.log(parsed.photo);
-  console.log(parsed);
-  console.log(req.files.file);
+
   if (parsed.photo && parsed.photo.length > 0) {
     parsed.photo[0].url = req.files.file[0].path;
   } else {
@@ -33,16 +40,7 @@ exports.registerPatient = asyncHandler(async (req, res) => {
     req.files.back ||
     req.files.insuranceCard
   ) {
-    // if (
-    //   req.files.file.length > 0 ||
-    //   req.files.front.length > 0 ||
-    //   req.files.back.length > 0 ||
-    //   req.files.insuranceCard.length > 0
-    // )
-    // {
-    // console.log(parsed);
-
-    const newPatient = await patientFHIR.create({
+    newPatient = await patientFHIR.create({
       identifier: MRN,
       nationalID: parsed.nationalID,
       name: parsed.name,
@@ -78,13 +76,8 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       // claimed,
       // status,
     });
-    res.status(201).json({
-      success: true,
-      data: newPatient,
-    });
-    // }
   } else {
-    const newPatient = await patientFHIR.create({
+    newPatient = await patientFHIR.create({
       identifier: MRN,
       nationalID: parsed.nationalID,
       name: parsed.name,
@@ -114,40 +107,75 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       // claimed,
       // status,
     });
-    res.status(201).json({
-      success: true,
-      data: newPatient,
-    });
   }
-});
 
-exports.averageRegistrationTAT = asyncHandler(async (req, res, next) => {
-  const currentTime = moment().utc().toDate();
-  const sixHours = moment().subtract(6, 'hours').utc().toDate();
-  const patients = await patientFHIR.find({
-    'process.processName': 'registration',
-    $and: [
-      { 'processTime.processStartTime': { $gte: sixHours } },
-      { 'processTime.processEndTime': { $lte: currentTime } },
-    ],
-  });
-  const averageRegistrationTime = 360 / patients.length;
-  res.status(200).json({
-    success: true,
-    data: averageRegistrationTime,
+  // * Sending Notifications
+
+  // Notification from RO to Sensei
+  if (
+    newPatient.processTime[newPatient.processTime.length - 1].processName ===
+    'Registration Officer'
+  ) {
+    Notification(
+      'ADT_A04',
+      'Patient Details',
+      'Sensei',
+      'Registration Officer',
+      '/home/rcm/patientAssessment',
+      '',
+      newPatient._id
+    );
+  }
+
+  const obj = {};
+  obj.profileNo = newPatient.identifier[0].value;
+  obj.createdAt = newPatient.createdAt;
+  obj.insuranceCardNumber = newPatient.insuranceNumber;
+  QRCode.toDataURL(JSON.stringify(obj), function (err, url) {
+    const base64Str = url;
+    const path = './uploads/';
+    const pathFormed = base64ToImage(base64Str, path);
+    patientFHIR
+      .findOneAndUpdate(
+        { _id: newPatient._id },
+        { $set: { QR: '/uploads/' + pathFormed.fileName } },
+        { new: true }
+      )
+      .then((docs) => {
+        // console.log(docs);
+        res.status(200).json({ success: true, data: docs });
+      });
   });
 });
 
 exports.updatePatient = asyncHandler(async (req, res, next) => {
   const parsed = JSON.parse(req.body.data);
   let patient = await patientFHIR.findById(parsed._id);
+  const edr = await EDR.findOne({ patientId: parsed._id });
+  if (edr && edr.length > 0) {
+    await EDR.findOneAndUpdate(
+      { patientId: parsed._id },
+      { $set: { paymentMethod: parsed.paymentMethod[0].payment } },
+      { new: true }
+    );
+  }
+
   if (!patient) {
     return next(
       new ErrorResponse(`Patient not found with id of ${parsed._id}`, 404)
     );
   }
-  console.log(req.files);
+  let patientQR;
+  // console.log(req.files);
   if (req.files) {
+    patientQR = await patientFHIR.findOne({ _id: parsed._id });
+
+    await patientFHIR.findOneAndUpdate(
+      { _id: parsed._id },
+      { $push: { processTime: parsed.time } },
+      { new: true }
+    );
+
     patient = await patientFHIR.findOneAndUpdate({ _id: parsed._id }, parsed, {
       new: true,
     });
@@ -203,17 +231,185 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
         }
       );
     }
-    res.status(200).json({ success: true, data: patient });
+    // res.status(200).json({ success: true, data: patient });
+    // * Sending Notifications
+
+    // Notification From Sensei
+    if (
+      patient.processTime[patient.processTime.length - 1].processName ===
+      'Sensei'
+    ) {
+      Notification(
+        'ADT_A04',
+        'Details from Sensei',
+        'Registration Officer',
+        'Sensei',
+        '/home/rcm/patientAssessment',
+        edr._id,
+        ''
+      );
+    }
+
+    // Notification from Paramedics
+    if (
+      patient.processTime[patient.processTime.length - 1].processName ===
+      'Paramedics'
+    ) {
+      Notification(
+        'ADT_A04',
+        'Details from Paramedics',
+        'Registration Officer',
+        'Paramedics',
+        '/home/rcm/patientAssessment',
+        edr._id,
+        ''
+      );
+
+      Notification(
+        'ADT_A04',
+        'Patient Details',
+        'Sensei',
+        'Paramedics',
+        '/home/rcm/patientAssessment',
+        edr._id,
+        ''
+      );
+    }
+
+    // Notification from RO to Sensei
+    if (
+      patient.processTime[patient.processTime.length - 1].processName ===
+      'Registration Officer'
+    ) {
+      Notification(
+        'ADT_A04',
+        'Patient Details',
+        'Sensei',
+        'Registration Officer',
+        '/home/rcm/patientAssessment',
+        '',
+        patient._id
+      );
+    }
+    if (!patientQR.QR) {
+      const obj = {};
+      obj.profileNo = patient.identifier[0].value;
+      obj.createdAt = patient.createdAt;
+      obj.insuranceCardNumber = patient.insuranceNumber;
+      QRCode.toDataURL(JSON.stringify(obj), function (err, url) {
+        const base64Str = url;
+        const path = './uploads/';
+        const pathFormed = base64ToImage(base64Str, path);
+        // console.log(pathFormed);
+        patientFHIR
+          .findOneAndUpdate(
+            { _id: patient._id },
+            { $set: { QR: '/uploads/' + pathFormed.fileName } },
+            { new: true }
+          )
+          .then((docs) => {
+            // console.log(docs);
+            res.status(200).json({ success: true, data: docs });
+          });
+      });
+    } else {
+      res.status(200).json({ success: true, data: patient });
+    }
   } else {
+    patientQR = await patientFHIR.findOne({ _id: parsed._id });
+    await patientFHIR.findOneAndUpdate(
+      { _id: parsed._id },
+      { $push: { processTime: parsed.time } },
+      { new: true }
+    );
     patient = await patientFHIR.findOneAndUpdate({ _id: parsed._id }, parsed, {
       new: true,
     });
-    res.status(200).json({ success: true, data: patient });
+
+    // * Sending Notifications
+
+    // Notification From Sensei
+    // if (
+    //   patient.processTime[patient.processTime.length - 1].processName ===
+    //   'Sensei'
+    // ) {
+    //   Notification(
+    //     'ADT_A04',
+    //     'Details from Sensei',
+    //     'Registration Officer',
+    //     '/home/rcm/patientAssessment',
+    //     patient._id
+    //   );
+    // }
+
+    // // Notification from Paramedics
+    // if (
+    //   patient.processTime[patient.processTime.length - 1].processName ===
+    //   'Paramedics'
+    // ) {
+    //   Notification(
+    //     'ADT_A04',
+    //     'Details from Paramedics',
+    //     'Registration Officer',
+    //     '/home/rcm/patientAssessment',
+    //     patient._id
+    //   );
+
+    //   Notification(
+    //     'ADT_A04',
+    //     'Patient Details',
+    //     'Sensei',
+    //     '/home/rcm/patientAssessment',
+    //     patient._id
+    //   );
+    // }
+
+    // Notification from RO to Sensei
+    if (
+      patient.processTime[patient.processTime.length - 1].processName ===
+      'Registration Officer'
+    ) {
+      Notification(
+        'ADT_A04',
+        'Patient Details',
+        'Sensei',
+        'Registration Officer',
+        '/home/rcm/patientAssessment',
+        '',
+        patient._id
+      );
+    }
+    if (!patientQR.QR) {
+      const obj = {};
+      obj.profileNo = patient.identifier[0].value;
+      obj.createdAt = patient.createdAt;
+      obj.insuranceCardNumber = patient.insuranceNumber;
+
+      QRCode.toDataURL(JSON.stringify(obj), function (err, url) {
+        const base64Str = url;
+        const path = './uploads/';
+        const pathFormed = base64ToImage(base64Str, path);
+
+        patientFHIR
+          .findOneAndUpdate(
+            { _id: patient._id },
+            { $set: { QR: '/uploads/' + pathFormed.fileName } },
+            { new: true }
+          )
+          .then((docs) => {
+            // console.log(docs);
+            res.status(200).json({ success: true, data: docs });
+          });
+      });
+    } else {
+      res.status(200).json({ success: true, data: patient });
+    }
+    // res.status(200).json({ success: true, data: patient });
   }
 });
 
 exports.getPatient = asyncHandler(async (req, res, next) => {
-  console.log(req.params.patientId);
+  // console.log(req.params.patientId);
   const patient = await patientFHIR.findById(req.params.patientId);
   if (!patient) {
     return next(new ErrorResponse('No patient Found with this id', 404));

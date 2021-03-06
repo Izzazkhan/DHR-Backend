@@ -83,7 +83,7 @@ exports.getAllTransferReqForRequester = asyncHandler(async (req, res, next) => {
       path: 'edrId',
       populate: { path: 'room.roomId' },
     })
-    .select({ edrId: 1, status: 1, to:1, from:1 });
+    .select({ edrId: 1, status: 1, to: 1, from: 1 });
   res.status(200).json({
     success: true,
     data: list,
@@ -92,8 +92,10 @@ exports.getAllTransferReqForRequester = asyncHandler(async (req, res, next) => {
 
 exports.patientsInDept = asyncHandler(async (req, res, next) => {
   let patients = await EDR.find({
-    // currentLocation: req.params.currentdept,
+    currentLocation: req.params.currentdept,
     status: 'pending',
+    patientInHospital: true,
+    room: { $ne: [] },
   })
     .populate('patientId')
     .populate('chiefComplaint.chiefComplaintId')
@@ -131,15 +133,7 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
     $or: [{ status: 'pending' }, { status: 'in_progress' }],
   });
 
-  console.log('transfer', transfer);
   if (transfer.length > 0) {
-    // return next(
-    //   new ErrorResponse(
-    //     'Transfer request is already in progress for that patient',
-    //     400
-    //   )
-    // );
-
     return res.status(200).json({
       success: false,
       error: 'Transfer request is already in progress for that patient',
@@ -154,11 +148,41 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
     );
   }
 
-  await Staff.findOneAndUpdate(
-    { _id: customerCareStaff.id },
-    { $set: { availability: false } },
+  // await Staff.findOneAndUpdate(
+  //   { _id: customerCareStaff.id },
+  //   { $set: { availability: false } },
+  //   { new: true }
+  // );
+
+  // Nurse Technician Request
+  const nurseTechnician = await Staff.findOne({
+    // availability: true,
+    disabled: false,
+    staffType: 'Nurses',
+    subType: 'Nurse Technician',
+  });
+  if (!nurseTechnician) {
+    return next(new ErrorResponse('No Nurse Technician Available this Time'));
+  }
+
+  // console.log(nurseTechnician._id);
+  const nurseId = {
+    nurseTechnicianId: nurseTechnician._id,
+    status: 'To Be Observed',
+    transferTime: Date.now(),
+  };
+
+  await EDR.findOneAndUpdate(
+    { _id: req.body.edrId },
+    { $push: { transferOfCare: nurseId } },
     { new: true }
   );
+
+  // await EDR.findOneAndUpdate(
+  //   { _id: req.body.edrId },
+  //   { $set: { nurseTechnicianStatus: 'pending' } },
+  //   { new: true }
+  // );
 
   const customerCare = {
     assignedBy: req.body.assignedBy,

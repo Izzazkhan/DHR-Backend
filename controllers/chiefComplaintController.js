@@ -120,7 +120,21 @@ exports.getDoctorsWithCC = asyncHandler(async (req, res, next) => {
   const doctors = await Staff.find({
     staffType: 'Doctor',
     chiefComplaint: { $ne: [] },
-  }).populate('chiefComplaint.chiefComplaintId', 'name');
+  })
+    .populate('shift')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+    ]);
 
   res.status(200).json({
     success: true,
@@ -128,22 +142,53 @@ exports.getDoctorsWithCC = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.getNursesWithCC = asyncHandler(async (req, res, next) => {
+  const nurses = await Staff.find({
+    staffType: 'Nurses',
+    chiefComplaint: { $ne: [] },
+  })
+    .populate('shift')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+    ]);
+
+  res.status(200).json({
+    success: true,
+    data: nurses,
+  });
+});
+
 exports.assignCC = asyncHandler(async (req, res, next) => {
-  console.log(req.body);
-  const doctor = await Staff.findOne({ _id: req.body.staffId });
-  if (!doctor || doctor.disabled === true) {
+  // console.log(req.body);
+  const staff = await Staff.findOne({ _id: req.body.staffId });
+  if (!staff || staff.disabled === true) {
     return next(
-      new ErrorResponse('Could not assign Chief Complaint to this doctor', 400)
+      new ErrorResponse('Could not assign Chief Complaint to this staff', 400)
     );
   }
+  const chiefComplaintId = await CC.findOne({
+    'productionArea.productionAreaId': req.body.productionAreaId,
+  });
+  // console.log(chiefComplaintId._id);
   const chiefComplaint = {
     assignedBy: req.body.assignedBy,
-    chiefComplaintId: req.body.chiefComplaintId,
+    chiefComplaintId: chiefComplaintId._id,
     assignedTime: Date.now(),
   };
   const assignedCC = await Staff.findOneAndUpdate(
-    { _id: doctor.id },
-    { $push: { chiefComplaint }, $set: { availability: false } },
+    { _id: staff.id },
+    { $push: { chiefComplaint } },
     {
       new: true,
     }
@@ -156,27 +201,89 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
 
 exports.getCCDoctorByKeyword = asyncHandler(async (req, res, next) => {
   const arr = [];
-  const doctorCC = await Staff.find({ staffType: 'Doctor' }).populate(
-    'chiefComplaint.chiefComplaintId'
-  );
-  console.log(doctorCC[0].chiefComplaint[0].chiefComplaintId.name);
+  const staff = await Staff.find({
+    staffType: 'Doctor',
+    chiefComplaint: { $ne: [] },
+    disabled: false,
+  }).populate([
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      ],
+    },
+  ]);
 
-  for (let i = 0; i < doctorCC.length; i++) {
+  for (let i = 0; i < staff.length; i++) {
+    const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
     if (
-      (doctorCC[i].name[0].given[0] &&
-        doctorCC[i].name[0].given[0]
+      (staff[i].name[0].given[0] &&
+        staff[i].name[0].given[0]
           .toLowerCase()
           .startsWith(req.params.keyword.toLowerCase())) ||
-      (doctorCC[i].name[0].family &&
-        doctorCC[i].name[0].family
+      (staff[i].name[0].family &&
+        staff[i].name[0].family
           .toLowerCase()
           .startsWith(req.params.keyword.toLowerCase())) ||
-      (doctorCC[i].chiefComplaint[0].chiefComplaintId.name &&
-        doctorCC[i].chiefComplaint[0].chiefComplaintId.name
+      (staff[i].identifier[0].value &&
+        staff[i].identifier[0].value
           .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase()))
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase())
     ) {
-      arr.push(doctorCC[i]);
+      arr.push(staff[i]);
+    }
+  }
+  // console.log(arr);
+  res.status(200).json({
+    success: true,
+    data: arr,
+  });
+});
+
+exports.getCCNurseByKeyword = asyncHandler(async (req, res, next) => {
+  const arr = [];
+  const staff = await Staff.find({
+    staffType: 'Nurses',
+    chiefComplaint: { $ne: [] },
+    disabled: false,
+  }).populate([
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      ],
+    },
+  ]);
+
+  for (let i = 0; i < staff.length; i++) {
+    const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
+    if (
+      (staff[i].name[0].given[0] &&
+        staff[i].name[0].given[0]
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].name[0].family &&
+        staff[i].name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (staff[i].identifier[0].value &&
+        staff[i].identifier[0].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase())
+    ) {
+      arr.push(staff[i]);
     }
   }
   // console.log(arr);
@@ -245,12 +352,12 @@ exports.getCCandPAByKeyword = asyncHandler(async (req, res, next) => {
     disabled: false,
   }).populate('productionArea.productionAreaId');
   // console.log(prodAreas[0].chiefComplaint.length);
-  console.log(prodAreas);
+  // console.log(prodAreas);
 
   for (let i = 0; i < prodAreas.length; i++) {
     // console.log(prodAreas[i].chiefComplaint);
     const index = prodAreas[i].productionArea.length - 1;
-    console.log(index);
+    // console.log(index);
     if (
       (prodAreas[i].name &&
         prodAreas[i].name
@@ -305,7 +412,7 @@ exports.assignCCtoPatient = asyncHandler(async (req, res, next) => {
     }
   );
 
-  console.log(assignedCC);
+  // console.log(assignedCC);
   res.status(200).json({
     success: true,
     data: assignedCC,
