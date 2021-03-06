@@ -6,7 +6,7 @@ const EDR = require('../models/EDR/EDR');
 const Room = require('../models/room');
 const Transfer = require('../models/patientTransferEDEOU/patientTransferEDEOU');
 const CCRequest = require('../models/customerCareRequest');
-const room = require('../models/room');
+const Notification = require('../components/notification');
 // const Assistance = require('../models/assistance/assistance');
 
 exports.getAllCustomerCares = asyncHandler(async (req, res, next) => {
@@ -225,6 +225,16 @@ exports.completeEOUTransfer = asyncHandler(async (req, res, next) => {
     { _id: roomId },
     { $set: { availability: true } },
     { new: true }
+  );
+
+  Notification(
+    'ADT_A02',
+    'Patient has been transferred to EOU',
+    'Sensei',
+    'Transfer To EOU',
+    '/home/rcm/patientAssessment',
+    completedTransfer.edrId._id,
+    ''
   );
 
   res.status(200).json({
