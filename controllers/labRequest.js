@@ -1,6 +1,7 @@
 // const requestNoFormat = require('dateformat');
 const EDR = require('../models/EDR/EDR');
 const asyncHandler = require('../middleware/async');
+const Notification = require('../components/notification');
 // const ErrorResponse = require('../utils/errorResponse');
 
 exports.getPendingLabEdr = asyncHandler(async (req, res, next) => {
@@ -167,6 +168,19 @@ exports.updateLabRequest = asyncHandler(async (req, res, next) => {
     },
     { new: true }
   ).populate('labRequest.serviceId');
+
+  if (parsed.status === 'hold') {
+    Notification(
+      'Delayed Report',
+      'Delay in Report Delivery',
+      'Lab Technician',
+      '',
+      '/home/rcm/patientAssessment',
+      parsed.edrId,
+      ''
+    );
+  }
+
   res.status(200).json({
     success: true,
     data: updatedlab,
