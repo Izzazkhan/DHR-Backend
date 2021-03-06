@@ -13,13 +13,14 @@ webpush.setVapidDetails(
   PUBLIC_VAPID_KEYS,
   PRIVATE_VAPID_KEYS
 );
-var notification = function (
+var notification = async function (
   title,
   message,
   staffType,
   sendFrom,
   route,
-  searchId
+  patientId,
+  roPatient
 ) {
   const payload = JSON.stringify({
     title: title,
@@ -36,56 +37,61 @@ var notification = function (
       });
     }
 
-    EDR.findOne({ _id: searchId })
-      .populate([
-        {
-          path: 'chiefComplaint.chiefComplaintId',
-          model: 'chiefComplaint',
-          select: 'chiefComplaint.chiefComplaintId',
-          populate: [
-            {
-              path: 'productionArea.productionAreaId',
-              model: 'productionArea',
-              select: 'paName',
-            },
-          ],
-        },
-        {
-          path: 'patientId',
-          model: 'patientfhir',
-          select: 'identifier name',
-        },
-        {
-          path: 'room.roomId',
-          model: 'room',
-          select: 'roomNo',
-        },
-      ])
-      .select({
-        identifier: 1,
-        name: 1,
-        chiefComplaint: 1,
-        room: 1,
-      })
-      .then((patient) => {
-        Notification.create({
-          title: title,
-          message: message,
-          route: route,
-          searchId: patient,
-          sendTo: array,
-          sendFrom: sendFrom,
-        })
-          .then((res) => {
-            // console.log("response of notification create : ", res)
-          })
-          .catch((err) => {
-            console.log('Catch notify create err : ', err);
-          });
-      })
-      .catch((e) => {
-        console.log('patient find error : ', e);
+    // EDR.findOne({ _id: searchId })
+    //   .populate([
+    //     {
+    //       path: 'chiefComplaint.chiefComplaintId',
+    //       model: 'chiefComplaint',
+    //       select: 'chiefComplaint.chiefComplaintId',
+    //       populate: [
+    //         {
+    //           path: 'productionArea.productionAreaId',
+    //           model: 'productionArea',
+    //           select: 'paName',
+    //         },
+    //       ],
+    //     },
+    //     {
+    //       path: 'patientId',
+    //       model: 'patientfhir',
+    //       select: 'identifier name',
+    //     },
+    //     {
+    //       path: 'room.roomId',
+    //       model: 'room',
+    //       select: 'roomNo',
+    //     },
+    //   ])
+    //   .select({
+    //     identifier: 1,
+    //     name: 1,
+    //     chiefComplaint: 1,
+    //     room: 1,
+    //   })
+    //   .then((patient) => {
+    Notification.create({
+      title: title,
+      message: message,
+      route: route,
+      sendTo: array,
+      sendFrom: sendFrom,
+      patient: patientId,
+      roPatient: roPatient,
+    })
+      .then((newNot) => console.log('notification created', newNot))
+      .catch((error) => {
+        console.log('Catch notify create err : ', error);
       });
+    //     .then((res) => {
+    //       // console.log("response of notification create : ", res)
+    //     })
+    //     .catch((err) => {
+    //       console.log('Catch notify create err : ', err);
+    //     });
+    // })
+    // .catch((e) => {
+    //   console.log('patient find error : ', e);
+    // });
 
     for (let i = 0; i < user.length; i++) {
       Subscription.find({ user: user[i]._id }, (err, subscriptions) => {

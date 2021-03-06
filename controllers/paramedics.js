@@ -285,57 +285,60 @@ exports.criticalCasesPerParamedics = asyncHandler(async (req, res, next) => {
   });
 });
 
-exports.searchParamedicsByCriricalCases = asyncHandler(async (req, res, next) => {
-  const arr = [];
-  const paramedicsEdr = await EDR.find({
-    generatedFrom: 'Paramedics',
-    generatedBy: { $exists: true },
-  });
+exports.searchParamedicsByCriricalCases = asyncHandler(
+  async (req, res, next) => {
+    const arr = [];
+    const paramedicsEdr = await EDR.find({
+      generatedFrom: 'Paramedics',
+      generatedBy: { $exists: true },
+    });
 
-  const s = await Staff.find({ staffType: 'Paramedics' }).populate('addedBy');
-  let staff = [];
-  for (let i = 0; i < s.length; i++) {
-    let casesHandled = 0;
-    for (let j = 0; j < paramedicsEdr.length; j++) {
-      if (s[i]._id.toString() == paramedicsEdr[j].generatedBy.toString()) {
-        casesHandled++;
+    const s = await Staff.find({ staffType: 'Paramedics' }).populate('addedBy');
+    let staff = [];
+    for (let i = 0; i < s.length; i++) {
+      let casesHandled = 0;
+      for (let j = 0; j < paramedicsEdr.length; j++) {
+        if (s[i]._id.toString() == paramedicsEdr[j].generatedBy.toString()) {
+          casesHandled++;
+        }
+      }
+      let obj = JSON.parse(JSON.stringify(s[i]));
+      obj.casesHandled = casesHandled;
+      staff.push(obj);
+    }
+
+    for (let i = 0; i < staff.length; i++) {
+      const fullName =
+        staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
+      if (
+        (staff[i].name[0].given[0] &&
+          staff[i].name[0].given[0]
+            .toLowerCase()
+            .startsWith(req.params.keyword.toLowerCase())) ||
+        (staff[i].name[0].family &&
+          staff[i].name[0].family
+            .toLowerCase()
+            .startsWith(req.params.keyword.toLowerCase())) ||
+        (staff[i].identifier[0].value &&
+          staff[i].identifier[0].value
+            .toLowerCase()
+            .startsWith(req.params.keyword.toLowerCase())) ||
+        fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
+        (staff[i].telecom[1].value &&
+          staff[i].telecom[1].value
+            .toLowerCase()
+            .startsWith(req.params.keyword.toLowerCase())) ||
+        (staff[i].nationalID &&
+          staff[i].nationalID
+            .toLowerCase()
+            .startsWith(req.params.keyword.toLowerCase()))
+      ) {
+        arr.push(staff[i]);
       }
     }
-    let obj = JSON.parse(JSON.stringify(s[i]));
-    obj.casesHandled = casesHandled;
-    staff.push(obj);
+    res.status(200).json({
+      success: true,
+      data: arr,
+    });
   }
-
-  for (let i = 0; i < staff.length; i++) {
-    const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
-    if (
-      (staff[i].name[0].given[0] &&
-        staff[i].name[0].given[0]
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (staff[i].name[0].family &&
-        staff[i].name[0].family
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (staff[i].identifier[0].value &&
-        staff[i].identifier[0].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
-      (staff[i].telecom[1].value &&
-        staff[i].telecom[1].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (staff[i].nationalID &&
-        staff[i].nationalID
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase()))
-    ) {
-      arr.push(staff[i]);
-    }
-  }
-  res.status(200).json({
-    success: true,
-    data: arr,
-  });
-});
+);
