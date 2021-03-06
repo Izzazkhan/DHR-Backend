@@ -581,6 +581,16 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
     { new: true }
   ).populate('labRequest.serviceId');
 
+  Notification(
+    'Lab Test',
+    'Lab Test Request',
+    'Lab Technician',
+    'ED Doctor',
+    '/home/rcm/patientAssessment',
+    req.body.edrId,
+    ''
+  );
+
   res.status(200).json({
     success: true,
     data: assignedLab,
@@ -1141,7 +1151,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       'Social Worker',
       'Admitted',
       '/home/rcm/patientAssessment',
-      edr._id,
+      _id,
       ''
     );
   }
