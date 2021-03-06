@@ -13,7 +13,7 @@ webpush.setVapidDetails(
   PUBLIC_VAPID_KEYS,
   PRIVATE_VAPID_KEYS
 );
-var notification = async function (
+var notification = function (
   title,
   message,
   staffType,
@@ -37,60 +37,37 @@ var notification = async function (
       });
     }
 
-    // EDR.findOne({ _id: searchId })
-    //   .populate([
-    //     {
-    //       path: 'chiefComplaint.chiefComplaintId',
-    //       model: 'chiefComplaint',
-    //       select: 'chiefComplaint.chiefComplaintId',
-    //       populate: [
-    //         {
-    //           path: 'productionArea.productionAreaId',
-    //           model: 'productionArea',
-    //           select: 'paName',
-    //         },
-    //       ],
-    //     },
-    //     {
-    //       path: 'patientId',
-    //       model: 'patientfhir',
-    //       select: 'identifier name',
-    //     },
-    //     {
-    //       path: 'room.roomId',
-    //       model: 'room',
-    //       select: 'roomNo',
-    //     },
-    //   ])
-    //   .select({
-    //     identifier: 1,
-    //     name: 1,
-    //     chiefComplaint: 1,
-    //     room: 1,
-    //   })
-    //   .then((patient) => {
-    Notification.create({
-      title: title,
-      message: message,
-      route: route,
-      sendTo: array,
-      sendFrom: sendFrom,
-      patient: patientId,
-      roPatient: roPatient,
-    })
-      .then((newNot) => console.log('notification created', newNot))
-      .catch((error) => {
-        console.log('Catch notify create err : ', error);
-      });
-    //     .then((res) => {
-    //       // console.log("response of notification create : ", res)
-    //     })
-    //     .catch((err) => {
-    //       console.log('Catch notify create err : ', err);
-    //     });
-    // })
+    // EDR.findOne({ _id: patientId }).then((patient) => {
+    if (patientId === '') {
+      Notification.create({
+        title: title,
+        message: message,
+        route: route,
+        sendTo: array,
+        sendFrom: sendFrom,
+        roPatient: roPatient,
+      })
+        .then((newNot) => console.log('notification created', newNot))
+        .catch((error) => {
+          console.log('Catch notify create err : ', error);
+        });
+    } else {
+      Notification.create({
+        title: title,
+        message: message,
+        route: route,
+        sendTo: array,
+        sendFrom: sendFrom,
+        patient: patientId,
+      })
+        .then((newNot) => console.log('notification created', newNot))
+        .catch((error) => {
+          console.log('Catch notify create err : ', error);
+        });
+    }
     // .catch((e) => {
     //   console.log('patient find error : ', e);
+    // });
     // });
 
     for (let i = 0; i < user.length; i++) {

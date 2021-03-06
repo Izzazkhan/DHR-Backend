@@ -25,87 +25,89 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       value: 'KHMC' + day + requestNoFormat(new Date(), 'yyHHMMss'),
     },
   ];
-  const parsed = JSON.parse(req.body.data);
 
-  if (parsed.photo && parsed.photo.length > 0) {
-    parsed.photo[0].url = req.files.file[0].path;
-  } else {
-    parsed.photo = null;
-  }
-  if (
-    req.files.file ||
-    req.files.front ||
-    req.files.back ||
-    req.files.insuranceCard
-  ) {
-    newPatient = await patientFHIR.create({
-      identifier: MRN,
-      nationalID: parsed.nationalID,
-      name: parsed.name,
-      gender: parsed.gender,
-      birthDate: parsed.birthDate,
-      age: parsed.age,
-      height: parsed.height,
-      weight: parsed.weight,
-      telecom: parsed.telecom,
-      address: parsed.address,
-      country: parsed.country,
-      city: parsed.city,
-      nationality: parsed.nationality,
-      blood: parsed.blood,
-      photo: parsed.photo,
-      idCardFront: req.files.front ? req.files.front[0].path : null,
-      idCardBack: req.files.back ? req.files.back[0].path : null,
-      otherDetails: parsed.otherDetails,
-      contact: parsed.contact,
-      paymentMethod: parsed.paymentMethod,
-      insuranceNumber: parsed.insuranceNumber,
-      insuranceVendor: parsed.insuranceVendor,
-      coverageTerms: parsed.coverageTerms,
-      coPayment: parsed.coPayment,
-      coveredFamilyMember: parsed.coveredFamilyMember,
-      coverageDetails: parsed.coverageDetails,
-      insuranceDetails: parsed.insuranceDetails,
-      insuranceCard: req.files.insuranceCard
-        ? req.files.insuranceCard[0].path
-        : null,
-      processTime: parsed.time,
-      registrationStatus: parsed.registrationStatus,
-      // claimed,
-      // status,
-    });
-  } else {
-    newPatient = await patientFHIR.create({
-      identifier: MRN,
-      nationalID: parsed.nationalID,
-      name: parsed.name,
-      gender: parsed.gender,
-      birthDate: parsed.birthDate,
-      age: parsed.age,
-      height: parsed.height,
-      weight: parsed.weight,
-      telecom: parsed.telecom,
-      address: parsed.address,
-      country: parsed.country,
-      city: parsed.city,
-      nationality: parsed.nationality,
-      blood: parsed.blood,
-      otherDetails: parsed.otherDetails,
-      contact: parsed.contact,
-      paymentMethod: parsed.paymentMethod,
-      insuranceNumber: parsed.insuranceNumber,
-      insuranceVendor: parsed.insuranceVendor,
-      coverageTerms: parsed.coverageTerms,
-      coPayment: parsed.coPayment,
-      coveredFamilyMember: parsed.coveredFamilyMember,
-      coverageDetails: parsed.coverageDetails,
-      insuranceDetails: parsed.insuranceDetails,
-      processTime: parsed.time,
-      registrationStatus: parsed.registrationStatus,
-      // claimed,
-      // status,
-    });
-  }
+  newPatient = await patientFHIR.create(req.body);
+  // const parsed = JSON.parse(req.body.data);
+
+  // if (parsed.photo && parsed.photo.length > 0) {
+  //   parsed.photo[0].url = req.files.file[0].path;
+  // } else {
+  //   parsed.photo = null;
+  // }
+  // if (
+  //   req.files.file ||
+  //   req.files.front ||
+  //   req.files.back ||
+  //   req.files.insuranceCard
+  // ) {
+  //   newPatient = await patientFHIR.create({
+  //     identifier: MRN,
+  //     nationalID: parsed.nationalID,
+  //     name: parsed.name,
+  //     gender: parsed.gender,
+  //     birthDate: parsed.birthDate,
+  //     age: parsed.age,
+  //     height: parsed.height,
+  //     weight: parsed.weight,
+  //     telecom: parsed.telecom,
+  //     address: parsed.address,
+  //     country: parsed.country,
+  //     city: parsed.city,
+  //     nationality: parsed.nationality,
+  //     blood: parsed.blood,
+  //     photo: parsed.photo,
+  //     idCardFront: req.files.front ? req.files.front[0].path : null,
+  //     idCardBack: req.files.back ? req.files.back[0].path : null,
+  //     otherDetails: parsed.otherDetails,
+  //     contact: parsed.contact,
+  //     paymentMethod: parsed.paymentMethod,
+  //     insuranceNumber: parsed.insuranceNumber,
+  //     insuranceVendor: parsed.insuranceVendor,
+  //     coverageTerms: parsed.coverageTerms,
+  //     coPayment: parsed.coPayment,
+  //     coveredFamilyMember: parsed.coveredFamilyMember,
+  //     coverageDetails: parsed.coverageDetails,
+  //     insuranceDetails: parsed.insuranceDetails,
+  //     insuranceCard: req.files.insuranceCard
+  //       ? req.files.insuranceCard[0].path
+  //       : null,
+  //     processTime: parsed.time,
+  //     registrationStatus: parsed.registrationStatus,
+  //     // claimed,
+  //     // status,
+  //   });
+  // } else {
+  //   newPatient = await patientFHIR.create({
+  //     identifier: MRN,
+  //     nationalID: parsed.nationalID,
+  //     name: parsed.name,
+  //     gender: parsed.gender,
+  //     birthDate: parsed.birthDate,
+  //     age: parsed.age,
+  //     height: parsed.height,
+  //     weight: parsed.weight,
+  //     telecom: parsed.telecom,
+  //     address: parsed.address,
+  //     country: parsed.country,
+  //     city: parsed.city,
+  //     nationality: parsed.nationality,
+  //     blood: parsed.blood,
+  //     otherDetails: parsed.otherDetails,
+  //     contact: parsed.contact,
+  //     paymentMethod: parsed.paymentMethod,
+  //     insuranceNumber: parsed.insuranceNumber,
+  //     insuranceVendor: parsed.insuranceVendor,
+  //     coverageTerms: parsed.coverageTerms,
+  //     coPayment: parsed.coPayment,
+  //     coveredFamilyMember: parsed.coveredFamilyMember,
+  //     coverageDetails: parsed.coverageDetails,
+  //     insuranceDetails: parsed.insuranceDetails,
+  //     processTime: parsed.time,
+  //     registrationStatus: parsed.registrationStatus,
+  //     // claimed,
+  //     // status,
+  //   });
+  // }
 
   // * Sending Notifications
 
