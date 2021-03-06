@@ -51,7 +51,7 @@ var notification = function (
         .catch((error) => {
           console.log('Catch notify create err : ', error);
         });
-    } else {
+    } else if (roPatient === '') {
       Notification.create({
         title: title,
         message: message,
@@ -59,6 +59,18 @@ var notification = function (
         sendTo: array,
         sendFrom: sendFrom,
         patient: patientId,
+      })
+        .then((newNot) => console.log('notification created', newNot))
+        .catch((error) => {
+          console.log('Catch notify create err : ', error);
+        });
+    } else {
+      Notification.create({
+        title: title,
+        message: message,
+        route: route,
+        sendTo: array,
+        sendFrom: sendFrom,
       })
         .then((newNot) => console.log('notification created', newNot))
         .catch((error) => {
