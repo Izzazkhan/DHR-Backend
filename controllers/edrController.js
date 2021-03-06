@@ -873,6 +873,16 @@ exports.addRadRequest = asyncHandler(async (req, res, next) => {
     { new: true }
   ).populate('radRequest.serviceId');
 
+  Notification(
+    'Rad Test',
+    'Imaging Test Requests',
+    'Imaging Technician',
+    'ED Doctor',
+    '/home/rcm/patientAssessment',
+    req.body.edrId,
+    ''
+  );
+
   res.status(200).json({
     success: true,
     data: assignedRad,
