@@ -1130,11 +1130,26 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     assignedTime: Date.now(),
   });
 
-  // Customer Care Request
+  if (
+    req.body.dischargeRequest.dischargeSummary.edrCompletionRequirement ===
+    'withoutCare'
+  ) {
+    Notification(
+      'ADT_A03',
+      'Patient has been discharged/disposition without customer care',
+      'Sensei',
+      'ED Doctor',
+      '/home/rcm/patientAssessment',
+      '',
+      ''
+    );
+  }
+
   if (
     req.body.dischargeRequest.dischargeSummary.edrCompletionRequirement ===
     'withCare'
   ) {
+    // Customer Care Request
     const CCRequestNo = 'DDID' + day + requestNoFormat(new Date(), 'yyHHMMss');
     const customerCares = await Staff.find({
       staffType: 'Customer Care',
@@ -1159,13 +1174,15 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     });
   }
 
-  // Notification(
-  //   'ADT_A03',
-  //   'Patient has been discharged/dispositioned with customer care',
-  //   'Sensei',
-  //   '/home/rcm/patientAssessment',
-  //   patient._id
-  // );
+  Notification(
+    'ADT_A03',
+    'Patient has been discharged/disposition with customer care',
+    'Sensei',
+    'ED Doctor',
+    '/home/rcm/patientAssessment',
+    '',
+    ''
+  );
   res.status(200).json({ success: true, data: edr });
 });
 
@@ -1751,8 +1768,10 @@ exports.addPharmacyRequest = asyncHandler(async (req, res, next) => {
     'ED Doctor has requested Medication from Clinical Pharmacist for' +
       addedNote.patientId.name,
     'Sensei',
+    'ED Doctor',
     '/home/rcm/patientAssessment',
-    addedNote.patientId._id
+    addedNote.patientId._id,
+    ''
   );
 
   res.status(200).json({
