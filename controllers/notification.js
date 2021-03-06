@@ -9,7 +9,7 @@ exports.getNotification = asyncHandler(async (req, res) => {
       {
         path: 'patient',
         model: 'EDR',
-        select: 'chiefComplaint.chiefComplaintId patientId room',
+        select: 'chiefComplaint.chiefComplaintId patientId room careStream',
 
         populate: [
           {

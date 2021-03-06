@@ -233,43 +233,46 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
     // * Sending Notifications
 
     // Notification From Sensei
-    // if (
-    //   patient.processTime[patient.processTime.length - 1].processName ===
-    //   'Sensei'
-    // ) {
-    //   Notification(
-    //     'ADT_A04',
-    //     'Details from Sensei',
-    //     'Registration Officer',
-    //     'Sensei',
-    //     '/home/rcm/patientAssessment',
-    //     patient._id
-    //   );
-    // }
+    if (
+      patient.processTime[patient.processTime.length - 1].processName ===
+      'Sensei'
+    ) {
+      Notification(
+        'ADT_A04',
+        'Details from Sensei',
+        'Registration Officer',
+        'Sensei',
+        '/home/rcm/patientAssessment',
+        edr._id,
+        ''
+      );
+    }
 
     // Notification from Paramedics
-    // if (
-    //   patient.processTime[patient.processTime.length - 1].processName ===
-    //   'Paramedics'
-    // ) {
-    //   Notification(
-    //     'ADT_A04',
-    //     'Details from Paramedics',
-    //     'Registration Officer',
-    //     'Paramedics',
-    //     '/home/rcm/patientAssessment',
-    //     patient._id
-    //   );
+    if (
+      patient.processTime[patient.processTime.length - 1].processName ===
+      'Paramedics'
+    ) {
+      Notification(
+        'ADT_A04',
+        'Details from Paramedics',
+        'Registration Officer',
+        'Paramedics',
+        '/home/rcm/patientAssessment',
+        edr._id,
+        ''
+      );
 
-    //   Notification(
-    //     'ADT_A04',
-    //     'Patient Details',
-    //     'Sensei',
-    //     'Paramedics',
-    //     '/home/rcm/patientAssessment',
-    //     patient._id
-    //   );
-    // }
+      Notification(
+        'ADT_A04',
+        'Patient Details',
+        'Sensei',
+        'Paramedics',
+        '/home/rcm/patientAssessment',
+        edr._id,
+        ''
+      );
+    }
 
     // Notification from RO to Sensei
     if (

@@ -13,7 +13,7 @@ webpush.setVapidDetails(
   PUBLIC_VAPID_KEYS,
   PRIVATE_VAPID_KEYS
 );
-var notification = function (
+var notification = async function (
   title,
   message,
   staffType,
@@ -76,8 +76,12 @@ var notification = function (
       sendTo: array,
       sendFrom: sendFrom,
       patient: patientId,
-      roPatient,
-    });
+      roPatient: roPatient,
+    })
+      .then((newNot) => console.log('notification created', newNot))
+      .catch((error) => {
+        console.log('Catch notify create err : ', error);
+      });
     //     .then((res) => {
     //       // console.log("response of notification create : ", res)
     //     })
