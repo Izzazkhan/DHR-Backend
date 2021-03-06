@@ -3,6 +3,7 @@ const EDR = require('../models/EDR/EDR');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const Staff = require('../models/staffFhir/staff');
+const Notification = require('../components/notification');
 
 exports.getPendingTransfers = asyncHandler(async (req, res, next) => {
   // console.log(req.params.staffId);
@@ -180,6 +181,16 @@ exports.completeLab = asyncHandler(async (req, res, next) => {
   )
     .populate('patientId', 'identifier')
     .select('patientId labRequest');
+
+  Notification(
+    'Sample Collected',
+    'Sample Collection request',
+    'Lab Technician',
+    '',
+    '/home/rcm/patientAssessment',
+    req.body.edrId,
+    ''
+  );
 
   res.status(200).json({
     success: true,
