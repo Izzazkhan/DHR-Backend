@@ -174,7 +174,7 @@ exports.submitRequest = asyncHandler(async (req, res, next) => {
     staffId,
     assignedBy,
     staffType,
-    reason
+    reason,
   });
 
   res.status(200).json({
@@ -184,16 +184,18 @@ exports.submitRequest = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateSubmitRequest = asyncHandler(async (req, res, next) => {
-
   const { requestId, remarks } = req.body;
 
-const request = await EDN.findOneAndUpdate({_id:requestId},{
-  $set:{
-  status:"complete",
-  remarks:remarks
-  }
-  },
-  { new: true });
+  const request = await EDN.findOneAndUpdate(
+    { _id: requestId },
+    {
+      $set: {
+        status: 'complete',
+        remarks: remarks,
+      },
+    },
+    { new: true }
+  );
 
   res.status(200).json({
     success: true,
@@ -212,7 +214,10 @@ exports.getHouskeepingRequests = asyncHandler(async (req, res, next) => {
 });
 
 exports.getHouskeepingRequestsById = asyncHandler(async (req, res, next) => {
-  const HKRequests = await EDN.find({ staffType: 'Housekeeping', staffId:req.params.staffId })
+  const HKRequests = await EDN.find({
+    staffType: 'Housekeeping',
+    staffId: req.params.staffId,
+  })
     .populate('patientId', 'name identifier')
     .populate('staffId', 'name identifier');
   res.status(200).json({
@@ -220,8 +225,6 @@ exports.getHouskeepingRequestsById = asyncHandler(async (req, res, next) => {
     data: HKRequests,
   });
 });
-
-
 
 exports.getCustomerCareRequests = asyncHandler(async (req, res, next) => {
   const ccRequests = await EDN.find({ staffType: 'Customer Care' })
@@ -234,7 +237,10 @@ exports.getCustomerCareRequests = asyncHandler(async (req, res, next) => {
 });
 
 exports.getCustomerCareRequestsById = asyncHandler(async (req, res, next) => {
-  const HKRequests = await EDN.find({ staffType: 'Customer Care', staffId:req.params.staffId })
+  const HKRequests = await EDN.find({
+    staffType: 'Customer Care',
+    staffId: req.params.staffId,
+  })
     .populate('patientId', 'name identifier')
     .populate('staffId', 'name identifier');
   res.status(200).json({
@@ -253,15 +259,20 @@ exports.getNurseTechnicianRequests = asyncHandler(async (req, res, next) => {
   });
 });
 
-exports.getNurseTechnicianRequestsById = asyncHandler(async (req, res, next) => {
-  const NTRequests = await EDN.find({ staffType: 'Nurse Technician', staffId:req.params.staffId })
-    .populate('patientId', 'name identifier')
-    .populate('staffId', 'name identifier');
-  res.status(200).json({
-    success: true,
-    data: NTRequests,
-  });
-});
+exports.getNurseTechnicianRequestsById = asyncHandler(
+  async (req, res, next) => {
+    const NTRequests = await EDN.find({
+      staffType: 'Nurse Technician',
+      staffId: req.params.staffId,
+    })
+      .populate('patientId', 'name identifier')
+      .populate('staffId', 'name identifier');
+    res.status(200).json({
+      success: true,
+      data: NTRequests,
+    });
+  }
+);
 exports.pendingEDNurseEdrRequest = asyncHandler(async (req, res, next) => {
   const unwindEdr = await EDR.aggregate([
     {
@@ -451,7 +462,6 @@ exports.updateMedicationStatus = asyncHandler(async (req, res, next) => {
 });
 
 exports.dashboardData = asyncHandler(async (req, res, next) => {
-
   // ***** Configuration *********
   const currentTime = moment().utc().toDate();
   const lastHour = moment().subtract(1, 'hours').utc().toDate();
@@ -513,13 +523,17 @@ exports.dashboardData = asyncHandler(async (req, res, next) => {
 
   const patientWithRegToTriage = await EDR.find({
     createdTimeStamp: { $gte: sixHour },
-    'dcdForm.$.triageAssessment': { $ne: [] }
+    'dcdForm.$.triageAssessment': { $ne: [] },
   });
 
   let totalTimeBetweenRegAndTriage = 0;
   patientWithRegToTriage.forEach((t) => {
     t.createdTimeStamp = new Date(t.createdTimeStamp);
-    t.triageTime = new Date(t.dcdForm[t.dcdForm.length - 1].triageAssessment[t.dcdForm[t.dcdForm.length - 1].triageAssessment.length - 1].triageTime);
+    t.triageTime = new Date(
+      t.dcdForm[t.dcdForm.length - 1].triageAssessment[
+        t.dcdForm[t.dcdForm.length - 1].triageAssessment.length - 1
+      ].triageTime
+    );
 
     t.time = Math.round(
       (t.triageTime.getTime() - t.createdTimeStamp.getTime()) / (1000 * 60)
@@ -535,8 +549,8 @@ exports.dashboardData = asyncHandler(async (req, res, next) => {
   const patientTreatmentsPending = await EDR.aggregate([
     {
       $project: {
-        pharmacyRequest: 1
-      }
+        pharmacyRequest: 1,
+      },
     },
     {
       $unwind: '$pharmacyRequest',
@@ -545,10 +559,10 @@ exports.dashboardData = asyncHandler(async (req, res, next) => {
       $match: {
         $and: [
           { 'pharmacyRequest.createdAt': { $gte: sixHour } },
-          { 'pharmacyRequest.status': { $ne: 'closed' } }
-        ]
-      }
-    }
+          { 'pharmacyRequest.status': { $ne: 'closed' } },
+        ],
+      },
+    },
   ]);
 
   patientTreatmentsPending.map((p) => {
@@ -562,8 +576,8 @@ exports.dashboardData = asyncHandler(async (req, res, next) => {
     {
       $project: {
         doctorNotes: 1,
-        pharmacyRequest: 1
-      }
+        pharmacyRequest: 1,
+      },
     },
     {
       $unwind: '$doctorNotes',
@@ -575,10 +589,10 @@ exports.dashboardData = asyncHandler(async (req, res, next) => {
       $match: {
         $and: [
           { 'pharmacyRequest.status': { $eq: 'closed' } },
-          { 'doctorNotes.assignedTime': { $gte: sixHour } }
-        ]
-      }
-    }
+          { 'doctorNotes.assignedTime': { $gte: sixHour } },
+        ],
+      },
+    },
   ]);
 
   let totalTimeBetweenDiagnosisToMed = 0;
@@ -600,7 +614,7 @@ exports.dashboardData = asyncHandler(async (req, res, next) => {
     {
       $project: {
         _id: 1,
-        edNurseRequest: 1
+        edNurseRequest: 1,
       },
     },
     {
@@ -610,7 +624,11 @@ exports.dashboardData = asyncHandler(async (req, res, next) => {
       $match: {
         $and: [
           { 'edNurseRequest.status': 'pending' },
-          { 'edNurseRequest.edNurseId': mongoose.Types.ObjectId(req.params.nurseId) },
+          {
+            'edNurseRequest.edNurseId': mongoose.Types.ObjectId(
+              req.params.nurseId
+            ),
+          },
           { 'edNurseRequest.requestedAt': { $gte: sixHour } },
           { 'edNurseRequest.requestedAt': { $lte: currentTime } },
         ],
@@ -638,7 +656,11 @@ exports.dashboardData = asyncHandler(async (req, res, next) => {
       $match: {
         $and: [
           { 'edNurseRequest.status': 'completed' },
-          { 'edNurseRequest.edNurseId': mongoose.Types.ObjectId(req.params.nurseId) },
+          {
+            'edNurseRequest.edNurseId': mongoose.Types.ObjectId(
+              req.params.nurseId
+            ),
+          },
           { 'edNurseRequest.completedAt': { $gte: sixHour } },
           { 'edNurseRequest.completedAt': { $lte: currentTime } },
         ],
@@ -851,7 +873,9 @@ exports.dashboardData = asyncHandler(async (req, res, next) => {
   const completedLabTAT = labTime / labCompleted.length;
 
   // Cumulative Total Patients
-  const cumulativePatients = await EDR.find({currentLocation: 'ED'}).countDocuments();
+  const cumulativePatients = await EDR.find({
+    currentLocation: 'ED',
+  }).countDocuments();
 
   // Available ED Beds
   const EdBeds = await Room.find({
@@ -900,6 +924,6 @@ exports.dashboardData = asyncHandler(async (req, res, next) => {
       perHour: fifthCardArr,
     },
     cumulativePatients,
-    PatientsPerHour
+    PatientsPerHour,
   });
 });

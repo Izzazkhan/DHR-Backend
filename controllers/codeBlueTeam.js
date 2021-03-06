@@ -2,6 +2,8 @@ const CodeBlue = require('../models/codeBlueTeam');
 const asyncHandler = require('../middleware/async');
 const EDR = require('../models/EDR/EDR');
 const ErrorResponse = require('../utils/errorResponse');
+const Notification = require('../components/notification');
+const Staff = require('../models/staffFhir/staff');
 
 exports.addCodeBlueTeam = asyncHandler(async (req, res, next) => {
   const { addedBy, teamName, edNurse, edDoctor, anesthesiologist } = req.body;
@@ -85,6 +87,45 @@ exports.assignCodeBlueTeam = asyncHandler(async (req, res, next) => {
     { $push: { codeBlueTeam } },
     { new: true }
   );
+
+  const staff = await Staff.findById(req.body.assignedBy).select(
+    'staffType subType'
+  );
+
+  if (staff.staffType === 'Doctor' && staff.subType === 'ED Doctor') {
+    Notification(
+      'Code Blue Team Call',
+      'Ed Doctor called Code Blue Team For',
+      'Sensei',
+      'Code Blue Team',
+      '/home/rcm/patientAssessment',
+      req.body.edrId,
+      ''
+    );
+  }
+
+  if (staff.staffType === 'Nurses' && staff.subType === 'ED Nurse') {
+    Notification(
+      'Code Blue Team Call',
+      'Ed Nurse called Code Blue Team For',
+      'Sensei',
+      'Code Blue Team',
+      '/home/rcm/patientAssessment',
+      req.body.edrId,
+      ''
+    );
+  }
+  if (staff.staffType === 'Nurses' && staff.subType === 'EOU Nurse') {
+    Notification(
+      'Code Blue Team Call',
+      'EOU Nurse called Code Blue Team For',
+      'Sensei',
+      'Code Blue Team',
+      '/home/rcm/patientAssessment',
+      req.body.edrId,
+      ''
+    );
+  }
 
   res.status(200).json({
     success: true,
