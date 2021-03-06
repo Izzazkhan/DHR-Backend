@@ -648,7 +648,9 @@ exports.addConsultationNote = asyncHandler(async (req, res, next) => {
       'Internal Consultant Request',
       'Ed Doctor has requested an Internal Consultant',
       'Sensei',
+      'ED Doctor',
       '/home/rcm/patientAssessment',
+      '',
       ''
     );
   }
@@ -658,7 +660,9 @@ exports.addConsultationNote = asyncHandler(async (req, res, next) => {
       'External Consultant Request',
       'Ed Doctor has requested an External Consultant',
       'Sensei',
+      'ED Doctor',
       '/home/rcm/patientAssessment',
+      '',
       ''
     );
   }
