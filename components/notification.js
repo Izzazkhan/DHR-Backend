@@ -38,7 +38,7 @@ var notification = function (
     }
 
     // EDR.findOne({ _id: patientId }).then((patient) => {
-    if (patientId === '') {
+    if (patientId === '' && roPatient !== '') {
       Notification.create({
         title: title,
         message: message,
@@ -51,7 +51,7 @@ var notification = function (
         .catch((error) => {
           console.log('Catch notify create err : ', error);
         });
-    } else if (roPatient === '') {
+    } else if (roPatient === '' && patientId !== '') {
       Notification.create({
         title: title,
         message: message,
@@ -64,7 +64,7 @@ var notification = function (
         .catch((error) => {
           console.log('Catch notify create err : ', error);
         });
-    } else {
+    } else if (roPatient === '' && patientId === '') {
       Notification.create({
         title: title,
         message: message,
