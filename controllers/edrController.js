@@ -1305,14 +1305,14 @@ exports.addAnesthesiologistNote = asyncHandler(async (req, res, next) => {
   // );
 
   Notification(
-    '',
-    +'',
-    +'Ed Doctor has requested an anesthesiologist',
+    'anesthesiologist request',
+    'Ed Doctor has requested an anesthesiologist',
     'Sensei',
+    'ED Doctor',
     '/home/rcm/patientAssessment',
+    '',
     ''
   );
-
   res.status(200).json({
     success: true,
     data: addedNote,

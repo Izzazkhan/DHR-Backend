@@ -248,28 +248,28 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
     // }
 
     // Notification from Paramedics
-    if (
-      patient.processTime[patient.processTime.length - 1].processName ===
-      'Paramedics'
-    ) {
-      Notification(
-        'ADT_A04',
-        'Details from Paramedics',
-        'Registration Officer',
-        'Paramedics',
-        '/home/rcm/patientAssessment',
-        patient._id
-      );
+    // if (
+    //   patient.processTime[patient.processTime.length - 1].processName ===
+    //   'Paramedics'
+    // ) {
+    //   Notification(
+    //     'ADT_A04',
+    //     'Details from Paramedics',
+    //     'Registration Officer',
+    //     'Paramedics',
+    //     '/home/rcm/patientAssessment',
+    //     patient._id
+    //   );
 
-      Notification(
-        'ADT_A04',
-        'Patient Details',
-        'Sensei',
-        'Paramedics',
-        '/home/rcm/patientAssessment',
-        patient._id
-      );
-    }
+    //   Notification(
+    //     'ADT_A04',
+    //     'Patient Details',
+    //     'Sensei',
+    //     'Paramedics',
+    //     '/home/rcm/patientAssessment',
+    //     patient._id
+    //   );
+    // }
 
     // Notification from RO to Sensei
     if (
@@ -282,6 +282,7 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
         'Sensei',
         'Registration Officer',
         '/home/rcm/patientAssessment',
+        '',
         patient._id
       );
     }
@@ -323,40 +324,40 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
     // * Sending Notifications
 
     // Notification From Sensei
-    if (
-      patient.processTime[patient.processTime.length - 1].processName ===
-      'Sensei'
-    ) {
-      Notification(
-        'ADT_A04',
-        'Details from Sensei',
-        'Registration Officer',
-        '/home/rcm/patientAssessment',
-        patient._id
-      );
-    }
+    // if (
+    //   patient.processTime[patient.processTime.length - 1].processName ===
+    //   'Sensei'
+    // ) {
+    //   Notification(
+    //     'ADT_A04',
+    //     'Details from Sensei',
+    //     'Registration Officer',
+    //     '/home/rcm/patientAssessment',
+    //     patient._id
+    //   );
+    // }
 
-    // Notification from Paramedics
-    if (
-      patient.processTime[patient.processTime.length - 1].processName ===
-      'Paramedics'
-    ) {
-      Notification(
-        'ADT_A04',
-        'Details from Paramedics',
-        'Registration Officer',
-        '/home/rcm/patientAssessment',
-        patient._id
-      );
+    // // Notification from Paramedics
+    // if (
+    //   patient.processTime[patient.processTime.length - 1].processName ===
+    //   'Paramedics'
+    // ) {
+    //   Notification(
+    //     'ADT_A04',
+    //     'Details from Paramedics',
+    //     'Registration Officer',
+    //     '/home/rcm/patientAssessment',
+    //     patient._id
+    //   );
 
-      Notification(
-        'ADT_A04',
-        'Patient Details',
-        'Sensei',
-        '/home/rcm/patientAssessment',
-        patient._id
-      );
-    }
+    //   Notification(
+    //     'ADT_A04',
+    //     'Patient Details',
+    //     'Sensei',
+    //     '/home/rcm/patientAssessment',
+    //     patient._id
+    //   );
+    // }
 
     // Notification from RO to Sensei
     if (
@@ -367,7 +368,9 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
         'ADT_A04',
         'Patient Details',
         'Sensei',
+        'Registration Officer',
         '/home/rcm/patientAssessment',
+        '',
         patient._id
       );
     }
