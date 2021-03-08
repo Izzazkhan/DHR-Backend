@@ -165,9 +165,7 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
   );
 
   const latestCS = edrCheck[0].careStream.length - 1;
-  // console.log(latestCS);
   const updatedVersion = latestCS + 2;
-
   const versionNo = edrCheck[0].requestNo + '-' + updatedVersion;
 
   const careStream = {
@@ -195,6 +193,8 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
       const item = await Items.findOne({
         name: req.body.data.medications[i].itemName,
       });
+
+      console.log("Item : ",item)
 
       const now = new Date();
       const start = new Date(now.getFullYear(), 0, 0);
