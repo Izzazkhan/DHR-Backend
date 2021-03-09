@@ -232,6 +232,17 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
       '',
       'ED Nurse'
     );
+
+    Notification(
+      'ADT_A15',
+      'Patient transfer from ED to EOU',
+      'Nurses',
+      'ED Doctor',
+      '/dashboard/home/patientlist',
+      req.body.edrId,
+      '',
+      'EOU Nurse'
+    );
   }
 
   res.status(200).json({
