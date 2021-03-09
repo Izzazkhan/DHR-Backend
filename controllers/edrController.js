@@ -1709,6 +1709,16 @@ exports.addNurseTechnicianRequest = asyncHandler(async (req, res, next) => {
     }
   );
 
+  Notification(
+    'patient assigned',
+    'New Patient Assigned',
+    'Nurses',
+    'ED Doctor',
+    '/home/rcm/patientAssessment',
+    parsed.edrId,
+    '',
+    'Nurse Technician'
+  );
   // await Staff.findOneAndUpdate(
   //   { _id: parsed.edNurse },
   //   { $set: { availability: false } },
