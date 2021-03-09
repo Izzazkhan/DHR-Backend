@@ -185,7 +185,7 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     assignedBy: req.body.data.staffId,
     assignedTime: Date.now(),
     reason: req.body.data.reason,
-    status: req.body.data.status,
+    status: 'in_progress',
   };
 
   const pharmacyRequest = edrCheck[0].pharmacyRequest;
@@ -293,6 +293,18 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: assignedCareStream,
+  });
+});
+
+exports.getInProgressCS = asyncHandler(async (req, res, next) => {
+  const inProgressCS = await EDR.find({
+    status: 'pending',
+    'careStream.status': 'in_progress',
+  });
+
+  res.status(200).json({
+    success: true,
+    data: inProgressCS,
   });
 });
 
