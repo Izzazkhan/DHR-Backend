@@ -1266,6 +1266,16 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     '',
     ''
   );
+
+  Notification(
+    'ADT_A03',
+    'Carry the patient for disposition ',
+    'Customer Care',
+    'Discharge Request',
+    '/home/rcm/patientAssessment',
+    _id,
+    ''
+  );
   res.status(200).json({ success: true, data: edr });
 });
 
@@ -1934,6 +1944,16 @@ exports.deliverPharmcayRequest = asyncHandler(async (req, res, next) => {
     {
       new: true,
     }
+  );
+
+  Notification(
+    'Carry Medications',
+    'Carry Medications from Pharmacist to ED Bed',
+    'Customer Care',
+    'Medications Request',
+    '/home/rcm/patientAssessment',
+    req.body.edrId,
+    ''
   );
 
   res.status(200).json({
