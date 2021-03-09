@@ -824,11 +824,12 @@ exports.updateAmbulanceRequest = asyncHandler(async (req, res, next) => {
   Notification(
     'ADT_A01',
     'New Patient Arrived',
-    'ED Doctor',
+    'Doctor',
     'Paramedics',
-    '/home/rcm/patientAssessment',
+    '/dashboard/home/patientmanagement/careStreamPatients',
     req.body.edrId,
-    ''
+    '',
+    'ED Doctor'
   );
 
   res.status(200).json({
