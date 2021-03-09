@@ -586,7 +586,7 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
     'Lab Test Request',
     'Lab Technician',
     'ED Doctor',
-    '/dashboard/taskslist',
+    '/dashboard/home/patientlist',
     req.body.edrId,
     ''
   );
@@ -900,7 +900,7 @@ exports.addRadRequest = asyncHandler(async (req, res, next) => {
     'Imaging Test Requests',
     'Imaging Technician',
     'ED Doctor',
-    '/dashboard/home/radiologyTasks',
+    '/dashboard/home/patientlist',
     req.body.edrId,
     ''
   );
@@ -1182,7 +1182,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       'Patient Admitted',
       'Social Worker',
       'Admitted',
-      '/dashboard/home/taskslistforsocialworker',
+      '/dashboard/home/patientlist',
       _id,
       ''
     );
@@ -1197,7 +1197,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       'Patient Discharged',
       'Social Worker',
       'Discharged',
-      '/dashboard/home/taskslistforsocialworker',
+      '/dashboard/home/patientlist',
       edr._id,
       ''
     );
@@ -1212,7 +1212,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       'Patient Transferred',
       'Social Worker',
       'Transferred',
-      '/dashboard/home/taskslistforsocialworker',
+      '/dashboard/home/patientlist',
       edr._id,
       ''
     );
@@ -1227,7 +1227,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       'Patient Died',
       'Social Worker',
       'Deceased',
-      '/dashboard/home/taskslistforsocialworker',
+      '/dashboard/home/patientlist',
       edr._id,
       ''
     );

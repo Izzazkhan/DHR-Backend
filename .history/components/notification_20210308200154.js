@@ -113,13 +113,13 @@ var notification = function (
                     .limit(1)
                     .sort({ $natural: -1 })
                     .then((not, err) => {
-                      console.log('value', not);
                       globalVariable.io.emit('get_data', not);
                     })
                     .catch((e) => {
                       console.log('Error in Notification find : ', e);
                     });
 
+                  console.log('value', valueeeeeeeeeeeeee);
                   resolve({
                     status: true,
                     endpoint: subscription.endpoint,

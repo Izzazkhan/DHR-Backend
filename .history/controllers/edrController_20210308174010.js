@@ -900,7 +900,7 @@ exports.addRadRequest = asyncHandler(async (req, res, next) => {
     'Imaging Test Requests',
     'Imaging Technician',
     'ED Doctor',
-    '/dashboard/home/radiologyTasks',
+    '/dashboard/home/patientlist',
     req.body.edrId,
     ''
   );

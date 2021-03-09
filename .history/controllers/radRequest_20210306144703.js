@@ -2,7 +2,6 @@ const requestNoFormat = require('dateformat');
 const EDR = require('../models/EDR/EDR');
 const HK = require('../models/houseKeepingRequest');
 const asyncHandler = require('../middleware/async');
-const Notification = require('../components/notification');
 
 exports.getPendingRadEdr = asyncHandler(async (req, res, next) => {
   const unwindEdr = await EDR.aggregate([
@@ -322,19 +321,6 @@ exports.assignHouseKeeper = asyncHandler(async (req, res, next) => {
     task,
     assignedTime: Date.now(),
   });
-
-  // const edr = await EDR.findOne({ _id: req.body._id }).populate('patientId');
-
-  Notification(
-    'ADT_A03  ',
-    'Clean Imaging Room',
-    'House Keeping',
-    'Imaging Technician',
-    '/dashboard/home/patientlist',
-    '',
-    ''
-  );
-
   res.status(200).json({
     success: true,
     data: assignedHK,

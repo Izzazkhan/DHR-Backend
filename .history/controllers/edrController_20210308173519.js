@@ -586,7 +586,7 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
     'Lab Test Request',
     'Lab Technician',
     'ED Doctor',
-    '/dashboard/taskslist',
+    '/dashboard/home/patientlist',
     req.body.edrId,
     ''
   );
@@ -900,7 +900,7 @@ exports.addRadRequest = asyncHandler(async (req, res, next) => {
     'Imaging Test Requests',
     'Imaging Technician',
     'ED Doctor',
-    '/dashboard/home/radiologyTasks',
+    '/dashboard/home/patientlist',
     req.body.edrId,
     ''
   );

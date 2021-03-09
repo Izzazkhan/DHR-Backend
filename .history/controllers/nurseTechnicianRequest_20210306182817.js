@@ -187,7 +187,7 @@ exports.completeLab = asyncHandler(async (req, res, next) => {
     'Sample Collection request',
     'Lab Technician',
     '',
-    '/dashboard/taskslist',
+    '/home/rcm/patientAssessment',
     req.body.edrId,
     ''
   );

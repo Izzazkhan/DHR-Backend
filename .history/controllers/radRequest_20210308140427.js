@@ -323,15 +323,15 @@ exports.assignHouseKeeper = asyncHandler(async (req, res, next) => {
     assignedTime: Date.now(),
   });
 
-  // const edr = await EDR.findOne({ _id: req.body._id }).populate('patientId');
+  const edr = await EDR.findOne({ _id: req.body._id }).populate('patientId');
 
   Notification(
     'ADT_A03  ',
-    'Clean Imaging Room',
+    'Patient Discharged',
     'House Keeping',
     'Imaging Technician',
     '/dashboard/home/patientlist',
-    '',
+    edr._id,
     ''
   );
 

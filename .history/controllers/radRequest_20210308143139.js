@@ -324,16 +324,19 @@ exports.assignHouseKeeper = asyncHandler(async (req, res, next) => {
   });
 
   // const edr = await EDR.findOne({ _id: req.body._id }).populate('patientId');
+  // const edr = await EDR.findOne(
+  //   { _id: req.body.edrId }
+  // )
 
-  Notification(
-    'ADT_A03  ',
-    'Clean Imaging Room',
-    'House Keeping',
-    'Imaging Technician',
-    '/dashboard/home/patientlist',
-    '',
-    ''
-  );
+  // Notification(
+  //   'ADT_A03  ',
+  //   'Patient Discharged',
+  //   'House Keeping',
+  //   'Imaging Technician',
+  //   '/dashboard/home/patientlist',
+  //   req.body.edrId,
+  //   ''
+  // );
 
   res.status(200).json({
     success: true,

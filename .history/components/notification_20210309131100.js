@@ -31,7 +31,7 @@ var notification = function (
   });
   // Staff.find(subType ? { subType: subType } : { staffType: staffType }).then(
   //   (user, err) => {
-  Staff.find({ staffType: subType ? subType : staffType }).then((user, err) => {
+  Staff.find({ staffType: staffType }).then((user, err) => {
     var array = [];
     for (var j = 0; j < user.length; j++) {
       array.push({

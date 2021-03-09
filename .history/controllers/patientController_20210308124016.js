@@ -373,7 +373,7 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
         'ADT_A04',
         'Patient Details',
         'Sensei',
-        'Registration Officerr',
+        'Registration Officer',
         '/dashboard/home/patientmanagement/patientregistration',
         '',
         patient._id

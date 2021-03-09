@@ -29,9 +29,8 @@ var notification = function (
     route: route,
     sendFrom: sendFrom,
   });
-  // Staff.find(subType ? { subType: subType } : { staffType: staffType }).then(
-  //   (user, err) => {
-  Staff.find({ staffType: subType ? subType : staffType }).then((user, err) => {
+  Staff.find(subType ? { subType: subType } : { staffType: staffType }).then(
+  // Staff.find({ staffType: staffType }).then((user, err) => {
     var array = [];
     for (var j = 0; j < user.length; j++) {
       array.push({
@@ -86,7 +85,6 @@ var notification = function (
     // });
 
     for (let i = 0; i < user.length; i++) {
-      console.log('userrrrrr', user.length);
       Subscription.find({ user: user[i]._id }, (err, subscriptions) => {
         if (err) {
           console.log(`Error occurred while getting subscriptions`);
@@ -107,19 +105,16 @@ var notification = function (
               webpush
                 .sendNotification(pushSubscription, pushPayload)
                 .then((value) => {
-                  console.log('Web pushhhhhhhhhhhhhhhh');
                   Notification.find({ 'sendTo.userId': user[i]._id })
                     .populate('sendTo.userId')
                     .limit(1)
                     .sort({ $natural: -1 })
                     .then((not, err) => {
-                      console.log('value', not);
                       globalVariable.io.emit('get_data', not);
                     })
                     .catch((e) => {
                       console.log('Error in Notification find : ', e);
                     });
-
                   resolve({
                     status: true,
                     endpoint: subscription.endpoint,

@@ -52,6 +52,5 @@ exports.updateNotification = asyncHandler(async (req, res) => {
     { $set: { 'sendTo.$.read': true } },
     { new: true }
   );
-  console.log('responseeeeeeeeeeeeeeeeeeeeee');
   res.status(200).json({ success: true, data: not });
 });

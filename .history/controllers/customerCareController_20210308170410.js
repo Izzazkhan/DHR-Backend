@@ -48,16 +48,6 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
       new: true,
     }
   );
-
-  // Notification(
-  //   'ADT_A02',
-  //   'Trasnfer Patient from ED to EOU',
-  //   'Customer care',
-  //   'Transfer To EOU',
-  //   '',
-  //   req.body.patientId,
-  //   ''
-  // );
   res.status(200).json({
     success: true,
     data: assignedCC,
@@ -242,7 +232,7 @@ exports.completeEOUTransfer = asyncHandler(async (req, res, next) => {
     'Patient has been transferred to EOU',
     'Sensei',
     'Transfer To EOU',
-    '',
+    '/home/rcm/patientAssessment',
     completedTransfer.edrId._id,
     ''
   );

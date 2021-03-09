@@ -671,7 +671,7 @@ exports.addConsultationNote = asyncHandler(async (req, res, next) => {
       'ED Doctor',
       '/dashboard/home/patientlist',
       '',
-      '',
+      parsed.edrId,
       'Internal'
     );
   }

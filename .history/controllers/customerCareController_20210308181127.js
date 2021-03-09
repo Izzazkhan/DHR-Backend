@@ -49,15 +49,15 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
     }
   );
 
-  // Notification(
-  //   'ADT_A02',
-  //   'Trasnfer Patient from ED to EOU',
-  //   'Customer care',
-  //   'Transfer To EOU',
-  //   '',
-  //   req.body.patientId,
-  //   ''
-  // );
+  Notification(
+    'ADT_A02',
+    'Trasnfer Patient from ED to EOU',
+    'Customer care',
+    'Transfer To EOU',
+    '',
+    req.body.patientId,
+    ''
+  );
   res.status(200).json({
     success: true,
     data: assignedCC,

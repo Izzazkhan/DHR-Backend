@@ -121,7 +121,7 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       'Patient Details',
       'Sensei',
       'Registration Officer',
-      '/dashboard/home/patientmanagement/patientregistration',
+      '/home/rcm/patientAssessment',
       '',
       newPatient._id
     );
@@ -260,7 +260,7 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
         'Details from Paramedics',
         'Registration Officer',
         'Paramedics',
-        '/dashboard/home/patientmanagement/patientregistration',
+        '/home/rcm/patientAssessment',
         edr._id,
         ''
       );
@@ -270,7 +270,7 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
         'Patient Details',
         'Sensei',
         'Paramedics',
-        '/dashboard/home/patientmanagement/patientregistration',
+        '/home/rcm/patientAssessment',
         edr._id,
         ''
       );
@@ -286,7 +286,7 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
         'Patient Details',
         'Sensei',
         'Registration Officer',
-        '/dashboard/home/patientmanagement/patientregistration',
+        '/home/rcm/patientAssessment',
         '',
         patient._id
       );
@@ -373,8 +373,8 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
         'ADT_A04',
         'Patient Details',
         'Sensei',
-        'Registration Officerr',
-        '/dashboard/home/patientmanagement/patientregistration',
+        'Registration Officer',
+        '/home/rcm/patientAssessment',
         '',
         patient._id
       );

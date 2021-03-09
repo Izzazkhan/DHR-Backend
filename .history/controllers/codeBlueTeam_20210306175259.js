@@ -92,25 +92,13 @@ exports.assignCodeBlueTeam = asyncHandler(async (req, res, next) => {
     'staffType subType'
   );
 
-  if (staff.staffType === 'Admin' || staff.staffType === 'Sensei') {
-    Notification(
-      'Code Blue Team Call',
-      'Code Blue Team Called',
-      'Sensei',
-      'Code Blue Team',
-      '/dashboard/home/codeblue',
-      req.body.edrId,
-      ''
-    );
-  }
-
   if (staff.staffType === 'Doctor' && staff.subType === 'ED Doctor') {
     Notification(
       'Code Blue Team Call',
       'Ed Doctor called Code Blue Team For',
       'Sensei',
       'Code Blue Team',
-      '/dashboard/home/codeblue',
+      '/home/rcm/patientAssessment',
       req.body.edrId,
       ''
     );
@@ -122,7 +110,7 @@ exports.assignCodeBlueTeam = asyncHandler(async (req, res, next) => {
       'Ed Nurse called Code Blue Team For',
       'Sensei',
       'Code Blue Team',
-      '/dashboard/home/codeblue',
+      '/home/rcm/patientAssessment',
       req.body.edrId,
       ''
     );
@@ -133,7 +121,7 @@ exports.assignCodeBlueTeam = asyncHandler(async (req, res, next) => {
       'EOU Nurse called Code Blue Team For',
       'Sensei',
       'Code Blue Team',
-      '/dashboard/home/codeblue',
+      '/home/rcm/patientAssessment',
       req.body.edrId,
       ''
     );
