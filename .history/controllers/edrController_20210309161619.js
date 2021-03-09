@@ -690,10 +690,10 @@ exports.addConsultationNote = asyncHandler(async (req, res, next) => {
     Notification(
       'External Consultant Request',
       'Ed Doctor has requested an External Consultant',
-      'Doctor',
+      '',
       'ED Doctor',
       '/dashboard/home/patientlist',
-      parsed.edrId,
+      '',
       '',
       'External'
     );
@@ -1473,10 +1473,10 @@ exports.addAnesthesiologistNote = asyncHandler(async (req, res, next) => {
   Notification(
     'anesthesiologist request',
     'Ed Doctor has requested an anesthesiologist',
-    'Doctor',
+    '',
     'ED Doctor',
     '/dashboard/home/patientlist',
-    parsed.edrId,
+    '',
     '',
     'Anesthesiologist'
   );

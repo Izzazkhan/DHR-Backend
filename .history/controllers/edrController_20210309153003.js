@@ -667,10 +667,10 @@ exports.addConsultationNote = asyncHandler(async (req, res, next) => {
     Notification(
       'Internal Consultant Request',
       'Ed Doctor has requested an Internal Consultant',
-      'Doctor',
+      'Sensei',
       'ED Doctor',
       '/dashboard/home/patientlist',
-      parsed.edrId,
+      '',
       '',
       'Internal'
     );
@@ -690,10 +690,10 @@ exports.addConsultationNote = asyncHandler(async (req, res, next) => {
     Notification(
       'External Consultant Request',
       'Ed Doctor has requested an External Consultant',
-      'Doctor',
+      '',
       'ED Doctor',
       '/dashboard/home/patientlist',
-      parsed.edrId,
+      '',
       '',
       'External'
     );
@@ -1304,7 +1304,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     'Carry the patient for disposition ',
     'Customer Care',
     'Discharge Request',
-    '/dashboard/home/taskslistforcustomercare',
+    '/home/rcm/patientAssessment',
     _id,
     ''
   );
@@ -1314,7 +1314,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     'Patient has been Discharged',
     'ED Doctor',
     'Discharged',
-    '/dashboard/home/patientlist',
+    '/home/rcm/patientAssessment',
     _id,
     ''
   );
@@ -1473,10 +1473,10 @@ exports.addAnesthesiologistNote = asyncHandler(async (req, res, next) => {
   Notification(
     'anesthesiologist request',
     'Ed Doctor has requested an anesthesiologist',
-    'Doctor',
+    '',
     'ED Doctor',
     '/dashboard/home/patientlist',
-    parsed.edrId,
+    '',
     '',
     'Anesthesiologist'
   );

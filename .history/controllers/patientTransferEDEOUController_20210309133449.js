@@ -213,10 +213,10 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
   if (req.body.to === 'EOU' && req.body.from === 'ED') {
     Notification(
       'ADT_A15',
-      'Transfer Patient From ED to EOU',
+      'Patient has been transferred to EOU',
       'Customer Care',
       'Transfer To EOU',
-      '/dashboard/home/taskslistforcustomercare',
+      '/home/rcm/patientAssessment',
       req.body.edrId,
       ''
     );

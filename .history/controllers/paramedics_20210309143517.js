@@ -81,7 +81,7 @@ exports.edrTransfer = asyncHandler(async (req, res, next) => {
     'Carry the Patient from Ambulance to ED Cell',
     'Customer Care',
     'Ambulance Request',
-    '/dashboard/home/taskslistforcustomercare',
+    '/home/rcm/patientAssessment',
     req.body.edrId,
     ''
   );
