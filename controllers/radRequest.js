@@ -196,6 +196,17 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
       { new: true }
     ).populate('radRequest.serviceId');
 
+    if (parsed.status === 'pending approval')
+      Notification(
+        'Report Uploaded',
+        'Radiology Test Report Generated',
+        'ED Doctor',
+        'Imaging Technicians',
+        '/home/rcm/patientAssessment',
+        parsed.edrId,
+        ''
+      );
+
     res.status(200).json({
       success: true,
       data: updatedrad,
