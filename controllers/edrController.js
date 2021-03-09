@@ -1287,6 +1287,30 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     '',
     'ED Doctor'
   );
+
+  Notification(
+    'ADT_A03  ',
+    'Patient has been Discharged',
+    'Nurses',
+    'ED Doctor',
+    '/dashboard/home/patientlist',
+    _id,
+    '',
+    'ED Nurse'
+  );
+
+  if (req.body.dischargeRequest.dischargeMedication.medicine !== []) {
+    Notification(
+      'ADT_A03  ',
+      'Medication For Discharged',
+      'Nurses',
+      'Pharmacist',
+      '/dashboard/home/patientlist',
+      _id,
+      '',
+      'ED Nurse'
+    );
+  }
   res.status(200).json({ success: true, data: edr });
 });
 
@@ -1899,6 +1923,17 @@ exports.updatePharmcayRequest = asyncHandler(async (req, res, next) => {
     {
       new: true,
     }
+  );
+
+  Notification(
+    'Medication',
+    'Medication updated',
+    'Nurses',
+    'ED Doctor',
+    '/dashboard/home/patientlist',
+    req.body.edrId,
+    '',
+    'ED Nurse'
   );
 
   res.status(200).json({
