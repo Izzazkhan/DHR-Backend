@@ -4,6 +4,7 @@ const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const CCRequest = require('../models/customerCareRequest');
 const Staff = require('../models/staffFhir/staff');
+const Notification = require('../components/notification');
 
 exports.paramedicsEdr = asyncHandler(async (req, res, next) => {
   const paramedicsEdr = await EDR.find({
@@ -87,6 +88,15 @@ exports.edrTransfer = asyncHandler(async (req, res, next) => {
     requestedAt: Date.now(),
     customerCareId: customerCare._id,
   });
+  Notification(
+    'ADT_A15',
+    'Carry the Patient from Ambulance to ED Cell',
+    'Customer Care',
+    'Ambulance Request',
+    '/home/rcm/patientAssessment',
+    req.body.edrId,
+    ''
+  );
   res.status(200).json({
     success: true,
     data: cc,

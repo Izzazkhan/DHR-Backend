@@ -4,6 +4,7 @@ const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const Staff = require('../models/staffFhir/staff');
 const TransferToEDEOU = require('../models/patientTransferEDEOU/patientTransferEDEOU');
+const Notification = require('../components/notification');
 
 exports.getTransferReqED = asyncHandler(async (req, res, next) => {
   const list = await TransferToEDEOU.find({
@@ -209,6 +210,18 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
       new: true,
     }
   );
+  if (req.body.to === 'EOU' && req.body.from === 'ED') {
+    Notification(
+      'ADT_A15',
+      'Patient has been transferred to EOU',
+      'Customer Care',
+      'Transfer To EOU',
+      '/home/rcm/patientAssessment',
+      req.body.edrId,
+      ''
+    );
+  }
+
   res.status(200).json({
     success: true,
     data: assignedCC,
