@@ -1311,6 +1311,17 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       'ED Nurse'
     );
   }
+
+  Notification(
+    'ADT_A03',
+    'Patient Disposition/Discharged',
+    'Insurance Claim Manager',
+    'Patient Disposition/Discharged',
+    '/home/rcm/patientAssessment',
+    '',
+    _id,
+    ''
+  );
   res.status(200).json({ success: true, data: edr });
 });
 
