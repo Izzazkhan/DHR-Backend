@@ -196,7 +196,7 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
       { new: true }
     ).populate('radRequest.serviceId');
 
-    if (parsed.status === 'pending approval')
+    if (parsed.status === 'pending approval') {
       Notification(
         'Report Uploaded',
         'Radiology Test Report Generated',
@@ -207,6 +207,18 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
         '',
         'ED Doctor'
       );
+
+      Notification(
+        'Report Uploaded',
+        'Radiology Report Generated',
+        'Nurses',
+        'Radiologist',
+        '/dashboard/home/radiologyTasks',
+        parsed.edrId,
+        '',
+        'ED Nurse'
+      );
+    }
 
     res.status(200).json({
       success: true,

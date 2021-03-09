@@ -189,7 +189,19 @@ exports.completeLab = asyncHandler(async (req, res, next) => {
     '',
     '/dashboard/taskslist',
     req.body.edrId,
+    '',
     ''
+  );
+
+  Notification(
+    'Sample Collected',
+    'Lab Test Sample Received',
+    'Nurses',
+    'Lab Technicians',
+    '/home/rcm/patientAssessment',
+    req.body.edrId,
+    '',
+    'ED Nurse'
   );
 
   res.status(200).json({

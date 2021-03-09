@@ -192,6 +192,17 @@ exports.updateLabRequest = asyncHandler(async (req, res, next) => {
       '',
       'ED Doctor'
     );
+
+    Notification(
+      'Results',
+      'Lab Test Results',
+      'Nurses',
+      'Lab Technicians',
+      '/dashboard/taskslist',
+      parsed.edrId,
+      '',
+      'ED Nurse'
+    );
   }
 
   res.status(200).json({

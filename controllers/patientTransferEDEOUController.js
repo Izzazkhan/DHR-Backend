@@ -218,7 +218,19 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
       'Transfer To EOU',
       '/dashboard/home/taskslistforcustomercare',
       req.body.edrId,
+      '',
       ''
+    );
+
+    Notification(
+      'ADT_A15',
+      'Patient transfer to EOU',
+      'Nurses',
+      'ED Doctor',
+      '/dashboard/home/patientlist',
+      req.body.edrId,
+      '',
+      'ED Nurse'
     );
   }
 
