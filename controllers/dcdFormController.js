@@ -127,11 +127,12 @@ exports.addPastHistory = asyncHandler(async (req, res, next) => {
   Notification(
     'DCD Form Completed',
     'Nurse' + staff.name[0].given[0] + 'has completed the DCD Form',
-    'ED Doctor',
+    'Doctor',
     'Nurse',
-    '/home/rcm/patientAssessment',
+    '/dashboard/home/patientlist',
     req.body.edrId,
-    ''
+    '',
+    'ED Doctor'
   );
   res.status(200).json({
     success: true,

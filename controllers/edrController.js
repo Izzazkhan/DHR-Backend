@@ -1280,11 +1280,12 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
   Notification(
     'ADT_A03  ',
     'Patient has been Discharged',
-    'ED Doctor',
+    'Doctor',
     'Discharged',
-    '/home/rcm/patientAssessment',
+    '/dashboard/home/patientlist',
     _id,
-    ''
+    '',
+    'ED Doctor'
   );
   res.status(200).json({ success: true, data: edr });
 });
