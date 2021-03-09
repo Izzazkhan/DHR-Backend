@@ -290,6 +290,17 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     'ED Nurse'
   );
 
+  Notification(
+    'careStream Assigned',
+    'Doctor assigned CareStream',
+    'Nurses',
+    'CareStream',
+    '/dashboard/home/patientlist',
+    req.body.edrId,
+    '',
+    'ED Nurse'
+  );
+
   res.status(200).json({
     success: true,
     data: assignedCareStream,
