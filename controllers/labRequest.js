@@ -181,6 +181,18 @@ exports.updateLabRequest = asyncHandler(async (req, res, next) => {
     );
   }
 
+  if (parsed.status === 'completed') {
+    Notification(
+      'Report Uploaded',
+      'Lab Test Report Generated',
+      'ED Doctor',
+      'Lab Technicians',
+      '/home/rcm/patientAssessment',
+      parsed.edrId,
+      ''
+    );
+  }
+
   res.status(200).json({
     success: true,
     data: updatedlab,

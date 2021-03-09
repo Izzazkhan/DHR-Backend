@@ -821,6 +821,16 @@ exports.updateAmbulanceRequest = asyncHandler(async (req, res, next) => {
       },
     ]);
 
+  Notification(
+    'ADT_A01',
+    'New Patient Arrived',
+    'ED Doctor',
+    'Paramedics',
+    '/home/rcm/patientAssessment',
+    req.body.edrId,
+    ''
+  );
+
   res.status(200).json({
     success: true,
     data: completedRequest,

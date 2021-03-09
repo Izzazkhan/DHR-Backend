@@ -53,34 +53,22 @@ exports.edrTransfer = asyncHandler(async (req, res, next) => {
   // const requestNo = '' + day + requestNoFormat(new Date(), 'yyHHMMss');
 
   // Customer Care Request
-  let startTimeCC;
-  let endTimeCC;
-  let currentTimeCC = new Date();
 
-  currentTimeCC = currentTimeCC.toISOString().split('T')[1];
-  // console.log(currentTimeCC);
+  const currentStaff = await Staff.findById(req.body.staffId).select('shift');
 
-  const CCrequestNo = 'ARID' + day + requestNoFormat(new Date(), 'yyHHMMss');
+  const CCRequestNo = 'ARID' + day + requestNoFormat(new Date(), 'yyHHMMss');
   const customerCares = await Staff.find({
     staffType: 'Customer Care',
     disabled: false,
-    // availability: true,
-  }).select('identifier name shiftStartTime shiftEndTime');
-  const shiftCC = customerCares.filter((CC) => {
-    startTimeCC = CC.shiftStartTime.toISOString().split('T')[1];
-    endTimeCC = CC.shiftEndTime.toISOString().split('T')[1];
-    if (currentTimeCC >= startTimeCC && currentTimeCC <= endTimeCC) {
-      console.log(CC);
-      return CC;
-    }
-  });
+    shift: currentStaff.shift,
+  }).select('shift');
 
-  const randomCC = Math.floor(Math.random() * (shiftCC.length - 1));
+  const randomCC = Math.floor(Math.random() * (customerCares.length - 1));
   // console.log(randomCC);
-  const customerCare = shiftCC[randomCC];
+  const customerCare = customerCares[randomCC];
 
   const cc = await CCRequest.create({
-    requestNo: CCrequestNo,
+    requestNo: CCRequestNo,
     edrId: req.body.edrId,
     status: 'pending',
     staffId: req.body.staffId,
