@@ -3,6 +3,7 @@ const EDR = require('../models/EDR/EDR');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const Patient = require('../models/patient/patient');
+const Notification = require('../components/notification');
 // const Staff = require('../models/staffFhir/staff');
 
 exports.getAllPendingConsultationNotes = asyncHandler(async (req, res) => {
@@ -147,6 +148,16 @@ exports.addReconciliationNotes = asyncHandler(async (req, res, next) => {
       },
     },
     { new: true }
+  );
+
+  Notification(
+    'Reconciliation Request',
+    'Patient Reconciliation Request ',
+    'ED Doctor',
+    'Clinical Pharmacist',
+    '/home/rcm/patientAssessment',
+    parsed.edrId,
+    ''
   );
 
   res.status(200).json({

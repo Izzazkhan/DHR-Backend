@@ -1,5 +1,7 @@
 const EDR = require('../models/EDR/EDR');
 const asyncHandler = require('../middleware/async');
+const Notification = require('../components/notification');
+const Staff = require('../models/staffFhir/staff');
 // const ErrorResponse = require('../utils/errorResponse');
 
 exports.addTriageAssessment = asyncHandler(async (req, res, next) => {
@@ -118,6 +120,18 @@ exports.addPastHistory = asyncHandler(async (req, res, next) => {
       },
     },
     { new: true }
+  );
+
+  const staff = await Staff.findById(req.body.staffId).select('name');
+
+  Notification(
+    'DCD Form Completed',
+    'Nurse' + staff.name[0].given[0] + 'has completed the DCD Form',
+    'ED Doctor',
+    'Nurse',
+    '/home/rcm/patientAssessment',
+    req.body.edrId,
+    ''
   );
   res.status(200).json({
     success: true,
