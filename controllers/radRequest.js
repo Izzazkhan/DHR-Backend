@@ -2,6 +2,7 @@ const requestNoFormat = require('dateformat');
 const EDR = require('../models/EDR/EDR');
 const HK = require('../models/houseKeepingRequest');
 const asyncHandler = require('../middleware/async');
+const Notification = require('../components/notification');
 
 exports.getPendingRadEdr = asyncHandler(async (req, res, next) => {
   const unwindEdr = await EDR.aggregate([
@@ -194,6 +195,17 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
       },
       { new: true }
     ).populate('radRequest.serviceId');
+
+    if (parsed.status === 'pending approval')
+      Notification(
+        'Report Uploaded',
+        'Radiology Test Report Generated',
+        'ED Doctor',
+        'Imaging Technicians',
+        '/home/rcm/patientAssessment',
+        parsed.edrId,
+        ''
+      );
 
     res.status(200).json({
       success: true,
