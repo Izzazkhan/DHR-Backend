@@ -237,7 +237,7 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
       'ADT_A15',
       'Patient transfer from ED to EOU',
       'Nurses',
-      'ED Doctor',
+      'Customer Care',
       '/dashboard/home/patientlist',
       req.body.edrId,
       '',

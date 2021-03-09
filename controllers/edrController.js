@@ -1460,7 +1460,19 @@ exports.addAnesthesiologistNote = asyncHandler(async (req, res, next) => {
     'ED Doctor',
     '/home/rcm/patientAssessment',
     '',
+    '',
     ''
+  );
+
+  Notification(
+    'anesthesiologist request',
+    'Ed Doctor request for anesthesiologist',
+    'Doctor',
+    'ED Doctor',
+    '/home/rcm/patientAssessment',
+    parsed.edrId,
+    '',
+    'Anesthesiologist'
   );
   res.status(200).json({
     success: true,
