@@ -185,7 +185,7 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     assignedBy: req.body.data.staffId,
     assignedTime: Date.now(),
     reason: req.body.data.reason,
-    status: req.body.data.status,
+    status: 'in_progress',
   };
 
   const pharmacyRequest = edrCheck[0].pharmacyRequest;
@@ -196,7 +196,7 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
         name: req.body.data.medications[i].itemName,
       });
 
-      console.log("Item : ",item)
+      console.log('Item : ', item);
 
       const now = new Date();
       const start = new Date(now.getFullYear(), 0, 0);
@@ -244,6 +244,16 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
       { $set: { pharmacyRequest: pharmacyRequest } },
       { new: true }
     );
+    Notification(
+      'Medication',
+      'Medication Of CareStream',
+      'Nurses',
+      'Pharmacist',
+      '/dashboard/home/patientlist',
+      req.body.edrId,
+      '',
+      'ED Nurse'
+    );
   }
 
   const assignedCareStream = await EDR.findOneAndUpdate(
@@ -263,12 +273,63 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
       'Sensei',
       'Paramedics',
       '/dashboard/home/pendingregistration',
-      req.body.data.edrId
+      req.body.data.edrId,
+      '',
+      ''
     );
   }
+
+  Notification(
+    'careStream Assigned',
+    'careStream Assigned',
+    'Nurses',
+    'CareStream',
+    '/dashboard/home/patientlist',
+    req.body.edrId,
+    '',
+    'ED Nurse'
+  );
+
   res.status(200).json({
     success: true,
     data: assignedCareStream,
+  });
+});
+
+exports.getInProgressCS = asyncHandler(async (req, res, next) => {
+  const inProgressCS = await EDR.find({
+    status: 'pending',
+    'careStream.status': 'in_progress',
+  }).populate([
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      select: 'chiefComplaint.chiefComplaintId',
+
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+          // populate: [
+          //   {
+          //     path: 'rooms.roomId',
+          //     model: 'room',
+          //   },
+          // ],
+        },
+      ],
+    },
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+      select: 'name identifier',
+    },
+  ]);
+
+  res.status(200).json({
+    success: true,
+    data: inProgressCS,
   });
 });
 

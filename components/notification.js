@@ -13,14 +13,15 @@ webpush.setVapidDetails(
   PUBLIC_VAPID_KEYS,
   PRIVATE_VAPID_KEYS
 );
-var notification = function (
+var notification = async function (
   title,
   message,
   staffType,
   sendFrom,
   route,
   patientId,
-  roPatient
+  roPatient,
+  subType
 ) {
   const payload = JSON.stringify({
     title: title,
@@ -28,111 +29,116 @@ var notification = function (
     route: route,
     sendFrom: sendFrom,
   });
-  Staff.find({ staffType: staffType }).then((user, err) => {
-    var array = [];
-    for (var j = 0; j < user.length; j++) {
-      array.push({
-        userId: user[j]._id,
-        read: false,
-      });
-    }
 
-    // EDR.findOne({ _id: patientId }).then((patient) => {
-    if (patientId === '' && roPatient !== '') {
-      Notification.create({
-        title: title,
-        message: message,
-        route: route,
-        sendTo: array,
-        sendFrom: sendFrom,
-        roPatient: roPatient,
-      })
-        .then((newNot) => console.log('notification created', newNot))
-        .catch((error) => {
-          console.log('Catch notify create err : ', error);
+  Staff.find(subType ? { subType: subType } : { staffType: staffType }).then(
+    (user, err) => {
+      var array = [];
+      for (var j = 0; j < user.length; j++) {
+        array.push({
+          userId: user[j]._id,
+          read: false,
         });
-    } else if (roPatient === '' && patientId !== '') {
-      Notification.create({
-        title: title,
-        message: message,
-        route: route,
-        sendTo: array,
-        sendFrom: sendFrom,
-        patient: patientId,
-      })
-        .then((newNot) => console.log('notification created', newNot))
-        .catch((error) => {
-          console.log('Catch notify create err : ', error);
-        });
-    } else if (roPatient === '' && patientId === '') {
-      Notification.create({
-        title: title,
-        message: message,
-        route: route,
-        sendTo: array,
-        sendFrom: sendFrom,
-      })
-        .then((newNot) => console.log('notification created', newNot))
-        .catch((error) => {
-          console.log('Catch notify create err : ', error);
-        });
-    }
-    // .catch((e) => {
-    //   console.log('patient find error : ', e);
-    // });
-    // });
+      }
 
-    for (let i = 0; i < user.length; i++) {
-      Subscription.find({ user: user[i]._id }, (err, subscriptions) => {
-        if (err) {
-          console.log(`Error occurred while getting subscriptions`);
-          res.status(500).json({
-            error: 'Technical error occurred',
+      // EDR.findOne({ _id: patientId }).then((patient) => {
+      if (patientId === '' && roPatient !== '') {
+        Notification.create({
+          title: title,
+          message: message,
+          route: route,
+          sendTo: array,
+          sendFrom: sendFrom,
+          roPatient: roPatient,
+        })
+          .then((newNot) => console.log('notification created', newNot))
+          .catch((error) => {
+            console.log('Catch notify create err : ', error);
           });
-        } else {
-          let parallelSubscriptionCalls = subscriptions.map((subscription) => {
-            return new Promise((resolve, reject) => {
-              const pushSubscription = {
-                endpoint: subscription.endpoint,
-                keys: {
-                  p256dh: subscription.keys.p256dh,
-                  auth: subscription.keys.auth,
-                },
-              };
-              const pushPayload = payload;
-              webpush
-                .sendNotification(pushSubscription, pushPayload)
-                .then((value) => {
-                  Notification.find({ 'sendTo.userId': user[i]._id })
-                    .populate('sendTo.userId')
-                    .limit(1)
-                    .sort({ $natural: -1 })
-                    .then((not, err) => {
-                      globalVariable.io.emit('get_data', not);
-                    })
-                    .catch((e) => {
-                      console.log('Error in Notification find : ', e);
-                    });
-                  resolve({
-                    status: true,
-                    endpoint: subscription.endpoint,
-                    data: value,
-                  });
-                })
-                .catch((err) => {
-                  console.log('Error in subscription : ', err);
-                  reject({
-                    status: false,
-                    endpoint: subscription.endpoint,
-                    data: err,
-                  });
-                });
+      } else if (roPatient === '' && patientId !== '') {
+        Notification.create({
+          title: title,
+          message: message,
+          route: route,
+          sendTo: array,
+          sendFrom: sendFrom,
+          patient: patientId,
+        })
+          .then((newNot) => console.log('notification created', newNot))
+          .catch((error) => {
+            console.log('Catch notify create err : ', error);
+          });
+      } else if (roPatient === '' && patientId === '') {
+        Notification.create({
+          title: title,
+          message: message,
+          route: route,
+          sendTo: array,
+          sendFrom: sendFrom,
+        })
+          .then((newNot) => console.log('notification created', newNot))
+          .catch((error) => {
+            console.log('Catch notify create err : ', error);
+          });
+      }
+      // .catch((e) => {
+      //   console.log('patient find error : ', e);
+      // });
+      // });
+
+      for (let i = 0; i < user.length; i++) {
+        Subscription.find({ user: user[i]._id }, (err, subscriptions) => {
+          if (err) {
+            console.log(`Error occurred while getting subscriptions`);
+            res.status(500).json({
+              error: 'Technical error occurred',
             });
-          });
-        }
-      });
+          } else {
+            let parallelSubscriptionCalls = subscriptions.map(
+              (subscription) => {
+                return new Promise((resolve, reject) => {
+                  const pushSubscription = {
+                    endpoint: subscription.endpoint,
+                    keys: {
+                      p256dh: subscription.keys.p256dh,
+                      auth: subscription.keys.auth,
+                    },
+                  };
+                  const pushPayload = payload;
+                  webpush
+                    .sendNotification(pushSubscription, pushPayload)
+                    .then((value) => {
+                      Notification.find({ 'sendTo.userId': user[i]._id })
+                        .populate('sendTo.userId')
+                        .limit(1)
+                        .sort({ $natural: -1 })
+                        .then((not, err) => {
+                          globalVariable.io.emit('get_data', not);
+                        })
+                        .catch((e) => {
+                          console.log('Error in Notification find : ', e);
+                        });
+                      resolve({
+                        status: true,
+                        endpoint: subscription.endpoint,
+                        data: value,
+                      });
+                    })
+                    .catch((err) => {
+                      console.log('Error in subscription : ', err);
+                      reject({
+                        status: false,
+                        endpoint: subscription.endpoint,
+                        data: err,
+                      });
+                    });
+                });
+              }
+            );
+          }
+        });
+      }
     }
-  });
+  );
 };
 
 module.exports = notification;

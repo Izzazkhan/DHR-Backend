@@ -1266,6 +1266,51 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     '',
     ''
   );
+
+  Notification(
+    'ADT_A03',
+    'Carry the patient for disposition ',
+    'Customer Care',
+    'Discharge Request',
+    '/home/rcm/patientAssessment',
+    _id,
+    ''
+  );
+
+  Notification(
+    'ADT_A03  ',
+    'Patient has been Discharged',
+    'Doctor',
+    'Discharged',
+    '/dashboard/home/patientlist',
+    _id,
+    '',
+    'ED Doctor'
+  );
+
+  Notification(
+    'ADT_A03  ',
+    'Patient has been Discharged',
+    'Nurses',
+    'ED Doctor',
+    '/dashboard/home/patientlist',
+    _id,
+    '',
+    'ED Nurse'
+  );
+
+  if (req.body.dischargeRequest.dischargeMedication.medicine !== []) {
+    Notification(
+      'ADT_A03  ',
+      'Medication For Discharged',
+      'Nurses',
+      'Pharmacist',
+      '/dashboard/home/patientlist',
+      _id,
+      '',
+      'ED Nurse'
+    );
+  }
   res.status(200).json({ success: true, data: edr });
 });
 
@@ -1415,7 +1460,19 @@ exports.addAnesthesiologistNote = asyncHandler(async (req, res, next) => {
     'ED Doctor',
     '/home/rcm/patientAssessment',
     '',
+    '',
     ''
+  );
+
+  Notification(
+    'anesthesiologist request',
+    'Ed Doctor request for anesthesiologist',
+    'Doctor',
+    'ED Doctor',
+    '/home/rcm/patientAssessment',
+    parsed.edrId,
+    '',
+    'Anesthesiologist'
   );
   res.status(200).json({
     success: true,
@@ -1652,6 +1709,16 @@ exports.addNurseTechnicianRequest = asyncHandler(async (req, res, next) => {
     }
   );
 
+  Notification(
+    'patient assigned',
+    'New Patient Assigned',
+    'Nurses',
+    'ED Doctor',
+    '/home/rcm/patientAssessment',
+    parsed.edrId,
+    '',
+    'Nurse Technician'
+  );
   // await Staff.findOneAndUpdate(
   //   { _id: parsed.edNurse },
   //   { $set: { availability: false } },
@@ -1880,6 +1947,17 @@ exports.updatePharmcayRequest = asyncHandler(async (req, res, next) => {
     }
   );
 
+  Notification(
+    'Medication',
+    'Medication updated',
+    'Nurses',
+    'ED Doctor',
+    '/dashboard/home/patientlist',
+    req.body.edrId,
+    '',
+    'ED Nurse'
+  );
+
   res.status(200).json({
     success: true,
     data: addedNote,
@@ -1934,6 +2012,16 @@ exports.deliverPharmcayRequest = asyncHandler(async (req, res, next) => {
     {
       new: true,
     }
+  );
+
+  Notification(
+    'Carry Medications',
+    'Carry Medications from Pharmacist to ED Bed',
+    'Customer Care',
+    'Medications Request',
+    '/home/rcm/patientAssessment',
+    req.body.edrId,
+    ''
   );
 
   res.status(200).json({

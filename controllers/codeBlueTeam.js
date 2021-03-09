@@ -114,6 +114,17 @@ exports.assignCodeBlueTeam = asyncHandler(async (req, res, next) => {
       req.body.edrId,
       ''
     );
+
+    Notification(
+      'Code Blue Team Call',
+      'Ed Nurse required Code Blue Team',
+      'Doctor',
+      'Code Blue Calls',
+      '/dashboard/home/codeblue',
+      req.body.edrId,
+      '',
+      'ED Doctor'
+    );
   }
   if (staff.staffType === 'Nurses' && staff.subType === 'EOU Nurse') {
     Notification(

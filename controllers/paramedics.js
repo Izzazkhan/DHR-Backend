@@ -4,6 +4,7 @@ const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const CCRequest = require('../models/customerCareRequest');
 const Staff = require('../models/staffFhir/staff');
+const Notification = require('../components/notification');
 
 exports.paramedicsEdr = asyncHandler(async (req, res, next) => {
   const paramedicsEdr = await EDR.find({
@@ -52,34 +53,22 @@ exports.edrTransfer = asyncHandler(async (req, res, next) => {
   // const requestNo = '' + day + requestNoFormat(new Date(), 'yyHHMMss');
 
   // Customer Care Request
-  let startTimeCC;
-  let endTimeCC;
-  let currentTimeCC = new Date();
 
-  currentTimeCC = currentTimeCC.toISOString().split('T')[1];
-  // console.log(currentTimeCC);
+  const currentStaff = await Staff.findById(req.body.staffId).select('shift');
 
-  const CCrequestNo = 'ARID' + day + requestNoFormat(new Date(), 'yyHHMMss');
+  const CCRequestNo = 'ARID' + day + requestNoFormat(new Date(), 'yyHHMMss');
   const customerCares = await Staff.find({
     staffType: 'Customer Care',
     disabled: false,
-    // availability: true,
-  }).select('identifier name shiftStartTime shiftEndTime');
-  const shiftCC = customerCares.filter((CC) => {
-    startTimeCC = CC.shiftStartTime.toISOString().split('T')[1];
-    endTimeCC = CC.shiftEndTime.toISOString().split('T')[1];
-    if (currentTimeCC >= startTimeCC && currentTimeCC <= endTimeCC) {
-      console.log(CC);
-      return CC;
-    }
-  });
+    shift: currentStaff.shift,
+  }).select('shift');
 
-  const randomCC = Math.floor(Math.random() * (shiftCC.length - 1));
+  const randomCC = Math.floor(Math.random() * (customerCares.length - 1));
   // console.log(randomCC);
-  const customerCare = shiftCC[randomCC];
+  const customerCare = customerCares[randomCC];
 
   const cc = await CCRequest.create({
-    requestNo: CCrequestNo,
+    requestNo: CCRequestNo,
     edrId: req.body.edrId,
     status: 'pending',
     staffId: req.body.staffId,
@@ -87,6 +76,15 @@ exports.edrTransfer = asyncHandler(async (req, res, next) => {
     requestedAt: Date.now(),
     customerCareId: customerCare._id,
   });
+  Notification(
+    'ADT_A15',
+    'Carry the Patient from Ambulance to ED Cell',
+    'Customer Care',
+    'Ambulance Request',
+    '/home/rcm/patientAssessment',
+    req.body.edrId,
+    ''
+  );
   res.status(200).json({
     success: true,
     data: cc,
