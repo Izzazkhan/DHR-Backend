@@ -153,11 +153,12 @@ exports.addReconciliationNotes = asyncHandler(async (req, res, next) => {
   Notification(
     'Reconciliation Request',
     'Patient Reconciliation Request ',
-    'ED Doctor',
+    'Doctor',
     'Clinical Pharmacist',
-    '/home/rcm/patientAssessment',
+    '/dashboard/home/patientlist',
     parsed.edrId,
-    ''
+    '',
+    'ED Doctor'
   );
 
   res.status(200).json({

@@ -185,11 +185,12 @@ exports.updateLabRequest = asyncHandler(async (req, res, next) => {
     Notification(
       'Report Uploaded',
       'Lab Test Report Generated',
-      'ED Doctor',
+      'Doctor',
       'Lab Technicians',
-      '/home/rcm/patientAssessment',
+      '/dashboard/taskslist',
       parsed.edrId,
-      ''
+      '',
+      'ED Doctor'
     );
   }
 

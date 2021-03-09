@@ -200,11 +200,12 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
       Notification(
         'Report Uploaded',
         'Radiology Test Report Generated',
-        'ED Doctor',
+        'Doctor',
         'Imaging Technicians',
-        '/home/rcm/patientAssessment',
+        '/dashboard/home/radiologyTasks',
         parsed.edrId,
-        ''
+        '',
+        'ED Doctor'
       );
 
     res.status(200).json({
