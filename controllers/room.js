@@ -155,7 +155,20 @@ exports.assignRoom = asyncHandler(async (req, res, next) => {
     'Registration Officer',
     'Sensei',
     '/dashboard/home/pendingregistration',
-    req.body.edrId
+    req.body.edrId,
+    '',
+    ''
+  );
+
+  Notification(
+    'ADT_A04',
+    'Patient Registration and Bed Allocation from Sensei',
+    'Admin',
+    'New Patient Entry and Allocation',
+    '/dashboard/home/pendingregistration',
+    req.body.edrId,
+    '',
+    ''
   );
   // const checkBed = await Room.findOne({ 'beds._id': req.body.bedId }).select(
   //   'beds'
