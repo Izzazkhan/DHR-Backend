@@ -680,7 +680,7 @@ exports.addConsultationNote = asyncHandler(async (req, res, next) => {
       'Ed Doctor has requested an Internal Consultant',
       'Doctor',
       'ED Doctor',
-      '/dashboard/home/notes',
+      '/dashboard/home/patientlist',
       parsed.edrId,
       '',
       'Internal'

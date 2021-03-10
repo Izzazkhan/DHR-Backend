@@ -393,7 +393,7 @@ exports.getPatientsWithCSByKeyword = asyncHandler(async (req, res, next) => {
   const arr = [];
   const patients = await EDR.find({
     status: 'pending',
-    // careStream: { $ne: [] },
+    careStream: { $ne: [] },
     room: { $ne: [] },
   }).populate([
     {
