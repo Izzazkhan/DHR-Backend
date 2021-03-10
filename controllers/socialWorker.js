@@ -5,6 +5,7 @@ const EDR = require('../models/EDR/EDR');
 const Staff = require('../models/staffFhir/staff');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
+const Notification = require('../components/notification');
 
 exports.getAdmittedEDRs = asyncHandler(async (req, res, next) => {
   const admittedEdrs = await EDR.find({
@@ -566,6 +567,17 @@ exports.sendEmail = asyncHandler(async (req, res, next) => {
         {
           $new: true,
         }
+      );
+
+      Notification(
+        'Social Worker',
+        'Social Workers Assisting Patients',
+        'Admin',
+        'Social Workers Assisting Patients',
+        '/home/rcm/patientAssessment',
+        edrId,
+        '',
+        ''
       );
       res.status(200).json({
         success: true,

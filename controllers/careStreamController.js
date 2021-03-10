@@ -290,6 +290,17 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     'ED Nurse'
   );
 
+  Notification(
+    'careStream Assigned',
+    'Doctor assigned CareStream',
+    'Doctor',
+    'CareStream',
+    '/dashboard/home/patientlist',
+    req.body.edrId,
+    '',
+    'Rad Doctor'
+  );
+
   res.status(200).json({
     success: true,
     data: assignedCareStream,
@@ -382,7 +393,7 @@ exports.getPatientsWithCSByKeyword = asyncHandler(async (req, res, next) => {
   const arr = [];
   const patients = await EDR.find({
     status: 'pending',
-    careStream: { $ne: [] },
+    // careStream: { $ne: [] },
     room: { $ne: [] },
   }).populate([
     {

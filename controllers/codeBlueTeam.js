@@ -100,6 +100,18 @@ exports.assignCodeBlueTeam = asyncHandler(async (req, res, next) => {
       'Code Blue Team',
       '/home/rcm/patientAssessment',
       req.body.edrId,
+      '',
+      ''
+    );
+
+    Notification(
+      'Code Blue Team Call',
+      'Ed Doctor required Code Blue Team',
+      'Admin',
+      'Critical Function Calls',
+      '/home/rcm/patientAssessment',
+      req.body.edrId,
+      '',
       ''
     );
   }
@@ -112,6 +124,7 @@ exports.assignCodeBlueTeam = asyncHandler(async (req, res, next) => {
       'Code Blue Team',
       '/home/rcm/patientAssessment',
       req.body.edrId,
+      '',
       ''
     );
 
@@ -125,6 +138,17 @@ exports.assignCodeBlueTeam = asyncHandler(async (req, res, next) => {
       '',
       'ED Doctor'
     );
+
+    Notification(
+      'Code Blue Team Call',
+      'Ed Nurse required Code Blue Team',
+      'Admin',
+      'Critical Function Calls',
+      '/home/rcm/patientAssessment',
+      req.body.edrId,
+      '',
+      ''
+    );
   }
   if (staff.staffType === 'Nurses' && staff.subType === 'EOU Nurse') {
     Notification(
@@ -134,6 +158,7 @@ exports.assignCodeBlueTeam = asyncHandler(async (req, res, next) => {
       'Code Blue Team',
       '/home/rcm/patientAssessment',
       req.body.edrId,
+      '',
       ''
     );
   }

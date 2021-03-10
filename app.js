@@ -177,7 +177,6 @@ io1.on('connection', (socket) => {
     let arr = connectedUsers.filter((i) => i !== userId);
     arr.push(userId);
     connectedUsers = arr;
-
     // console.log('chat user connected', connectedUsers);
     io1.emit('getConnectedUsers', connectedUsers);
   });

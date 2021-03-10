@@ -1311,6 +1311,17 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       'ED Nurse'
     );
   }
+
+  Notification(
+    'ADT_A03',
+    'Patient Disposition/Discharged',
+    'Insurance Claim Manager',
+    'Patient Disposition/Discharged',
+    '/home/rcm/patientAssessment',
+    '',
+    _id,
+    ''
+  );
   res.status(200).json({ success: true, data: edr });
 });
 
@@ -1920,7 +1931,18 @@ exports.addPharmacyRequest = asyncHandler(async (req, res, next) => {
     'Sensei',
     'ED Doctor',
     '/home/rcm/patientAssessment',
-    addedNote.patientId._id,
+    req.body.edrId,
+    '',
+    ''
+  );
+  Notification(
+    'Medication Requests',
+    'Medication Requests',
+    'Admin',
+    'Medication Requests',
+    '/home/rcm/patientAssessment',
+    req.body.edrId,
+    '',
     ''
   );
 
