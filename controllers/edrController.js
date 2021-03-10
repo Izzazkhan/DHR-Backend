@@ -1354,6 +1354,17 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       'ED Nurse'
     );
   }
+
+  Notification(
+    'ADT_A03',
+    'Patient Disposition/Discharged',
+    'Insurance Claim Manager',
+    'Patient Disposition/Discharged',
+    '/home/rcm/patientAssessment',
+    '',
+    _id,
+    ''
+  );
   res.status(200).json({ success: true, data: edr });
 });
 
@@ -1752,6 +1763,16 @@ exports.addNurseTechnicianRequest = asyncHandler(async (req, res, next) => {
     }
   );
 
+  Notification(
+    'patient assigned',
+    'New Patient Assigned',
+    'Nurses',
+    'ED Doctor',
+    '/home/rcm/patientAssessment',
+    parsed.edrId,
+    '',
+    'Nurse Technician'
+  );
   // await Staff.findOneAndUpdate(
   //   { _id: parsed.edNurse },
   //   { $set: { availability: false } },

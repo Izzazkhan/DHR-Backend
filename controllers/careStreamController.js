@@ -185,7 +185,7 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     assignedBy: req.body.data.staffId,
     assignedTime: Date.now(),
     reason: req.body.data.reason,
-    status: req.body.data.status,
+    status: 'in_progress',
   };
 
   const pharmacyRequest = edrCheck[0].pharmacyRequest;
@@ -290,9 +290,57 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     'ED Nurse'
   );
 
+  Notification(
+    'careStream Assigned',
+    'Doctor assigned CareStream',
+    'Doctor',
+    'CareStream',
+    '/dashboard/home/patientlist',
+    req.body.edrId,
+    '',
+    'Rad Doctor'
+  );
+
   res.status(200).json({
     success: true,
     data: assignedCareStream,
+  });
+});
+
+exports.getInProgressCS = asyncHandler(async (req, res, next) => {
+  const inProgressCS = await EDR.find({
+    status: 'pending',
+    'careStream.status': 'in_progress',
+  }).populate([
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      select: 'chiefComplaint.chiefComplaintId',
+
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+          // populate: [
+          //   {
+          //     path: 'rooms.roomId',
+          //     model: 'room',
+          //   },
+          // ],
+        },
+      ],
+    },
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+      select: 'name identifier',
+    },
+  ]);
+
+  res.status(200).json({
+    success: true,
+    data: inProgressCS,
   });
 });
 

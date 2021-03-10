@@ -123,7 +123,30 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       'Registration Officer',
       '/dashboard/home/patientmanagement/patientregistration',
       '',
-      newPatient._id
+      newPatient._id,
+      ''
+    );
+
+    Notification(
+      'ADT_A04',
+      'Patient Details from registration officer',
+      'Cashier',
+      'Registration Officer',
+      '/home/rcm/patientAssessment',
+      '',
+      newPatient._id,
+      ''
+    );
+
+    Notification(
+      'ADT_A04',
+      'Registration officer add new patient',
+      'Insurance Claim Manager',
+      'New Patient',
+      '/home/rcm/patientAssessment',
+      '',
+      newPatient._id,
+      ''
     );
   }
 
