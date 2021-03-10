@@ -1931,7 +1931,18 @@ exports.addPharmacyRequest = asyncHandler(async (req, res, next) => {
     'Sensei',
     'ED Doctor',
     '/home/rcm/patientAssessment',
-    addedNote.patientId._id,
+    req.body.edrId,
+    '',
+    ''
+  );
+  Notification(
+    'Medication Requests',
+    'Medication Requests',
+    'Admin',
+    'Medication Requests',
+    '/home/rcm/patientAssessment',
+    req.body.edrId,
+    '',
     ''
   );
 

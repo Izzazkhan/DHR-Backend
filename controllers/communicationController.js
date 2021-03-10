@@ -1,8 +1,9 @@
+const nodemailer = require('nodemailer');
 const requestNoFormat = require('dateformat');
 const Communication = require('../models/requests/communication');
 const asyncHandler = require('../middleware/async');
-var nodemailer = require('nodemailer');
 const staff = require('../models/staffFhir/staff');
+const Notification = require('../components/notification');
 
 exports.addCommunicationRequest = asyncHandler(async (req, res, next) => {
   const { reason, others, generatedById } = req.body;
@@ -18,8 +19,10 @@ exports.addCommunicationRequest = asyncHandler(async (req, res, next) => {
 
   const CRequestNo = `CR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
 
-  const sender = await staff.findOne({ _id: generatedById }).select('telecom');
-  const receiver = await staff.find({ staffType: 'Admin' }).select('telecom');
+  const sender = await staff
+    .findOne({ _id: generatedById })
+    .select('telecom staffType');
+  const receiver = await staff.find({ staffType: 'Admin' }).select('telecom ');
 
   const filteredEmails = [];
   for (let index = 0; index < receiver.length; index++) {
@@ -59,6 +62,19 @@ exports.addCommunicationRequest = asyncHandler(async (req, res, next) => {
     generatedBy: sender,
     requestId: CRequestNo,
   });
+
+  // if (sender.staffType === 'Sensei') {
+  //   Notification(
+  //     'Communication Request',
+  //     'Request from Sensei',
+  //     'Nurses',
+  //     'Pharmacist',
+  //     '/dashboard/home/patientlist',
+  //     req.body.edrId,
+  //     '',
+  //     'ED Nurse'
+  //   );
+  // }
 
   res.status(201).json({
     success: true,
