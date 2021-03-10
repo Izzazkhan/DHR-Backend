@@ -8,6 +8,8 @@ exports.notificationCount = asyncHandler(async (req, res, next) => {
     'sendTo.read': false,
   }).countDocuments();
 
+  globalVariable.io.emit('get_count', count);
+
   res.status(200).json({
     success: true,
     data: count,
