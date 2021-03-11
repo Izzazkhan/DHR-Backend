@@ -581,7 +581,7 @@ exports.sendEmail = asyncHandler(async (req, res, next) => {
       );
       res.status(200).json({
         success: true,
-        data: `Email Sent Successfullly to ${receiver}`,
+        data: `Email Sent Successfully to ${receiver}`,
       });
     }
   });

@@ -1,4 +1,5 @@
 const moment = require('moment');
+const cron = require('node-cron');
 const Patient = require('../models/patient/patient');
 const Room = require('../models/room');
 const HKRequests = require('../models/houseKeepingRequest');
@@ -30,8 +31,6 @@ function setLastSixHours() {
 // Registration Officer Dashboard Stats
 exports.roDashboard = asyncHandler(async (req, res) => {
   setLastSixHours();
-  // console.log('sixHour:', sixHour);
-  // console.log('currentTime:', currentTime);
   // * Register Officer Registrations Per Hour
   const patients = await Patient.aggregate([
     {
@@ -56,6 +55,12 @@ exports.roDashboard = asyncHandler(async (req, res) => {
   ]);
 
   const averageRegistrationTime = 360 / patients.length;
+  // if (averageRegistrationTime > 15) {
+  //   cron.schedule('* * * * *', () => {
+  //     // console.log('cron running every minute');
+  //     globalVariable.io.emit('roFlag', not);
+  //   });
+  // }
 
   //* Registration Officer Completed Per Hour
   const completedArr = [];
