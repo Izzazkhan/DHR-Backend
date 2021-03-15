@@ -427,13 +427,13 @@ exports.searchParamedics = asyncHandler(async (req, res, next) => {
 });
 
 exports.getSpecialityDoctor = asyncHandler(async (req, res, next) => {
-  // console.log(req.params.speciality);
+  const currentStaff = await Staff.findById(req.params.staffId).select('shift');
   const doctors = await Staff.find({
     staffType: 'Doctor',
     specialty: req.params.speciality,
     $or: [{ subType: 'Internal' }, { subType: 'External' }],
     disabled: false,
-    // availability: true,
+    shift: currentStaff.shift,
   });
   // console.log(doctors);
   res.status(200).json({
