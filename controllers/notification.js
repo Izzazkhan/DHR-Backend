@@ -1,20 +1,31 @@
+const mongoose = require('mongoose');
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const Notification = require('../models/notification/notification');
 
-// exports.notificationCount = asyncHandler(async (req, res, next) => {
-//   const count = await Notification.find({
-//     'sendTo.userId': req.params.id,
-//     'sendTo.read': false,
-//   }).countDocuments();
+exports.notificationCount = asyncHandler(async (req, res, next) => {
+  // console.log(req.params.id);
+  const count = await Notification.aggregate([
+    {
+      $unwind: '$sendTo',
+    },
+    {
+      $match: {
+        $and: [
+          { 'sendTo.userId': mongoose.Types.ObjectId(req.params.id) },
+          { 'sendTo.read': false },
+        ],
+      },
+    },
+  ]);
 
-//   globalVariable.io.emit('get_count', count);
+  // globalVariable.io.emit('get_count', count);
 
-//   res.status(200).json({
-//     success: true,
-//     data: count,
-//   });
-// });
+  res.status(200).json({
+    success: true,
+    data: count.length,
+  });
+});
 
 exports.readNotifications = asyncHandler(async (req, res, next) => {
   const read = await Notification.find({

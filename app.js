@@ -211,7 +211,10 @@ io1.on('connection', (socket) => {
       },
       {
         $match: {
-          $and: [{ 'sendTo.sendTo': userId }, { 'sendTo.read': false }],
+          $and: [
+            { 'sendTo.userId': mongoose.Types.ObjectId(userId) },
+            { 'sendTo.read': false },
+          ],
         },
       },
     ]);
