@@ -344,6 +344,19 @@ exports.getInProgressCS = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.completeCareStream = asyncHandler(async (req, res, next) => {
+  const completedCS = await EDR.findOneAndUpdate(
+    { _id: req.params.edrId, 'careStream._id': req.params.csId },
+    { $set: { status: 'completed' } },
+    { new: true }
+  );
+
+  res.status(200).json({
+    success: true,
+    data: completedCS,
+  });
+});
+
 exports.getPatientWithoutCSByKeyword = asyncHandler(async (req, res, next) => {
   const arr = [];
   const patients = await EDR.find({
