@@ -105,7 +105,7 @@ exports.unReadNotifications = asyncHandler(async (req, res, next) => {
       $match: {
         $and: [
           { 'sendTo.userId': mongoose.Types.ObjectId(req.params.id) },
-          { 'sendTo.read': true },
+          { 'sendTo.read': false },
           { sendFrom: req.params.sendFrom },
         ],
       },
