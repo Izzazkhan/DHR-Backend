@@ -498,12 +498,14 @@ exports.searchAnesthesiologist = asyncHandler(async (req, res, next) => {
 });
 
 exports.getSpecialityNurse = asyncHandler(async (req, res, next) => {
+  const currentStaff = await Staff.findById(req.params.staffId).select('shift');
   // console.log(req.params.speciality);
   const nurses = await Staff.find({
     staffType: 'Nurses',
     specialty: req.params.speciality,
     subType: 'ED Nurse',
     disabled: false,
+    shift: currentStaff.shift,
     // availability: true,
   });
   // console.log(doctors);

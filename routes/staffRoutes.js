@@ -77,7 +77,7 @@ router.get('/searchDoctor/:keyword', searchDoctor);
 router.get('/searchSensei/:keyword', searchSensei);
 router.get('/searchParamedics/:keyword', searchParamedics);
 router.get('/getSpecialityDoctor/:speciality', getSpecialityDoctor);
-router.get('/getSpecialityNurse/:speciality', getSpecialityNurse);
+router.get('/getSpecialityNurse/:speciality/:staffId', getSpecialityNurse);
 router.get('/getAnesthesiologist', getAnesthesiologist);
 router.get('/getEOUNurse/:speciality', getEOUNurse);
 router.get('/getNurseTechnician/:speciality', getNurseTechnician);

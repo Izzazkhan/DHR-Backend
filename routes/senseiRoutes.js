@@ -27,6 +27,7 @@ const {
   getCurrentRadTest,
   getCriticalLabTest,
   getDischargedRequirements,
+  getEDCSPatients,
 
   // Eou Room Stats
   eouTimeInterval,
@@ -49,6 +50,7 @@ router.get('/getLabTest', getLabTest);
 router.get('/getDeceased', getDeceased);
 router.get('/availableEdBeds', availableEdBeds);
 router.get('/getEDCCPatients', getEDCCPatients);
+router.get('/getEDCSPatients', getEDCSPatients);
 router.get('/getPatientTreatment', getPatientTreatment);
 router.get('/getMedicationReconciliation', getMedicationReconciliation);
 router.get('/currentTimeInterval', currentTimeInterval);

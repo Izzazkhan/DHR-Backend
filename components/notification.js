@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const webpush = require('web-push');
 const Subscription = require('../models/subscriber/subscriber');
 const Notification = require('../models/notification/notification');
@@ -113,6 +114,26 @@ var notification = async function (
                         .sort({ $natural: -1 })
                         .then((not, err) => {
                           globalVariable.io.emit('get_data', not);
+                          // Count added
+                          Notification.aggregate([
+                            {
+                              $unwind: '$sendTo',
+                            },
+                            {
+                              $match: {
+                                $and: [
+                                  {
+                                    'sendTo.userId': mongoose.Types.ObjectId(
+                                      user[i]._id
+                                    ),
+                                  },
+                                  { 'sendTo.read': false },
+                                ],
+                              },
+                            },
+                          ]).then((count) =>
+                            globalVariable.io1.emit('count', count.length)
+                          );
                         })
                         .catch((e) => {
                           console.log('Error in Notification find : ', e);
