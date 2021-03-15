@@ -3,6 +3,7 @@ const asyncHandler = require('../middleware/async');
 const EDR = require('../models/EDR/EDR');
 const PA = require('../models/productionArea');
 const CC = require('../models/chiefComplaint/chiefComplaint');
+const CS = require('../models/CareStreams/CareStreams');
 const ErrorResponse = require('../utils/errorResponse');
 const EouTransfer = require('../models/patientTransferEDEOU/patientTransferEDEOU');
 const Room = require('../models/room');
@@ -900,6 +901,63 @@ exports.getDeceased = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: deceased,
+  });
+});
+exports.getEDCSPatients = asyncHandler(async (req, res, next) => {
+  // const patients = await EDR.find({
+  //   status: 'Discharged',
+  //   currentLocation: 'ED',
+  //   careStream: { $ne: [] },
+  //   'careStream.status': 'completed',
+  //   patientInHospital: true,
+  // }).select('patientId careStream');
+
+  const patients = await EDR.aggregate([
+    {
+      $project: {
+        status: 1,
+        currentLocation: 1,
+        careStream: 1,
+        patientId: 1,
+        patientInHospital: 1,
+      },
+    },
+    {
+      $unwind: '$careStream',
+    },
+    {
+      $match: {
+        $and: [
+          { status: 'Discharged' },
+          { currentLocation: 'ED' },
+          { 'careStream.status': 'completed' },
+          { patientInHospital: true },
+        ],
+      },
+    },
+  ]);
+
+  // console.log(patients);
+
+  const newArray = [];
+  const cs = await CS.find();
+  for (let i = 0; i < cs.length; i++) {
+    let count = 0;
+    const obj = JSON.parse(JSON.stringify(cs[i]));
+    for (let j = 0; j < patients.length; j++) {
+      if (
+        cs[i]._id.toString() === patients[j].careStream.careStreamId.toString()
+      ) {
+        count++;
+      }
+    }
+    obj.count = count;
+    newArray.push(obj);
+  }
+
+  res.status(200).json({
+    success: true,
+    data: newArray,
   });
 });
 
