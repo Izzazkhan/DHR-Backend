@@ -30,213 +30,215 @@ function setLastSixHours() {
 
 // Registration Officer Dashboard Stats
 exports.roDashboard = asyncHandler(async (req, res) => {
-  setLastSixHours();
-  // * Register Officer Registrations Per Hour
-  const patients = await Patient.aggregate([
-    {
-      $project: {
-        processTime: 1,
-        registrationStatus: 1,
+  cron.schedule('* * * * *', async () => {
+    setLastSixHours();
+    // * Register Officer Registrations Per Hour
+    const patients = await Patient.aggregate([
+      {
+        $project: {
+          processTime: 1,
+          registrationStatus: 1,
+        },
       },
-    },
-    {
-      $unwind: '$processTime',
-    },
-    {
-      $match: {
-        $and: [
-          { 'processTime.processName': 'Registration Officer' },
-          { registrationStatus: 'completed' },
-          { 'processTime.processStartTime': { $gte: sixHour } },
-          { 'processTime.processEndTime': { $lte: currentTime } },
-        ],
+      {
+        $unwind: '$processTime',
       },
-    },
-  ]);
-
-  const averageRegistrationTime = 360 / patients.length;
-  // if (averageRegistrationTime > 15) {
-  //   cron.schedule('* * * * *', () => {
-  //     // console.log('cron running every minute');
-  //     globalVariable.io.emit('roFlag', not);
-  //   });
-  // }
-
-  //* Registration Officer Completed Per Hour
-  const completedArr = [];
-  let sixthHourPatient = 0;
-  let fifthHourPatient = 0;
-  let fourthHourPatient = 0;
-  let thirdHourPatient = 0;
-  let secondHourPatient = 0;
-  let firstHourPatient = 0;
-  patients.map((p) => {
-    // let hour, patientHours;
-    if (
-      p.processTime.processStartTime > lastHour &&
-      p.processTime.processEndTime < currentTime
-    ) {
-      sixthHourPatient++;
-      // console.log('sixthHourPatient', sixthHourPatient);
-    } else if (
-      p.processTime.processStartTime > fifthHour &&
-      p.processTime.processEndTime < lastHour
-    ) {
-      fifthHourPatient++;
-    } else if (
-      p.processTime.processStartTime > fourthHour &&
-      p.processTime.processEndTime < fifthHour
-    ) {
-      fourthHourPatient++;
-    } else if (
-      p.processTime.processStartTime > thirdHour &&
-      p.processTime.processEndTime < fourthHour
-    ) {
-      thirdHourPatient++;
-    } else if (
-      p.processTime.processStartTime > secondHour &&
-      p.processTime.processEndTime < thirdHour
-    ) {
-      secondHourPatient++;
-    } else if (
-      p.processTime.processStartTime > sixHour &&
-      p.processTime.processEndTime < secondHour
-    ) {
-      firstHourPatient++;
-    }
-  });
-  completedArr.push({ label: lastHour, value: sixthHourPatient });
-  completedArr.push({ label: fifthHour, value: fifthHourPatient });
-  completedArr.push({ label: fourthHour, value: fourthHourPatient });
-  completedArr.push({ label: thirdHour, value: thirdHourPatient });
-  completedArr.push({ label: secondHour, value: secondHourPatient });
-  completedArr.push({ label: sixHour, value: firstHourPatient });
-
-  // Patients Discharge Per Hour
-  // const dischargePatient = await EDR.find({
-  //   status: 'pending',
-  // });
-
-  // Available ED Beds
-  const EdBeds = await Room.find({
-    availability: true,
-  }).countDocuments();
-
-  //   total Insured Patients
-  const edrInsured = await EDR.find({
-    paymentMethod: 'Insured',
-  }).countDocuments();
-
-  //   Total Un Insured Patients
-  const edrUnInsured = await EDR.find({
-    paymentMethod: 'Uninsured',
-  }).countDocuments();
-
-  const totalRegistrations = await Patient.aggregate([
-    {
-      $project: {
-        processTime: 1,
-        registrationStatus: 1,
+      {
+        $match: {
+          $and: [
+            { 'processTime.processName': 'Registration Officer' },
+            { registrationStatus: 'completed' },
+            { 'processTime.processStartTime': { $gte: sixHour } },
+            { 'processTime.processEndTime': { $lte: currentTime } },
+          ],
+        },
       },
-    },
-    {
-      $unwind: '$processTime',
-    },
-    {
-      $match: {
-        $and: [
-          { 'processTime.processName': 'Registration Officer' },
-          { registrationStatus: 'completed' },
-        ],
+    ]);
+
+    // const averageRegistrationTime = 360 / patients.length;
+    // if (averageRegistrationTime > 15) {
+    //   globalVariable.io.emit('roFlag', averageRegistrationTime);
+    // }
+
+    //* Registration Officer Completed Per Hour
+    const completedArr = [];
+    let sixthHourPatient = 0;
+    let fifthHourPatient = 0;
+    let fourthHourPatient = 0;
+    let thirdHourPatient = 0;
+    let secondHourPatient = 0;
+    let firstHourPatient = 0;
+    patients.map((p) => {
+      // let hour, patientHours;
+      if (
+        p.processTime.processStartTime > lastHour &&
+        p.processTime.processEndTime < currentTime
+      ) {
+        sixthHourPatient++;
+        // console.log('sixthHourPatient', sixthHourPatient);
+      } else if (
+        p.processTime.processStartTime > fifthHour &&
+        p.processTime.processEndTime < lastHour
+      ) {
+        fifthHourPatient++;
+      } else if (
+        p.processTime.processStartTime > fourthHour &&
+        p.processTime.processEndTime < fifthHour
+      ) {
+        fourthHourPatient++;
+      } else if (
+        p.processTime.processStartTime > thirdHour &&
+        p.processTime.processEndTime < fourthHour
+      ) {
+        thirdHourPatient++;
+      } else if (
+        p.processTime.processStartTime > secondHour &&
+        p.processTime.processEndTime < thirdHour
+      ) {
+        secondHourPatient++;
+      } else if (
+        p.processTime.processStartTime > sixHour &&
+        p.processTime.processEndTime < secondHour
+      ) {
+        firstHourPatient++;
+      }
+    });
+    completedArr.push({ label: lastHour, value: sixthHourPatient });
+    completedArr.push({ label: fifthHour, value: fifthHourPatient });
+    completedArr.push({ label: fourthHour, value: fourthHourPatient });
+    completedArr.push({ label: thirdHour, value: thirdHourPatient });
+    completedArr.push({ label: secondHour, value: secondHourPatient });
+    completedArr.push({ label: sixHour, value: firstHourPatient });
+
+    // Patients Discharge Per Hour
+    // const dischargePatient = await EDR.find({
+    //   status: 'pending',
+    // });
+
+    // Available ED Beds
+    const EdBeds = await Room.find({
+      availability: true,
+    }).countDocuments();
+
+    //   total Insured Patients
+    const edrInsured = await EDR.find({
+      paymentMethod: 'Insured',
+    }).countDocuments();
+
+    //   Total Un Insured Patients
+    const edrUnInsured = await EDR.find({
+      paymentMethod: 'Uninsured',
+    }).countDocuments();
+
+    const totalRegistrations = await Patient.aggregate([
+      {
+        $project: {
+          processTime: 1,
+          registrationStatus: 1,
+        },
       },
-    },
-  ]);
+      {
+        $unwind: '$processTime',
+      },
+      {
+        $match: {
+          $and: [
+            { 'processTime.processName': 'Registration Officer' },
+            { registrationStatus: 'completed' },
+          ],
+        },
+      },
+    ]);
 
-  // * 5th Card
-  const dischargePending = await EDR.find({
-    status: 'Discharged',
-    socialWorkerStatus: 'pending',
-    dischargeTimestamp: { $gte: sixHour },
-  });
+    // * 5th Card
+    const dischargePending = await EDR.find({
+      status: 'Discharged',
+      socialWorkerStatus: 'pending',
+      dischargeTimestamp: { $gte: sixHour },
+    });
 
-  const DischargeArr = [];
-  let sixthHourDischarge = 0;
-  let fifthHourDischarge = 0;
-  let fourthHourDischarge = 0;
-  let thirdHourDischarge = 0;
-  let secondHourDischarge = 0;
-  let firstHourDischarge = 0;
-  dischargePending.map((d) => {
-    if (d.dischargeTimestamp > lastHour && d.dischargeTimestamp < currentTime) {
-      sixthHourDischarge++;
-    } else if (
-      d.dischargeTimestamp > fifthHour &&
-      d.dischargeTimestamp < lastHour
-    ) {
-      fifthHourDischarge++;
-    } else if (
-      d.dischargeTimestamp > fourthHour &&
-      d.dischargeTimestamp < fifthHour
-    ) {
-      fourthHourDischarge++;
-    } else if (
-      d.dischargeTimestamp > thirdHour &&
-      d.dischargeTimestamp < fourthHour
-    ) {
-      thirdHourDischarge++;
-    } else if (
-      d.dischargeTimestamp > secondHour &&
-      d.dischargeTimestamp < thirdHour
-    ) {
-      secondHourDischarge++;
-    } else if (
-      d.dischargeTimestamp > sixHour &&
-      d.dischargeTimestamp < secondHour
-    ) {
-      firstHourDischarge++;
-    }
-  });
-  DischargeArr.push({ label: lastHour, value: sixthHourDischarge });
-  DischargeArr.push({ label: fifthHour, value: fifthHourDischarge });
-  DischargeArr.push({ label: fourthHour, value: fourthHourDischarge });
-  DischargeArr.push({ label: thirdHour, value: thirdHourDischarge });
-  DischargeArr.push({ label: secondHour, value: secondHourDischarge });
-  DischargeArr.push({ label: sixHour, value: firstHourDischarge });
+    const DischargeArr = [];
+    let sixthHourDischarge = 0;
+    let fifthHourDischarge = 0;
+    let fourthHourDischarge = 0;
+    let thirdHourDischarge = 0;
+    let secondHourDischarge = 0;
+    let firstHourDischarge = 0;
+    dischargePending.map((d) => {
+      if (
+        d.dischargeTimestamp > lastHour &&
+        d.dischargeTimestamp < currentTime
+      ) {
+        sixthHourDischarge++;
+      } else if (
+        d.dischargeTimestamp > fifthHour &&
+        d.dischargeTimestamp < lastHour
+      ) {
+        fifthHourDischarge++;
+      } else if (
+        d.dischargeTimestamp > fourthHour &&
+        d.dischargeTimestamp < fifthHour
+      ) {
+        fourthHourDischarge++;
+      } else if (
+        d.dischargeTimestamp > thirdHour &&
+        d.dischargeTimestamp < fourthHour
+      ) {
+        thirdHourDischarge++;
+      } else if (
+        d.dischargeTimestamp > secondHour &&
+        d.dischargeTimestamp < thirdHour
+      ) {
+        secondHourDischarge++;
+      } else if (
+        d.dischargeTimestamp > sixHour &&
+        d.dischargeTimestamp < secondHour
+      ) {
+        firstHourDischarge++;
+      }
+    });
+    DischargeArr.push({ label: lastHour, value: sixthHourDischarge });
+    DischargeArr.push({ label: fifthHour, value: fifthHourDischarge });
+    DischargeArr.push({ label: fourthHour, value: fourthHourDischarge });
+    DischargeArr.push({ label: thirdHour, value: thirdHourDischarge });
+    DischargeArr.push({ label: secondHour, value: secondHourDischarge });
+    DischargeArr.push({ label: sixHour, value: firstHourDischarge });
 
-  const dischargeCompleted = await EDR.find({
-    status: 'Discharged',
-    socialWorkerStatus: 'completed',
-    'survey.0.surveyTime': { $gte: sixHour },
-  });
+    const dischargeCompleted = await EDR.find({
+      status: 'Discharged',
+      socialWorkerStatus: 'completed',
+      'survey.0.surveyTime': { $gte: sixHour },
+    });
 
-  let dischargeTime = 0;
-  dischargeCompleted.map((t) => {
-    t.dischargeStart = new Date(t.dischargeTimestamp);
+    let dischargeTime = 0;
+    dischargeCompleted.map((t) => {
+      t.dischargeStart = new Date(t.dischargeTimestamp);
 
-    t.dischargeEnd = new Date(t.survey[0].surveyTime);
+      t.dischargeEnd = new Date(t.survey[0].surveyTime);
 
-    t.time = Math.round(
-      (t.dischargeEnd.getTime() - t.dischargeStart.getTime()) / (1000 * 60)
-    );
-    dischargeTime += t.time;
-  });
+      t.time = Math.round(
+        (t.dischargeEnd.getTime() - t.dischargeStart.getTime()) / (1000 * 60)
+      );
+      dischargeTime += t.time;
+    });
 
-  const dischargeTAT = dischargeTime / dischargeCompleted.length;
+    const dischargeTAT = dischargeTime / dischargeCompleted.length;
 
-  res.status(200).json({
-    success: true,
-    totalInsured: edrInsured,
-    totalUnInsured: edrUnInsured,
-    availableEdBeds: EdBeds,
-    cumulativeRegistrations: totalRegistrations.length,
-    registrationPerHour: completedArr,
-    averageTAT: averageRegistrationTime,
-    registeredPatients: patients.length,
-    fifthCard: {
-      TAT: dischargeTAT,
-      totalPending: dischargePending.length,
-      perHour: DischargeArr,
-    },
+    res.status(200).json({
+      success: true,
+      totalInsured: edrInsured,
+      totalUnInsured: edrUnInsured,
+      availableEdBeds: EdBeds,
+      cumulativeRegistrations: totalRegistrations.length,
+      registrationPerHour: completedArr,
+      averageTAT: averageRegistrationTime,
+      registeredPatients: patients.length,
+      fifthCard: {
+        TAT: dischargeTAT,
+        totalPending: dischargePending.length,
+        perHour: DischargeArr,
+      },
+    });
   });
 });
 

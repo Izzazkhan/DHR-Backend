@@ -51,6 +51,7 @@ const reports = require('./routes/reports');
 const adminDashboard = require('./routes/adminDashboard');
 const dcdFormRouter = require('./routes/dcdFormroutes');
 const ChatModel = require('./models/chatRoom/chatRoom');
+const Notification = require('./models/notification/notification');
 // const webRTCSocket = require('./lib/socket');
 const chatRouter = require('./routes/chatRoutes');
 const anesthesiaRequestRoutes = require('./routes/anesthesiaRequestRoutes');
@@ -201,6 +202,21 @@ io1.on('connection', (socket) => {
     ).then((docs) => {
       io1.emit('chat_receive', { message: msg.obj1 });
     });
+  });
+
+  socket.on('get_count', async (userId) => {
+    const count = await Notification.aggregate([
+      {
+        $unwind: '$sendTo',
+      },
+      {
+        $match: {
+          $and: [{ 'sendTo.sendTo': userId }, { 'sendTo.read': false }],
+        },
+      },
+    ]);
+
+    io1.emit('count', count.length);
   });
 });
 

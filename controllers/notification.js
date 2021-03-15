@@ -2,19 +2,19 @@ const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const Notification = require('../models/notification/notification');
 
-exports.notificationCount = asyncHandler(async (req, res, next) => {
-  const count = await Notification.find({
-    'sendTo.userId': req.params.id,
-    'sendTo.read': false,
-  }).countDocuments();
+// exports.notificationCount = asyncHandler(async (req, res, next) => {
+//   const count = await Notification.find({
+//     'sendTo.userId': req.params.id,
+//     'sendTo.read': false,
+//   }).countDocuments();
 
-  globalVariable.io.emit('get_count', count);
+//   globalVariable.io.emit('get_count', count);
 
-  res.status(200).json({
-    success: true,
-    data: count,
-  });
-});
+//   res.status(200).json({
+//     success: true,
+//     data: count,
+//   });
+// });
 
 exports.readNotifications = asyncHandler(async (req, res, next) => {
   const read = await Notification.find({
