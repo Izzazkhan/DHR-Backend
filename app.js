@@ -5,11 +5,15 @@ const http = require('http');
 const socketIO = require('socket.io');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const cron = require('node-cron');
 const webPush = require('web-push');
 const errorHandler = require('./middleware/error');
 const webRTCSocket = require('./lib/socket');
 
 // const Subscription = require('./models/subscriber/subscriber');
+// cron.schedule('* * * * *', () => {
+//   console.log('cron running every minute');
+// });
 
 // Router Files
 const patientRouter = require('./routes/patientRoutes');
@@ -47,6 +51,7 @@ const reports = require('./routes/reports');
 const adminDashboard = require('./routes/adminDashboard');
 const dcdFormRouter = require('./routes/dcdFormroutes');
 const ChatModel = require('./models/chatRoom/chatRoom');
+const Notification = require('./models/notification/notification');
 // const webRTCSocket = require('./lib/socket');
 const chatRouter = require('./routes/chatRoutes');
 const anesthesiaRequestRoutes = require('./routes/anesthesiaRequestRoutes');
@@ -197,6 +202,24 @@ io1.on('connection', (socket) => {
     ).then((docs) => {
       io1.emit('chat_receive', { message: msg.obj1 });
     });
+  });
+
+  socket.on('get_count', async (userId) => {
+    const count = await Notification.aggregate([
+      {
+        $unwind: '$sendTo',
+      },
+      {
+        $match: {
+          $and: [
+            { 'sendTo.userId': mongoose.Types.ObjectId(userId) },
+            { 'sendTo.read': false },
+          ],
+        },
+      },
+    ]);
+
+    io1.emit('count', count.length);
   });
 });
 
