@@ -143,7 +143,7 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       'Registration officer add new patient',
       'Insurance Claim Manager',
       'New Patient',
-      '/dashboard/home/patientmanagement/pendingpatients',
+      '/home/rcm/patientAssessment',
       '',
       newPatient._id,
       ''
