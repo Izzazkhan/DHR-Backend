@@ -904,14 +904,6 @@ exports.getDeceased = asyncHandler(async (req, res, next) => {
   });
 });
 exports.getEDCSPatients = asyncHandler(async (req, res, next) => {
-  // const patients = await EDR.find({
-  //   status: 'Discharged',
-  //   currentLocation: 'ED',
-  //   careStream: { $ne: [] },
-  //   'careStream.status': 'completed',
-  //   patientInHospital: true,
-  // }).select('patientId careStream');
-
   const patients = await EDR.aggregate([
     {
       $project: {

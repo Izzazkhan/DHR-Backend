@@ -1353,6 +1353,17 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       '',
       'ED Nurse'
     );
+
+    Notification(
+      'ADT_A03  ',
+      'Discharge Medication Request',
+      'Clinical Pharmacist',
+      'Pharmacist',
+      '/dashboard/home/patientlist',
+      _id,
+      '',
+      ''
+    );
   }
 
   Notification(

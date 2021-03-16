@@ -427,13 +427,13 @@ exports.searchParamedics = asyncHandler(async (req, res, next) => {
 });
 
 exports.getSpecialityDoctor = asyncHandler(async (req, res, next) => {
-  // console.log(req.params.speciality);
+  const currentStaff = await Staff.findById(req.params.staffId).select('shift');
   const doctors = await Staff.find({
     staffType: 'Doctor',
     specialty: req.params.speciality,
     $or: [{ subType: 'Internal' }, { subType: 'External' }],
     disabled: false,
-    // availability: true,
+    shift: currentStaff.shift,
   });
   // console.log(doctors);
   res.status(200).json({
@@ -499,16 +499,15 @@ exports.searchAnesthesiologist = asyncHandler(async (req, res, next) => {
 
 exports.getSpecialityNurse = asyncHandler(async (req, res, next) => {
   const currentStaff = await Staff.findById(req.params.staffId).select('shift');
-  // console.log(req.params.speciality);
+
   const nurses = await Staff.find({
     staffType: 'Nurses',
     specialty: req.params.speciality,
     subType: 'ED Nurse',
     disabled: false,
     shift: currentStaff.shift,
-    // availability: true,
   });
-  // console.log(doctors);
+
   res.status(200).json({
     success: true,
     data: nurses,
@@ -516,15 +515,16 @@ exports.getSpecialityNurse = asyncHandler(async (req, res, next) => {
 });
 
 exports.getEOUNurse = asyncHandler(async (req, res, next) => {
-  // console.log(req.params.speciality);
+  const currentStaff = await Staff.findById(req.params.staffId).select('shift');
+
   const nurses = await Staff.find({
     staffType: 'Nurses',
     specialty: req.params.speciality,
     subType: 'EOU Nurse',
     disabled: false,
-    // availability: true,
+    shift: currentStaff.shift,
   });
-  // console.log(doctors);
+
   res.status(200).json({
     success: true,
     data: nurses,
@@ -616,13 +616,13 @@ exports.searchEouNurses = asyncHandler(async (req, res, next) => {
 });
 
 exports.getNurseTechnician = asyncHandler(async (req, res, next) => {
-  // console.log(req.params.speciality);
+  const currentStaff = await Staff.findById(req.params.staffId).select('shift');
   const nurses = await Staff.find({
     staffType: 'Nurses',
     specialty: req.params.speciality,
     subType: 'Nurse Technician',
     disabled: false,
-    // availability: true,
+    shift: currentStaff.shift,
   });
   res.status(200).json({
     success: true,

@@ -254,6 +254,18 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
       '',
       'ED Nurse'
     );
+
+    // Clinical Pharmacist
+    Notification(
+      'Reconciliation Request',
+      'Care Stream Medication Request',
+      'Clinical Pharmacist',
+      '',
+      '/dashboard/home/patientlist',
+      req.body.edrId,
+      '',
+      ''
+    );
   }
 
   const assignedCareStream = await EDR.findOneAndUpdate(
