@@ -574,7 +574,7 @@ exports.sendEmail = asyncHandler(async (req, res, next) => {
         'Social Workers Assisting Patients',
         'Admin',
         'Social Workers Assisting Patients',
-        '/dashboard/home/secondaryroles/socialworkers',
+        '/home/rcm/patientAssessment',
         edrId,
         '',
         ''
