@@ -354,7 +354,7 @@ exports.assignHouseKeeper = asyncHandler(async (req, res, next) => {
     'Clean Imaging Room',
     'House Keeping',
     'Imaging Technician',
-    '/dashboard/home/housekeepingrequests',
+    '/dashboard/home/patientlist',
     '',
     ''
   );

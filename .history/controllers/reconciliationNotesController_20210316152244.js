@@ -155,7 +155,7 @@ exports.addReconciliationNotes = asyncHandler(async (req, res, next) => {
     'Patient Reconciliation Request ',
     'Doctor',
     'Clinical Pharmacist',
-    '/dashboard/home/notes',
+    '/dashboard/home/patientlist',
     parsed.edrId,
     '',
     'ED Doctor'
@@ -165,8 +165,8 @@ exports.addReconciliationNotes = asyncHandler(async (req, res, next) => {
     'Reconciliation Request',
     'Reconciliation Request',
     'Clinical Pharmacist',
-    'Reconciliation Request',
-    '/dashboard/home/pharmanotes',
+    '',
+    '/dashboard/home/patientlist',
     parsed.edrId,
     '',
     ''

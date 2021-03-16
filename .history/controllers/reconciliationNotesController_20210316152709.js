@@ -165,8 +165,8 @@ exports.addReconciliationNotes = asyncHandler(async (req, res, next) => {
     'Reconciliation Request',
     'Reconciliation Request',
     'Clinical Pharmacist',
-    'Reconciliation Request',
-    '/dashboard/home/pharmanotes',
+    '',
+    '/dashboard/home/notes',
     parsed.edrId,
     '',
     ''

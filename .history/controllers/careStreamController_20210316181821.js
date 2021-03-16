@@ -296,7 +296,7 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     'careStream Assigned',
     'Nurses',
     'CareStream',
-    '/dashboard/home/notes',
+    '/dashboard/home/patientlist',
     req.body.edrId,
     '',
     'ED Nurse'
@@ -307,7 +307,7 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     'Doctor assigned CareStream',
     'Doctor',
     'CareStream Assigned',
-    '/dashboard/home/notes',
+    '/dashboard/home/patientlist',
     req.body.edrId,
     '',
     'Rad Doctor'

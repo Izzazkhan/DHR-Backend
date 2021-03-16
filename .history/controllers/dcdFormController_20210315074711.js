@@ -129,7 +129,7 @@ exports.addPastHistory = asyncHandler(async (req, res, next) => {
     'Nurse' + staff.name[0].given[0] + 'has completed the DCD Form',
     'Doctor',
     'Nurse',
-    '/dashboard/home/notes',
+    '/dashboard/home/patientlist',
     req.body.edrId,
     '',
     'ED Doctor'

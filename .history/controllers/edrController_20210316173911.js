@@ -1327,7 +1327,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     'Patient has been Discharged',
     'Doctor',
     'Discharged',
-    '/dashboard/home/notes',
+    '/dashboard/home/patientlist',
     _id,
     '',
     'ED Doctor'
@@ -1338,7 +1338,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     'Patient has been Discharged',
     'Nurses',
     'ED Doctor',
-    '/dashboard/home/notes',
+    '/dashboard/home/patientlist',
     _id,
     '',
     'ED Nurse'
@@ -1350,7 +1350,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       'Medication For Discharged',
       'Nurses',
       'Pharmacist',
-      '/dashboard/home/notes',
+      '/dashboard/home/patientlist',
       _id,
       '',
       'ED Nurse'
@@ -1361,7 +1361,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       'Discharge Medication Request',
       'Clinical Pharmacist',
       'Pharmacist',
-      '/dashboard/home/pharmanotes',
+      '/dashboard/home/notes',
       _id,
       '',
       ''
