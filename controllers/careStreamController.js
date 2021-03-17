@@ -348,6 +348,62 @@ exports.getInProgressCS = asyncHandler(async (req, res, next) => {
       model: 'patientfhir',
       select: 'name identifier',
     },
+    {
+      path: 'consultationNote.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'consultationNote.consultant',
+      model: 'staff',
+    },
+    {
+      path: 'radRequest.serviceId',
+      model: 'RadiologyService',
+    },
+    {
+      path: 'radRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'labRequest.serviceId',
+      model: 'LaboratoryService',
+    },
+    {
+      path: 'labRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.item.itemId',
+      model: 'Item',
+    },
+    {
+      path: 'doctorNotes.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'edNurseRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'eouNurseRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'nurseTechnicianRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'anesthesiologistNote.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.reconciliationNotes.addedBy',
+      model: 'staff',
+    },
   ]);
 
   res.status(200).json({
