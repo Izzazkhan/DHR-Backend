@@ -8,6 +8,7 @@ const HK = require('../models/houseKeepingRequest');
 const Staff = require('../models/staffFhir/staff');
 const CCRequest = require('../models/customerCareRequest');
 const Notification = require('../components/notification');
+const Flag = require('../models/flag/Flag');
 
 exports.generateEDR = asyncHandler(async (req, res, next) => {
   // console.log(req.body);
@@ -98,7 +99,9 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
       'Registration Officer',
       'Paramedics',
       '/dashboard/home/pendingregistration',
-      newEDR._id
+      newEDR._id,
+      '',
+      ''
     );
   }
 
@@ -845,12 +848,6 @@ exports.addRadRequest = asyncHandler(async (req, res, next) => {
     (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
   const oneDay = 1000 * 60 * 60 * 24;
   const day = Math.floor(diff / oneDay);
-  // const edrCheck = await EDR.find({ _id: req.body.edrId }).populate(
-  //   'patientId labRequest.serviceId'
-  // );
-  // const latestEdr = edrCheck.length - 1;
-  // const latestLabRequest = edrCheck[0].labRequest.length - 1;
-  // const updatedRequest = latestLabRequest + 2;
 
   const requestId = `RR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
 
@@ -872,6 +869,27 @@ exports.addRadRequest = asyncHandler(async (req, res, next) => {
     { $push: { radRequest } },
     { new: true }
   ).populate('radRequest.serviceId');
+
+  const rads = await EDR.aggregate([
+    {
+      $project: {
+        radRequest: 1,
+      },
+    },
+    {
+      $unwind: '$radRequest',
+    },
+    {
+      $match: {
+        'radRequest.status': 'pending',
+      },
+    },
+  ]);
+
+  if (rads.length > 6) {
+    const newFlag = await Flag.create({});
+    globalVariable.io.emit('pendingRad', newFlag);
+  }
 
   Notification(
     'Rad Test',
