@@ -98,7 +98,22 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
       'Registration Officer',
       'Paramedics',
       '/dashboard/home/pendingregistration',
-      newEDR._id
+      newEDR._id,
+      '',
+      ''
+    );
+  }
+
+  if (newEDR.generatedFrom === 'Sensei') {
+    Notification(
+      'ADT_A04',
+      'Details from Sensei',
+      'Registration Officer',
+      'Sensei',
+      '/dashboard/home/pendingregistration',
+      newEDR._id,
+      '',
+      ''
     );
   }
 
