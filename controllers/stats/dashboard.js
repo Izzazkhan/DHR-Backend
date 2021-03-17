@@ -235,6 +235,10 @@ exports.itDashboard = asyncHandler(async (req, res, next) => {
       },
     },
   ]);
+  let radPendingFlag = 0;
+  if (pendingRads.length > 4) {
+    radPendingFlag = pendingRads.length;
+  }
 
   pendingRads.map((o) =>
     compareData(
@@ -365,6 +369,7 @@ exports.itDashboard = asyncHandler(async (req, res, next) => {
       TAT: orderTAT,
       totalPending: pendingRads.length,
       perHour,
+      radPendingFlag,
     },
     secondCard: {
       TAT: approvedTAT,

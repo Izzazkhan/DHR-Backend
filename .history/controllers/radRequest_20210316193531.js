@@ -355,7 +355,7 @@ exports.assignHouseKeeper = asyncHandler(async (req, res, next) => {
     'Clean Imaging Room' + productionArea.paName + room.roomNo,
     'House Keeping',
     'Imaging Technicians',
-    '/dashboard/home/housekeepingrequests',
+    '/home/rcm/patientAssessment',
     '',
     '',
     '',
