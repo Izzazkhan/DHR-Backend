@@ -870,26 +870,26 @@ exports.addRadRequest = asyncHandler(async (req, res, next) => {
     { new: true }
   ).populate('radRequest.serviceId');
 
-  const rads = await EDR.aggregate([
-    {
-      $project: {
-        radRequest: 1,
-      },
-    },
-    {
-      $unwind: '$radRequest',
-    },
-    {
-      $match: {
-        'radRequest.status': 'pending',
-      },
-    },
-  ]);
+  // const rads = await EDR.aggregate([
+  //   {
+  //     $project: {
+  //       radRequest: 1,
+  //     },
+  //   },
+  //   {
+  //     $unwind: '$radRequest',
+  //   },
+  //   {
+  //     $match: {
+  //       'radRequest.status': 'pending',
+  //     },
+  //   },
+  // ]);
 
-  if (rads.length > 6) {
-    const newFlag = await Flag.create({});
-    globalVariable.io.emit('pendingRad', newFlag);
-  }
+  // if (rads.length > 6) {
+  //   const newFlag = await Flag.create({});
+  //   globalVariable.io.emit('pendingRad', newFlag);
+  // }
 
   Notification(
     'Rad Test',
