@@ -221,6 +221,8 @@ io1.on('connection', (socket) => {
       },
     ]);
 
+    console.log('count', count.length)
+
     io1.emit('count', count.length);
   });
 

@@ -105,6 +105,30 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
     );
   }
 
+  if (newEDR.generatedFrom === 'Sensei') {
+    Notification(
+      'ADT_A04',
+      'Details from Sensei',
+      'Registration Officer',
+      'Sensei',
+      '/dashboard/home/pendingregistration',
+      newEDR._id,
+      '',
+      ''
+    );
+  }
+
+  Notification(
+    'ADT_A01',
+    'New Patient Arrived',
+    'Doctor',
+    'Paramedics',
+    '/dashboard/home/patientmanagement/careStreamPatients',
+    newEDR._id,
+    '',
+    'ED Doctor'
+  );
+
   res.status(201).json({
     success: true,
     data: newEDR,
@@ -167,7 +191,7 @@ exports.getPendingEDRs = asyncHandler(async (req, res, next) => {
       {
         path: 'patientId',
         model: 'patientfhir',
-        select: 'identifier name',
+        // select: 'identifier name',
       },
       {
         path: 'room.roomId',
@@ -589,7 +613,7 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
     'Lab Test Request',
     'Lab Technician',
     'ED Doctor',
-    '/home/rcm/patientAssessment',
+    '/dashboard/taskslist',
     req.body.edrId,
     ''
   );
@@ -662,9 +686,21 @@ exports.addConsultationNote = asyncHandler(async (req, res, next) => {
       'Ed Doctor has requested an Internal Consultant',
       'Sensei',
       'ED Doctor',
-      '/home/rcm/patientAssessment',
+      '/dashboard/home/notes',
+      parsed.edrId,
       '',
       ''
+    );
+
+    Notification(
+      'Internal Consultant Request',
+      'Ed Doctor has requested an Internal Consultant',
+      'Doctor',
+      'ED Doctor',
+      '/dashboard/home/notes',
+      parsed.edrId,
+      '',
+      'Internal'
     );
   }
 
@@ -674,9 +710,21 @@ exports.addConsultationNote = asyncHandler(async (req, res, next) => {
       'Ed Doctor has requested an External Consultant',
       'Sensei',
       'ED Doctor',
-      '/home/rcm/patientAssessment',
+      '/dashboard/home/notes',
+      parsed.edrId,
       '',
       ''
+    );
+
+    Notification(
+      'External Consultant Request',
+      'Ed Doctor has requested an External Consultant',
+      'Doctor',
+      'ED Doctor',
+      '/dashboard/home/notes',
+      parsed.edrId,
+      '',
+      'External'
     );
   }
   res.status(200).json({
@@ -896,7 +944,7 @@ exports.addRadRequest = asyncHandler(async (req, res, next) => {
     'Imaging Test Requests',
     'Imaging Technician',
     'ED Doctor',
-    '/home/rcm/patientAssessment',
+    '/dashboard/home/radiologyTasks',
     req.body.edrId,
     ''
   );
@@ -1174,7 +1222,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     'Clean ED Cell',
     'House Keeping',
     'Sensei',
-    '/home/rcm/patientAssessment',
+    '/dashboard/home/housekeepingrequests',
     '',
     _id,
     '',
@@ -1191,7 +1239,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       'Patient Admitted',
       'Social Worker',
       'Admitted',
-      '/home/rcm/patientAssessment',
+      '/dashboard/home/taskslistforsocialworker',
       _id,
       ''
     );
@@ -1206,7 +1254,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       'Patient Discharged',
       'Social Worker',
       'Discharged',
-      '/home/rcm/patientAssessment',
+      '/dashboard/home/taskslistforsocialworker',
       edr._id,
       ''
     );
@@ -1221,7 +1269,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       'Patient Transferred',
       'Social Worker',
       'Transferred',
-      '/home/rcm/patientAssessment',
+      '/dashboard/home/taskslistforsocialworker',
       edr._id,
       ''
     );
@@ -1236,7 +1284,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       'Patient Died',
       'Social Worker',
       'Deceased',
-      '/home/rcm/patientAssessment',
+      '/dashboard/home/taskslistforsocialworker',
       edr._id,
       ''
     );
@@ -1253,7 +1301,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       'Patient has been discharged/disposition without customer care',
       'Sensei',
       'ED Doctor',
-      '/home/rcm/patientAssessment',
+      '/dashboard/home/patientlist',
       '',
       ''
     );
@@ -1293,17 +1341,27 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     'Patient has been discharged/disposition with customer care',
     'Sensei',
     'ED Doctor',
-    '/home/rcm/patientAssessment',
+    '/dashboard/home/patientlist',
     '',
     ''
   );
+
+  // Notification(
+  //   'ADT_A01',
+  //   'Patient Admitted',
+  //   'House Keeping',
+  //   'Sensei',
+  //   '/dashboard/home/patientlist',
+  //   _id,
+  //   ''
+  // );
 
   Notification(
     'ADT_A03',
     'Carry the patient for disposition ',
     'Customer Care',
     'Discharge Request',
-    '/home/rcm/patientAssessment',
+    '/dashboard/home/taskslistforcustomercare',
     _id,
     ''
   );
@@ -1313,7 +1371,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     'Patient has been Discharged',
     'Doctor',
     'Discharged',
-    '/dashboard/home/patientlist',
+    '/dashboard/home/notes',
     _id,
     '',
     'ED Doctor'
@@ -1324,7 +1382,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     'Patient has been Discharged',
     'Nurses',
     'ED Doctor',
-    '/dashboard/home/patientlist',
+    '/dashboard/home/notes',
     _id,
     '',
     'ED Nurse'
@@ -1336,7 +1394,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       'Medication For Discharged',
       'Nurses',
       'Pharmacist',
-      '/dashboard/home/patientlist',
+      '/dashboard/home/notes',
       _id,
       '',
       'ED Nurse'
@@ -1347,7 +1405,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       'Discharge Medication Request',
       'Clinical Pharmacist',
       'Pharmacist',
-      '/dashboard/home/patientlist',
+      '/dashboard/home/pharmanotes',
       _id,
       '',
       ''
@@ -1358,8 +1416,8 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     'ADT_A03',
     'Patient Disposition/Discharged',
     'Insurance Claim Manager',
-    'Patient Disposition/Discharged',
-    '/home/rcm/patientAssessment',
+    'Patient Disposition OR Discharged',
+    '/dashboard/home/patientmanagement/pendingpatients',
     '',
     _id,
     ''
@@ -1511,8 +1569,8 @@ exports.addAnesthesiologistNote = asyncHandler(async (req, res, next) => {
     'Ed Doctor has requested an anesthesiologist',
     'Sensei',
     'ED Doctor',
-    '/home/rcm/patientAssessment',
-    '',
+    '/dashboard/home/notes',
+    parsed.edrId,
     '',
     ''
   );
@@ -1522,7 +1580,7 @@ exports.addAnesthesiologistNote = asyncHandler(async (req, res, next) => {
     'Ed Doctor request for anesthesiologist',
     'Doctor',
     'ED Doctor',
-    '/home/rcm/patientAssessment',
+    '/dashboard/home/notes',
     parsed.edrId,
     '',
     'Anesthesiologist'
@@ -1767,7 +1825,7 @@ exports.addNurseTechnicianRequest = asyncHandler(async (req, res, next) => {
     'New Patient Assigned',
     'Nurses',
     'ED Doctor',
-    '/home/rcm/patientAssessment',
+    '/dashboard/home/nursetechnician',
     parsed.edrId,
     '',
     'Nurse Technician'
@@ -1972,7 +2030,7 @@ exports.addPharmacyRequest = asyncHandler(async (req, res, next) => {
       addedNote.patientId.name,
     'Sensei',
     'ED Doctor',
-    '/home/rcm/patientAssessment',
+    '/dashboard/home/notes',
     req.body.edrId,
     '',
     ''
@@ -1982,7 +2040,7 @@ exports.addPharmacyRequest = asyncHandler(async (req, res, next) => {
     'Medication Requests',
     'Admin',
     'Medication Requests',
-    '/home/rcm/patientAssessment',
+    '/dashboard/home/notes',
     req.body.edrId,
     '',
     ''
@@ -2016,7 +2074,7 @@ exports.updatePharmcayRequest = asyncHandler(async (req, res, next) => {
     'Medication updated',
     'Nurses',
     'ED Doctor',
-    '/dashboard/home/patientlist',
+    '/dashboard/home/notes',
     req.body.edrId,
     '',
     'ED Nurse'
@@ -2083,7 +2141,7 @@ exports.deliverPharmcayRequest = asyncHandler(async (req, res, next) => {
     'Carry Medications from Pharmacist to ED Bed',
     'Customer Care',
     'Medications Request',
-    '/home/rcm/patientAssessment',
+    '/dashboard/home/taskslistforcustomercare',
     req.body.edrId,
     ''
   );
