@@ -912,6 +912,8 @@ exports.getEDCSPatients = asyncHandler(async (req, res, next) => {
         careStream: 1,
         patientId: 1,
         patientInHospital: 1,
+        chiefComplaint: 1,
+        room: 1,
       },
     },
     {
@@ -927,6 +929,33 @@ exports.getEDCSPatients = asyncHandler(async (req, res, next) => {
         ],
       },
     },
+    {
+      $project: {
+        chiefComplaint: 1,
+        room: 1,
+        careStream: 1,
+      },
+    },
+  ]);
+
+  const csPatients = await EDR.populate(patients, [
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      select: 'chiefComplaint.chiefComplaintId',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      ],
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
+      select: 'roomId',
+    },
   ]);
 
   // console.log(patients);
@@ -935,8 +964,9 @@ exports.getEDCSPatients = asyncHandler(async (req, res, next) => {
   const cs = await CS.find();
   for (let i = 0; i < cs.length; i++) {
     let count = 0;
-    const obj = JSON.parse(JSON.stringify(cs[i]));
+    let obj = {};
     for (let j = 0; j < patients.length; j++) {
+      obj = JSON.parse(JSON.stringify(patients[j]));
       if (
         cs[i]._id.toString() === patients[j].careStream.careStreamId.toString()
       ) {
