@@ -21,7 +21,23 @@ exports.addCommunicationRequest = asyncHandler(async (req, res, next) => {
 
   const sender = await staff
     .findOne({ _id: generatedById })
-    .select('telecom staffType');
+    .select(
+      'telecom staffType name identifier subType chiefComplaint.chiefComplaintId'
+    )
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+    ]);
   const receiver = await staff.find({ staffType: 'Admin' }).select('telecom ');
 
   const filteredEmails = [];
@@ -63,18 +79,31 @@ exports.addCommunicationRequest = asyncHandler(async (req, res, next) => {
     requestId: CRequestNo,
   });
 
-  // if (sender.staffType === 'Sensei') {
-  //   Notification(
-  //     'Communication Request',
-  //     'Request from Sensei',
-  //     'Nurses',
-  //     'Pharmacist',
-  //     '/dashboard/home/patientlist',
-  //     req.body.edrId,
-  //     '',
-  //     'ED Nurse'
-  //   );
-  // }
+  if (sender.staffType === 'Sensei') {
+    Notification(
+      'Request from Sensei',
+      CRequestNo + sender.chiefComplaint + sender.identifier + sender.name,
+      'Admin',
+      'Communication Request',
+      '/dashboard/home/patientlist',
+      req.body.edrId,
+      '',
+      'ED Nurse'
+    );
+  }
+
+  if (sender.staffType === 'Doctor' && sender.subType === 'ED Doctor') {
+    Notification(
+      'Request from ED Doctor',
+      CRequestNo + sender.identifier + sender.name,
+      'Admin',
+      'Communication Request',
+      '/dashboard/home/patientlist',
+      req.body.edrId,
+      '',
+      'ED Nurse'
+    );
+  }
 
   res.status(201).json({
     success: true,

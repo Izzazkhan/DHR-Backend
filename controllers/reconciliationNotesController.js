@@ -161,6 +161,17 @@ exports.addReconciliationNotes = asyncHandler(async (req, res, next) => {
     'ED Doctor'
   );
 
+  Notification(
+    'Reconciliation Request',
+    'Reconciliation Request',
+    'Clinical Pharmacist',
+    '',
+    '/dashboard/home/patientlist',
+    parsed.edrId,
+    '',
+    ''
+  );
+
   res.status(200).json({
     success: true,
     data: addedNote,

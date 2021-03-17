@@ -1150,6 +1150,19 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     assignedTime: Date.now(),
   });
 
+  // HouseKeeping Notification
+  Notification(
+    'ADT_A03',
+    'Clean ED Cell',
+    'House Keeping',
+    'Sensei',
+    '/home/rcm/patientAssessment',
+    '',
+    _id,
+    '',
+    ''
+  );
+
   // Social Worker Notifications
   if (
     req.body.dischargeRequest.dischargeSummary.edrCompletionReason ===
@@ -1309,6 +1322,17 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       _id,
       '',
       'ED Nurse'
+    );
+
+    Notification(
+      'ADT_A03  ',
+      'Discharge Medication Request',
+      'Clinical Pharmacist',
+      'Pharmacist',
+      '/dashboard/home/patientlist',
+      _id,
+      '',
+      ''
     );
   }
 

@@ -3,6 +3,8 @@ const EDR = require('../models/EDR/EDR');
 const HK = require('../models/houseKeepingRequest');
 const asyncHandler = require('../middleware/async');
 const Notification = require('../components/notification');
+const Room = require('../models/room');
+const PA = require('../models/productionArea');
 
 exports.getPendingRadEdr = asyncHandler(async (req, res, next) => {
   const unwindEdr = await EDR.aggregate([
@@ -346,6 +348,19 @@ exports.assignHouseKeeper = asyncHandler(async (req, res, next) => {
     task,
     assignedTime: Date.now(),
   });
+  const productionArea = await PA.findById(productionAreaId);
+  const room = await Room.findById(roomId);
+  Notification(
+    'Clean Room',
+    'Clean Imaging Room' + productionArea.paName + room.roomNo,
+    'House Keeping',
+    'Imaging Technicians',
+    '/home/rcm/patientAssessment',
+    '',
+    '',
+    '',
+    ''
+  );
   res.status(200).json({
     success: true,
     data: assignedHK,
