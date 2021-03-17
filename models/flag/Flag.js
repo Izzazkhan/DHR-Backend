@@ -1,18 +1,18 @@
 const mongoose = require('mongoose');
 
-const FlagMgntSchema = new mongoose.Schema(
+const FlagSchema = new mongoose.Schema(
   {
     edrId: {
       type: mongoose.Schema.ObjectId,
       ref: 'EDR',
     },
     // Other Staff
-    generatedBy: {
+    generatedFrom: {
       type: mongoose.Schema.ObjectId,
       ref: 'staff',
     },
     // Sensei
-    generatedTo: {
+    generatedFor: {
       type: mongoose.Schema.ObjectId,
       ref: 'staff',
     },
@@ -36,4 +36,4 @@ const FlagMgntSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-module.exports = mongoose.model('FlagMgnt', FlagMgntSchema);
+module.exports = mongoose.model('Flag', FlagSchema);
