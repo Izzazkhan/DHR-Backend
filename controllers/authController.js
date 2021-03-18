@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
 const Staff = require('../models/staffFhir/staff');
+const Subscriber = require('../models/subscriber/subscriber');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 
@@ -71,4 +72,12 @@ exports.protect = asyncHandler(async (req, res, next) => {
   }
   req.user = currentUser;
   next();
+});
+
+
+exports.logout = asyncHandler(async (req, res, next) => {
+  const { userId, token } = req.body;
+  let data;
+   await Subscriber.deleteMany({ user:userId  });
+  return res.json({success: true, msg:"Subscription Removed"})
 });
