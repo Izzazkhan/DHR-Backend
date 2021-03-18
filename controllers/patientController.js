@@ -490,78 +490,81 @@ exports.getApprovedPatientById = asyncHandler(async (req, res, next) => {
 });
 
 exports.getApprovedPatientByKeyword = asyncHandler(async (req, res, next) => {
-  const patient = await patientFHIR
-    .aggregate([
-      {
-        $match: {
-          registrationStatus: 'completed',
-          $or: [
-            {
-              'name.given': { $regex: req.params.keyword, $options: 'i' },
-            },
-            {
-              'name.family': { $regex: req.params.keyword, $options: 'i' },
-            },
-            {
-              'identifier.value': { $regex: req.params.keyword, $options: 'i' },
-            },
-            { nationalID: { $regex: req.params.keyword, $options: 'i' } },
-            {
-              'telecom.value': {
-                $regex: req.params.keyword,
-                $options: 'i',
-              },
-            },
-          ],
-        },
-      },
-    ])
-    .limit(50);
-  // console.log(patient);
-  if (!patient) {
-    return next(new ErrorResponse('No Patient Found With this keyword', 404));
+  const patients = await patientFHIR.find({ registrationStatus: 'completed' });
+
+  const arr = [];
+  for (let i = 0; i < patients.length; i++) {
+    const fullName =
+      patients[i].name[0].given[0] + ' ' + patients[i].name[0].family;
+    if (
+      (patients[i].name[0].given[0] &&
+        patients[i].name[0].given[0]
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (patients[i].name[0].family &&
+        patients[i].name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (patients[i].identifier[0].value &&
+        patients[i].identifier[0].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
+      (patients[i].telecom[1].value &&
+        patients[i].telecom[1].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (patients[i].nationalID &&
+        patients[i].nationalID
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase()))
+    ) {
+      arr.push(patients[i]);
+    }
   }
+
   res.status(200).json({
     success: true,
-    data: patient,
+    data: arr,
   });
 });
 
 exports.getPendingPatientByKeyword = asyncHandler(async (req, res, next) => {
-  const patient = await patientFHIR
-    .aggregate([
-      {
-        $match: {
-          registrationStatus: 'pending',
-          $or: [
-            {
-              'name.given': { $regex: req.params.keyword, $options: 'i' },
-            },
-            {
-              'name.family': { $regex: req.params.keyword, $options: 'i' },
-            },
-            {
-              'identifier.value': { $regex: req.params.keyword, $options: 'i' },
-            },
-            { nationalID: { $regex: req.params.keyword, $options: 'i' } },
-            {
-              'telecom.value': {
-                $regex: req.params.keyword,
-                $options: 'i',
-              },
-            },
-          ],
-        },
-      },
-    ])
-    .limit(50);
-  // console.log(patient);
-  if (!patient) {
-    return next(new ErrorResponse('No Patient Found With this keyword', 404));
+  const patients = await patientFHIR.find({ registrationStatus: 'pending' });
+
+  const arr = [];
+  for (let i = 0; i < patients.length; i++) {
+    const fullName =
+      patients[i].name[0].given[0] + ' ' + patients[i].name[0].family;
+    if (
+      (patients[i].name[0].given[0] &&
+        patients[i].name[0].given[0]
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (patients[i].name[0].family &&
+        patients[i].name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (patients[i].identifier[0].value &&
+        patients[i].identifier[0].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
+      (patients[i].telecom[1].value &&
+        patients[i].telecom[1].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (patients[i].nationalID &&
+        patients[i].nationalID
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase()))
+    ) {
+      arr.push(patients[i]);
+    }
   }
   res.status(200).json({
     success: true,
-    data: patient,
+    data: arr,
   });
 });
 
