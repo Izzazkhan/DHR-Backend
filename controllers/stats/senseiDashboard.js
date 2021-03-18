@@ -55,6 +55,7 @@ exports.senseiDashboard = asyncHandler(async (req, res, next) => {
     availability: true,
   }).countDocuments();
 
+  // * 1st Card
   const patientsPendingForProductionArea = await EDR.find({
     chiefComplaint: { $eq: [] },
     createdTimeStamp: { $gte: sixHour },
@@ -81,8 +82,10 @@ exports.senseiDashboard = asyncHandler(async (req, res, next) => {
     compareDataForSixHours(p.createdTimeStamp);
   });
 
-  let pendingPAPerHour = JSON.parse(JSON.stringify(arr));
+  const pendingPAPerHour = JSON.parse(JSON.stringify(arr));
   clearAllTime();
+
+  // * 2nd Card
 
   const patientTriagePending = await EDR.find({
     // status: 'pending',
@@ -118,6 +121,7 @@ exports.senseiDashboard = asyncHandler(async (req, res, next) => {
   const perHourTriagePending = JSON.parse(JSON.stringify(arr));
   clearAllTime();
 
+  // * 3rd Card
   //diagnose pending
   const diagnosePending = await EDR.find({
     status: 'pending',
@@ -338,9 +342,73 @@ exports.senseiDashboard = asyncHandler(async (req, res, next) => {
   });
 
   const completedRadTAT = radTime / completedRad.length;
-  const cumulativePatient = await EDR.find().countDocuments();
 
-  // * 3rd Card
+  // * 7th Card
+
+  const patientTreatmentsPending = await EDR.aggregate([
+    {
+      $project: {
+        pharmacyRequest: 1,
+      },
+    },
+    {
+      $unwind: '$pharmacyRequest',
+    },
+    {
+      $match: {
+        $and: [
+          { 'pharmacyRequest.createdAt': { $gte: sixHour } },
+          { 'pharmacyRequest.status': { $ne: 'closed' } },
+        ],
+      },
+    },
+  ]);
+
+  patientTreatmentsPending.map((p) => {
+    compareDataForSixHours(p.pharmacyRequest.createdAt);
+  });
+
+  const perHourTreatmentsPending = JSON.parse(JSON.stringify(arr));
+  clearAllTime();
+
+  const patientWithDiagnosisToMedication = await EDR.aggregate([
+    {
+      $project: {
+        doctorNotes: 1,
+        pharmacyRequest: 1,
+      },
+    },
+    {
+      $unwind: '$doctorNotes',
+    },
+    {
+      $unwind: '$pharmacyRequest',
+    },
+    {
+      $match: {
+        $and: [
+          { 'pharmacyRequest.status': { $eq: 'closed' } },
+          { 'doctorNotes.assignedTime': { $gte: sixHour } },
+        ],
+      },
+    },
+  ]);
+
+  let totalTimeBetweenDiagnosisToMed = 0;
+  patientWithDiagnosisToMedication.forEach((t) => {
+    t.createdTimeStamp = new Date(t.doctorNotes.assignedTime);
+    t.completedTime = new Date(t.pharmacyRequest.completedTime);
+    t.time = Math.round(
+      (t.completedTime.getTime() - t.createdTimeStamp.getTime()) / (1000 * 60)
+    );
+    totalTimeBetweenDiagnosisToMed += t.time;
+  });
+  const TATForDiagnosisToMed =
+    patientWithDiagnosisToMedication.length > 0
+      ? totalTimeBetweenDiagnosisToMed / patientWithDiagnosisToMedication.length
+      : 0;
+
+  // * 9th Card
   const dischargePending = await EDR.find({
     status: 'Discharged',
     socialWorkerStatus: 'pending',
@@ -372,6 +440,8 @@ exports.senseiDashboard = asyncHandler(async (req, res, next) => {
 
   const dischargeTAT = dischargeTime / dischargeCompleted.length;
 
+  // * 10th Card
+
   //per hour assignment
   const totalEDRInLastSixHours = await EDR.find({
     createdTimeStamp: { $gte: sixHour },
@@ -381,7 +451,7 @@ exports.senseiDashboard = asyncHandler(async (req, res, next) => {
     dischargeTimestamp: { $gte: sixHour },
     status: 'Discharged',
   });
-  let timeFromCreationToDischarged = 0;
+  const timeFromCreationToDischarged = 0;
   dischargedEdrWithInSixHours.map((t) => {
     t.dischargeStart = new Date(t.dischargeTimestamp);
     t.dischargeEnd = new Date(t.createdTimeStamp);
@@ -402,251 +472,7 @@ exports.senseiDashboard = asyncHandler(async (req, res, next) => {
   const edrWithSixHours = JSON.parse(JSON.stringify(arr));
   clearAllTime();
 
-  //   //* 4th Card
-  //   const consultantNotes = await EDR.aggregate([
-  //     {
-  //       $project: {
-  //         consultationNote: 1,
-  //         status: 1,
-  //       },
-  //     },
-  //     {
-  //       $unwind: '$consultationNote',
-  //     },
-  //     {
-  //       $match: {
-  //         $and: [
-  //           { status: 'pending' },
-  //           {
-  //             'consultationNote.status': 'pending',
-  //           },
-  //           {
-  //             'consultationNote.noteTime': { $gte: sixHour },
-  //           },
-  //           {
-  //             'consultationNote.noteTime': { $lte: currentTime },
-  //           },
-  //         ],
-  //       },
-  //     },
-  //   ]);
-
-  //   const fourthCardArr = [];
-  //   let sixthHourNote = 0;
-  //   let fifthHourNote = 0;
-  //   let fourthHourNote = 0;
-  //   let thirdHourNote = 0;
-  //   let secondHourNote = 0;
-  //   let firstHourNote = 0;
-  //   consultantNotes.map((n) => {
-  //     if (
-  //       n.consultationNote.noteTime > lastHour &&
-  //       n.consultationNote.noteTime < currentTime
-  //     ) {
-  //       sixthHourNote++;
-  //       // console.log('sixthHourNote', sixthHourNote);
-  //     } else if (
-  //       n.consultationNote.noteTime > fifthHour &&
-  //       n.consultationNote.noteTime < lastHour
-  //     ) {
-  //       fifthHourNote++;
-  //     } else if (
-  //       n.consultationNote.noteTime > fourthHour &&
-  //       n.consultationNote.noteTime < fifthHour
-  //     ) {
-  //       fourthHourNote++;
-  //     } else if (
-  //       n.consultationNote.noteTime > thirdHour &&
-  //       n.consultationNote.noteTime < fourthHour
-  //     ) {
-  //       thirdHourNote++;
-  //     } else if (
-  //       n.consultationNote.noteTime > secondHour &&
-  //       n.consultationNote.noteTime < thirdHour
-  //     ) {
-  //       secondHourNote++;
-  //     } else if (
-  //       n.consultationNote.noteTime > sixHour &&
-  //       n.consultationNote.noteTime < secondHour
-  //     ) {
-  //       firstHourNote++;
-  //     }
-  //   });
-  //   fourthCardArr.push({ label: lastHour, value: sixthHourNote });
-  //   fourthCardArr.push({ label: fifthHour, value: fifthHourNote });
-  //   fourthCardArr.push({ label: fourthHour, value: fourthHourNote });
-  //   fourthCardArr.push({ label: thirdHour, value: thirdHourNote });
-  //   fourthCardArr.push({ label: secondHour, value: secondHourNote });
-  //   fourthCardArr.push({ label: sixHour, value: firstHourNote });
-
-  //   // tat
-  //   const consultantCompletedNotes = await EDR.aggregate([
-  //     {
-  //       $project: {
-  //         consultationNote: 1,
-  //         status: 1,
-  //       },
-  //     },
-  //     {
-  //       $unwind: '$consultationNote',
-  //     },
-  //     {
-  //       $match: {
-  //         $and: [
-  //           { status: 'pending' },
-  //           {
-  //             'consultationNote.status': 'complete',
-  //           },
-  //           {
-  //             'consultationNote.noteTime': { $gte: sixHour },
-  //           },
-  //           {
-  //             'consultationNote.noteTime': { $lte: currentTime },
-  //           },
-  //         ],
-  //       },
-  //     },
-  //   ]);
-
-  //   let completed = 0;
-  //   consultantCompletedNotes.map((t) => {
-  //     t.noteStart = new Date(t.consultationNote.noteTime);
-
-  //     t.noteEnd = new Date(t.consultationNote.completionDate);
-
-  //     t.time = Math.round(
-  //       (t.noteEnd.getTime() - t.noteStart.getTime()) / (1000 * 60)
-  //     );
-  //     completed += t.time;
-  //   });
-
-  //   const completedNoteTAT = completed / consultantCompletedNotes.length;
-
-  //   // current no of patients per doctor
-  //   const totalPatients = await EDR.find({
-  //     doctorNotes: { $ne: [] },
-  //     status: 'pending',
-  //   });
-
-  //   // //* Patients Diagnosed Per Hour
-  //   const patientsDiagnosed = await EDR.find({
-  //     doctorNotes: { $ne: [] },
-  //     'doctorNotes.0.assignedTime': { $gte: sixHour },
-  //   });
-
-  //   const diagnosedPerHour = Math.round(patientsDiagnosed.length / 6);
-
-  //   // * 7th Card
-  //   const pharmacyPending = await EDR.aggregate([
-  //     {
-  //       $project: {
-  //         pharmacyRequest: 1,
-  //       },
-  //     },
-  //     {
-  //       $unwind: '$pharmacyRequest',
-  //     },
-  //     {
-  //       $match: {
-  //         $and: [
-  //           { 'pharmacyRequest.status': { $ne: 'closed' } },
-  //           { 'pharmacyRequest.createdAt': { $gte: sixHour } },
-  //           { 'pharmacyRequest.createdAt': { $lte: currentTime } },
-  //         ],
-  //       },
-  //     },
-  //   ]);
-
-  //   // console.log(pharmacyPending);
-
-  //   const pharmacyArr = [];
-  //   let sixthHourPharmacy = 0;
-  //   let fifthHourPharmacy = 0;
-  //   let fourthHourPharmacy = 0;
-  //   let thirdHourPharmacy = 0;
-  //   let secondHourPharmacy = 0;
-  //   let firstHourPharmacy = 0;
-  //   pharmacyPending.map((p) => {
-  //     if (
-  //       p.pharmacyRequest.createdAt > lastHour &&
-  //       p.pharmacyRequest.createdAt < currentTime
-  //     ) {
-  //       sixthHourPharmacy++;
-  //       // console.log('sixthHourPharmacy', sixthHourPharmacy);
-  //     } else if (
-  //       p.pharmacyRequest.createdAt > fifthHour &&
-  //       p.pharmacyRequest.createdAt < lastHour
-  //     ) {
-  //       fifthHourPharmacy++;
-  //     } else if (
-  //       p.pharmacyRequest.createdAt > fourthHour &&
-  //       p.pharmacyRequest.createdAt < fifthHour
-  //     ) {
-  //       fourthHourPharmacy++;
-  //     } else if (
-  //       p.pharmacyRequest.createdAt > thirdHour &&
-  //       p.pharmacyRequest.createdAt < fourthHour
-  //     ) {
-  //       thirdHourPharmacy++;
-  //     } else if (
-  //       p.pharmacyRequest.createdAt > secondHour &&
-  //       p.pharmacyRequest.createdAt < thirdHour
-  //     ) {
-  //       secondHourPharmacy++;
-  //     } else if (
-  //       p.pharmacyRequest.createdAt > sixHour &&
-  //       p.pharmacyRequest.createdAt < secondHour
-  //     ) {
-  //       firstHourPharmacy++;
-  //     }
-  //   });
-  //   pharmacyArr.push({ label: lastHour, value: sixthHourPharmacy });
-  //   pharmacyArr.push({ label: fifthHour, value: fifthHourPharmacy });
-  //   pharmacyArr.push({ label: fourthHour, value: fourthHourPharmacy });
-  //   pharmacyArr.push({ label: thirdHour, value: thirdHourPharmacy });
-  //   pharmacyArr.push({ label: secondHour, value: secondHourPharmacy });
-  //   pharmacyArr.push({ label: sixHour, value: firstHourPharmacy });
-
-  //   // TAT
-  //   const pharmacyCompleted = await EDR.aggregate([
-  //     {
-  //       $project: {
-  //         pharmacyRequest: 1,
-  //       },
-  //     },
-  //     {
-  //       $unwind: '$pharmacyRequest',
-  //     },
-  //     {
-  //       $match: {
-  //         $and: [
-  //           { 'pharmacyRequest.status': 'delivered' },
-  //           { 'pharmacyRequest.deliveredTime': { $gte: sixHour } },
-  //           { 'pharmacyRequest.deliveredTime': { $lte: currentTime } },
-  //         ],
-  //       },
-  //     },
-  //   ]);
-
-  //   let pharmacyTime = 0;
-  //   pharmacyCompleted.map((t) => {
-  //     t.pharmStart = new Date(t.pharmacyRequest.createdAt);
-
-  //     t.pharmEnd = new Date(t.pharmacyRequest.deliveredTime);
-
-  //     t.time = Math.round(
-  //       (t.pharmEnd.getTime() - t.pharmStart.getTime()) / (1000 * 60)
-  //     );
-  //     pharmacyTime += t.time;
-  //   });
-
-  //   const completedPharmTAT = pharmacyTime / pharmacyCompleted.length;
-
-  //   // Current No of Patients Per Doctor
-  //   // const pendingPatients = await EDR.find({
-  //   //   status: 'pending',
-  //   //   currentLocation: 'ED',
-  //   // });
+  const cumulativePatient = await EDR.find().countDocuments();
 
   res.status(200).json({
     success: true,
@@ -684,12 +510,11 @@ exports.senseiDashboard = asyncHandler(async (req, res, next) => {
       totalPending: pendingRad.length,
       perHour: radPendingPerHour,
     },
-    // seventhCard: {
-    //   TAT: completedPharmTAT,
-    //   totalPending: pharmacyPending.length,
-    //   perHour: pharmacyArr,
-    // },
-    // diagnosedPerHour,
+    seventhCard: {
+      TAT: TATForDiagnosisToMed,
+      totalPending: patientTreatmentsPending.length,
+      perHour: perHourTreatmentsPending,
+    },
 
     ninthCard: {
       TAT: dischargeTAT,

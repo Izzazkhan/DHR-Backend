@@ -274,7 +274,7 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     { new: true }
   );
 
-  const currentStaff = await Staff.findById(req.body.staffId).select(
+  const currentStaff = await Staff.findById(req.body.data.staffId).select(
     'staffType'
   );
 
