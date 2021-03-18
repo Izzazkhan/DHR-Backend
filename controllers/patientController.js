@@ -121,9 +121,9 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       'Patient Details',
       'Sensei',
       'Registration Officer',
-      '/home/rcm/patientAssessment',
+      '/dashboard/home/patientmanagement/patientregistration',
       '',
-      newPatient._id,
+      newPatient,
       ''
     );
 
@@ -132,7 +132,7 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       'Patient Details from registration officer',
       'Cashier',
       'Registration Officer',
-      '/home/rcm/patientAssessment',
+      '/dashboard/home/patientclearence/add',
       '',
       newPatient._id,
       ''
@@ -143,7 +143,7 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       'Registration officer add new patient',
       'Insurance Claim Manager',
       'New Patient',
-      '/home/rcm/patientAssessment',
+      '/dashboard/home/patientmanagement/pendingpatients',
       '',
       newPatient._id,
       ''
@@ -267,7 +267,7 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
         'Details from Sensei',
         'Registration Officer',
         'Sensei',
-        '/home/rcm/patientAssessment',
+        '/dashboard/home/pendingregistration',
         edr._id,
         ''
       );
@@ -283,7 +283,7 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
         'Details from Paramedics',
         'Registration Officer',
         'Paramedics',
-        '/home/rcm/patientAssessment',
+        '/dashboard/home/pendingregistration',
         edr._id,
         ''
       );
@@ -293,7 +293,7 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
         'Patient Details',
         'Sensei',
         'Paramedics',
-        '/home/rcm/patientAssessment',
+        '/dashboard/home/patientmanagement/patientregistration',
         edr._id,
         ''
       );
@@ -309,7 +309,7 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
         'Patient Details',
         'Sensei',
         'Registration Officer',
-        '/home/rcm/patientAssessment',
+        '/dashboard/home/patientmanagement/patientregistration',
         '',
         patient._id
       );
@@ -396,8 +396,8 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
         'ADT_A04',
         'Patient Details',
         'Sensei',
-        'Registration Officer',
-        '/home/rcm/patientAssessment',
+        'Registration Officerr',
+        '/dashboard/home/patientmanagement/patientregistration',
         '',
         patient._id
       );
@@ -490,78 +490,81 @@ exports.getApprovedPatientById = asyncHandler(async (req, res, next) => {
 });
 
 exports.getApprovedPatientByKeyword = asyncHandler(async (req, res, next) => {
-  const patient = await patientFHIR
-    .aggregate([
-      {
-        $match: {
-          registrationStatus: 'completed',
-          $or: [
-            {
-              'name.given': { $regex: req.params.keyword, $options: 'i' },
-            },
-            {
-              'name.family': { $regex: req.params.keyword, $options: 'i' },
-            },
-            {
-              'identifier.value': { $regex: req.params.keyword, $options: 'i' },
-            },
-            { nationalID: { $regex: req.params.keyword, $options: 'i' } },
-            {
-              'telecom.value': {
-                $regex: req.params.keyword,
-                $options: 'i',
-              },
-            },
-          ],
-        },
-      },
-    ])
-    .limit(50);
-  // console.log(patient);
-  if (!patient) {
-    return next(new ErrorResponse('No Patient Found With this keyword', 404));
+  const patients = await patientFHIR.find({ registrationStatus: 'completed' });
+
+  const arr = [];
+  for (let i = 0; i < patients.length; i++) {
+    const fullName =
+      patients[i].name[0].given[0] + ' ' + patients[i].name[0].family;
+    if (
+      (patients[i].name[0].given[0] &&
+        patients[i].name[0].given[0]
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (patients[i].name[0].family &&
+        patients[i].name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (patients[i].identifier[0].value &&
+        patients[i].identifier[0].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
+      (patients[i].telecom[1].value &&
+        patients[i].telecom[1].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (patients[i].nationalID &&
+        patients[i].nationalID
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase()))
+    ) {
+      arr.push(patients[i]);
+    }
   }
+
   res.status(200).json({
     success: true,
-    data: patient,
+    data: arr,
   });
 });
 
 exports.getPendingPatientByKeyword = asyncHandler(async (req, res, next) => {
-  const patient = await patientFHIR
-    .aggregate([
-      {
-        $match: {
-          registrationStatus: 'pending',
-          $or: [
-            {
-              'name.given': { $regex: req.params.keyword, $options: 'i' },
-            },
-            {
-              'name.family': { $regex: req.params.keyword, $options: 'i' },
-            },
-            {
-              'identifier.value': { $regex: req.params.keyword, $options: 'i' },
-            },
-            { nationalID: { $regex: req.params.keyword, $options: 'i' } },
-            {
-              'telecom.value': {
-                $regex: req.params.keyword,
-                $options: 'i',
-              },
-            },
-          ],
-        },
-      },
-    ])
-    .limit(50);
-  // console.log(patient);
-  if (!patient) {
-    return next(new ErrorResponse('No Patient Found With this keyword', 404));
+  const patients = await patientFHIR.find({ registrationStatus: 'pending' });
+
+  const arr = [];
+  for (let i = 0; i < patients.length; i++) {
+    const fullName =
+      patients[i].name[0].given[0] + ' ' + patients[i].name[0].family;
+    if (
+      (patients[i].name[0].given[0] &&
+        patients[i].name[0].given[0]
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (patients[i].name[0].family &&
+        patients[i].name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (patients[i].identifier[0].value &&
+        patients[i].identifier[0].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
+      (patients[i].telecom[1].value &&
+        patients[i].telecom[1].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (patients[i].nationalID &&
+        patients[i].nationalID
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase()))
+    ) {
+      arr.push(patients[i]);
+    }
   }
   res.status(200).json({
     success: true,
-    data: patient,
+    data: arr,
   });
 });
 

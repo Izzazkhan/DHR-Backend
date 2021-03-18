@@ -249,7 +249,7 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
       'Medication Of CareStream',
       'Nurses',
       'Pharmacist',
-      '/dashboard/home/patientlist',
+      '/dashboard/home/notes',
       req.body.edrId,
       '',
       'ED Nurse'
@@ -257,11 +257,11 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
 
     // Clinical Pharmacist
     Notification(
-      'Reconciliation Request',
+      'Care Stream Medication Request',
       'Care Stream Medication Request',
       'Clinical Pharmacist',
-      '',
-      '/dashboard/home/patientlist',
+      'CareStream Assigned',
+      '/dashboard/home/pharmanotes',
       req.body.edrId,
       '',
       ''
@@ -274,7 +274,7 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     { new: true }
   );
 
-  const currentStaff = await Staff.findById(req.body.staffId).select(
+  const currentStaff = await Staff.findById(req.body.data.staffId).select(
     'staffType'
   );
 
@@ -296,7 +296,7 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     'careStream Assigned',
     'Nurses',
     'CareStream',
-    '/dashboard/home/patientlist',
+    '/dashboard/home/notes',
     req.body.edrId,
     '',
     'ED Nurse'
@@ -306,8 +306,8 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     'careStream Assigned',
     'Doctor assigned CareStream',
     'Doctor',
-    'CareStream',
-    '/dashboard/home/patientlist',
+    'CareStream Assigned',
+    '/dashboard/home/notes',
     req.body.edrId,
     '',
     'Rad Doctor'
@@ -480,19 +480,22 @@ exports.getPatientsWithCSByKeyword = asyncHandler(async (req, res, next) => {
     {
       path: 'chiefComplaint.chiefComplaintId',
       model: 'chiefComplaint',
-
       populate: [
         {
           path: 'productionArea.productionAreaId',
           model: 'productionArea',
-          // populate: [
-          //   {
-          //     path: 'rooms.roomId',
-          //     model: 'room',
-          //   },
-          // ],
+          populate: [
+            {
+              path: 'rooms.roomId',
+              model: 'room',
+            },
+          ],
         },
       ],
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
     },
     {
       path: 'patientId',
@@ -511,12 +514,56 @@ exports.getPatientsWithCSByKeyword = asyncHandler(async (req, res, next) => {
       model: 'staff',
     },
     {
+      path: 'room.roomId',
+      model: 'room',
+    },
+    {
       path: 'radRequest.serviceId',
       model: 'RadiologyService',
     },
     {
+      path: 'radRequest.requestedBy',
+      model: 'staff',
+    },
+    {
       path: 'labRequest.serviceId',
       model: 'LaboratoryService',
+    },
+    {
+      path: 'labRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.item.itemId',
+      model: 'Item',
+    },
+    {
+      path: 'doctorNotes.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'edNurseRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'eouNurseRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'nurseTechnicianRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'anesthesiologistNote.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.reconciliationNotes.addedBy',
+      model: 'staff',
     },
   ]);
 

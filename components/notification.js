@@ -51,7 +51,7 @@ var notification = async function (
           sendFrom: sendFrom,
           roPatient: roPatient,
         })
-          .then((newNot) => console.log('notification created', newNot))
+          .then((newNot) => {})
           .catch((error) => {
             console.log('Catch notify create err : ', error);
           });
@@ -64,7 +64,7 @@ var notification = async function (
           sendFrom: sendFrom,
           patient: patientId,
         })
-          .then((newNot) => console.log('notification created', newNot))
+          .then((newNot) => {})
           .catch((error) => {
             console.log('Catch notify create err : ', error);
           });
@@ -132,7 +132,7 @@ var notification = async function (
                               },
                             },
                           ]).then((count) =>
-                            globalVariable.io1.emit('count', count.length)
+                            globalVariable.io.emit('count', count.length)
                           );
                         })
                         .catch((e) => {
