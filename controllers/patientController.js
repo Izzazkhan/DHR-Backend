@@ -268,7 +268,7 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
         'Registration Officer',
         'Sensei',
         '/dashboard/home/pendingregistration',
-        edr._id,
+        edr && edr.length > 0 && edr._id,
         ''
       );
     }
@@ -284,7 +284,7 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
         'Registration Officer',
         'Paramedics',
         '/dashboard/home/pendingregistration',
-        edr._id,
+        edr && edr.length > 0 && edr._id,
         ''
       );
 
@@ -294,7 +294,7 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
         'Sensei',
         'Paramedics',
         '/dashboard/home/patientmanagement/patientregistration',
-        edr._id,
+        edr && edr.length > 0 && edr._id,
         ''
       );
     }
@@ -396,7 +396,7 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
         'ADT_A04',
         'Patient Details',
         'Sensei',
-        'Registration Officerr',
+        'Registration Officer',
         '/dashboard/home/patientmanagement/patientregistration',
         '',
         patient._id
