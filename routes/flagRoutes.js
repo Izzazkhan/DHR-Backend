@@ -3,17 +3,17 @@ const express = require('express');
 const router = express.Router();
 
 const {
-  addFlag,
+  // addFlag,
   getAllCompletedFlag,
   getAllPendingFlag,
   getFlagCount,
   getFlagPatientByKeyword,
 } = require('../controllers/flagController');
 
-router.post('/addFlag', addFlag);
-router.get('/getAllCompletedFlag', getAllCompletedFlag);
-router.get('/getAllPendingFlag', getAllPendingFlag);
-router.get('/getFlagCount', getFlagCount);
+// router.post('/addFlag', addFlag);
+router.get('/getAllCompletedFlag/:generatedFrom', getAllCompletedFlag);
+router.get('/getAllPendingFlag/:generatedFrom', getAllPendingFlag);
+router.get('/getFlagCount/:generatedFrom', getFlagCount);
 router.get('/getFlagPatientByKeyword/:keyword', getFlagPatientByKeyword);
 
 module.exports = router;

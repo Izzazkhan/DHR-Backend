@@ -3,36 +3,41 @@ const Flag = require('../models/flag/Flag');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 
-exports.addFlag = asyncHandler(async (req, res, next) => {
-  const { edrId, generatedBy, generatedTo, reason } = req.body;
-  const flag = await Flag.create({
-    edrId,
-    generatedBy,
-    generatedTo,
-    reason,
-  });
-  res.status(201).json({
-    success: true,
-    data: flag,
-  });
-});
+// exports.addFlag = asyncHandler(async (req, res, next) => {
+//   const { edrId, generatedBy, generatedTo, reason } = req.body;
+//   const flag = await Flag.create({
+//     edrId,
+//     generatedBy,
+//     generatedTo,
+//     reason,
+//   });
+//   res.status(201).json({
+//     success: true,
+//     data: flag,
+//   });
+// });
 
 exports.getAllPendingFlag = asyncHandler(async (req, res, next) => {
-  const flag = await Flag.find({ status: 'pending' }).populate([
+  const flag = await Flag.find({
+    status: 'pending',
+    generatedFrom: req.params.generatedFrom,
+  }).populate([
     {
       path: 'edrId',
       model: 'EDR',
+      select: 'patientId',
       populate: [
         {
           path: 'patientId',
           model: 'patientfhir',
+          select: 'identifier name',
         },
       ],
     },
-    {
-      path: 'generatedBy',
-      model: 'staff',
-    },
+    // {
+    //   path: 'generatedBy',
+    //   model: 'staff',
+    // },
   ]);
   res.status(200).json({
     success: true,
@@ -41,21 +46,26 @@ exports.getAllPendingFlag = asyncHandler(async (req, res, next) => {
 });
 
 exports.getAllCompletedFlag = asyncHandler(async (req, res, next) => {
-  const flag = await Flag.find({ status: 'completed' }).populate([
+  const flag = await Flag.find({
+    status: 'completed',
+    generatedFrom: req.params.generatedFrom,
+  }).populate([
     {
       path: 'edrId',
       model: 'EDR',
+      select: 'patientId',
       populate: [
         {
           path: 'patientId',
           model: 'patientfhir',
+          select: 'identifier name',
         },
       ],
     },
-    {
-      path: 'generatedBy',
-      model: 'staff',
-    },
+    // {
+    //   path: 'generatedBy',
+    //   model: 'staff',
+    // },
   ]);
   res.status(200).json({
     success: true,
@@ -64,10 +74,12 @@ exports.getAllCompletedFlag = asyncHandler(async (req, res, next) => {
 });
 
 exports.getFlagCount = asyncHandler(async (req, res, next) => {
-  const flag = await Flag.find();
+  const flag = await Flag.find({
+    generatedFrom: req.params.generatedFrom,
+  }).countDocuments();
   res.status(200).json({
     success: true,
-    data: flag.length,
+    data: flag,
   });
 });
 
@@ -92,23 +104,23 @@ exports.getFlagPatientByKeyword = asyncHandler(async (req, res, next) => {
   ]);
 
   for (let index = 0; index < flag.length; index++) {
-    let paramsInLowerCase = req.params.keyword.toLowerCase();
+    const paramsInLowerCase = req.params.keyword.toLowerCase();
 
-    let element = flag[index];
+    const element = flag[index];
 
-    let givenName = element.edrId.patientId.name[0].given[0]
+    const givenName = element.edrId.patientId.name[0].given[0]
       .toLowerCase()
       .startsWith(paramsInLowerCase);
 
-    let familyName = element.edrId.patientId.name[0].family
+    const familyName = element.edrId.patientId.name[0].family
       .toLowerCase()
       .startsWith(paramsInLowerCase);
 
-    let mrn = element.edrId.patientId.identifier[0].value
+    const mrn = element.edrId.patientId.identifier[0].value
       .toLowerCase()
       .startsWith(paramsInLowerCase);
 
-    let fullName =
+    const fullName =
       element.edrId.patientId.name[0].given[0] +
       ' ' +
       element.edrId.patientId.name[0].family;

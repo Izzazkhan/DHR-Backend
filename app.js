@@ -221,33 +221,18 @@ io1.on('connection', (socket) => {
       },
     ]);
 
-    console.log('count', count.length)
+    // console.log('count', count.length);
 
     io1.emit('count', count.length);
   });
 
-  // socket.on('rad_flags', async () => {
-  //   const rads = await EDR.aggregate([
-  //     {
-  //       $project: {
-  //         radRequest: 1,
-  //       },
-  //     },
-  //     {
-  //       $unwind: '$radRequest',
-  //     },
-  //     {
-  //       $match: {
-  //         'radRequest.status': 'pending',
-  //       },
-  //     },
-  //   ]);
-
-  //   if (rads.length > 6) {
-  //     const newFlag = await Flag.create({});
-  //     io1.emit('pendingRad', rads.length);
-  //   }
-  // });
+  socket.on('rad_flags', async () => {
+    const flags = await Flag.find({
+      generatedFrom: 'Rad Technician',
+      card: '1st',
+    }).countDocuments();
+    io1.emit('pendingRad', flags);
+  });
 });
 
 // Handle unhandled promise rejections
