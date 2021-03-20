@@ -173,8 +173,9 @@ exports.getEDRs = asyncHandler(async (req, res, next) => {
 
 exports.getPendingEDRs = asyncHandler(async (req, res, next) => {
   const Edrs = await EDR.find({ status: 'pending', patientInHospital: true })
-
-    .select('patientId dcdFormStatus status labRequest radRequest')
+    .select(
+      'patientId dcdFormStatus status labRequest radRequest patientInHospital'
+    )
     .populate([
       {
         path: 'chiefComplaint.chiefComplaintId',

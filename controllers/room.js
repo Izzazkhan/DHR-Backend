@@ -34,7 +34,7 @@ exports.getAvailableRoomsAganistPA = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: paWithRooms });
 });
 
-exports.createRoom = asyncHandler(async (req, res) => {
+exports.createRoom = asyncHandler(async (req, res, next) => {
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
   const diff =
@@ -46,6 +46,9 @@ exports.createRoom = asyncHandler(async (req, res) => {
   const { noOfBeds } = req.body;
   const beds = [];
   const room = await Room.find().countDocuments();
+  if (room > 14) {
+    return next(new ErrorResponse('You can not create a new ed beds', 400));
+  }
   for (let i = 0; i < noOfBeds; i++) {
     beds.push({
       bedId: 'BD' + i + day + requestNoFormat(new Date(), 'yyHHMMss'),
