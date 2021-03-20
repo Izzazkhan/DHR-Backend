@@ -8,24 +8,25 @@ const FlagSchema = new mongoose.Schema(
     },
     // Other Staff
     generatedFrom: {
-      type: mongoose.Schema.ObjectId,
-      ref: 'staff',
+      // type: mongoose.Schema.ObjectId,
+      // ref: 'staff',
+      type: String,
     },
     // Sensei
     generatedFor: {
-      type: mongoose.Schema.ObjectId,
-      ref: 'staff',
+      // type: mongoose.Schema.ObjectId,
+      // ref: 'staff',
+      type: String,
     },
+    card: String,
     reason: {
       type: String,
     },
     createdAt: {
       type: Date,
-      default: Date.now,
     },
     updatedAt: {
       type: Date,
-      default: Date.now,
     },
     status: {
       type: String,

@@ -918,27 +918,45 @@ exports.addRadRequest = asyncHandler(async (req, res, next) => {
     { new: true }
   ).populate('radRequest.serviceId');
 
-  // const rads = await EDR.aggregate([
-  //   {
-  //     $project: {
-  //       radRequest: 1,
-  //     },
-  //   },
-  //   {
-  //     $unwind: '$radRequest',
-  //   },
-  //   {
-  //     $match: {
-  //       'radRequest.status': 'pending',
-  //     },
-  //   },
-  // ]);
+  // Finding Pending Rads for Flag
+  const rads = await EDR.aggregate([
+    {
+      $project: {
+        radRequest: 1,
+      },
+    },
+    {
+      $unwind: '$radRequest',
+    },
+    {
+      $match: {
+        $or: [
+          { 'radRequest.status': 'pending' },
+          { 'radRequest.status': 'active' },
+          { 'radRequest.status': 'hold' },
+        ],
+      },
+    },
+  ]);
 
-  // if (rads.length > 6) {
-  //   const newFlag = await Flag.create({});
-  //   globalVariable.io.emit('pendingRad', newFlag);
-  // }
+  // Rasing Flag
+  if (rads.length > 6) {
+    await Flag.create({
+      edrId: req.body.edrId,
+      generatedFrom: 'Rad Technician',
+      card: '1st',
+      generatedFor: 'Sensei',
+      reason: 'Too Many Rad Tests Pending',
+      createdAt: Date.now(),
+    });
+    const flags = await Flag.find({
+      generatedFrom: 'Rad Technician',
+      card: '1st',
+    }).countDocuments();
+    globalVariable.io.emit('pendingRad', flags);
+  }
 
+  // Notification
   Notification(
     'Rad Test',
     'Imaging Test Requests',
@@ -976,7 +994,6 @@ exports.updateRad = asyncHandler(async (req, res, next) => {
     },
     { new: true }
   ).populate('radRequest.serviceId');
-  // console.log('updaterad', updatedrad);
 
   res.status(200).json({
     success: true,
