@@ -75,6 +75,8 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
     {
       $set: {
         dcdForm: dcdFormVersion,
+        generatedFrom: generatedFrom,
+        patientInHospital: patientInHospital,
       },
     }
   );
