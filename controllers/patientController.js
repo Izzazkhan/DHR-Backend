@@ -313,7 +313,7 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
     //     '',
     //     patient._id
     //   );
-    }
+    // }
     if (!patientQR.QR) {
       const obj = {};
       obj.profileNo = patient.identifier[0].value;
@@ -388,20 +388,20 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
     // }
 
     // Notification from RO to Sensei
-    if (
-      patient.processTime[patient.processTime.length - 1].processName ===
-      'Registration Officer'
-    ) {
-      Notification(
-        'ADT_A04',
-        'Patient Details',
-        'Sensei',
-        'Registration Officer',
-        '/dashboard/home/patientmanagement/patientregistration',
-        '',
-        patient._id
-      );
-    }
+    // if (
+    //   patient.processTime[patient.processTime.length - 1].processName ===
+    //   'Registration Officer'
+    // ) {
+    //   Notification(
+    //     'ADT_A04',
+    //     'Patient Details',
+    //     'Sensei',
+    //     'Registration Officer',
+    //     '/dashboard/home/patientmanagement/patientregistration',
+    //     '',
+    //     patient._id
+    //   );
+    // }
     if (!patientQR.QR) {
       const obj = {};
       obj.profileNo = patient.identifier[0].value;
