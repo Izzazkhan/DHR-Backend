@@ -112,43 +112,43 @@ exports.registerPatient = asyncHandler(async (req, res) => {
   // * Sending Notifications
 
   // Notification from RO to Sensei
-  // if (
-  //   newPatient.processTime[newPatient.processTime.length - 1].processName ===
-  //   'Registration Officer'
-  // ) {
-  //   Notification(
-  //     'ADT_A04',
-  //     'Patient Details',
-  //     'Sensei',
-  //     'Registration Officer',
-  //     '/dashboard/home/patientmanagement/patientregistration',
-  //     '',
-  //     newPatient,
-  //     ''
-  //   );
+  if (
+    newPatient.processTime[newPatient.processTime.length - 1].processName ===
+    'Registration Officer'
+  ) {
+    Notification(
+      'ADT_A04',
+      'Patient Details',
+      'Sensei',
+      'Registration Officer',
+      '/dashboard/home/patientmanagement/patientregistration',
+      '',
+      newPatient._id,
+      ''
+    );
 
-  //   Notification(
-  //     'ADT_A04',
-  //     'Patient Details from registration officer',
-  //     'Cashier',
-  //     'Registration Officer',
-  //     '/dashboard/home/patientclearence/add',
-  //     '',
-  //     newPatient._id,
-  //     ''
-  //   );
+    Notification(
+      'ADT_A04',
+      'Patient Details from registration officer',
+      'Cashier',
+      'Registration Officer',
+      '/dashboard/home/patientclearence/add',
+      '',
+      newPatient._id,
+      ''
+    );
 
-  //   Notification(
-  //     'ADT_A04',
-  //     'Registration officer add new patient',
-  //     'Insurance Claim Manager',
-  //     'New Patient',
-  //     '/dashboard/home/patientmanagement/pendingpatients',
-  //     '',
-  //     newPatient._id,
-  //     ''
-  //   );
-  // }
+    Notification(
+      'ADT_A04',
+      'Registration officer add new patient',
+      'Insurance Claim Manager',
+      'New Patient',
+      '/dashboard/home/patientmanagement/pendingpatients',
+      '',
+      newPatient._id,
+      ''
+    );
+  }
 
   const obj = {};
   obj.profileNo = newPatient.identifier[0].value;
@@ -258,62 +258,62 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
     // * Sending Notifications
 
     // Notification From Sensei
-    // if (
-    //   patient.processTime[patient.processTime.length - 1].processName ===
-    //   'Sensei'
-    // ) {
-    //   Notification(
-    //     'ADT_A04',
-    //     'Details from Sensei',
-    //     'Registration Officer',
-    //     'Sensei',
-    //     '/dashboard/home/pendingregistration',
-    //     edr && edr.length > 0 && edr._id,
-    //     ''
-    //   );
-    // }
+    if (
+      patient.processTime[patient.processTime.length - 1].processName ===
+      'Sensei'
+    ) {
+      Notification(
+        'ADT_A04',
+        'Details from Sensei',
+        'Registration Officer',
+        'Sensei',
+        '/dashboard/home/pendingregistration',
+        edr && edr.length > 0 && edr._id,
+        ''
+      );
+    }
 
-    // // Notification from Paramedics
-    // if (
-    //   patient.processTime[patient.processTime.length - 1].processName ===
-    //   'Paramedics'
-    // ) {
-    //   Notification(
-    //     'ADT_A04',
-    //     'Details from Paramedics',
-    //     'Registration Officer',
-    //     'Paramedics',
-    //     '/dashboard/home/pendingregistration',
-    //     edr && edr.length > 0 && edr._id,
-    //     ''
-    //   );
+    // Notification from Paramedics
+    if (
+      patient.processTime[patient.processTime.length - 1].processName ===
+      'Paramedics'
+    ) {
+      Notification(
+        'ADT_A04',
+        'Details from Paramedics',
+        'Registration Officer',
+        'Paramedics',
+        '/dashboard/home/pendingregistration',
+        edr && edr.length > 0 && edr._id,
+        ''
+      );
 
-    //   Notification(
-    //     'ADT_A04',
-    //     'Patient Details',
-    //     'Sensei',
-    //     'Paramedics',
-    //     '/dashboard/home/patientmanagement/patientregistration',
-    //     edr && edr.length > 0 && edr._id,
-    //     ''
-    //   );
-    // }
+      Notification(
+        'ADT_A04',
+        'Patient Details',
+        'Sensei',
+        'Paramedics',
+        '/dashboard/home/patientmanagement/patientregistration',
+        edr && edr.length > 0 && edr._id,
+        ''
+      );
+    }
 
-    // // Notification from RO to Sensei
-    // if (
-    //   patient.processTime[patient.processTime.length - 1].processName ===
-    //   'Registration Officer'
-    // ) {
-    //   Notification(
-    //     'ADT_A04',
-    //     'Patient Details',
-    //     'Sensei',
-    //     'Registration Officer',
-    //     '/dashboard/home/patientmanagement/patientregistration',
-    //     '',
-    //     patient._id
-    //   );
-    // }
+    // Notification from RO to Sensei
+    if (
+      patient.processTime[patient.processTime.length - 1].processName ===
+      'Registration Officer'
+    ) {
+      Notification(
+        'ADT_A04',
+        'Patient Details',
+        'Sensei',
+        'Registration Officer',
+        '/dashboard/home/patientmanagement/patientregistration',
+        '',
+        patient._id
+      );
+    }
     if (!patientQR.QR) {
       const obj = {};
       obj.profileNo = patient.identifier[0].value;

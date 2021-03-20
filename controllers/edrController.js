@@ -11,7 +11,7 @@ const Notification = require('../components/notification');
 const Flag = require('../models/flag/Flag');
 
 exports.generateEDR = asyncHandler(async (req, res, next) => {
-  console.log('request body', req.body);
+  // console.log('request body', req.body);
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
   const diff =
@@ -88,47 +88,47 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
       },
     }
   );
-  console.log('edr created', newEDR);
+  // console.log('edr created', newEDR);
   newEDR = await EDR.findOne({ _id: newEDR._id }).populate('patientId');
   // * Sending Notifications
 
   // Notification from Paramedics
-  // if (newEDR.generatedFrom === 'Paramedics') {
-  //   Notification(
-  //     'ADT_A04',
-  //     'Details from Paramedics',
-  //     'Registration Officer',
-  //     'Paramedics',
-  //     '/dashboard/home/pendingregistration',
-  //     newEDR._id,
-  //     '',
-  //     ''
-  //   );
-  // }
+  if (newEDR.generatedFrom === 'Paramedics') {
+    Notification(
+      'ADT_A04',
+      'Details from Paramedics',
+      'Registration Officer',
+      'Paramedics',
+      '/dashboard/home/pendingregistration',
+      newEDR._id,
+      '',
+      ''
+    );
+  }
 
-  // if (newEDR.generatedFrom === 'Sensei') {
-  //   Notification(
-  //     'ADT_A04',
-  //     'Details from Sensei',
-  //     'Registration Officer',
-  //     'Sensei',
-  //     '/dashboard/home/pendingregistration',
-  //     newEDR._id,
-  //     '',
-  //     ''
-  //   );
-  // }
+  if (newEDR.generatedFrom === 'Sensei') {
+    Notification(
+      'ADT_A04',
+      'Details from Sensei',
+      'Registration Officer',
+      'Sensei',
+      '/dashboard/home/pendingregistration',
+      newEDR._id,
+      '',
+      ''
+    );
+  }
 
-  // Notification(
-  //   'ADT_A01',
-  //   'New Patient Arrived',
-  //   'Doctor',
-  //   'Paramedics',
-  //   '/dashboard/home/patientmanagement/careStreamPatients',
-  //   newEDR._id,
-  //   '',
-  //   'ED Doctor'
-  // );
+  Notification(
+    'ADT_A01',
+    'New Patient Arrived',
+    'Doctor',
+    'Paramedics',
+    '/dashboard/home/patientmanagement/careStreamPatients',
+    newEDR._id,
+    '',
+    'ED Doctor'
+  );
 
   res.status(201).json({
     success: true,
