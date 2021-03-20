@@ -11,7 +11,7 @@ const Notification = require('../components/notification');
 const Flag = require('../models/flag/Flag');
 
 exports.generateEDR = asyncHandler(async (req, res, next) => {
-  // console.log(req.body);
+  console.log(req.body);
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
   const diff =
@@ -87,8 +87,8 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
       },
     }
   );
+  console.log(newEDR);
   newEDR = await EDR.findOne({ _id: newEDR._id }).populate('patientId');
-
   // * Sending Notifications
 
   // Notification from Paramedics

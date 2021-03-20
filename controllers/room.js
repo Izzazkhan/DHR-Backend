@@ -47,7 +47,9 @@ exports.createRoom = asyncHandler(async (req, res, next) => {
   const beds = [];
   const room = await Room.find().countDocuments();
   if (room > 14) {
-    return next(new ErrorResponse('You can not create a new ed beds', 400));
+    return next(
+      new ErrorResponse('You can not create more than 14 ED Beds', 400)
+    );
   }
   for (let i = 0; i < noOfBeds; i++) {
     beds.push({
