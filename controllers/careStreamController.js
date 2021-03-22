@@ -272,7 +272,7 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     { _id: req.body.data.edrId },
     { $push: { careStream } },
     { new: true }
-  );
+  ).populate('careStream.careStreamId', 'identifier');
 
   const currentStaff = await Staff.findById(req.body.data.staffId).select(
     'staffType'
