@@ -220,7 +220,7 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
       // Rasing Flag
       if (rads.length > 6) {
         await Flag.create({
-          edrId: req.body.edrId,
+          edrId: parsed.edrId,
           generatedFrom: 'Rad Technician',
           card: '2nd',
           generatedFor: 'Sensei',
