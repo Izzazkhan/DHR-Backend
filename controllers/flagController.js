@@ -45,6 +45,76 @@ exports.getAllPendingFlag = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.updateFlag = asyncHandler(async (req, res, next) => {
+  let flag;
+  if (req.body.status === 'in_progress') {
+    flag = await Flag.findOneAndUpdate(
+      { _id: req.body.flagId },
+      {
+        $set: {
+          status: req.body.status,
+          inProgressTime: Date.now(),
+          inProgressBy: req.body.staffId,
+        },
+      },
+      { $new: true }
+    ).populate([
+      {
+        path: 'edrId',
+        model: 'EDR',
+        select: 'patientId',
+        populate: [
+          {
+            path: 'patientId',
+            model: 'patientfhir',
+            select: 'identifier name',
+          },
+        ],
+      },
+      {
+        path: 'generatedBy',
+        model: 'staff',
+      },
+    ]);
+  }
+
+  if (req.body.status === 'completed') {
+    flag = await Flag.findOneAndUpdate(
+      { _id: req.body.flagId },
+      {
+        $set: {
+          status: req.body.status,
+          completedTime: Date.now(),
+          completedBy: req.body.staffId,
+        },
+      },
+      { $new: true }
+    ).populate([
+      {
+        path: 'edrId',
+        model: 'EDR',
+        select: 'patientId',
+        populate: [
+          {
+            path: 'patientId',
+            model: 'patientfhir',
+            select: 'identifier name',
+          },
+        ],
+      },
+      {
+        path: 'generatedBy',
+        model: 'staff',
+      },
+    ]);
+  }
+
+  res.status(200).json({
+    success: true,
+    data: flag,
+  });
+});
+
 exports.getAllCompletedFlag = asyncHandler(async (req, res, next) => {
   const flag = await Flag.find({
     status: 'completed',

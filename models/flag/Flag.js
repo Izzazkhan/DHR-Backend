@@ -25,7 +25,18 @@ const FlagSchema = new mongoose.Schema(
     createdAt: {
       type: Date,
     },
-    updatedAt: {
+    inProgressTime: {
+      type: Date,
+    },
+    inProgressBy: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'staff',
+    },
+    completedBy: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'staff',
+    },
+    completedTime: {
       type: Date,
     },
     status: {
