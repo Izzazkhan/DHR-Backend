@@ -229,8 +229,9 @@ io1.on('connection', (socket) => {
   socket.on('rad_flags', async () => {
     const flags = await Flag.find({
       generatedFrom: 'Rad Technician',
-      card: '1st',
-    }).countDocuments();
+      $or: [{ status: 'pending' }, { status: 'in_progress' }],
+      // card: '1st',
+    });
     io1.emit('pendingRad', flags);
   });
 });

@@ -953,8 +953,10 @@ exports.addRadRequest = asyncHandler(async (req, res, next) => {
     });
     const flags = await Flag.find({
       generatedFrom: 'Rad Technician',
-      card: '1st',
-    }).countDocuments();
+      $or: [{ status: 'pending' }, { status: 'in_progress' }],
+
+      // card: '1st',
+    });
     globalVariable.io.emit('pendingRad', flags);
   }
 

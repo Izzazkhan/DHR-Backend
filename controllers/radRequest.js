@@ -5,6 +5,7 @@ const asyncHandler = require('../middleware/async');
 const Notification = require('../components/notification');
 const Room = require('../models/room');
 const PA = require('../models/productionArea');
+const Flag = require('../models/flag/Flag');
 
 exports.getPendingRadEdr = asyncHandler(async (req, res, next) => {
   const unwindEdr = await EDR.aggregate([
@@ -199,6 +200,40 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
     ).populate('radRequest.serviceId');
 
     if (parsed.status === 'pending approval') {
+      // Finding Pending Rads for Flag
+      const rads = await EDR.aggregate([
+        {
+          $project: {
+            radRequest: 1,
+          },
+        },
+        {
+          $unwind: '$radRequest',
+        },
+        {
+          $match: {
+            'radRequest.status': 'pending approval',
+          },
+        },
+      ]);
+
+      // Rasing Flag
+      if (rads.length > 6) {
+        await Flag.create({
+          edrId: req.body.edrId,
+          generatedFrom: 'Rad Technician',
+          card: '2nd',
+          generatedFor: 'Sensei',
+          reason: 'Too Many Rad Results Pending',
+          createdAt: Date.now(),
+        });
+        const flags = await Flag.find({
+          generatedFrom: 'Rad Technician',
+          $or: [{ status: 'pending' }, { status: 'in_progress' }],
+          // card: '1st',
+        });
+        globalVariable.io.emit('pendingRad', flags);
+      }
       Notification(
         'Report Uploaded',
         'Radiology Test Report Generated',
