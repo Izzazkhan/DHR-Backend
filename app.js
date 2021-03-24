@@ -230,9 +230,16 @@ io1.on('connection', (socket) => {
     const flags = await Flag.find({
       generatedFrom: 'Rad Technician',
       $or: [{ status: 'pending' }, { status: 'in_progress' }],
-      // card: '1st',
     });
     io1.emit('pendingRad', flags);
+  });
+
+  socket.on('ro_flags', async () => {
+    const flags = await Flag.find({
+      generatedFrom: 'Registration Officer',
+      $or: [{ status: 'pending' }, { status: 'in_progress' }],
+    });
+    io1.emit('pendingRO', flags);
   });
 });
 

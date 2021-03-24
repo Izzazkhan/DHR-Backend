@@ -6,6 +6,10 @@ const FlagSchema = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: 'EDR',
     },
+    patientId: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'patientfhir',
+    },
     // Other Staff
     generatedFrom: {
       // type: mongoose.Schema.ObjectId,

@@ -34,6 +34,11 @@ exports.getAllPendingFlag = asyncHandler(async (req, res, next) => {
         },
       ],
     },
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+      select: 'identifier name',
+    },
     // {
     //   path: 'generatedBy',
     //   model: 'staff',
@@ -75,6 +80,11 @@ exports.updateFlag = asyncHandler(async (req, res, next) => {
         path: 'generatedBy',
         model: 'staff',
       },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'identifier name',
+      },
     ]);
   }
 
@@ -106,6 +116,11 @@ exports.updateFlag = asyncHandler(async (req, res, next) => {
         path: 'generatedBy',
         model: 'staff',
       },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'identifier name',
+      },
     ]);
   }
 
@@ -131,6 +146,11 @@ exports.getAllCompletedFlag = asyncHandler(async (req, res, next) => {
           select: 'identifier name',
         },
       ],
+    },
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+      select: 'identifier name',
     },
     // {
     //   path: 'generatedBy',

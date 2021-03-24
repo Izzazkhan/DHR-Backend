@@ -5,7 +5,7 @@ const requestNoFormat = require('dateformat');
 const patientFHIR = require('../models/patient/patient');
 const Room = require('../models/room');
 const Notification = require('../components/notification');
-
+const Flag = require('../models/flag/Flag');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const EDR = require('../models/EDR/EDR');
@@ -107,6 +107,29 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       // claimed,
       // status,
     });
+  }
+
+  // Flag For Pending Registrations
+  // Finding Pending Rads for Flag
+  const patients = await patientFHIR.find({ registrationStatus: 'pending' });
+
+  // Rasing Flag
+  if (patients.length > 5) {
+    await Flag.create({
+      patientId: newPatient._id,
+      generatedFrom: 'Registration Officer',
+      card: '1st',
+      generatedFor: 'Sensei',
+      reason: 'Too Many Patients Registrations Pending',
+      createdAt: Date.now(),
+    });
+    const flags = await Flag.find({
+      generatedFrom: 'Registration Officer',
+      $or: [{ status: 'pending' }, { status: 'in_progress' }],
+
+      // card: '1st',
+    });
+    globalVariable.io.emit('pendingRad', flags);
   }
 
   // * Sending Notifications
@@ -255,6 +278,26 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
       );
     }
     // res.status(200).json({ success: true, data: patient });
+
+    const patients = await patientFHIR.find({ registrationStatus: 'pending' });
+
+    // Rasing Flag
+    if (patients.length > 5) {
+      await Flag.create({
+        patientId: parsed._id,
+        generatedFrom: 'Registration Officer',
+        card: '1st',
+        generatedFor: 'Sensei',
+        reason: 'Too Many Patients Registrations Pending',
+        createdAt: Date.now(),
+      });
+      const flags = await Flag.find({
+        generatedFrom: 'Registration Officer',
+        $or: [{ status: 'pending' }, { status: 'in_progress' }],
+      });
+      globalVariable.io.emit('pendingRO', flags);
+    }
+
     // * Sending Notifications
 
     // Notification From Sensei
@@ -348,6 +391,27 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
     patient = await patientFHIR.findOneAndUpdate({ _id: parsed._id }, parsed, {
       new: true,
     });
+
+    const patients = await patientFHIR.find({ registrationStatus: 'pending' });
+
+    // Rasing Flag
+    if (patients.length > 5) {
+      await Flag.create({
+        patientId: parsed._id,
+        generatedFrom: 'Registration Officer',
+        card: '1st',
+        generatedFor: 'Sensei',
+        reason: 'Too Many Patients Registrations Pending',
+        createdAt: Date.now(),
+      });
+      const flags = await Flag.find({
+        generatedFrom: 'Registration Officer',
+        $or: [{ status: 'pending' }, { status: 'in_progress' }],
+
+        // card: '1st',
+      });
+      globalVariable.io.emit('pendingRO', flags);
+    }
 
     // * Sending Notifications
 
