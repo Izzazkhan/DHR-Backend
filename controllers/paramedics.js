@@ -12,7 +12,7 @@ exports.paramedicsEdr = asyncHandler(async (req, res, next) => {
     patientInHospital: false,
   })
     .populate('patientId', 'identifier name age gender telecom createdAt')
-    .select('patientId');
+    .select('patientId careStream');
   res.status(200).json({
     success: true,
     data: paramedicsEdr,
