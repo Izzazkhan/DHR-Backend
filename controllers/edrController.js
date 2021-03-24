@@ -1443,6 +1443,27 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     _id,
     ''
   );
+  const dischargePending = await EDR.find({
+    status: 'Discharged',
+    socialWorkerStatus: 'pending',
+  });
+
+  if (dischargePending.length > 5) {
+    await Flag.create({
+      edrId: _id,
+      generatedFrom: 'Registration Officer',
+      card: '5th',
+      generatedFor: 'Sensei',
+      reason: 'Too Many Discharge Pending',
+      createdAt: Date.now(),
+    });
+    const flags = await Flag.find({
+      generatedFrom: 'Registration Officer',
+      $or: [{ status: 'pending' }, { status: 'in_progress' }],
+    });
+    globalVariable.io.emit('pendingRO', flags);
+  }
+
   res.status(200).json({ success: true, data: edr });
 });
 

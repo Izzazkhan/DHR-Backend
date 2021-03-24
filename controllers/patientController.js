@@ -131,13 +131,56 @@ exports.registerPatient = asyncHandler(async (req, res) => {
     globalVariable.io.emit('pendingRO', flags);
   }
 
-  // * Sending Notifications
+  // Sensei Pending
+  if (
+    newPatient.processTime[newPatient.processTime.length - 1].processName ===
+    'Sensei'
+  ) {
+    const pendingSensei = await patientFHIR.aggregate([
+      {
+        $project: {
+          processTime: 1,
+          registrationStatus: 1,
+        },
+      },
+      {
+        $unwind: '$processTime',
+      },
+      {
+        $match: {
+          $and: [
+            { 'processTime.processName': 'Sensei' },
+            { registrationStatus: 'pending' },
+          ],
+        },
+      },
+    ]);
 
-  // Notification from RO to Sensei
+    if (pendingSensei.length > 5) {
+      await Flag.create({
+        patientId: newPatient._id,
+        generatedFrom: 'Registration Officer',
+        card: '2nd',
+        generatedFor: 'Sensei',
+        reason: 'Too Many Patients Registrations Pending after sensei',
+        createdAt: Date.now(),
+      });
+      const flags = await Flag.find({
+        generatedFrom: 'Registration Officer',
+        $or: [{ status: 'pending' }, { status: 'in_progress' }],
+
+        // card: '1st',
+      });
+      globalVariable.io.emit('pendingRO', flags);
+    }
+  }
   if (
     newPatient.processTime[newPatient.processTime.length - 1].processName ===
     'Registration Officer'
   ) {
+    // * Sending Notifications
+
+    // Notification from RO to Sensei
     Notification(
       'ADT_A04',
       'Patient Details',
@@ -297,6 +340,49 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
       globalVariable.io.emit('pendingRO', flags);
     }
 
+    if (
+      patient.processTime[patient.processTime.length - 1].processName ===
+      'Sensei'
+    ) {
+      const pendingSensei = await patientFHIR.aggregate([
+        {
+          $project: {
+            processTime: 1,
+            registrationStatus: 1,
+          },
+        },
+        {
+          $unwind: '$processTime',
+        },
+        {
+          $match: {
+            $and: [
+              { 'processTime.processName': 'Sensei' },
+              { registrationStatus: 'pending' },
+            ],
+          },
+        },
+      ]);
+
+      if (pendingSensei.length > 5) {
+        await Flag.create({
+          patientId: parsed._id,
+          generatedFrom: 'Registration Officer',
+          card: '2nd',
+          generatedFor: 'Sensei',
+          reason: 'Too Many Patients Registrations Pending after sensei',
+          createdAt: Date.now(),
+        });
+        const flags = await Flag.find({
+          generatedFrom: 'Registration Officer',
+          $or: [{ status: 'pending' }, { status: 'in_progress' }],
+
+          // card: '1st',
+        });
+        globalVariable.io.emit('pendingRO', flags);
+      }
+    }
+
     // * Sending Notifications
 
     // Notification From Sensei
@@ -412,59 +498,102 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
       globalVariable.io.emit('pendingRO', flags);
     }
 
+    if (
+      patient.processTime[patient.processTime.length - 1].processName ===
+      'Sensei'
+    ) {
+      const pendingSensei = await patientFHIR.aggregate([
+        {
+          $project: {
+            processTime: 1,
+            registrationStatus: 1,
+          },
+        },
+        {
+          $unwind: '$processTime',
+        },
+        {
+          $match: {
+            $and: [
+              { 'processTime.processName': 'Sensei' },
+              { registrationStatus: 'pending' },
+            ],
+          },
+        },
+      ]);
+
+      if (pendingSensei.length > 5) {
+        await Flag.create({
+          patientId: parsed._id,
+          generatedFrom: 'Registration Officer',
+          card: '2nd',
+          generatedFor: 'Sensei',
+          reason: 'Too Many Patients Registrations Pending after sensei',
+          createdAt: Date.now(),
+        });
+        const flags = await Flag.find({
+          generatedFrom: 'Registration Officer',
+          $or: [{ status: 'pending' }, { status: 'in_progress' }],
+
+          // card: '1st',
+        });
+        globalVariable.io.emit('pendingRO', flags);
+      }
+    }
+
     // * Sending Notifications
 
     // Notification From Sensei
-    // if (
-    //   patient.processTime[patient.processTime.length - 1].processName ===
-    //   'Sensei'
-    // ) {
-    //   Notification(
-    //     'ADT_A04',
-    //     'Details from Sensei',
-    //     'Registration Officer',
-    //     '/home/rcm/patientAssessment',
-    //     patient._id
-    //   );
-    // }
+    if (
+      patient.processTime[patient.processTime.length - 1].processName ===
+      'Sensei'
+    ) {
+      Notification(
+        'ADT_A04',
+        'Details from Sensei',
+        'Registration Officer',
+        '/home/rcm/patientAssessment',
+        patient._id
+      );
+    }
 
-    // // Notification from Paramedics
-    // if (
-    //   patient.processTime[patient.processTime.length - 1].processName ===
-    //   'Paramedics'
-    // ) {
-    //   Notification(
-    //     'ADT_A04',
-    //     'Details from Paramedics',
-    //     'Registration Officer',
-    //     '/home/rcm/patientAssessment',
-    //     patient._id
-    //   );
+    // Notification from Paramedics
+    if (
+      patient.processTime[patient.processTime.length - 1].processName ===
+      'Paramedics'
+    ) {
+      Notification(
+        'ADT_A04',
+        'Details from Paramedics',
+        'Registration Officer',
+        '/home/rcm/patientAssessment',
+        patient._id
+      );
 
-    //   Notification(
-    //     'ADT_A04',
-    //     'Patient Details',
-    //     'Sensei',
-    //     '/home/rcm/patientAssessment',
-    //     patient._id
-    //   );
-    // }
+      Notification(
+        'ADT_A04',
+        'Patient Details',
+        'Sensei',
+        '/home/rcm/patientAssessment',
+        patient._id
+      );
+    }
 
     // Notification from RO to Sensei
-    // if (
-    //   patient.processTime[patient.processTime.length - 1].processName ===
-    //   'Registration Officer'
-    // ) {
-    //   Notification(
-    //     'ADT_A04',
-    //     'Patient Details',
-    //     'Sensei',
-    //     'Registration Officer',
-    //     '/dashboard/home/patientmanagement/patientregistration',
-    //     '',
-    //     patient._id
-    //   );
-    // }
+    if (
+      patient.processTime[patient.processTime.length - 1].processName ===
+      'Registration Officer'
+    ) {
+      Notification(
+        'ADT_A04',
+        'Patient Details',
+        'Sensei',
+        'Registration Officer',
+        '/dashboard/home/patientmanagement/patientregistration',
+        '',
+        patient._id
+      );
+    }
     if (!patientQR.QR) {
       const obj = {};
       obj.profileNo = patient.identifier[0].value;
