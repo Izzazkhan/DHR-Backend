@@ -56,9 +56,6 @@ exports.roDashboard = asyncHandler(async (req, res) => {
   ]);
 
   const averageRegistrationTime = 360 / patients.length;
-  // if (averageRegistrationTime > 15) {
-  //   globalVariable.io.emit('roFlag', averageRegistrationTime);
-  // }
 
   //* Registration Officer Completed Per Hour
   const completedArr = [];
@@ -109,11 +106,6 @@ exports.roDashboard = asyncHandler(async (req, res) => {
   completedArr.push({ label: thirdHour, value: thirdHourPatient });
   completedArr.push({ label: secondHour, value: secondHourPatient });
   completedArr.push({ label: sixHour, value: firstHourPatient });
-
-  // Patients Discharge Per Hour
-  // const dischargePatient = await EDR.find({
-  //   status: 'pending',
-  // });
 
   // Available ED Beds
   const EdBeds = await Room.find({
