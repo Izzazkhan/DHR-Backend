@@ -249,6 +249,14 @@ io1.on('connection', (socket) => {
     });
     io1.emit('pendingSensei', flags);
   });
+
+  socket.on('edDoctor_flags', async () => {
+    const flags = await Flag.find({
+      generatedFrom: 'ED Doctor',
+      $or: [{ status: 'pending' }, { status: 'in_progress' }],
+    });
+    io1.emit('pendingDoctor', flags);
+  });
 });
 
 // Handle unhandled promise rejections

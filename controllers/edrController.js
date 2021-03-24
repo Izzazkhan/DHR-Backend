@@ -736,6 +736,39 @@ exports.addConsultationNote = asyncHandler(async (req, res, next) => {
       new: true,
     }
   );
+
+  // Checking for flag
+  const consultantNotes = await EDR.aggregate([
+    {
+      $project: {
+        consultationNote: 1,
+        status: 1,
+      },
+    },
+    {
+      $unwind: '$consultationNote',
+    },
+    {
+      $match: {
+        'consultationNote.status': 'pending',
+      },
+    },
+  ]);
+  if (consultantNotes.length > 6) {
+    await Flag.create({
+      edrId: parsed.edrId,
+      generatedFrom: 'ED Doctor',
+      card: '5th',
+      generatedFor: 'ED Doctor',
+      reason: 'Consultant Notes Pending',
+      createdAt: Date.now(),
+    });
+    const flags = await Flag.find({
+      generatedFrom: 'ED Doctor',
+      $or: [{ status: 'pending' }, { status: 'in_progress' }],
+    });
+    globalVariable.io.emit('pendingDoctor', flags);
+  }
   if (parsed.subType === 'Internal') {
     Notification(
       'Internal Consultant Request',
@@ -2119,6 +2152,37 @@ exports.addPharmacyRequest = asyncHandler(async (req, res, next) => {
       new: true,
     }
   ).populate('patientId');
+
+  const pharmacyPending = await EDR.aggregate([
+    {
+      $project: {
+        pharmacyRequest: 1,
+      },
+    },
+    {
+      $unwind: '$pharmacyRequest',
+    },
+    {
+      $match: {
+        'pharmacyRequest.status': { $ne: 'closed' },
+      },
+    },
+  ]);
+  if (pharmacyPending.length > 4) {
+    await Flag.create({
+      edrId: req.body.edrId,
+      generatedFrom: 'ED Doctor',
+      card: '7th',
+      generatedFor: 'ED Doctor',
+      reason: 'Pharmacy Requests Pending',
+      createdAt: Date.now(),
+    });
+    const flags = await Flag.find({
+      generatedFrom: 'ED Doctor',
+      $or: [{ status: 'pending' }, { status: 'in_progress' }],
+    });
+    globalVariable.io.emit('pendingDoctor', flags);
+  }
 
   Notification(
     'Medication Request',
