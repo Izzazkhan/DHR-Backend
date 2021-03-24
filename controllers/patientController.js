@@ -110,7 +110,6 @@ exports.registerPatient = asyncHandler(async (req, res) => {
   }
 
   // Flag For Pending Registrations
-  // Finding Pending Rads for Flag
   const patients = await patientFHIR.find({ registrationStatus: 'pending' });
 
   // Rasing Flag
@@ -129,7 +128,7 @@ exports.registerPatient = asyncHandler(async (req, res) => {
 
       // card: '1st',
     });
-    globalVariable.io.emit('pendingRad', flags);
+    globalVariable.io.emit('pendingRO', flags);
   }
 
   // * Sending Notifications
