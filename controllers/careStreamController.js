@@ -6,6 +6,7 @@ const EDR = require('../models/EDR/EDR');
 const Items = require('../models/item');
 const Staff = require('../models/staffFhir/staff');
 const Notification = require('../components/notification');
+const Flag = require('../models/flag/Flag');
 
 exports.addCareStream = asyncHandler(async (req, res, next) => {
   const {
@@ -273,6 +274,27 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     { $push: { careStream } },
     { new: true }
   ).populate('careStream.careStreamId', 'identifier');
+
+  const decisionPending = await EDR.find({
+    careStream: { $eq: [] },
+    doctorNotes: { $ne: [] },
+  });
+
+  if (decisionPending.length > 5) {
+    await Flag.create({
+      edrId: req.body.data.edrId,
+      generatedFrom: 'Sensei',
+      card: '4th',
+      generatedFor: 'Sensei',
+      reason: 'Patients pending for Doctor Decisions',
+      createdAt: Date.now(),
+    });
+    const flags = await Flag.find({
+      generatedFrom: 'Sensei',
+      $or: [{ status: 'pending' }, { status: 'in_progress' }],
+    });
+    globalVariable.io.emit('pendingSensei', flags);
+  }
 
   const currentStaff = await Staff.findById(req.body.data.staffId).select(
     'staffType'

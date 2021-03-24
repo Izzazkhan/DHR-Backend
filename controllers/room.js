@@ -172,8 +172,6 @@ exports.assignRoom = asyncHandler(async (req, res, next) => {
     const flags = await Flag.find({
       generatedFrom: 'Registration Officer',
       $or: [{ status: 'pending' }, { status: 'in_progress' }],
-
-      // card: '1st',
     });
     globalVariable.io.emit('pendingRO', flags);
   }

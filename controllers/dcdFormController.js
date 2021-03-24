@@ -3,6 +3,7 @@ const asyncHandler = require('../middleware/async');
 const Notification = require('../components/notification');
 const Staff = require('../models/staffFhir/staff');
 // const ErrorResponse = require('../utils/errorResponse');
+const Flag = require('../models/flag/Flag');
 
 exports.addTriageAssessment = asyncHandler(async (req, res, next) => {
   const triage = {
@@ -36,6 +37,26 @@ exports.addTriageAssessment = asyncHandler(async (req, res, next) => {
     { $push: { [`dcdForm.${latestForm}.triageAssessment`]: triage } },
     { new: true }
   );
+
+  const patientTriagePending = await EDR.find({
+    'dcdForm.$.triageAssessment': { $eq: [] },
+  });
+
+  if (patientTriagePending.length > 5) {
+    await Flag.create({
+      edrId: req.body.data.edrId,
+      generatedFrom: 'Sensei',
+      card: '2nd',
+      generatedFor: 'Sensei',
+      reason: 'Patients pending for TriageAssessment From Nurse',
+      createdAt: Date.now(),
+    });
+    const flags = await Flag.find({
+      generatedFrom: 'Sensei',
+      $or: [{ status: 'pending' }, { status: 'in_progress' }],
+    });
+    globalVariable.io.emit('pendingSensei', flags);
+  }
   res.status(200).json({
     success: true,
     data: edrPatient,

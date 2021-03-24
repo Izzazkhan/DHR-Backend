@@ -7,6 +7,7 @@ const Staff = require('../models/staffFhir/staff');
 const EDN = require('../models/edNurseAssistanceRequest');
 const Room = require('../models/room');
 const CCRequests = require('../models/customerCareRequest');
+const Flag = require('../models/flag/Flag');
 
 exports.getLab = asyncHandler(async (req, res, next) => {
   const unwindEdr = await EDR.aggregate([
@@ -438,6 +439,38 @@ exports.updateMedicationStatus = asyncHandler(async (req, res, next) => {
     )
       .select('patientId pharmacyRequest')
       .populate('patientId', 'Identifier');
+
+    const patientTreatmentsPending = await EDR.aggregate([
+      {
+        $project: {
+          pharmacyRequest: 1,
+        },
+      },
+      {
+        $unwind: '$pharmacyRequest',
+      },
+      {
+        $match: {
+          'pharmacyRequest.status': { $ne: 'closed' },
+        },
+      },
+    ]);
+
+    if (patientTreatmentsPending.length > 6) {
+      await Flag.create({
+        edrId: req.body.edrId,
+        generatedFrom: 'Sensei',
+        card: '7th',
+        generatedFor: 'Sensei',
+        reason: 'Patients Medications By Nurse Pending',
+        createdAt: Date.now(),
+      });
+      const flags = await Flag.find({
+        generatedFrom: 'Sensei',
+        $or: [{ status: 'pending' }, { status: 'in_progress' }],
+      });
+      globalVariable.io.emit('pendingSensei', flags);
+    }
   }
 
   if (req.body.status === 'closed') {
