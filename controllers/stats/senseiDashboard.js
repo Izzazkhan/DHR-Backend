@@ -158,7 +158,7 @@ exports.senseiDashboard = asyncHandler(async (req, res, next) => {
   const perHourDiagnosePending = JSON.parse(JSON.stringify(arr));
   clearAllTime();
 
-  // * 4rh Card
+  // * 4th Card
   const decisionPending = await EDR.aggregate([
     {
       $project: {

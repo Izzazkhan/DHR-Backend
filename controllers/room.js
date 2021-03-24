@@ -5,6 +5,7 @@ const ErrorResponse = require('../utils/errorResponse');
 const EDR = require('../models/EDR/EDR');
 const ProductionArea = require('../models/productionArea');
 const Notification = require('../components/notification');
+const Flag = require('../models/flag/Flag');
 
 exports.getRooms = asyncHandler(async (req, res) => {
   const getRooms = await Room.find();
@@ -152,6 +153,28 @@ exports.assignRoom = asyncHandler(async (req, res, next) => {
     { $set: { availability: false } },
     { new: true }
   );
+
+  // Room Flag
+  const rooms = await Room.find({
+    availability: true,
+  }).countDocuments();
+
+  // Rasing Flag
+  if (rooms < 8) {
+    await Flag.create({
+      edrId: req.body.edrId,
+      generatedFrom: 'Registration Officer',
+      card: 'beds',
+      generatedFor: 'Sensei',
+      reason: 'Need more ED Beds',
+      createdAt: Date.now(),
+    });
+    const flags = await Flag.find({
+      generatedFrom: 'Registration Officer',
+      $or: [{ status: 'pending' }, { status: 'in_progress' }],
+    });
+    globalVariable.io.emit('pendingRO', flags);
+  }
 
   // Notification From Sensei
   Notification(

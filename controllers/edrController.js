@@ -427,6 +427,27 @@ exports.addDoctorNotes = asyncHandler(async (req, res, next) => {
     }
   );
 
+  const diagnosePending = await EDR.find({
+    status: 'pending',
+    doctorNotes: { $eq: [] },
+  });
+
+  if (diagnosePending.length > 5) {
+    await Flag.create({
+      edrId: parsed.edrId,
+      generatedFrom: 'Sensei',
+      card: '3rd',
+      generatedFor: 'Sensei',
+      reason: 'Patients diagnoses pending from Doctor',
+      createdAt: Date.now(),
+    });
+    const flags = await Flag.find({
+      generatedFrom: 'Sensei',
+      $or: [{ status: 'pending' }, { status: 'in_progress' }],
+    });
+    globalVariable.io.emit('pendingSensei', flags);
+  }
+
   res.status(200).json({
     success: true,
     data: addedNote,
@@ -609,6 +630,39 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
     { $push: { labRequest } },
     { new: true }
   ).populate('labRequest.serviceId');
+
+  // Checking for flag
+  const labPending = await EDR.aggregate([
+    {
+      $project: {
+        labRequest: 1,
+      },
+    },
+    {
+      $unwind: '$labRequest',
+    },
+    {
+      $match: {
+        $and: [{ 'labRequest.status': { $ne: 'completed' } }],
+      },
+    },
+  ]);
+
+  if (labPending.length > 5) {
+    await Flag.create({
+      edrId: req.body.edrId,
+      generatedFrom: 'Sensei',
+      card: '5th',
+      generatedFor: 'Sensei',
+      reason: 'Too Many Lab Results Pending',
+      createdAt: Date.now(),
+    });
+    const flags = await Flag.find({
+      generatedFrom: 'Sensei',
+      $or: [{ status: 'pending' }, { status: 'in_progress' }],
+    });
+    globalVariable.io.emit('pendingSensei', flags);
+  }
 
   Notification(
     'Lab Test',
@@ -945,14 +999,14 @@ exports.addRadRequest = asyncHandler(async (req, res, next) => {
   if (rads.length > 6) {
     await Flag.create({
       edrId: req.body.edrId,
-      generatedFrom: 'Rad Technician',
+      generatedFrom: 'Imaging Technician',
       card: '1st',
       generatedFor: 'Sensei',
       reason: 'Too Many Rad Tests Pending',
       createdAt: Date.now(),
     });
     const flags = await Flag.find({
-      generatedFrom: 'Rad Technician',
+      generatedFrom: 'Imaging Technician',
       $or: [{ status: 'pending' }, { status: 'in_progress' }],
 
       // card: '1st',

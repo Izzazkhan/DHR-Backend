@@ -7,6 +7,7 @@ const Staff = require('../models/staffFhir/staff');
 const PA = require('../models/productionArea');
 const EDR = require('../models/EDR/EDR');
 const CC = require('../models/chiefComplaint/chiefComplaint');
+const Flag = require('../models/flag/Flag');
 
 exports.addChiefComplaint = asyncHandler(async (req, res, next) => {
   const { name } = req.body;
@@ -34,7 +35,9 @@ exports.getAllchiefComplaints = asyncHandler(async (req, res, next) => {
   const chiefComplaits = await CC.find({ disabled: false });
   res.status(200).json({
     success: true,
-    data: chiefComplaits,
+    data: {
+      docs: chiefComplaits,
+    },
   });
 });
 
@@ -404,6 +407,7 @@ exports.assignCCtoPatient = asyncHandler(async (req, res, next) => {
     voiceNotes: req.file ? req.file.path : null,
     comments: parsed.comments,
   };
+
   const assignedCC = await EDR.findOneAndUpdate(
     { _id: parsed.patientid },
     { $push: { chiefComplaint } },
@@ -411,6 +415,26 @@ exports.assignCCtoPatient = asyncHandler(async (req, res, next) => {
       new: true,
     }
   );
+
+  const patients = await EDR.find({
+    chiefComplaint: { $eq: [] },
+  });
+
+  if (patients.length > 5) {
+    await Flag.create({
+      edrId: parsed.patientid,
+      generatedFrom: 'Sensei',
+      card: '1st',
+      generatedFor: 'Sensei',
+      reason: 'Patients pending for production area',
+      createdAt: Date.now(),
+    });
+    const flags = await Flag.find({
+      generatedFrom: 'Sensei',
+      $or: [{ status: 'pending' }, { status: 'in_progress' }],
+    });
+    globalVariable.io.emit('pendingSensei', flags);
+  }
 
   // console.log(assignedCC);
   res.status(200).json({
