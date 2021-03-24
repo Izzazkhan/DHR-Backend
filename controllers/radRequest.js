@@ -221,14 +221,14 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
       if (rads.length > 6) {
         await Flag.create({
           edrId: parsed.edrId,
-          generatedFrom: 'Rad Technician',
+          generatedFrom: 'Imaging Technician',
           card: '2nd',
           generatedFor: 'Sensei',
           reason: 'Too Many Rad Results Pending',
           createdAt: Date.now(),
         });
         const flags = await Flag.find({
-          generatedFrom: 'Rad Technician',
+          generatedFrom: 'Imaging Technician',
           $or: [{ status: 'pending' }, { status: 'in_progress' }],
           // card: '1st',
         });

@@ -31,7 +31,7 @@ exports.addChiefComplaint = asyncHandler(async (req, res, next) => {
 });
 
 exports.getAllchiefComplaints = asyncHandler(async (req, res, next) => {
-  const chiefComplaits = await CC.paginate({ disabled: false });
+  const chiefComplaits = await CC.find({ disabled: false });
   res.status(200).json({
     success: true,
     data: chiefComplaits,
