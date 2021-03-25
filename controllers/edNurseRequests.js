@@ -467,9 +467,25 @@ exports.updateMedicationStatus = asyncHandler(async (req, res, next) => {
       });
       const flags = await Flag.find({
         generatedFrom: 'Sensei',
-        $or: [{ status: 'pending' }, { status: 'in_progress' }],
+        status: 'pending',
       });
       globalVariable.io.emit('pendingSensei', flags);
+    }
+
+    if (patientTreatmentsPending.length > 4) {
+      await Flag.create({
+        edrId: req.body.edrId,
+        generatedFrom: 'ED Doctor',
+        card: '7th',
+        generatedFor: 'ED Doctor',
+        reason: 'Patients Medications By Nurse Pending',
+        createdAt: Date.now(),
+      });
+      const flags = await Flag.find({
+        generatedFrom: 'ED Doctor',
+        status: 'pending',
+      });
+      globalVariable.io.emit('pendingDoctor', flags);
     }
   }
 
