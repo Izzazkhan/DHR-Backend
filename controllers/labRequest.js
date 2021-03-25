@@ -89,7 +89,16 @@ exports.getCompletedLabEdr = asyncHandler(async (req, res, next) => {
     },
     {
       $match: {
-        'labRequest.status': 'completed',
+        $and: [
+          {
+            'labRequest.labTechnicianId': mongoose.Types.ObjectId(
+              req.params.labTechnicianId
+            ),
+          },
+          {
+            'labRequest.status': 'completed',
+          },
+        ],
       },
     },
   ]);
