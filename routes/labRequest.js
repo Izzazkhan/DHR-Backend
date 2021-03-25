@@ -25,8 +25,8 @@ const {
 
 const router = express.Router();
 
-router.get('/getPendingLabEdr', getPendingLabEdr);
-router.get('/getCompletedLabEdr', getCompletedLabEdr);
+router.get('/getPendingLabEdr/:labTechnicianId', getPendingLabEdr);
+router.get('/getCompletedLabEdr/:labTechnicianId', getCompletedLabEdr);
 router.get('/searchPendingLabRequest/:keyword', searchPendingLabRequest);
 router.get('/searchComletedLabRequest/:keyword', searchComletedLabRequest);
 router.put('/updateLabRequest', upload.any(), updateLabRequest);
