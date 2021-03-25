@@ -67,7 +67,7 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
     claimed,
     generatedFrom,
     patientInHospital,
-    createdTimeStamp: Date.now(),
+    
   });
 
   await EDR.findOneAndUpdate(
@@ -77,6 +77,7 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
         dcdForm: dcdFormVersion,
         generatedFrom: generatedFrom,
         patientInHospital: patientInHospital,
+        createdTimeStamp: Date.now(),
       },
     }
   );
@@ -604,7 +605,7 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
     disabled: false,
     shift: currentStaff.shift,
     // availability: true,
-  }).select('identifier name shiftStartTime shiftEndTime');
+  }).select('identifier name');
 
   const random = Math.floor(Math.random() * (nurses.length - 1));
   const nurseTechnician = nurses[random];
@@ -622,6 +623,7 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
     requestedBy: req.body.staffId,
     requestedAt: Date.now(),
     assignedTo: nurseTechnician._id,
+    labTechnicianId: req.body.labTechnicianId,
     reason: req.body.reason,
     notes: req.body.notes,
   };

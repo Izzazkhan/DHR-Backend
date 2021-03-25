@@ -56,6 +56,7 @@ const {
   externalCC,
   searchExternalCC,
   searchRadTestsStats,
+  getLabTechnician,
 } = require('../controllers/staffController');
 
 const router = express.Router();
@@ -81,6 +82,7 @@ router.get('/getSpecialityNurse/:speciality/:staffId', getSpecialityNurse);
 router.get('/getAnesthesiologist', getAnesthesiologist);
 router.get('/getEOUNurse/:speciality/:staffId', getEOUNurse);
 router.get('/getNurseTechnician/:speciality/:staffId', getNurseTechnician);
+router.get('/getLabTechnician/:staffId', getLabTechnician);
 router.get('/getAllHouseKeepers', getAllHouseKeepers);
 router.get('/getCustomerCares', getCustomerCares);
 router.get('/getNurseTechnicians', getNurseTechnicians);

@@ -277,9 +277,9 @@ const edrSchema = new mongoose.Schema({
                   dropdownOptions: [
                     {
                       name: String, // Nasal congestion
-                      code: String // code of sub option
-                    }
-                  ]
+                      code: String, // code of sub option
+                    },
+                  ],
                 },
               ],
             },
@@ -866,6 +866,10 @@ const edrSchema = new mongoose.Schema({
         type: String,
       },
       assignedTo: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      labTechnicianId: {
         type: mongoose.Schema.ObjectId,
         ref: 'staff',
       },

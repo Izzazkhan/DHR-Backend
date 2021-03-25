@@ -630,6 +630,19 @@ exports.getNurseTechnician = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.getLabTechnician = asyncHandler(async (req, res, next) => {
+  const currentStaff = await Staff.findById(req.params.staffId).select('shift');
+  const nurses = await Staff.find({
+    staffType: 'Lab Technician',
+    disabled: false,
+    shift: currentStaff.shift,
+  });
+  res.status(200).json({
+    success: true,
+    data: nurses,
+  });
+});
+
 exports.getAllHouseKeepers = asyncHandler(async (req, res, next) => {
   const houseKeepers = await Staff.find({
     staffType: 'House Keeping',
