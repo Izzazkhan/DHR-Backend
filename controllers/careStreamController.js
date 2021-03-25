@@ -291,9 +291,25 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     });
     const flags = await Flag.find({
       generatedFrom: 'Sensei',
-      $or: [{ status: 'pending' }, { status: 'in_progress' }],
+      status: 'pending',
     });
     globalVariable.io.emit('pendingSensei', flags);
+  }
+
+  if (decisionPending.length > 6) {
+    await Flag.create({
+      edrId: req.body.data.edrId,
+      generatedFrom: 'ED Doctor',
+      card: '2nd',
+      generatedFor: 'ED Doctor',
+      reason: 'Patients pending for Doctor Decisions',
+      createdAt: Date.now(),
+    });
+    const flags = await Flag.find({
+      generatedFrom: 'ED Doctor',
+      status: 'pending',
+    });
+    globalVariable.io.emit('pendingDoctor', flags);
   }
 
   const currentStaff = await Staff.findById(req.body.data.staffId).select(

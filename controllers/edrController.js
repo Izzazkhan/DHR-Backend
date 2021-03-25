@@ -448,6 +448,22 @@ exports.addDoctorNotes = asyncHandler(async (req, res, next) => {
     globalVariable.io.emit('pendingSensei', flags);
   }
 
+  if (diagnosePending.length > 6) {
+    await Flag.create({
+      edrId: parsed.edrId,
+      generatedFrom: 'ED Doctor',
+      card: '1st',
+      generatedFor: 'ED Doctor',
+      reason: 'Patients diagnoses pending from Doctor',
+      createdAt: Date.now(),
+    });
+    const flags = await Flag.find({
+      generatedFrom: 'ED Doctor',
+      status: 'pending',
+    });
+    globalVariable.io.emit('pendingDoctor', flags);
+  }
+
   res.status(200).json({
     success: true,
     data: addedNote,
@@ -1042,10 +1058,10 @@ exports.addRadRequest = asyncHandler(async (req, res, next) => {
     });
     const flags = await Flag.find({
       generatedFrom: 'Imaging Technician',
-      $or: [{ status: 'pending' }, { status: 'in_progress' }],
-
+      status: 'pending',
       // card: '1st',
     });
+
     globalVariable.io.emit('pendingRad', flags);
   }
 

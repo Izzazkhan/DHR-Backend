@@ -1760,10 +1760,6 @@ exports.edDoctorDashboard = asyncHandler(async (req, res, next) => {
     doctorNotes: { $ne: [] },
     dcdForm: { $elemMatch: { triageAssessment: { $ne: [] } } },
     'doctorNotes.assignedTime': { $gte: sixHour },
-    // $and: [
-
-    //   { 'doctorNotes.assignedTime': { $lte: currentTime } },
-    // ],
   });
 
   let time = 0;

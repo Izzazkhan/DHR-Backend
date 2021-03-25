@@ -239,7 +239,7 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
         });
         const flags = await Flag.find({
           generatedFrom: 'Imaging Technician',
-          $or: [{ status: 'pending' }, { status: 'in_progress' }],
+          status: 'pending',
           // card: '1st',
         });
         globalVariable.io.emit('pendingRad', flags);

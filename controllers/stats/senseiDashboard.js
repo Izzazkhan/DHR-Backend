@@ -96,13 +96,17 @@ exports.senseiDashboard = asyncHandler(async (req, res, next) => {
   const patientWithTriageAndPA = await EDR.find({
     // status: 'pending',
     createdTimeStamp: { $gte: sixHour },
-    'dcdForm.$.triageAssessment': { $ne: [] },
+    dcdForm: {
+      $elemMatch: { triageAssessment: { $ne: [] } },
+    },
     chiefComplaint: { $ne: [] },
   });
 
   let totalTimeBetweenCCAndTriage = 0;
   patientWithTriageAndPA.forEach((t) => {
-    t.createdTimeStamp = new Date(t.dcdForm[0].triageAssessment[0].triageTime);
+    t.createdTimeStamp = new Date(
+      t.dcdForm[t.dcdForm.length - 1].triageAssessment[0].triageTime
+    );
     t.noteTime = new Date(t.chiefComplaint[0].assignedTime);
     t.time = Math.round(
       (t.createdTimeStamp.getTime() - t.noteTime.getTime()) / (1000 * 60)

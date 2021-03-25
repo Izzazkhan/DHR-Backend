@@ -12,14 +12,10 @@ const FlagSchema = new mongoose.Schema(
     },
     // Other Staff
     generatedFrom: {
-      // type: mongoose.Schema.ObjectId,
-      // ref: 'staff',
       type: String,
     },
     // Sensei
     generatedFor: {
-      // type: mongoose.Schema.ObjectId,
-      // ref: 'staff',
       type: String,
     },
     card: String,
@@ -29,19 +25,12 @@ const FlagSchema = new mongoose.Schema(
     createdAt: {
       type: Date,
     },
-    inProgressTime: {
+    completedTime: {
       type: Date,
-    },
-    inProgressBy: {
-      type: mongoose.Schema.ObjectId,
-      ref: 'staff',
     },
     completedBy: {
       type: mongoose.Schema.ObjectId,
       ref: 'staff',
-    },
-    completedTime: {
-      type: Date,
     },
     status: {
       type: String,
