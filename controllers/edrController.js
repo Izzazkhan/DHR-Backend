@@ -67,7 +67,6 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
     claimed,
     generatedFrom,
     patientInHospital,
-    
   });
 
   await EDR.findOneAndUpdate(
@@ -999,6 +998,7 @@ exports.addRadRequest = asyncHandler(async (req, res, next) => {
     status: req.body.status,
     priority: req.body.priority,
     requestedBy: req.body.staffId,
+    imageTechnicianId: req.body.radTechnicianId,
     requestedAt: Date.now(),
     reason: req.body.reason,
     notes: req.body.notes,

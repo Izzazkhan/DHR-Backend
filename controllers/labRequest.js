@@ -1,4 +1,5 @@
 // const requestNoFormat = require('dateformat');
+const mongoose = require('mongoose');
 const EDR = require('../models/EDR/EDR');
 const asyncHandler = require('../middleware/async');
 const Notification = require('../components/notification');
@@ -18,17 +19,21 @@ exports.getPendingLabEdr = asyncHandler(async (req, res, next) => {
     {
       $unwind: '$labRequest',
     },
-    // {
-    //   $match: {
-    //     'labRequest.status': 'pending',
-    //   },
-    // }
     {
       $match: {
-        $or: [
-          { 'labRequest.status': 'pending' },
-          { 'labRequest.status': 'active' },
-          { 'labRequest.status': 'hold' },
+        $and: [
+          {
+            'labRequest.labTechnicianId': mongoose.Types.ObjectId(
+              req.params.labTechnicianId
+            ),
+          },
+          {
+            $or: [
+              { 'labRequest.status': 'pending' },
+              { 'labRequest.status': 'active' },
+              { 'labRequest.status': 'hold' },
+            ],
+          },
         ],
       },
     },
