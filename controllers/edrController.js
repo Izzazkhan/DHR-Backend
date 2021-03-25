@@ -1342,6 +1342,27 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     assignedTime: Date.now(),
   });
 
+  const roomPending = await HK.find({
+    status: 'pending',
+    task: 'To Be Clean',
+  });
+
+  if (roomPending.length > 9) {
+    await Flag.create({
+      edrId: _id,
+      generatedFrom: 'House Keeping',
+      card: '1st',
+      generatedFor: 'Sensei',
+      reason: 'Cells/Beds Cleaning Pending',
+      createdAt: Date.now(),
+    });
+    const flags = await Flag.find({
+      generatedFrom: 'House Keeping',
+      status: 'pending',
+    });
+    globalVariable.io.emit('hkPending', flags);
+  }
+
   // HouseKeeping Notification
   Notification(
     'ADT_A03',

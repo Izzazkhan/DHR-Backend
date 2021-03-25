@@ -256,6 +256,14 @@ io1.on('connection', (socket) => {
     });
     io1.emit('pendingDoctor', flags);
   });
+
+  socket.on('hk_flags', async () => {
+    const flags = await Flag.find({
+      generatedFrom: 'House Keeping',
+      status: 'pending',
+    });
+    io1.emit('hkPending', flags);
+  });
 });
 
 // Handle unhandled promise rejections
