@@ -264,6 +264,14 @@ io1.on('connection', (socket) => {
     });
     io1.emit('hkPending', flags);
   });
+
+  socket.on('cc_flags', async () => {
+    const flags = await Flag.find({
+      generatedFrom: 'Customer Care',
+      status: 'pending',
+    });
+    io1.emit('ccPending', flags);
+  });
 });
 
 // Handle unhandled promise rejections

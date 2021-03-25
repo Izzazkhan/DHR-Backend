@@ -5,6 +5,7 @@ const ErrorResponse = require('../utils/errorResponse');
 const CCRequest = require('../models/customerCareRequest');
 const Staff = require('../models/staffFhir/staff');
 const Notification = require('../components/notification');
+const Flag = require('../models/flag/Flag');
 
 exports.paramedicsEdr = asyncHandler(async (req, res, next) => {
   const paramedicsEdr = await EDR.find({
@@ -76,6 +77,27 @@ exports.edrTransfer = asyncHandler(async (req, res, next) => {
     requestedAt: Date.now(),
     customerCareId: customerCare._id,
   });
+
+  const requests = await CCRequest.find({
+    requestedFor: 'Transfer',
+    status: 'pending',
+  });
+  if (requests.length > 4) {
+    await Flag.create({
+      edrId: req.body.edrId,
+      generatedFrom: 'Customer Care',
+      card: '2nd',
+      generatedFor: 'Customer Care',
+      reason: 'Patient Transfer from Ambulance to Bed Pending',
+      createdAt: Date.now(),
+    });
+    const flags = await Flag.find({
+      generatedFrom: 'Customer Care',
+      status: 'pending',
+    });
+    globalVariable.io.emit('ccPending', flags);
+  }
+
   Notification(
     'ADT_A15',
     'Carry the Patient from Ambulance to ED Cell',
