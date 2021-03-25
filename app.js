@@ -221,15 +221,14 @@ io1.on('connection', (socket) => {
       },
     ]);
 
-    // console.log('count', count.length);
-
     io1.emit('count', count.length);
   });
 
   socket.on('rad_flags', async () => {
     const flags = await Flag.find({
       generatedFrom: 'Imaging Technician',
-      $or: [{ status: 'pending' }, { status: 'in_progress' }],
+      status: 'pending',
+      // card: '1st',
     });
     io1.emit('pendingRad', flags);
   });
@@ -237,7 +236,7 @@ io1.on('connection', (socket) => {
   socket.on('ro_flags', async () => {
     const flags = await Flag.find({
       generatedFrom: 'Registration Officer',
-      $or: [{ status: 'pending' }, { status: 'in_progress' }],
+      status: 'pending',
     });
     io1.emit('pendingRO', flags);
   });
@@ -245,7 +244,7 @@ io1.on('connection', (socket) => {
   socket.on('sensei_flags', async () => {
     const flags = await Flag.find({
       generatedFrom: 'Sensei',
-      $or: [{ status: 'pending' }, { status: 'in_progress' }],
+      status: 'pending',
     });
     io1.emit('pendingSensei', flags);
   });
@@ -253,7 +252,7 @@ io1.on('connection', (socket) => {
   socket.on('edDoctor_flags', async () => {
     const flags = await Flag.find({
       generatedFrom: 'ED Doctor',
-      $or: [{ status: 'pending' }, { status: 'in_progress' }],
+      status: 'pending',
     });
     io1.emit('pendingDoctor', flags);
   });

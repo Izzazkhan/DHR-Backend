@@ -23,18 +23,21 @@ const {
   searchComletedRadRequest,
   assignHouseKeeper,
   getPendingRadEdrForED,
-  getCompletedRadEdrForED
+  getCompletedRadEdrForED,
 } = require('../controllers/radRequest');
 
 const router = express.Router();
 
-router.get('/getPendingRadEdr', getPendingRadEdr);
-router.get('/getCompletedRadEdr', getCompletedRadEdr);
+router.get('/getPendingRadEdr/:radTechnicianId', getPendingRadEdr);
+router.get('/getCompletedRadEdr/:radTechnicianId', getCompletedRadEdr);
 router.get('/searchPendingRadRequest/:keyword', searchPendingRadRequest);
 router.get('/searchComletedRadRequest/:keyword', searchComletedRadRequest);
 router.put('/updateRadRequest', upload.any(), updateRadRequest);
 router.post('/assignHouseKeeper', assignHouseKeeper);
-router.get('/getPendingRadEdrForED', getPendingRadEdrForED);
-router.get('/getCompletedRadEdrForED', getCompletedRadEdrForED);
+router.get('/getPendingRadEdrForED/:radTechnicianId', getPendingRadEdrForED);
+router.get(
+  '/getCompletedRadEdrForED/:radTechnicianId',
+  getCompletedRadEdrForED
+);
 
 module.exports = router;

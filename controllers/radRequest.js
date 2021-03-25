@@ -1,4 +1,5 @@
 const requestNoFormat = require('dateformat');
+const mongoose = require('mongoose');
 const EDR = require('../models/EDR/EDR');
 const HK = require('../models/houseKeepingRequest');
 const asyncHandler = require('../middleware/async');
@@ -23,10 +24,19 @@ exports.getPendingRadEdr = asyncHandler(async (req, res, next) => {
     },
     {
       $match: {
-        $or: [
-          { 'radRequest.status': 'pending' },
-          { 'radRequest.status': 'active' },
-          { 'radRequest.status': 'hold' },
+        $and: [
+          {
+            'radRequest.imageTechnicianId': mongoose.Types.ObjectId(
+              req.params.radTechnicianId
+            ),
+          },
+          {
+            $or: [
+              { 'radRequest.status': 'pending' },
+              { 'radRequest.status': 'active' },
+              { 'radRequest.status': 'hold' },
+            ],
+          },
         ],
       },
     },
@@ -80,16 +90,21 @@ exports.getCompletedRadEdr = asyncHandler(async (req, res, next) => {
     {
       $unwind: '$radRequest',
     },
-    // {
-    //   $match: {
-    //     'radRequest.status': 'completed',
-    //   },
-    // },
+
     {
       $match: {
-        $or: [
-          { 'radRequest.status': 'completed' },
-          { 'radRequest.status': 'pending approval' },
+        $and: [
+          {
+            'radRequest.imageTechnicianId': mongoose.Types.ObjectId(
+              req.params.radTechnicianId
+            ),
+          },
+          {
+            $or: [
+              { 'radRequest.status': 'completed' },
+              { 'radRequest.status': 'pending approval' },
+            ],
+          },
         ],
       },
     },
@@ -224,7 +239,7 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
         });
         const flags = await Flag.find({
           generatedFrom: 'Imaging Technician',
-          $or: [{ status: 'pending' }, { status: 'in_progress' }],
+          status: 'pending',
           // card: '1st',
         });
         globalVariable.io.emit('pendingRad', flags);
@@ -413,7 +428,16 @@ exports.getPendingRadEdrForED = asyncHandler(async (req, res, next) => {
     },
     {
       $match: {
-        'radRequest.status': 'pending approval',
+        $and: [
+          {
+            'radRequest.imageTechnicianId': mongoose.Types.ObjectId(
+              req.params.radTechnicianId
+            ),
+          },
+          {
+            'radRequest.status': 'pending approval',
+          },
+        ],
       },
     },
   ]);
@@ -467,7 +491,16 @@ exports.getCompletedRadEdrForED = asyncHandler(async (req, res, next) => {
     },
     {
       $match: {
-        'radRequest.status': 'completed',
+        $and: [
+          {
+            'radRequest.imageTechnicianId': mongoose.Types.ObjectId(
+              req.params.radTechnicianId
+            ),
+          },
+          {
+            'radRequest.status': 'completed',
+          },
+        ],
       },
     },
   ]);
