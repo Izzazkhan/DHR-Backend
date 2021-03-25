@@ -1342,6 +1342,27 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     assignedTime: Date.now(),
   });
 
+  const roomPending = await HK.find({
+    status: 'pending',
+    task: 'To Be Clean',
+  });
+
+  if (roomPending.length > 9) {
+    await Flag.create({
+      edrId: _id,
+      generatedFrom: 'House Keeping',
+      card: '1st',
+      generatedFor: 'Sensei',
+      reason: 'Cells/Beds Cleaning Pending',
+      createdAt: Date.now(),
+    });
+    const flags = await Flag.find({
+      generatedFrom: 'House Keeping',
+      status: 'pending',
+    });
+    globalVariable.io.emit('hkPending', flags);
+  }
+
   // HouseKeeping Notification
   Notification(
     'ADT_A03',
@@ -1369,6 +1390,28 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       _id,
       ''
     );
+
+    const dischargeTransfer = await CCRequest.find({
+      requestedFor: 'Discharge',
+      status: 'pending',
+      dischargeStatus: 'admitted',
+    });
+
+    if (dischargeTransfer.length > 5) {
+      await Flag.create({
+        edrId: _id,
+        generatedFrom: 'Customer Care',
+        card: '4th',
+        generatedFor: 'Customer Care',
+        reason: 'Patient Transfer from ED to IP Pending',
+        createdAt: Date.now(),
+      });
+      const flags = await Flag.find({
+        generatedFrom: 'Customer Care',
+        status: 'pending',
+      });
+      globalVariable.io.emit('ccPending', flags);
+    }
   }
 
   if (
@@ -1460,6 +1503,27 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       requestedAt: Date.now(),
       costomerCareId: customerCare._id,
     });
+  }
+
+  const transferRequest = await CCRequest.find({
+    requestedFor: 'Discharge',
+    status: 'pending',
+  });
+
+  if (transferRequest.length > 4) {
+    await Flag.create({
+      edrId: _id,
+      generatedFrom: 'Customer Care',
+      card: '5th',
+      generatedFor: 'Customer Care',
+      reason: 'Patient Discharge Transfer Pending',
+      createdAt: Date.now(),
+    });
+    const flags = await Flag.find({
+      generatedFrom: 'Customer Care',
+      status: 'pending',
+    });
+    globalVariable.io.emit('ccPending', flags);
   }
 
   Notification(
@@ -2323,6 +2387,38 @@ exports.deliverPharmcayRequest = asyncHandler(async (req, res, next) => {
     req.body.edrId,
     ''
   );
+
+  const pharmacyRequest = await EDR.aggregate([
+    {
+      $project: {
+        pharmacyRequest: 1,
+      },
+    },
+    {
+      $unwind: '$pharmacyRequest',
+    },
+    {
+      $match: {
+        'pharmacyRequest.status': 'in_progress',
+      },
+    },
+  ]);
+
+  if (pharmacyRequest.length > 6) {
+    await Flag.create({
+      edrId: req.body.edrId,
+      generatedFrom: 'Customer Care',
+      card: '3rd',
+      generatedFor: 'Customer Care',
+      reason: 'Pharma Transfer to ED/EOU Pending',
+      createdAt: Date.now(),
+    });
+    const flags = await Flag.find({
+      generatedFrom: 'Customer Care',
+      status: 'pending',
+    });
+    globalVariable.io.emit('ccPending', flags);
+  }
 
   res.status(200).json({
     success: true,

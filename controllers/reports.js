@@ -3359,10 +3359,11 @@ exports.ccDashboard = asyncHandler(async (req, res, next) => {
 
   const pharmacyTAT = pharmacyTime / pharmacyCompleted.length;
 
-  // * 4th Card
+  // * 5th Card
   const dischargeTransfer = await CCRequest.find({
     requestedFor: 'Discharge',
     status: 'pending',
+    // dischargeStatus: 'admitted',
     requestedAt: { $gte: sixHour },
   });
 
