@@ -288,8 +288,7 @@ exports.roSenseiPending = asyncHandler(async (req, res, next) => {
     },
   ]);
 
-  // arr.push({ label: lastHour, value: sixthHourPatient.length });
-  arr.push({ label: lastHour, value: 5 });
+  arr.push({ label: lastHour, value: sixthHourPatient.length });
 
   const fifthHourPatient = await Patient.aggregate([
     {
@@ -313,8 +312,7 @@ exports.roSenseiPending = asyncHandler(async (req, res, next) => {
     },
   ]);
 
-  // arr.push({ label: fifthHour, value: fifthHourPatient.length });
-  arr.push({ label: fifthHour, value: 4 });
+  arr.push({ label: fifthHour, value: fifthHourPatient.length });
 
   const fourthHourPatient = await Patient.aggregate([
     {
@@ -337,8 +335,7 @@ exports.roSenseiPending = asyncHandler(async (req, res, next) => {
       },
     },
   ]);
-  // arr.push({ label: fourthHour, value: fourthHourPatient.length });
-  arr.push({ label: fourthHour, value: 10 });
+  arr.push({ label: fourthHour, value: fourthHourPatient.length });
 
   const thirdHourPatient = await Patient.aggregate([
     {
@@ -362,8 +359,7 @@ exports.roSenseiPending = asyncHandler(async (req, res, next) => {
     },
   ]);
 
-  // arr.push({ label: thirdHour, value: thirdHourPatient.length });
-  arr.push({ label: thirdHour, value: 12 });
+  arr.push({ label: thirdHour, value: thirdHourPatient.length });
 
   const secondHourPatient = await Patient.aggregate([
     {
@@ -387,8 +383,7 @@ exports.roSenseiPending = asyncHandler(async (req, res, next) => {
     },
   ]);
 
-  // arr.push({ label: secondHour, value: secondHourPatient.length });
-  arr.push({ label: secondHour, value: 9 });
+  arr.push({ label: secondHour, value: secondHourPatient.length });
 
   const firstHourPatient = await Patient.aggregate([
     {
@@ -412,8 +407,7 @@ exports.roSenseiPending = asyncHandler(async (req, res, next) => {
     },
   ]);
 
-  // arr.push({ label: sixHour, value: firstHourPatient.length });
-  arr.push({ label: sixHour, value: 1 });
+  arr.push({ label: sixHour, value: firstHourPatient.length });
 
   res.status(200).json({
     success: true,
@@ -478,8 +472,7 @@ exports.roTotalPending = asyncHandler(async (req, res, next) => {
     },
   ]);
 
-  // arr.push({ label: lastHour, value: sixthHourPatient.length });
-  arr.push({ label: lastHour, value: 5 });
+  arr.push({ label: lastHour, value: sixthHourPatient.length });
 
   const fifthHourPatient = await Patient.aggregate([
     {
@@ -502,8 +495,7 @@ exports.roTotalPending = asyncHandler(async (req, res, next) => {
     },
   ]);
 
-  // arr.push({ label: fifthHour, value: fifthHourPatient.length });
-  arr.push({ label: fifthHour, value: 4 });
+  arr.push({ label: fifthHour, value: fifthHourPatient.length });
 
   const fourthHourPatient = await Patient.aggregate([
     {
@@ -525,8 +517,7 @@ exports.roTotalPending = asyncHandler(async (req, res, next) => {
       },
     },
   ]);
-  // arr.push({ label: fourthHour, value: fourthHourPatient.length });
-  arr.push({ label: fourthHour, value: 10 });
+  arr.push({ label: fourthHour, value: fourthHourPatient.length });
 
   const thirdHourPatient = await Patient.aggregate([
     {
@@ -549,8 +540,7 @@ exports.roTotalPending = asyncHandler(async (req, res, next) => {
     },
   ]);
 
-  // arr.push({ label: thirdHour, value: thirdHourPatient.length });
-  arr.push({ label: thirdHour, value: 12 });
+  arr.push({ label: thirdHour, value: thirdHourPatient.length });
 
   const secondHourPatient = await Patient.aggregate([
     {
@@ -573,8 +563,7 @@ exports.roTotalPending = asyncHandler(async (req, res, next) => {
     },
   ]);
 
-  // arr.push({ label: secondHour, value: secondHourPatient.length });
-  arr.push({ label: secondHour, value: 9 });
+  arr.push({ label: secondHour, value: secondHourPatient.length });
 
   const firstHourPatient = await Patient.aggregate([
     {
@@ -597,8 +586,7 @@ exports.roTotalPending = asyncHandler(async (req, res, next) => {
     },
   ]);
 
-  // arr.push({ label: sixHour, value: firstHourPatient.length });
-  arr.push({ label: sixHour, value: 1 });
+  arr.push({ label: sixHour, value: firstHourPatient.length });
 
   res.status(200).json({
     success: true,

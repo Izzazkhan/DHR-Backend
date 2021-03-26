@@ -134,7 +134,7 @@ exports.getAllStaff = asyncHandler(async (req, res, next) => {
       {
         path: 'chiefComplaint.chiefComplaintId',
         model: 'chiefComplaint',
-        select: 'chiefComplaint.chiefComplaintId',
+        // select: 'chiefComplaint.chiefComplaintId',
         populate: [
           {
             path: 'productionArea.productionAreaId',

@@ -19,7 +19,7 @@ const ErrorResponse = require('../utils/errorResponse');
 
 exports.getAllPendingFlag = asyncHandler(async (req, res, next) => {
   const flag = await Flag.find({
-    $or: [{ status: 'pending' }, { status: 'in_progress' }],
+    status: 'pending',
     generatedFrom: req.params.generatedFrom,
   }).populate([
     {
