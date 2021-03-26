@@ -443,6 +443,11 @@ exports.getInProgressCS = asyncHandler(async (req, res, next) => {
       path: 'pharmacyRequest.reconciliationNotes.addedBy',
       model: 'staff',
     },
+    {
+      path: 'careStream.careStreamId',
+      model: 'careStream',
+      select: 'identifier',
+    },
   ]);
 
   res.status(200).json({
