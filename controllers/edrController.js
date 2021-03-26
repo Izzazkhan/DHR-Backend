@@ -2235,6 +2235,7 @@ exports.addPharmacyRequest = asyncHandler(async (req, res, next) => {
     }
   ).populate('patientId');
 
+  // Flags
   const pharmacyPending = await EDR.aggregate([
     {
       $project: {
@@ -2265,6 +2266,8 @@ exports.addPharmacyRequest = asyncHandler(async (req, res, next) => {
     });
     globalVariable.io.emit('pendingDoctor', flags);
   }
+
+  //  Clinical Pharmacist Flag
 
   Notification(
     'Medication Request',
