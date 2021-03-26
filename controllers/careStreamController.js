@@ -372,12 +372,13 @@ exports.getInProgressCS = asyncHandler(async (req, res, next) => {
           path: 'productionArea.productionAreaId',
           model: 'productionArea',
           select: 'paName',
-          // populate: [
-          //   {
-          //     path: 'rooms.roomId',
-          //     model: 'room',
-          //   },
-          // ],
+          populate: [
+            {
+              path: 'rooms.roomId',
+              model: 'room',
+              select: 'roomNo',
+            },
+          ],
         },
       ],
     },
