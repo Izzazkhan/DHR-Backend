@@ -221,7 +221,7 @@ io1.on('connection', (socket) => {
       },
     ]);
 
-    io1.emit('count', count.length);
+    io1.emit('count', { count: count.length, user: userId });
   });
 
   socket.on('rad_flags', async () => {
