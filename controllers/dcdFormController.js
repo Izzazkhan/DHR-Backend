@@ -73,6 +73,22 @@ exports.addTriageAssessment = asyncHandler(async (req, res, next) => {
     });
     globalVariable.io.emit('edNursePending', flags);
   }
+
+  if (patientTriagePending.length > 6) {
+    await Flag.create({
+      edrId: req.body.data.edrId,
+      generatedFrom: 'EOU Nurse',
+      card: '1st',
+      generatedFor: 'Sensei',
+      reason: 'Patients pending for TriageAssessment From Nurse',
+      createdAt: Date.now(),
+    });
+    const flags = await Flag.find({
+      generatedFrom: 'EOU Nurse',
+      status: 'pending',
+    });
+    globalVariable.io.emit('eouNursePending', flags);
+  }
   res.status(200).json({
     success: true,
     data: edrPatient,

@@ -352,46 +352,6 @@ exports.completeRequest = asyncHandler(async (req, res, next) => {
     .select('patientId edNurseRequest')
     .populate('patientId', 'Identifier');
 
-  const EDnurseTasksPending = await EDR.aggregate([
-    {
-      $project: {
-        _id: 1,
-        edNurseRequest: 1,
-      },
-    },
-    {
-      $unwind: '$edNurseRequest',
-    },
-    {
-      $match: {
-        $and: [
-          { 'edNurseRequest.status': 'pending' },
-          {
-            'edNurseRequest.edNurseId': mongoose.Types.ObjectId(
-              req.params.nurseId
-            ),
-          },
-        ],
-      },
-    },
-  ]);
-
-  if (EDnurseTasksPending.length > 6) {
-    await Flag.create({
-      edrId: req.body.data.edrId,
-      generatedFrom: 'ED Nurse',
-      card: '3rd',
-      generatedFor: 'Sensei',
-      reason: 'Task Pending From Nurse',
-      createdAt: Date.now(),
-    });
-    const flags = await Flag.find({
-      generatedFrom: 'ED Nurse',
-      status: 'pending',
-    });
-    globalVariable.io.emit('edNursePending', flags);
-  }
-
   res.status(200).json({
     success: true,
     data: updatedRequest,
