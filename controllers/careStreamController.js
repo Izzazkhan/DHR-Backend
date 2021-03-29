@@ -358,10 +358,17 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
 });
 
 exports.getInProgressCS = asyncHandler(async (req, res, next) => {
-  const inProgressCS = await EDR.find({
-    status: 'pending',
-    'careStream.status': 'in_progress',
-  }).populate([
+  const unwind = await EDR.aggregate([
+    {
+      $unwind: '$careStream',
+    },
+    {
+      $match: {
+        $and: [{ status: 'pending' }, { 'careStream.status': 'in_progress' }],
+      },
+    },
+  ]);
+  const inProgressCS = await EDR.populate(unwind, [
     {
       path: 'chiefComplaint.chiefComplaintId',
       model: 'chiefComplaint',
@@ -447,6 +454,63 @@ exports.getInProgressCS = asyncHandler(async (req, res, next) => {
       path: 'careStream.careStreamId',
       model: 'careStream',
       select: 'identifier',
+    },
+  ]);
+
+  res.status(200).json({
+    success: true,
+    data: inProgressCS,
+  });
+});
+
+exports.edInProgressCS = asyncHandler(async (req, res, next) => {
+  const unwind = await EDR.aggregate([
+    {
+      $project: {
+        careStream: 1,
+        status: 1,
+        chiefComplaint: 1,
+        patientId: 1,
+      },
+    },
+    {
+      $unwind: '$careStream',
+    },
+    {
+      $match: {
+        $and: [{ status: 'pending' }, { 'careStream.status': 'in_progress' }],
+      },
+    },
+    {
+      $project: {
+        'careStream.careStreamId': 1,
+        'careStream.assignedTime': 1,
+        chiefComplaint: 1,
+        patientId: 1,
+      },
+    },
+  ]);
+
+  const inProgressCS = await EDR.populate(unwind, [
+    {
+      path: 'careStream.careStreamId',
+      select: 'identifier name',
+    },
+    {
+      path: 'patientId',
+      select: 'identifier name',
+    },
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      select: 'chiefComplaint.chiefComplaintId',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      ],
     },
   ]);
 
