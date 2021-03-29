@@ -1330,6 +1330,14 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
   const random = Math.floor(Math.random() * (houseKeepers.length - 1));
   const houseKeeper = houseKeepers[random];
 
+  await EDR.findOneAndUpdate(
+    { _id: _id },
+    { $set: { dischargeTimestamp: Date.now() } },
+    {
+      new: true,
+    }
+  );
+
   // Discharge Request
   edr = await EDR.findOneAndUpdate({ _id: _id }, req.body, {
     new: true,
