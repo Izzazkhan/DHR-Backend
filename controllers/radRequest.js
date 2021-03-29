@@ -244,6 +244,22 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
         });
         globalVariable.io.emit('pendingRad', flags);
       }
+
+      if (rads.length > 6) {
+        await Flag.create({
+          edrId: parsed.edrId,
+          generatedFrom: 'ED Nurse',
+          card: '4th',
+          generatedFor: 'Sensei',
+          reason: 'Patients Rad Consultation Notes Pending',
+          createdAt: Date.now(),
+        });
+        const flags = await Flag.find({
+          generatedFrom: 'ED Nurse',
+          status: 'pending',
+        });
+        globalVariable.io.emit('edNursePending', flags);
+      }
       Notification(
         'Report Uploaded',
         'Radiology Test Report Generated',

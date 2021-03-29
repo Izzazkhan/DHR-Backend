@@ -221,7 +221,7 @@ io1.on('connection', (socket) => {
       },
     ]);
 
-    io1.emit('count', count.length);
+    io1.emit('count', { count: count.length, user: userId });
   });
 
   socket.on('rad_flags', async () => {
@@ -271,6 +271,22 @@ io1.on('connection', (socket) => {
       status: 'pending',
     });
     io1.emit('ccPending', flags);
+  });
+
+  socket.on('edNurse_flags', async () => {
+    const flags = await Flag.find({
+      generatedFrom: 'ED Nurse',
+      status: 'pending',
+    });
+    io1.emit('edNursePending', flags);
+  });
+
+  socket.on('eouNurse_flags', async () => {
+    const flags = await Flag.find({
+      generatedFrom: 'ED Nurse',
+      status: 'pending',
+    });
+    io1.emit('eouNursePending', flags);
   });
 });
 
