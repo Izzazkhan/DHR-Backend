@@ -681,6 +681,22 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
     globalVariable.io.emit('pendingSensei', flags);
   }
 
+  if (labPending.length > 6) {
+    await Flag.create({
+      edrId: req.body.edrId,
+      generatedFrom: 'ED Nurse',
+      card: '6th',
+      generatedFor: 'Sensei',
+      reason: 'Lab Results Pending',
+      createdAt: Date.now(),
+    });
+    const flags = await Flag.find({
+      generatedFrom: 'ED Nurse',
+      status: 'pending',
+    });
+    globalVariable.io.emit('edNursePending', flags);
+  }
+
   Notification(
     'Lab Test',
     'Lab Test Request',
