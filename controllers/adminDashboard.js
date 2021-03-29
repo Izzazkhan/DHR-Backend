@@ -886,7 +886,7 @@ exports.nursesAssigned = asyncHandler(async (req, res) => {
 
 // Care Streams in progress
 exports.careStreamInProgress = asyncHandler(async (req, res) => {
-  const unwind = await EDR.aggregate([
+  const assignedCareStreams = await EDR.aggregate([
     {
       $project: {
         careStream: 1,
@@ -902,36 +902,36 @@ exports.careStreamInProgress = asyncHandler(async (req, res) => {
         $and: [{ status: 'pending' }, { 'careStream.status': 'in_progress' }],
       },
     },
-    {
-      $project: {
-        'careStream.careStreamId': 1,
-        'careStream.assignedTime': 1,
-        chiefComplaint: 1,
-      },
-    },
+    // {
+    //   $project: {
+    //     'careStream.careStreamId': 1,
+    //     'careStream.assignedTime': 1,
+    //     chiefComplaint: 1,
+    //   },
+    // },
   ]);
 
-  const assignedCareStreams = await EDR.populate(unwind, [
-    {
-      path: 'careStream.careStreamId',
-      select: 'identifier name',
-    },
-    {
-      path: 'chiefComplaint.chiefComplaintId',
-      model: 'chiefComplaint',
-      select: 'chiefComplaint.chiefComplaintId',
-      populate: [
-        {
-          path: 'productionArea.productionAreaId',
-          model: 'productionArea',
-          select: 'paName',
-        },
-      ],
-    },
-  ]);
+  // const assignedCareStreams = await EDR.populate(unwind, [
+  //   {
+  //     path: 'careStream.careStreamId',
+  //     select: 'identifier name',
+  //   },
+  //   {
+  //     path: 'chiefComplaint.chiefComplaintId',
+  //     model: 'chiefComplaint',
+  //     select: 'chiefComplaint.chiefComplaintId',
+  //     populate: [
+  //       {
+  //         path: 'productionArea.productionAreaId',
+  //         model: 'productionArea',
+  //         select: 'paName',
+  //       },
+  //     ],
+  //   },
+  // ]);
 
   res.status(200).json({
     success: true,
-    data: { assignedCareStreams, totalCareStreams: assignedCareStreams.length },
+    data: assignedCareStreams.length,
   });
 });

@@ -36,7 +36,14 @@ const edrSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'staff',
       },
+      completedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
       assignedTime: {
+        type: Date,
+      },
+      completedTime: {
         type: Date,
       },
       reason: String,
