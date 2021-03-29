@@ -604,6 +604,65 @@ exports.completeCareStream = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.getCompletedCS = asyncHandler(async (req, res, next) => {
+  const unwind = await EDR.aggregate([
+    {
+      $project: {
+        careStream: 1,
+        status: 1,
+        chiefComplaint: 1,
+        patientId: 1,
+      },
+    },
+    {
+      $unwind: '$careStream',
+    },
+    {
+      $match: {
+        'careStream.status': 'completed',
+      },
+    },
+    {
+      $project: {
+        'careStream.careStreamId': 1,
+        'careStream._id': 1,
+        'careStream.assignedTime': 1,
+        'careStream.status': 1,
+        chiefComplaint: 1,
+        patientId: 1,
+      },
+    },
+  ]);
+
+  const inProgressCS = await EDR.populate(unwind, [
+    {
+      path: 'careStream.careStreamId',
+      select: 'identifier name',
+    },
+    {
+      path: 'patientId',
+      select: 'identifier name',
+    },
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      select: 'chiefComplaint.chiefComplaintId',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      ],
+    },
+  ]);
+
+  res.status(200).json({
+    success: true,
+    data: inProgressCS,
+  });
+});
+
 exports.getPatientWithoutCSByKeyword = asyncHandler(async (req, res, next) => {
   const arr = [];
   const patients = await EDR.find({
