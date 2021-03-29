@@ -280,6 +280,14 @@ io1.on('connection', (socket) => {
     });
     io1.emit('edNursePending', flags);
   });
+
+  socket.on('eouNurse_flags', async () => {
+    const flags = await Flag.find({
+      generatedFrom: 'ED Nurse',
+      status: 'pending',
+    });
+    io1.emit('eouNursePending', flags);
+  });
 });
 
 // Handle unhandled promise rejections

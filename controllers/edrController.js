@@ -1884,6 +1884,39 @@ exports.addEDNurseRequest = asyncHandler(async (req, res, next) => {
     }
   );
 
+  const EDnurseTasksPending = await EDR.aggregate([
+    {
+      $project: {
+        _id: 1,
+        edNurseRequest: 1,
+      },
+    },
+    {
+      $unwind: '$edNurseRequest',
+    },
+    {
+      $match: {
+        'edNurseRequest.status': 'pending',
+      },
+    },
+  ]);
+
+  if (EDnurseTasksPending.length > 6) {
+    await Flag.create({
+      edrId: req.body.data.edrId,
+      generatedFrom: 'ED Nurse',
+      card: '3rd',
+      generatedFor: 'Sensei',
+      reason: 'Task Pending From Nurse',
+      createdAt: Date.now(),
+    });
+    const flags = await Flag.find({
+      generatedFrom: 'ED Nurse',
+      status: 'pending',
+    });
+    globalVariable.io.emit('edNursePending', flags);
+  }
+
   // await Staff.findOneAndUpdate(
   //   { _id: parsed.edNurse },
   //   { $set: { availability: false } },
