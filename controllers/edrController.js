@@ -2325,6 +2325,38 @@ exports.updatePharmcayRequest = asyncHandler(async (req, res, next) => {
     'ED Nurse'
   );
 
+  // const pharmacyRequest = await EDR.aggregate([
+  //   {
+  //     $project: {
+  //       pharmacyRequest: 1,
+  //     },
+  //   },
+  //   {
+  //     $unwind: '$pharmacyRequest',
+  //   },
+  //   {
+  //     $match: {
+  //       'pharmacyRequest.status': 'pending',
+  //     },
+  //   },
+  // ]);
+
+  // if (pharmacyRequest.length > 4) {
+  //   await Flag.create({
+  //     edrId: req.body.edrId,
+  //     generatedFrom: 'ED Doctor',
+  //     card: '7th',
+  //     generatedFor: 'ED Doctor',
+  //     reason: 'Pharmacy Requests Pending',
+  //     createdAt: Date.now(),
+  //   });
+  //   const flags = await Flag.find({
+  //     generatedFrom: 'ED Doctor',
+  //     $or: [{ status: 'pending' }, { status: 'in_progress' }],
+  //   });
+  //   globalVariable.io.emit('pendingDoctor', flags);
+  // }
+
   res.status(200).json({
     success: true,
     data: addedNote,
