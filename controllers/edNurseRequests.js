@@ -472,6 +472,22 @@ exports.updateMedicationStatus = asyncHandler(async (req, res, next) => {
       globalVariable.io.emit('pendingSensei', flags);
     }
 
+    if (patientTreatmentsPending.length > 6) {
+      await Flag.create({
+        edrId: req.body.edrId,
+        generatedFrom: 'ED Nurse',
+        card: '2nd',
+        generatedFor: 'Sensei',
+        reason: 'Patients Medications By Nurse Pending',
+        createdAt: Date.now(),
+      });
+      const flags = await Flag.find({
+        generatedFrom: 'ED Nurse',
+        status: 'pending',
+      });
+      globalVariable.io.emit('pendingSensei', flags);
+    }
+
     if (patientTreatmentsPending.length > 4) {
       await Flag.create({
         edrId: req.body.edrId,

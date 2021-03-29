@@ -484,6 +484,7 @@ exports.edInProgressCS = asyncHandler(async (req, res, next) => {
     {
       $project: {
         'careStream.careStreamId': 1,
+        'careStream._id': 1,
         'careStream.assignedTime': 1,
         'careStream.status': 1,
         chiefComplaint: 1,
