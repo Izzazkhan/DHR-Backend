@@ -11,7 +11,6 @@ const {
   radiologyExams,
   doctorsAssigned,
   nursesAssigned,
-  careStreamInProgress,
 } = require('../controllers/adminDashboard');
 
 // Admin dashboard API Routes
@@ -23,6 +22,5 @@ router.get('/labTests', labTests);
 router.get('/radiologyExams', radiologyExams);
 router.get('/doctorsAssigned', doctorsAssigned);
 router.get('/nursesAssigned', nursesAssigned);
-router.get('/careStreamInProgress', careStreamInProgress);
 
 module.exports = router;
