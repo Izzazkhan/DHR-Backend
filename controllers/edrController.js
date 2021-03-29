@@ -1903,7 +1903,7 @@ exports.addEDNurseRequest = asyncHandler(async (req, res, next) => {
 
   if (EDnurseTasksPending.length > 6) {
     await Flag.create({
-      edrId: req.body.data.edrId,
+      edrId: parsed.edrId,
       generatedFrom: 'ED Nurse',
       card: '3rd',
       generatedFor: 'Sensei',
