@@ -752,7 +752,7 @@ exports.timeInterval = asyncHandler(async (req, res, next) => {
     },
   ]);
 
-  console.log(patientsTime);
+  // console.log(patientsTime);
 
   patientsTime.map(
     (day) => (day.days = day.dateDifference.toString().split('.')[0])
@@ -1124,6 +1124,8 @@ exports.currentTimeInterval = asyncHandler(async (req, res, next) => {
     },
   ]);
 
+  // console.log(patientsTime);
+
   patientsTime.map(
     (day) => (day.days = day.dateDifference.toString().split('.')[0])
   );
@@ -1312,6 +1314,8 @@ exports.eouTimeInterval = asyncHandler(async (req, res, next) => {
       },
     },
   ]);
+
+  // console.log(patientsTime);
 
   patientsTime.map(
     (day) => (day.days = day.dateDifference.toString().split('.')[0])
