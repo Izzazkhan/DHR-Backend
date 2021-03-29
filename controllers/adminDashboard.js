@@ -793,6 +793,25 @@ exports.dashboard = asyncHandler(async (req, res) => {
 
   clearAllTime();
 
+  // Care Stream In Progress
+  const careStreamInProgress = await EDR.aggregate([
+    {
+      $project: {
+        careStream: 1,
+        status: 1,
+        chiefComplaint: 1,
+      },
+    },
+    {
+      $unwind: '$careStream',
+    },
+    {
+      $match: {
+        $and: [{ status: 'pending' }, { 'careStream.status': 'in_progress' }],
+      },
+    },
+  ]);
+
   res.status(200).json({
     success: true,
     data: {
@@ -807,6 +826,7 @@ exports.dashboard = asyncHandler(async (req, res) => {
       NursesInMorning: NursesInMorning.length,
       NursesInEvening: NursesInEvening.length,
       NursesInNight: NursesInNight.length,
+      careStreamInProgress: careStreamInProgress.length,
       peakTimeForPatients: {
         totalPatients: patientsRegistered.length,
         perHour: patientsRegisteredPerHour,
@@ -881,57 +901,5 @@ exports.nursesAssigned = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     data: nurses,
-  });
-});
-
-// Care Streams in progress
-exports.careStreamInProgress = asyncHandler(async (req, res) => {
-  const assignedCareStreams = await EDR.aggregate([
-    {
-      $project: {
-        careStream: 1,
-        status: 1,
-        chiefComplaint: 1,
-      },
-    },
-    {
-      $unwind: '$careStream',
-    },
-    {
-      $match: {
-        $and: [{ status: 'pending' }, { 'careStream.status': 'in_progress' }],
-      },
-    },
-    // {
-    //   $project: {
-    //     'careStream.careStreamId': 1,
-    //     'careStream.assignedTime': 1,
-    //     chiefComplaint: 1,
-    //   },
-    // },
-  ]);
-
-  // const assignedCareStreams = await EDR.populate(unwind, [
-  //   {
-  //     path: 'careStream.careStreamId',
-  //     select: 'identifier name',
-  //   },
-  //   {
-  //     path: 'chiefComplaint.chiefComplaintId',
-  //     model: 'chiefComplaint',
-  //     select: 'chiefComplaint.chiefComplaintId',
-  //     populate: [
-  //       {
-  //         path: 'productionArea.productionAreaId',
-  //         model: 'productionArea',
-  //         select: 'paName',
-  //       },
-  //     ],
-  //   },
-  // ]);
-
-  res.status(200).json({
-    success: true,
-    data: assignedCareStreams.length,
   });
 });
