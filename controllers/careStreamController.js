@@ -527,7 +527,26 @@ exports.searchInProgressCS = asyncHandler(async (req, res, next) => {
   const patients = await EDR.find({
     status: 'pending',
     'careStream.status': 'in_progress',
-  }).populate('patientId');
+  })
+    .populate('patientId')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+      {
+        path: 'careStream.careStreamId',
+        select: 'identifier name',
+      },
+    ]);
 
   for (let i = 0; i < patients.length; i++) {
     const fullName =

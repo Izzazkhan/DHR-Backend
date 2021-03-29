@@ -352,6 +352,30 @@ exports.completeRequest = asyncHandler(async (req, res, next) => {
     .select('patientId edNurseRequest')
     .populate('patientId', 'Identifier');
 
+  const EDnurseTasksPending = await EDR.aggregate([
+    {
+      $project: {
+        _id: 1,
+        edNurseRequest: 1,
+      },
+    },
+    {
+      $unwind: '$edNurseRequest',
+    },
+    {
+      $match: {
+        $and: [
+          { 'edNurseRequest.status': 'pending' },
+          {
+            'edNurseRequest.edNurseId': mongoose.Types.ObjectId(
+              req.params.nurseId
+            ),
+          },
+        ],
+      },
+    },
+  ]);
+
   res.status(200).json({
     success: true,
     data: updatedRequest,
@@ -485,7 +509,7 @@ exports.updateMedicationStatus = asyncHandler(async (req, res, next) => {
         generatedFrom: 'ED Nurse',
         status: 'pending',
       });
-      globalVariable.io.emit('pendingSensei', flags);
+      globalVariable.io.emit('edNursePending', flags);
     }
 
     if (patientTreatmentsPending.length > 4) {
