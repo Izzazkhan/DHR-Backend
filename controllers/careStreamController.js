@@ -502,8 +502,14 @@ exports.searchInProgressCS = asyncHandler(async (req, res, next) => {
 
 exports.completeCareStream = asyncHandler(async (req, res, next) => {
   const completedCS = await EDR.findOneAndUpdate(
-    { _id: req.params.edrId, 'careStream._id': req.params.csId },
-    { $set: { status: 'completed' } },
+    { _id: req.body.edrId, 'careStream._id': req.body.csId },
+    {
+      $set: {
+        'careStream.$.status': 'completed',
+        'careStream.$.completedBy': req.body.staffId,
+        'careStream.$.completedTime': Date.now(),
+      },
+    },
     { new: true }
   );
 
