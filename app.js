@@ -320,6 +320,14 @@ io1.on('connection', (socket) => {
     });
     io1.emit('radDoctorPending', flags);
   });
+
+  socket.on('labTechnician_flags', async () => {
+    const flags = await Flag.find({
+      generatedFrom: 'Rad Doctor',
+      status: 'pending',
+    });
+    io1.emit('ltPending', flags);
+  });
 });
 
 // Handle unhandled promise rejections
