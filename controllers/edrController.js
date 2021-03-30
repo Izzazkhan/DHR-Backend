@@ -834,6 +834,49 @@ exports.addConsultationNote = asyncHandler(async (req, res, next) => {
       '',
       'Internal'
     );
+
+    // Flags
+    const pendingConsultationInternal = await EDR.aggregate([
+      {
+        $project: {
+          consultationNote: 1,
+          status: 1,
+        },
+      },
+      {
+        $unwind: '$consultationNote',
+      },
+      {
+        $match: {
+          $and: [
+            { status: 'pending' },
+            {
+              'consultationNote.status': 'pending',
+            },
+            {
+              'consultationNote.consultationType': 'Internal',
+            },
+          ],
+        },
+      },
+    ]);
+    if (pendingConsultationInternal.length > 4) {
+      await Flag.create({
+        edrId: parsed.edrId,
+        generatedFrom: 'Internal',
+        card: '1st',
+        generatedFor: 'ED Doctor',
+        reason: 'Patient Consultations Pending',
+        createdAt: Date.now(),
+      });
+      const flags = await Flag.find({
+        generatedFrom: 'Internal',
+        status: 'pending',
+        // card: '1st',
+      });
+
+      globalVariable.io.emit('internalPending', flags);
+    }
   }
 
   if (parsed.subType === 'External') {
@@ -858,6 +901,49 @@ exports.addConsultationNote = asyncHandler(async (req, res, next) => {
       '',
       'External'
     );
+
+    // Flags
+    const pendingConsultation = await EDR.aggregate([
+      {
+        $project: {
+          consultationNote: 1,
+          status: 1,
+        },
+      },
+      {
+        $unwind: '$consultationNote',
+      },
+      {
+        $match: {
+          $and: [
+            { status: 'pending' },
+            {
+              'consultationNote.status': 'pending',
+            },
+            {
+              'consultationNote.consultationType': 'External',
+            },
+          ],
+        },
+      },
+    ]);
+    if (pendingConsultation.length > 4) {
+      await Flag.create({
+        edrId: parsed.edrId,
+        generatedFrom: 'External',
+        card: '1st',
+        generatedFor: 'ED Doctor',
+        reason: 'Patient Consultations Pending',
+        createdAt: Date.now(),
+      });
+      const flags = await Flag.find({
+        generatedFrom: 'External',
+        status: 'pending',
+        // card: '1st',
+      });
+
+      globalVariable.io.emit('externalPending', flags);
+    }
   }
   res.status(200).json({
     success: true,
@@ -867,14 +953,11 @@ exports.addConsultationNote = asyncHandler(async (req, res, next) => {
 
 exports.updateConsultationNote = asyncHandler(async (req, res, next) => {
   const parsed = JSON.parse(req.body.data);
-  // const parsed = req.body;
-  // console.log(parsed);
   const edrNotes = await EDR.findOne({ _id: parsed.edrId });
 
   let note;
   for (let i = 0; i < edrNotes.consultationNote.length; i++) {
     if (edrNotes.consultationNote[i]._id == parsed.noteId) {
-      // console.log(i);
       note = i;
     }
   }
@@ -894,10 +977,95 @@ exports.updateConsultationNote = asyncHandler(async (req, res, next) => {
     },
     { new: true }
   ).populate('consultationNote.consultant');
-  // await EDR.findOne({ _id: parsed.edrId }).populate(
-  //
-  // );
-  // console.log(updatedNote);
+
+  // FLags
+  if (parsed.subType === 'External') {
+    const consultantCompletedNotes = await EDR.aggregate([
+      {
+        $project: {
+          consultationNote: 1,
+          status: 1,
+        },
+      },
+      {
+        $unwind: '$consultationNote',
+      },
+      {
+        $match: {
+          $and: [
+            {
+              'consultationNote.status': 'complete',
+            },
+            {
+              'consultationNote.consultationType': 'External',
+            },
+          ],
+        },
+      },
+    ]);
+
+    if (consultantCompletedNotes.length > 4) {
+      await Flag.create({
+        edrId: parsed.edrId,
+        generatedFrom: 'External',
+        card: '2nd',
+        generatedFor: 'ED Doctor',
+        reason: 'Patient Follow Ups Pending',
+        createdAt: Date.now(),
+      });
+      const flags = await Flag.find({
+        generatedFrom: 'External',
+        status: 'pending',
+      });
+
+      globalVariable.io.emit('externalPending', flags);
+    }
+  }
+
+  // FLags
+  if (parsed.subType === 'Internal') {
+    const completedNotesInternal = await EDR.aggregate([
+      {
+        $project: {
+          consultationNote: 1,
+          status: 1,
+        },
+      },
+      {
+        $unwind: '$consultationNote',
+      },
+      {
+        $match: {
+          $and: [
+            {
+              'consultationNote.status': 'complete',
+            },
+            {
+              'consultationNote.consultationType': 'Internal',
+            },
+          ],
+        },
+      },
+    ]);
+
+    if (completedNotesInternal.length > 4) {
+      await Flag.create({
+        edrId: parsed.edrId,
+        generatedFrom: 'Internal',
+        card: '2nd',
+        generatedFor: 'ED Doctor',
+        reason: 'Patient Follow Ups Pending',
+        createdAt: Date.now(),
+      });
+      const flags = await Flag.find({
+        generatedFrom: 'Internal',
+        status: 'pending',
+      });
+
+      globalVariable.io.emit('internalPending', flags);
+    }
+  }
+
   res.status(200).json({
     success: true,
     data: updatedNote,
