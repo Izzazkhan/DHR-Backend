@@ -2157,7 +2157,7 @@ exports.updateEOUNurseRequest = asyncHandler(async (req, res, next) => {
     'Required An Assistance',
     'Nurses',
     'EOU Requests',
-    '/dashboard/home/nursetechnician',
+    '/dashboard/home/nurseTasks',
     parsed.edrId,
     '',
     'EOU Nurse'
