@@ -93,6 +93,7 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
       password: parsed.password,
       addedBy: parsed.addedBy,
       shift: parsed.shift,
+      additionalRole: parsed.additionalRole,
     });
     res.status(201).json({
       success: true,
@@ -120,6 +121,7 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
       password: parsed.password,
       addedBy: parsed.addedBy,
       shift: parsed.shift,
+      additionalRole: parsed.additionalRole,
     });
     res.status(201).json({
       success: true,
