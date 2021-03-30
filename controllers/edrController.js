@@ -939,7 +939,6 @@ exports.addConsultationNote = asyncHandler(async (req, res, next) => {
       const flags = await Flag.find({
         generatedFrom: 'External',
         status: 'pending',
-        // card: '1st',
       });
 
       globalVariable.io.emit('externalPending', flags);
