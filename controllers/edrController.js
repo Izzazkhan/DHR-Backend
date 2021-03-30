@@ -707,6 +707,16 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
     ''
   );
 
+  Notification(
+    'Lab Request',
+    'Lab Request',
+    'Admin',
+    'Lab Requests',
+    '/dashboard/taskslist',
+    req.body.edrId,
+    ''
+  );
+
   res.status(200).json({
     success: true,
     data: assignedLab,
@@ -824,6 +834,49 @@ exports.addConsultationNote = asyncHandler(async (req, res, next) => {
       '',
       'Internal'
     );
+
+    // Flags
+    const pendingConsultationInternal = await EDR.aggregate([
+      {
+        $project: {
+          consultationNote: 1,
+          status: 1,
+        },
+      },
+      {
+        $unwind: '$consultationNote',
+      },
+      {
+        $match: {
+          $and: [
+            { status: 'pending' },
+            {
+              'consultationNote.status': 'pending',
+            },
+            {
+              'consultationNote.consultationType': 'Internal',
+            },
+          ],
+        },
+      },
+    ]);
+    if (pendingConsultationInternal.length > 4) {
+      await Flag.create({
+        edrId: parsed.edrId,
+        generatedFrom: 'Internal',
+        card: '1st',
+        generatedFor: 'ED Doctor',
+        reason: 'Patient Consultations Pending',
+        createdAt: Date.now(),
+      });
+      const flags = await Flag.find({
+        generatedFrom: 'Internal',
+        status: 'pending',
+        // card: '1st',
+      });
+
+      globalVariable.io.emit('internalPending', flags);
+    }
   }
 
   if (parsed.subType === 'External') {
@@ -848,6 +901,49 @@ exports.addConsultationNote = asyncHandler(async (req, res, next) => {
       '',
       'External'
     );
+
+    // Flags
+    const pendingConsultation = await EDR.aggregate([
+      {
+        $project: {
+          consultationNote: 1,
+          status: 1,
+        },
+      },
+      {
+        $unwind: '$consultationNote',
+      },
+      {
+        $match: {
+          $and: [
+            { status: 'pending' },
+            {
+              'consultationNote.status': 'pending',
+            },
+            {
+              'consultationNote.consultationType': 'External',
+            },
+          ],
+        },
+      },
+    ]);
+    if (pendingConsultation.length > 4) {
+      await Flag.create({
+        edrId: parsed.edrId,
+        generatedFrom: 'External',
+        card: '1st',
+        generatedFor: 'ED Doctor',
+        reason: 'Patient Consultations Pending',
+        createdAt: Date.now(),
+      });
+      const flags = await Flag.find({
+        generatedFrom: 'External',
+        status: 'pending',
+        // card: '1st',
+      });
+
+      globalVariable.io.emit('externalPending', flags);
+    }
   }
   res.status(200).json({
     success: true,
@@ -857,14 +953,11 @@ exports.addConsultationNote = asyncHandler(async (req, res, next) => {
 
 exports.updateConsultationNote = asyncHandler(async (req, res, next) => {
   const parsed = JSON.parse(req.body.data);
-  // const parsed = req.body;
-  // console.log(parsed);
   const edrNotes = await EDR.findOne({ _id: parsed.edrId });
 
   let note;
   for (let i = 0; i < edrNotes.consultationNote.length; i++) {
     if (edrNotes.consultationNote[i]._id == parsed.noteId) {
-      // console.log(i);
       note = i;
     }
   }
@@ -884,10 +977,95 @@ exports.updateConsultationNote = asyncHandler(async (req, res, next) => {
     },
     { new: true }
   ).populate('consultationNote.consultant');
-  // await EDR.findOne({ _id: parsed.edrId }).populate(
-  //
-  // );
-  // console.log(updatedNote);
+
+  // FLags
+  if (parsed.subType === 'External') {
+    const consultantCompletedNotes = await EDR.aggregate([
+      {
+        $project: {
+          consultationNote: 1,
+          status: 1,
+        },
+      },
+      {
+        $unwind: '$consultationNote',
+      },
+      {
+        $match: {
+          $and: [
+            {
+              'consultationNote.status': 'complete',
+            },
+            {
+              'consultationNote.consultationType': 'External',
+            },
+          ],
+        },
+      },
+    ]);
+
+    if (consultantCompletedNotes.length > 4) {
+      await Flag.create({
+        edrId: parsed.edrId,
+        generatedFrom: 'External',
+        card: '2nd',
+        generatedFor: 'ED Doctor',
+        reason: 'Patient Follow Ups Pending',
+        createdAt: Date.now(),
+      });
+      const flags = await Flag.find({
+        generatedFrom: 'External',
+        status: 'pending',
+      });
+
+      globalVariable.io.emit('externalPending', flags);
+    }
+  }
+
+  // FLags
+  if (parsed.subType === 'Internal') {
+    const completedNotesInternal = await EDR.aggregate([
+      {
+        $project: {
+          consultationNote: 1,
+          status: 1,
+        },
+      },
+      {
+        $unwind: '$consultationNote',
+      },
+      {
+        $match: {
+          $and: [
+            {
+              'consultationNote.status': 'complete',
+            },
+            {
+              'consultationNote.consultationType': 'Internal',
+            },
+          ],
+        },
+      },
+    ]);
+
+    if (completedNotesInternal.length > 4) {
+      await Flag.create({
+        edrId: parsed.edrId,
+        generatedFrom: 'Internal',
+        card: '2nd',
+        generatedFor: 'ED Doctor',
+        reason: 'Patient Follow Ups Pending',
+        createdAt: Date.now(),
+      });
+      const flags = await Flag.find({
+        generatedFrom: 'Internal',
+        status: 'pending',
+      });
+
+      globalVariable.io.emit('internalPending', flags);
+    }
+  }
+
   res.status(200).json({
     success: true,
     data: updatedNote,
@@ -1087,6 +1265,16 @@ exports.addRadRequest = asyncHandler(async (req, res, next) => {
     'Imaging Test Requests',
     'Imaging Technician',
     'ED Doctor',
+    '/dashboard/home/radiologyTasks',
+    req.body.edrId,
+    ''
+  );
+
+  Notification(
+    'Rad Request',
+    'Rad Request',
+    'Admin',
+    'Rad Request',
     '/dashboard/home/radiologyTasks',
     req.body.edrId,
     ''
@@ -1636,6 +1824,17 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     _id,
     ''
   );
+
+  Notification(
+    'ADT_A03',
+    'Discharge Request',
+    'Admin',
+    'Discharge Requests',
+    '/dashboard/home/patientmanagement/pendingpatients',
+    '',
+    _id,
+    ''
+  );
   const dischargePending = await EDR.find({
     status: 'Discharged',
     socialWorkerStatus: 'pending',
@@ -1798,6 +1997,75 @@ exports.addAnesthesiologistNote = asyncHandler(async (req, res, next) => {
   //   { $set: { availability: false } },
   //   { new: true }
   // );
+
+  const pending = await EDR.aggregate([
+    {
+      $project: {
+        anesthesiologistNote: 1,
+      },
+    },
+    {
+      $unwind: '$anesthesiologistNote',
+    },
+    {
+      $match: {
+        'anesthesiologistNote.status': 'pending',
+      },
+    },
+  ]);
+
+  if (pending.length > 4) {
+    await Flag.create({
+      edrId: parsed.edrId,
+      generatedFrom: 'Anesthesiologist',
+      card: '1st',
+      generatedFor: 'ED Doctor',
+      reason: 'Too many requests pending',
+      createdAt: Date.now(),
+    });
+    const flags = await Flag.find({
+      generatedFrom: 'Anesthesiologist',
+      status: 'pending',
+    });
+    globalVariable.io.emit('anesthesiaPending', flags);
+  }
+
+  // 2nd card flag
+  const pendingED = await EDR.aggregate([
+    {
+      $project: {
+        anesthesiologistNote: 1,
+        currentLocation: 1,
+      },
+    },
+    {
+      $unwind: '$anesthesiologistNote',
+    },
+    {
+      $match: {
+        $and: [
+          { 'anesthesiologistNote.status': 'pending' },
+          { currentLocation: 'ED' },
+        ],
+      },
+    },
+  ]);
+
+  if (pendingED.length > 4) {
+    await Flag.create({
+      edrId: parsed.edrId,
+      generatedFrom: 'Anesthesiologist',
+      card: '2nd',
+      generatedFor: 'ED Doctor',
+      reason: 'Too many requests pending in ED',
+      createdAt: Date.now(),
+    });
+    const flags = await Flag.find({
+      generatedFrom: 'Anesthesiologist',
+      status: 'pending',
+    });
+    globalVariable.io.emit('anesthesiaPending', flags);
+  }
 
   Notification(
     'anesthesiologist request',
@@ -2051,6 +2319,17 @@ exports.updateEOUNurseRequest = asyncHandler(async (req, res, next) => {
   //   { $set: { availability: false } },
   //   { new: true }
   // );
+
+  Notification(
+    'Required An Assistance',
+    'Required An Assistance',
+    'Nurses',
+    'EOU Requests',
+    '/dashboard/home/nurseTasks',
+    parsed.edrId,
+    '',
+    'EOU Nurse'
+  );
 
   res.status(200).json({
     success: true,

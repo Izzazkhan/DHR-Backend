@@ -288,6 +288,30 @@ io1.on('connection', (socket) => {
     });
     io1.emit('eouNursePending', flags);
   });
+
+  socket.on('anesthesia_flags', async () => {
+    const flags = await Flag.find({
+      generatedFrom: 'Anesthesiologist',
+      status: 'pending',
+    });
+    io1.emit('anesthesiaPending', flags);
+  });
+
+  socket.on('external_flags', async () => {
+    const flags = await Flag.find({
+      generatedFrom: 'External',
+      status: 'pending',
+    });
+    io1.emit('externalPending', flags);
+  });
+
+   socket.on('internal_flags', async () => {
+     const flags = await Flag.find({
+       generatedFrom: 'Internal',
+       status: 'pending',
+     });
+     io1.emit('internalPending', flags);
+   });
 });
 
 // Handle unhandled promise rejections

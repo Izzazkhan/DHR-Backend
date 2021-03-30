@@ -12,10 +12,10 @@ const {
 } = require('../controllers/flagController');
 
 // router.post('/addFlag', addFlag);
-router.get('/getAllCompletedFlag/:generatedFrom', getAllCompletedFlag);
-router.get('/getAllPendingFlag/:generatedFrom', getAllPendingFlag);
+router.get('/getAllCompletedFlag/:generatedFor', getAllCompletedFlag);
+router.get('/getAllPendingFlag/:generatedFor', getAllPendingFlag);
 router.put('/updateFlag', updateFlag);
-router.get('/getFlagCount/:generatedFrom', getFlagCount);
+router.get('/getFlagCount/:generatedFor', getFlagCount);
 router.get('/getFlagPatientByKeyword/:keyword', getFlagPatientByKeyword);
 
 module.exports = router;
