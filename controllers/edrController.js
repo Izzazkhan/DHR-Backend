@@ -2152,6 +2152,17 @@ exports.updateEOUNurseRequest = asyncHandler(async (req, res, next) => {
   //   { new: true }
   // );
 
+  Notification(
+    'Required An Assistance',
+    'Required An Assistance',
+    'Nurses',
+    'EOU Requests',
+    '/dashboard/home/nursetechnician',
+    parsed.edrId,
+    '',
+    'EOU Nurse'
+  );
+
   res.status(200).json({
     success: true,
     data: updatedRequest,
