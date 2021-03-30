@@ -18,6 +18,7 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
   const day = Math.floor(diff / oneDay);
 
   const parsed = JSON.parse(req.body.data);
+
   let profileId;
   switch (parsed.staffType) {
     case 'Doctor':

@@ -707,6 +707,16 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
     ''
   );
 
+  Notification(
+    'Lab Request',
+    'Lab Request',
+    'Admin',
+    'Lab Requests',
+    '/dashboard/taskslist',
+    req.body.edrId,
+    ''
+  );
+
   res.status(200).json({
     success: true,
     data: assignedLab,
@@ -1087,6 +1097,16 @@ exports.addRadRequest = asyncHandler(async (req, res, next) => {
     'Imaging Test Requests',
     'Imaging Technician',
     'ED Doctor',
+    '/dashboard/home/radiologyTasks',
+    req.body.edrId,
+    ''
+  );
+
+  Notification(
+    'Rad Request',
+    'Rad Request',
+    'Admin',
+    'Rad Request',
     '/dashboard/home/radiologyTasks',
     req.body.edrId,
     ''
@@ -1631,6 +1651,17 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     'Patient Disposition/Discharged',
     'Insurance Claim Manager',
     'Patient Disposition OR Discharged',
+    '/dashboard/home/patientmanagement/pendingpatients',
+    '',
+    _id,
+    ''
+  );
+
+  Notification(
+    'ADT_A03',
+    'Discharge Request',
+    'Admin',
+    'Discharge Requests',
     '/dashboard/home/patientmanagement/pendingpatients',
     '',
     _id,
