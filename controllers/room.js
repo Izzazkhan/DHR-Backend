@@ -193,7 +193,7 @@ exports.assignRoom = asyncHandler(async (req, res, next) => {
     'Patient Registration and Bed Allocation from Sensei',
     'Admin',
     'New Patient Entry and Allocation',
-    '/dashboard/home/patientlist',
+    '/dashboard/home/notes',
     req.body.edrId,
     '',
     ''

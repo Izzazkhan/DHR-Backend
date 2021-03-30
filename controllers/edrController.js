@@ -681,6 +681,22 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
     globalVariable.io.emit('pendingSensei', flags);
   }
 
+  if (labPending.length > 5) {
+    await Flag.create({
+      edrId: req.body.edrId,
+      generatedFrom: 'Lab Technician',
+      card: '2nd',
+      generatedFor: 'Sensei',
+      reason: 'Too Many Lab Results Pending',
+      createdAt: Date.now(),
+    });
+    const flags = await Flag.find({
+      generatedFrom: 'Lab Technician',
+      status: 'pending',
+    });
+    globalVariable.io.emit('ltPending', flags);
+  }
+
   if (labPending.length > 6) {
     await Flag.create({
       edrId: req.body.edrId,
@@ -695,6 +711,111 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
       status: 'pending',
     });
     globalVariable.io.emit('edNursePending', flags);
+  }
+
+  // Lab Technician Flags
+  const samplePending = await EDR.aggregate([
+    {
+      $project: {
+        labRequest: 1,
+      },
+    },
+    {
+      $unwind: '$labRequest',
+    },
+    {
+      $match: {
+        $and: [
+          { 'labRequest.type': { $ne: 'Blood' } },
+          { 'labRequest.nurseTechnicianStatus': 'Not Collected' },
+        ],
+      },
+    },
+  ]);
+  if (samplePending.length > 6) {
+    await Flag.create({
+      edrId: req.body.edrId,
+      generatedFrom: 'Lab Technician',
+      card: '1st',
+      generatedFor: 'Sensei',
+      reason: 'Sample Collection Pending',
+      createdAt: Date.now(),
+    });
+    const flags = await Flag.find({
+      generatedFrom: 'Lab Technician',
+      status: 'pending',
+    });
+    globalVariable.io.emit('ltPending', flags);
+  }
+
+  const bloodPending = await EDR.aggregate([
+    {
+      $project: {
+        labRequest: 1,
+      },
+    },
+    {
+      $unwind: '$labRequest',
+    },
+    {
+      $match: {
+        $and: [
+          { 'labRequest.type': 'Blood' },
+          { 'labRequest.nurseTechnicianStatus': 'Not Collected' },
+        ],
+      },
+    },
+  ]);
+
+  if (bloodPending.length > 10) {
+    await Flag.create({
+      edrId: req.body.edrId,
+      generatedFrom: 'Lab Technician',
+      card: '3rd',
+      generatedFor: 'Sensei',
+      reason: 'Blood Sample Collection Pending',
+      createdAt: Date.now(),
+    });
+    const flags = await Flag.find({
+      generatedFrom: 'Lab Technician',
+      status: 'pending',
+    });
+    globalVariable.io.emit('ltPending', flags);
+  }
+
+  const resultsPending = await EDR.aggregate([
+    {
+      $project: {
+        labRequest: 1,
+      },
+    },
+    {
+      $unwind: '$labRequest',
+    },
+    {
+      $match: {
+        $and: [
+          { 'labRequest.status': { $ne: 'completed' } },
+          { 'labRequest.type': 'Blood' },
+        ],
+      },
+    },
+  ]);
+
+  if (resultsPending.length > 10) {
+    await Flag.create({
+      edrId: req.body.edrId,
+      generatedFrom: 'Lab Technician',
+      card: '4th',
+      generatedFor: 'Sensei',
+      reason: 'Blood Test Results Pending',
+      createdAt: Date.now(),
+    });
+    const flags = await Flag.find({
+      generatedFrom: 'Lab Technician',
+      status: 'pending',
+    });
+    globalVariable.io.emit('ltPending', flags);
   }
 
   Notification(
@@ -939,7 +1060,6 @@ exports.addConsultationNote = asyncHandler(async (req, res, next) => {
       const flags = await Flag.find({
         generatedFrom: 'External',
         status: 'pending',
-        // card: '1st',
       });
 
       globalVariable.io.emit('externalPending', flags);

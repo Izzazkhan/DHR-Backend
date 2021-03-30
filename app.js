@@ -305,13 +305,29 @@ io1.on('connection', (socket) => {
     io1.emit('externalPending', flags);
   });
 
-   socket.on('internal_flags', async () => {
-     const flags = await Flag.find({
-       generatedFrom: 'Internal',
-       status: 'pending',
-     });
-     io1.emit('internalPending', flags);
-   });
+  socket.on('internal_flags', async () => {
+    const flags = await Flag.find({
+      generatedFrom: 'Internal',
+      status: 'pending',
+    });
+    io1.emit('internalPending', flags);
+  });
+
+  socket.on('radDoctor_flags', async () => {
+    const flags = await Flag.find({
+      generatedFrom: 'Rad Doctor',
+      status: 'pending',
+    });
+    io1.emit('radDoctorPending', flags);
+  });
+
+  socket.on('labTechnician_flags', async () => {
+    const flags = await Flag.find({
+      generatedFrom: 'Rad Doctor',
+      status: 'pending',
+    });
+    io1.emit('ltPending', flags);
+  });
 });
 
 // Handle unhandled promise rejections

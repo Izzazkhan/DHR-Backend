@@ -181,6 +181,39 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
       { new: true }
     ).populate('radRequest.serviceId');
 
+    const pendingRad = await EDR.aggregate([
+      {
+        $project: {
+          radRequest: 1,
+        },
+      },
+      {
+        $unwind: '$radRequest',
+      },
+      {
+        $match: {
+          'radRequest.status': 'pending approval',
+        },
+      },
+    ]);
+
+    // Rasing Flag
+    if (pendingRad.length > 6) {
+      await Flag.create({
+        edrId: parsed.edrId,
+        generatedFrom: 'Rad Doctor',
+        card: '1st',
+        generatedFor: 'ED Doctor',
+        reason: 'Too Many Rad Notes Pending',
+        createdAt: Date.now(),
+      });
+      const flags = await Flag.find({
+        generatedFrom: 'Rad Doctor',
+        status: 'pending',
+      });
+      globalVariable.io.emit('radDoctorPending', flags);
+    }
+
     res.status(200).json({
       success: true,
       data: updatedrad,

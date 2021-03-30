@@ -93,6 +93,7 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
       password: parsed.password,
       addedBy: parsed.addedBy,
       shift: parsed.shift,
+      additionalRole: parsed.additionalRole,
     });
     res.status(201).json({
       success: true,
@@ -120,6 +121,7 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
       password: parsed.password,
       addedBy: parsed.addedBy,
       shift: parsed.shift,
+      additionalRole: parsed.additionalRole,
     });
     res.status(201).json({
       success: true,
@@ -1168,6 +1170,35 @@ exports.searchRadTestsStats = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: arr,
+  });
+});
+
+// Additional Roles API
+exports.getAdditionalRoles = asyncHandler(async (req, res, next) => {
+  const additionRoles = [
+    'Head Of Radiology Department',
+    'Shift Nursing Supervisor',
+    'Medical Director',
+    'Nursing Director',
+    'Admission officer',
+    'Head of patient services',
+    'House keeping supervisor',
+    'Laundry Supervisor',
+    'Customer Care Director',
+    'Head of ED accountant',
+    'Medical OPs',
+    'RCM Team',
+    'Pharmacy Manager',
+    'Warehouse Supervisor',
+    'Head Of Anesthesia Doctor',
+    'Head of Laboratory Director',
+    'LAB SUPERVISOR',
+    'LAB Director',
+  ];
+
+  res.status(200).json({
+    success: true,
+    data: additionRoles,
   });
 });
 
