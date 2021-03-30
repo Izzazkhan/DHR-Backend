@@ -58,6 +58,7 @@ const {
   searchRadTestsStats,
   getLabTechnician,
   getRadTechnician,
+  getAdditionalRoles,
 } = require('../controllers/staffController');
 
 const router = express.Router();
@@ -101,5 +102,5 @@ router.get('/searchCustomerCare/:keyword', searchCustomerCare);
 router.get('/searchExternalConsultant/:keyword', searchExternalConsultant);
 router.get('/searchEouNurses/:keyword', searchEouNurses);
 router.get('/searchRadTestsStats/:keyword', searchRadTestsStats);
-
+router.get('/getAdditionalRoles', getAdditionalRoles);
 module.exports = router;
