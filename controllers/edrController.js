@@ -1830,6 +1830,75 @@ exports.addAnesthesiologistNote = asyncHandler(async (req, res, next) => {
   //   { new: true }
   // );
 
+  const pending = await EDR.aggregate([
+    {
+      $project: {
+        anesthesiologistNote: 1,
+      },
+    },
+    {
+      $unwind: '$anesthesiologistNote',
+    },
+    {
+      $match: {
+        'anesthesiologistNote.status': 'pending',
+      },
+    },
+  ]);
+
+  if (pending.length > 4) {
+    await Flag.create({
+      edrId: parsed.edrId,
+      generatedFrom: 'Anesthesiologist',
+      card: '1st',
+      generatedFor: 'ED Doctor',
+      reason: 'Too many requests pending',
+      createdAt: Date.now(),
+    });
+    const flags = await Flag.find({
+      generatedFrom: 'Anesthesiologist',
+      status: 'pending',
+    });
+    globalVariable.io.emit('anesthesiaPending', flags);
+  }
+
+  // 2nd card flag
+  const pendingED = await EDR.aggregate([
+    {
+      $project: {
+        anesthesiologistNote: 1,
+        currentLocation: 1,
+      },
+    },
+    {
+      $unwind: '$anesthesiologistNote',
+    },
+    {
+      $match: {
+        $and: [
+          { 'anesthesiologistNote.status': 'pending' },
+          { currentLocation: 'ED' },
+        ],
+      },
+    },
+  ]);
+
+  if (pendingED.length > 4) {
+    await Flag.create({
+      edrId: parsed.edrId,
+      generatedFrom: 'Anesthesiologist',
+      card: '2nd',
+      generatedFor: 'ED Doctor',
+      reason: 'Too many requests pending in ED',
+      createdAt: Date.now(),
+    });
+    const flags = await Flag.find({
+      generatedFrom: 'Anesthesiologist',
+      status: 'pending',
+    });
+    globalVariable.io.emit('anesthesiaPending', flags);
+  }
+
   Notification(
     'anesthesiologist request',
     'Ed Doctor has requested an anesthesiologist',

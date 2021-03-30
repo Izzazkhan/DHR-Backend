@@ -20,7 +20,7 @@ const ErrorResponse = require('../utils/errorResponse');
 exports.getAllPendingFlag = asyncHandler(async (req, res, next) => {
   const flag = await Flag.find({
     status: 'pending',
-    generatedFrom: req.params.generatedFrom,
+    generatedFor: req.params.generatedFor,
   }).populate([
     {
       path: 'edrId',
@@ -133,7 +133,7 @@ exports.updateFlag = asyncHandler(async (req, res, next) => {
 exports.getAllCompletedFlag = asyncHandler(async (req, res, next) => {
   const flag = await Flag.find({
     status: 'completed',
-    generatedFrom: req.params.generatedFrom,
+    generatedFor: req.params.generatedFor,
   }).populate([
     {
       path: 'edrId',
@@ -165,7 +165,7 @@ exports.getAllCompletedFlag = asyncHandler(async (req, res, next) => {
 
 exports.getFlagCount = asyncHandler(async (req, res, next) => {
   const flag = await Flag.find({
-    generatedFrom: req.params.generatedFrom,
+    generatedFor: req.params.generatedFor,
   }).countDocuments();
   res.status(200).json({
     success: true,
