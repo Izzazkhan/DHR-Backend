@@ -118,15 +118,13 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       patientId: newPatient._id,
       generatedFrom: 'Registration Officer',
       card: '1st',
-      generatedFor: 'Sensei',
+      generatedFor: ['Sensei', 'Registration Officer'],
       reason: 'Too Many Patients Registrations Pending',
       createdAt: Date.now(),
     });
     const flags = await Flag.find({
       generatedFrom: 'Registration Officer',
-      $or: [{ status: 'pending' }, { status: 'in_progress' }],
-
-      // card: '1st',
+      status: 'pending',
     });
     globalVariable.io.emit('pendingRO', flags);
   }
