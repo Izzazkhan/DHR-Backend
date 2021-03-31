@@ -650,7 +650,10 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
   ).select(labRequest);
 
   const assignedLab = await EDR.findOneAndUpdate(
-    { _id: req.body.edrId, 'labRequest._id': newLab.labRequest._id },
+    {
+      _id: req.body.edrId,
+      'labRequest._id': newLab.labRequest(labRequest.length - 1)._id,
+    },
     {
       $set: {
         'labRequest.$.priority': req.body.priority,
