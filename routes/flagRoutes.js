@@ -13,7 +13,7 @@ const {
 
 // router.post('/addFlag', addFlag);
 router.get('/getAllCompletedFlag', getAllCompletedFlag);
-router.get('/getAllPendingFlag', getAllPendingFlag);
+router.put('/getAllPendingFlag', getAllPendingFlag);
 router.put('/updateFlag', updateFlag);
 router.get('/getFlagCount/:generatedFor', getFlagCount);
 router.get('/getFlagPatientByKeyword/:keyword', getFlagPatientByKeyword);
