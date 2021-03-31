@@ -20,7 +20,7 @@ const ErrorResponse = require('../utils/errorResponse');
 exports.getAllPendingFlag = asyncHandler(async (req, res, next) => {
   const flag = await Flag.find({
     status: 'pending',
-    generatedFor: req.params.generatedFor,
+    $or: [{ generatedFor: req.body.staff }, { generatedFor: req.body.role }],
   }).populate([
     {
       path: 'edrId',
@@ -133,7 +133,7 @@ exports.updateFlag = asyncHandler(async (req, res, next) => {
 exports.getAllCompletedFlag = asyncHandler(async (req, res, next) => {
   const flag = await Flag.find({
     status: 'completed',
-    generatedFor: req.params.generatedFor,
+    $or: [{ generatedFor: req.body.staff }, { generatedFor: req.body.role }],
   }).populate([
     {
       path: 'edrId',

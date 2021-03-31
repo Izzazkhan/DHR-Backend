@@ -634,17 +634,39 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
     type: req.body.type,
     price: req.body.price,
     status: req.body.status,
-    priority: req.body.priority,
-    requestedBy: req.body.staffId,
-    requestedAt: Date.now(),
-    assignedTo: nurseTechnician._id,
-    labTechnicianId: req.body.labTechnicianId,
-    reason: req.body.reason,
-    notes: req.body.notes,
+    // priority: req.body.priority,
+    // requestedBy: req.body.staffId,
+    // requestedAt: Date.now(),
+    // assignedTo: nurseTechnician._id,
+    // labTechnicianId: req.body.labTechnicianId,
+    // reason: req.body.reason,
+    // notes: req.body.notes,
   };
-  const assignedLab = await EDR.findOneAndUpdate(
+
+  const newLab = await EDR.findOneAndUpdate(
     { _id: req.body.edrId },
     { $push: { labRequest } },
+    { new: true }
+  );
+
+  // console.log(newLab.labRequest[newLab.labRequest.length - 1]._id);
+
+  const assignedLab = await EDR.findOneAndUpdate(
+    {
+      _id: req.body.edrId,
+      'labRequest._id': newLab.labRequest[newLab.labRequest.length - 1]._id,
+    },
+    {
+      $set: {
+        'labRequest.$.priority': req.body.priority,
+        'labRequest.$.requestedBy': req.body.staffId,
+        'labRequest.$.requestedAt': Date.now(),
+        'labRequest.$.assignedTo': nurseTechnician._id,
+        'labRequest.$.labTechnicianId': req.body.labTechnicianId,
+        'labRequest.$.reason': req.body.reason,
+        'labRequest.$.notes': req.body.notes,
+      },
+    },
     { new: true }
   ).populate('labRequest.serviceId');
 
@@ -1366,7 +1388,7 @@ exports.addRadRequest = asyncHandler(async (req, res, next) => {
       edrId: req.body.edrId,
       generatedFrom: 'Imaging Technician',
       card: '1st',
-      generatedFor: 'Sensei',
+      generatedFor: ['Sensei', 'Head Of Radiology Department'],
       reason: 'Too Many Rad Tests Pending',
       createdAt: Date.now(),
     });
