@@ -643,14 +643,14 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
     // notes: req.body.notes,
   };
 
-  await EDR.findOneAndUpdate(
+  const newLab = await EDR.findOneAndUpdate(
     { _id: req.body.edrId },
     { $push: { labRequest } },
     { new: true }
-  ).populate('labRequest.serviceId');
+  ).select(labRequest);
 
   const assignedLab = await EDR.findOneAndUpdate(
-    { _id: req.body.edrId },
+    { _id: req.body.edrId, 'labRequest._id': newLab.labRequest._id },
     {
       $set: {
         'labRequest.$.priority': req.body.priority,
@@ -663,7 +663,7 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
       },
     },
     { new: true }
-  );
+  ).populate('labRequest.serviceId');
 
   // Checking for flag
   const labPending = await EDR.aggregate([
