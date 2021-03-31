@@ -634,19 +634,36 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
     type: req.body.type,
     price: req.body.price,
     status: req.body.status,
-    priority: req.body.priority,
-    requestedBy: req.body.staffId,
-    requestedAt: Date.now(),
-    assignedTo: nurseTechnician._id,
-    labTechnicianId: req.body.labTechnicianId,
-    reason: req.body.reason,
-    notes: req.body.notes,
+    // priority: req.body.priority,
+    // requestedBy: req.body.staffId,
+    // requestedAt: Date.now(),
+    // assignedTo: nurseTechnician._id,
+    // labTechnicianId: req.body.labTechnicianId,
+    // reason: req.body.reason,
+    // notes: req.body.notes,
   };
-  const assignedLab = await EDR.findOneAndUpdate(
+
+  await EDR.findOneAndUpdate(
     { _id: req.body.edrId },
     { $push: { labRequest } },
     { new: true }
   ).populate('labRequest.serviceId');
+
+  const assignedLab = await EDR.findOneAndUpdate(
+    { _id: req.body.edrId },
+    {
+      $set: {
+        'labRequest.$.priority': req.body.priority,
+        'labRequest.$.requestedBy': req.body.staffId,
+        'labRequest.$.requestedAt': Date.now(),
+        'labRequest.$.assignedTo': nurseTechnician._id,
+        'labRequest.$.labTechnicianId': req.body.labTechnicianId,
+        'labRequest.$.reason': req.body.reason,
+        'labRequest.$.notes': req.body.notes,
+      },
+    },
+    { new: true }
+  );
 
   // Checking for flag
   const labPending = await EDR.aggregate([
