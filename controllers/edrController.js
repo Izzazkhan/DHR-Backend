@@ -1366,7 +1366,7 @@ exports.addRadRequest = asyncHandler(async (req, res, next) => {
       edrId: req.body.edrId,
       generatedFrom: 'Imaging Technician',
       card: '1st',
-      generatedFor: 'Sensei',
+      generatedFor: ['Sensei', 'Head Of Radiology Department'],
       reason: 'Too Many Rad Tests Pending',
       createdAt: Date.now(),
     });
