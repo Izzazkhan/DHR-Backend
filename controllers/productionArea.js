@@ -39,7 +39,7 @@ exports.createPA = asyncHandler(async (req, res) => {
   rooms.forEach(
     async (r) =>
       await Room.findOneAndUpdate(
-        { _id: r._id },
+        { _id: r.roomId },
         { $set: { availability: false } },
         { new: true }
       )
