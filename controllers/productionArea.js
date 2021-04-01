@@ -28,13 +28,6 @@ exports.createPA = asyncHandler(async (req, res) => {
     disabled: false,
     status: 'not_assigned',
   });
-  // for (let i = 0; i < rooms.length; i++) {
-  //   await Room.findOneAndUpdate(
-  //     { _id: room._id },
-  //     { $set: { availability: false } },
-  //     { new: true }
-  //   );
-  // }
 
   rooms.forEach(
     async (r) =>
