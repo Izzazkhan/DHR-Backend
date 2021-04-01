@@ -291,7 +291,22 @@ exports.getAllSensei = asyncHandler(async (req, res) => {
   const sensei = await Staff.find({
     staffType: 'Sensei',
     disabled: false,
-  }).populate('addedBy shift');
+  })
+    .populate('addedBy shift')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+    ]);
   res.status(200).json({ success: 'true', data: sensei });
 });
 

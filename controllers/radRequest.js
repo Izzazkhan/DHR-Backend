@@ -266,14 +266,13 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
           edrId: parsed.edrId,
           generatedFrom: 'Imaging Technician',
           card: '2nd',
-          generatedFor: 'Sensei',
+          generatedFor: ['Sensei', 'Head Of Radiology Department'],
           reason: 'Too Many Rad Results Pending',
           createdAt: Date.now(),
         });
         const flags = await Flag.find({
           generatedFrom: 'Imaging Technician',
           status: 'pending',
-          // card: '1st',
         });
         globalVariable.io.emit('pendingRad', flags);
       }

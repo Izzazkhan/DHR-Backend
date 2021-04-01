@@ -738,8 +738,6 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
     { new: true }
   );
 
-  // console.log(newLab.labRequest[newLab.labRequest.length - 1]._id);
-
   const assignedLab = await EDR.findOneAndUpdate(
     {
       _id: req.body.edrId,
@@ -1437,16 +1435,35 @@ exports.addRadRequest = asyncHandler(async (req, res, next) => {
     type: req.body.type,
     price: req.body.price,
     status: req.body.status,
-    priority: req.body.priority,
-    requestedBy: req.body.staffId,
-    imageTechnicianId: req.body.radTechnicianId,
-    requestedAt: Date.now(),
-    reason: req.body.reason,
-    notes: req.body.notes,
+    // priority: req.body.priority,
+    // requestedBy: req.body.staffId,
+    // imageTechnicianId: req.body.radTechnicianId,
+    // requestedAt: Date.now(),
+    // reason: req.body.reason,
+    // notes: req.body.notes,
   };
-  const assignedRad = await EDR.findOneAndUpdate(
+
+  const newRad = await EDR.findOneAndUpdate(
     { _id: req.body.edrId },
     { $push: { radRequest } },
+    { new: true }
+  );
+
+  const assignedRad = await EDR.findOneAndUpdate(
+    {
+      _id: req.body.edrId,
+      'radRequest._id': newRad.radRequest[newRad.radRequest.length - 1]._id,
+    },
+    {
+      $set: {
+        'radRequest.$.priority': req.body.priority,
+        'radRequest.$.requestedBy': req.body.staffId,
+        'radRequest.$.requestedAt': Date.now(),
+        'radRequest.$.imageTechnicianId': req.body.imageTechnicianId,
+        'radRequest.$.reason': req.body.reason,
+        'radRequest.$.notes': req.body.notes,
+      },
+    },
     { new: true }
   ).populate('radRequest.serviceId');
 
