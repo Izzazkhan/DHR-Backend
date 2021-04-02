@@ -2362,13 +2362,13 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       edrId: _id,
       generatedFrom: 'Registration Officer',
       card: '5th',
-      generatedFor: 'Sensei',
+      generatedFor: ['Sensei', 'Cashier'],
       reason: 'Too Many Discharge Pending',
       createdAt: Date.now(),
     });
     const flags = await Flag.find({
       generatedFrom: 'Registration Officer',
-      $or: [{ status: 'pending' }, { status: 'in_progress' }],
+      status: 'pending',
     });
     globalVariable.io.emit('pendingRO', flags);
   }
