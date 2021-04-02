@@ -526,13 +526,13 @@ exports.addDoctorNotes = asyncHandler(async (req, res, next) => {
       edrId: parsed.edrId,
       generatedFrom: 'Sensei',
       card: '3rd',
-      generatedFor: 'Sensei',
+      generatedFor: ['Sensei', 'Medical Director'],
       reason: 'Patients diagnoses pending from Doctor',
       createdAt: Date.now(),
     });
     const flags = await Flag.find({
       generatedFrom: 'Sensei',
-      $or: [{ status: 'pending' }, { status: 'in_progress' }],
+      status: 'pending',
     });
     globalVariable.io.emit('pendingSensei', flags);
   }
@@ -868,13 +868,13 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
       edrId: req.body.edrId,
       generatedFrom: 'Sensei',
       card: '5th',
-      generatedFor: 'Sensei',
+      generatedFor: ['Sensei', 'Lab Supervisor'],
       reason: 'Too Many Lab Results Pending',
       createdAt: Date.now(),
     });
     const flags = await Flag.find({
       generatedFrom: 'Sensei',
-      $or: [{ status: 'pending' }, { status: 'in_progress' }],
+      status: 'pending',
     });
     globalVariable.io.emit('pendingSensei', flags);
   }

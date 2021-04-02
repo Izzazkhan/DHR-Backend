@@ -1207,8 +1207,8 @@ exports.getAdditionalRoles = asyncHandler(async (req, res, next) => {
     'Warehouse Supervisor',
     'Head Of Anesthesia Doctor',
     'Head of Laboratory Director',
-    'LAB SUPERVISOR',
-    'LAB Director',
+    'Lab Supervisor',
+    'Lab Director',
   ];
 
   res.status(200).json({
