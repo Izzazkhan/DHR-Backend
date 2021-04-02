@@ -2081,7 +2081,11 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       edrId: _id,
       generatedFrom: 'House Keeping',
       card: '1st',
-      generatedFor: 'Sensei',
+      generatedFor: [
+        'Sensei',
+        'Head of patient services',
+        'House keeping supervisor',
+      ],
       reason: 'Cells/Beds Cleaning Pending',
       createdAt: Date.now(),
     });
@@ -2131,7 +2135,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
         edrId: _id,
         generatedFrom: 'Customer Care',
         card: '4th',
-        generatedFor: 'Customer Care',
+        generatedFor: ['Customer Care Director'],
         reason: 'Patient Transfer from ED to IP Pending',
         createdAt: Date.now(),
       });
@@ -2244,7 +2248,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       edrId: _id,
       generatedFrom: 'Customer Care',
       card: '5th',
-      generatedFor: 'Customer Care',
+      generatedFor: ['Customer Care Director'],
       reason: 'Patient Discharge Transfer Pending',
       createdAt: Date.now(),
     });
@@ -3832,7 +3836,7 @@ exports.deliverPharmcayRequest = asyncHandler(async (req, res, next) => {
       edrId: req.body.edrId,
       generatedFrom: 'Customer Care',
       card: '3rd',
-      generatedFor: 'Customer Care',
+      generatedFor: ['Customer Care Director'],
       reason: 'Pharma Transfer to ED/EOU Pending',
       createdAt: Date.now(),
     });

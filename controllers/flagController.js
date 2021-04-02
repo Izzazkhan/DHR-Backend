@@ -21,7 +21,7 @@ exports.getAllPendingFlag = asyncHandler(async (req, res, next) => {
   const flag = await Flag.find({
     status: 'pending',
     $or: [{ generatedFor: req.body.staff }, { generatedFor: req.body.role }],
-    generatedFrom: req.body.generatedFrom,
+    // generatedFrom: req.body.generatedFrom,
   }).populate([
     {
       path: 'edrId',
@@ -135,7 +135,7 @@ exports.getAllCompletedFlag = asyncHandler(async (req, res, next) => {
   const flag = await Flag.find({
     status: 'completed',
     $or: [{ generatedFor: req.body.staff }, { generatedFor: req.body.role }],
-    generatedFrom: req.body.generatedFrom,
+    // generatedFrom: req.body.generatedFrom,
   }).populate([
     {
       path: 'edrId',
