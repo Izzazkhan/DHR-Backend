@@ -425,13 +425,13 @@ exports.assignCCtoPatient = asyncHandler(async (req, res, next) => {
       edrId: parsed.patientid,
       generatedFrom: 'Sensei',
       card: '1st',
-      generatedFor: 'Sensei',
+      generatedFor: ['Sensei'],
       reason: 'Patients pending for production area',
       createdAt: Date.now(),
     });
     const flags = await Flag.find({
       generatedFrom: 'Sensei',
-      $or: [{ status: 'pending' }, { status: 'in_progress' }],
+      status: 'pending',
     });
     globalVariable.io.emit('pendingSensei', flags);
   }

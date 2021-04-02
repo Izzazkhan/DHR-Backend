@@ -285,7 +285,7 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
       edrId: req.body.data.edrId,
       generatedFrom: 'Sensei',
       card: '4th',
-      generatedFor: 'Sensei',
+      generatedFor: ['Sensei', 'Medical Director'],
       reason: 'Patients pending for Doctor Decisions',
       createdAt: Date.now(),
     });

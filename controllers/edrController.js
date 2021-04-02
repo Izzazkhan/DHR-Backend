@@ -526,13 +526,13 @@ exports.addDoctorNotes = asyncHandler(async (req, res, next) => {
       edrId: parsed.edrId,
       generatedFrom: 'Sensei',
       card: '3rd',
-      generatedFor: 'Sensei',
+      generatedFor: ['Sensei', 'Medical Director'],
       reason: 'Patients diagnoses pending from Doctor',
       createdAt: Date.now(),
     });
     const flags = await Flag.find({
       generatedFrom: 'Sensei',
-      $or: [{ status: 'pending' }, { status: 'in_progress' }],
+      status: 'pending',
     });
     globalVariable.io.emit('pendingSensei', flags);
   }
@@ -868,13 +868,13 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
       edrId: req.body.edrId,
       generatedFrom: 'Sensei',
       card: '5th',
-      generatedFor: 'Sensei',
+      generatedFor: ['Sensei', 'Lab Supervisor'],
       reason: 'Too Many Lab Results Pending',
       createdAt: Date.now(),
     });
     const flags = await Flag.find({
       generatedFrom: 'Sensei',
-      $or: [{ status: 'pending' }, { status: 'in_progress' }],
+      status: 'pending',
     });
     globalVariable.io.emit('pendingSensei', flags);
   }
@@ -2081,7 +2081,11 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       edrId: _id,
       generatedFrom: 'House Keeping',
       card: '1st',
-      generatedFor: 'Sensei',
+      generatedFor: [
+        'Sensei',
+        'Head of patient services',
+        'House keeping supervisor',
+      ],
       reason: 'Cells/Beds Cleaning Pending',
       createdAt: Date.now(),
     });
@@ -2131,7 +2135,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
         edrId: _id,
         generatedFrom: 'Customer Care',
         card: '4th',
-        generatedFor: 'Customer Care',
+        generatedFor: ['Customer Care Director'],
         reason: 'Patient Transfer from ED to IP Pending',
         createdAt: Date.now(),
       });
@@ -2244,7 +2248,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       edrId: _id,
       generatedFrom: 'Customer Care',
       card: '5th',
-      generatedFor: 'Customer Care',
+      generatedFor: ['Customer Care Director'],
       reason: 'Patient Discharge Transfer Pending',
       createdAt: Date.now(),
     });
@@ -2362,13 +2366,13 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       edrId: _id,
       generatedFrom: 'Registration Officer',
       card: '5th',
-      generatedFor: 'Sensei',
+      generatedFor: ['Sensei', 'Cashier'],
       reason: 'Too Many Discharge Pending',
       createdAt: Date.now(),
     });
     const flags = await Flag.find({
       generatedFrom: 'Registration Officer',
-      $or: [{ status: 'pending' }, { status: 'in_progress' }],
+      status: 'pending',
     });
     globalVariable.io.emit('pendingRO', flags);
   }
@@ -3832,7 +3836,7 @@ exports.deliverPharmcayRequest = asyncHandler(async (req, res, next) => {
       edrId: req.body.edrId,
       generatedFrom: 'Customer Care',
       card: '3rd',
-      generatedFor: 'Customer Care',
+      generatedFor: ['Customer Care Director'],
       reason: 'Pharma Transfer to ED/EOU Pending',
       createdAt: Date.now(),
     });
