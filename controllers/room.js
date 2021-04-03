@@ -16,6 +16,7 @@ exports.getAvailableRooms = asyncHandler(async (req, res) => {
   const available = await Room.find({
     disabled: false,
     availability: true,
+    assingedToPA: false
   }).select({ roomId: 1, noOfBeds: 1, roomNo: 1 });
   res.status(200).json({ success: true, data: available });
 });
