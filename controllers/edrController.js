@@ -526,13 +526,13 @@ exports.addDoctorNotes = asyncHandler(async (req, res, next) => {
       edrId: parsed.edrId,
       generatedFrom: 'Sensei',
       card: '3rd',
-      generatedFor: 'Sensei',
+      generatedFor: ['Sensei', 'Medical Director'],
       reason: 'Patients diagnoses pending from Doctor',
       createdAt: Date.now(),
     });
     const flags = await Flag.find({
       generatedFrom: 'Sensei',
-      $or: [{ status: 'pending' }, { status: 'in_progress' }],
+      status: 'pending',
     });
     globalVariable.io.emit('pendingSensei', flags);
   }
@@ -584,7 +584,96 @@ exports.updateDoctorNotes = asyncHandler(async (req, res, next) => {
       },
     },
     { new: true }
-  );
+  ).populate([
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          populate: [
+            {
+              path: 'rooms.roomId',
+              model: 'room',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
+    },
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+    },
+    {
+      path: 'careStream.careStreamId',
+      model: 'careStream',
+    },
+    {
+      path: 'consultationNote.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'consultationNote.consultant',
+      model: 'staff',
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
+    },
+    {
+      path: 'radRequest.serviceId',
+      model: 'RadiologyService',
+    },
+    {
+      path: 'radRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'labRequest.serviceId',
+      model: 'LaboratoryService',
+    },
+    {
+      path: 'labRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.item.itemId',
+      model: 'Item',
+    },
+    {
+      path: 'doctorNotes.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'edNurseRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'eouNurseRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'nurseTechnicianRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'anesthesiologistNote.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.reconciliationNotes.addedBy',
+      model: 'staff',
+    },
+  ]);
   // console.log(updatedNote);
   res.status(200).json({
     success: true,
@@ -738,8 +827,6 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
     { new: true }
   );
 
-  // console.log(newLab.labRequest[newLab.labRequest.length - 1]._id);
-
   const assignedLab = await EDR.findOneAndUpdate(
     {
       _id: req.body.edrId,
@@ -781,13 +868,13 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
       edrId: req.body.edrId,
       generatedFrom: 'Sensei',
       card: '5th',
-      generatedFor: 'Sensei',
+      generatedFor: ['Sensei', 'Lab Supervisor'],
       reason: 'Too Many Lab Results Pending',
       createdAt: Date.now(),
     });
     const flags = await Flag.find({
       generatedFrom: 'Sensei',
-      $or: [{ status: 'pending' }, { status: 'in_progress' }],
+      status: 'pending',
     });
     globalVariable.io.emit('pendingSensei', flags);
   }
@@ -1010,7 +1097,96 @@ exports.addConsultationNote = asyncHandler(async (req, res, next) => {
     {
       new: true,
     }
-  );
+  ).populate([
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          populate: [
+            {
+              path: 'rooms.roomId',
+              model: 'room',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
+    },
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+    },
+    {
+      path: 'careStream.careStreamId',
+      model: 'careStream',
+    },
+    {
+      path: 'consultationNote.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'consultationNote.consultant',
+      model: 'staff',
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
+    },
+    {
+      path: 'radRequest.serviceId',
+      model: 'RadiologyService',
+    },
+    {
+      path: 'radRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'labRequest.serviceId',
+      model: 'LaboratoryService',
+    },
+    {
+      path: 'labRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.item.itemId',
+      model: 'Item',
+    },
+    {
+      path: 'doctorNotes.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'edNurseRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'eouNurseRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'nurseTechnicianRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'anesthesiologistNote.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.reconciliationNotes.addedBy',
+      model: 'staff',
+    },
+  ]);
 
   // Checking for flag
   const consultantNotes = await EDR.aggregate([
@@ -1207,7 +1383,98 @@ exports.updateConsultationNote = asyncHandler(async (req, res, next) => {
       },
     },
     { new: true }
-  ).populate('consultationNote.consultant');
+  )
+    .populate('consultationNote.consultant')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            populate: [
+              {
+                path: 'rooms.roomId',
+                model: 'room',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+      },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+      },
+      {
+        path: 'careStream.careStreamId',
+        model: 'careStream',
+      },
+      {
+        path: 'consultationNote.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'consultationNote.consultant',
+        model: 'staff',
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+      },
+      {
+        path: 'radRequest.serviceId',
+        model: 'RadiologyService',
+      },
+      {
+        path: 'radRequest.requestedBy',
+        model: 'staff',
+      },
+      {
+        path: 'labRequest.serviceId',
+        model: 'LaboratoryService',
+      },
+      {
+        path: 'labRequest.requestedBy',
+        model: 'staff',
+      },
+      {
+        path: 'pharmacyRequest.requestedBy',
+        model: 'staff',
+      },
+      {
+        path: 'pharmacyRequest.item.itemId',
+        model: 'Item',
+      },
+      {
+        path: 'doctorNotes.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'edNurseRequest.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'eouNurseRequest.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'nurseTechnicianRequest.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'anesthesiologistNote.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'pharmacyRequest.reconciliationNotes.addedBy',
+        model: 'staff',
+      },
+    ]);
 
   // FLags
   if (parsed.subType === 'External') {
@@ -1437,16 +1704,35 @@ exports.addRadRequest = asyncHandler(async (req, res, next) => {
     type: req.body.type,
     price: req.body.price,
     status: req.body.status,
-    priority: req.body.priority,
-    requestedBy: req.body.staffId,
-    imageTechnicianId: req.body.radTechnicianId,
-    requestedAt: Date.now(),
-    reason: req.body.reason,
-    notes: req.body.notes,
+    // priority: req.body.priority,
+    // requestedBy: req.body.staffId,
+    // imageTechnicianId: req.body.radTechnicianId,
+    // requestedAt: Date.now(),
+    // reason: req.body.reason,
+    // notes: req.body.notes,
   };
-  const assignedRad = await EDR.findOneAndUpdate(
+
+  const newRad = await EDR.findOneAndUpdate(
     { _id: req.body.edrId },
     { $push: { radRequest } },
+    { new: true }
+  );
+
+  const assignedRad = await EDR.findOneAndUpdate(
+    {
+      _id: req.body.edrId,
+      'radRequest._id': newRad.radRequest[newRad.radRequest.length - 1]._id,
+    },
+    {
+      $set: {
+        'radRequest.$.priority': req.body.priority,
+        'radRequest.$.requestedBy': req.body.staffId,
+        'radRequest.$.requestedAt': Date.now(),
+        'radRequest.$.imageTechnicianId': req.body.imageTechnicianId,
+        'radRequest.$.reason': req.body.reason,
+        'radRequest.$.notes': req.body.notes,
+      },
+    },
     { new: true }
   ).populate('radRequest.serviceId');
 
@@ -1795,7 +2081,11 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       edrId: _id,
       generatedFrom: 'House Keeping',
       card: '1st',
-      generatedFor: 'Sensei',
+      generatedFor: [
+        'Sensei',
+        'Head of patient services',
+        'House keeping supervisor',
+      ],
       reason: 'Cells/Beds Cleaning Pending',
       createdAt: Date.now(),
     });
@@ -1845,7 +2135,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
         edrId: _id,
         generatedFrom: 'Customer Care',
         card: '4th',
-        generatedFor: 'Customer Care',
+        generatedFor: ['Customer Care Director'],
         reason: 'Patient Transfer from ED to IP Pending',
         createdAt: Date.now(),
       });
@@ -1958,7 +2248,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       edrId: _id,
       generatedFrom: 'Customer Care',
       card: '5th',
-      generatedFor: 'Customer Care',
+      generatedFor: ['Customer Care Director'],
       reason: 'Patient Discharge Transfer Pending',
       createdAt: Date.now(),
     });
@@ -2076,13 +2366,13 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       edrId: _id,
       generatedFrom: 'Registration Officer',
       card: '5th',
-      generatedFor: 'Sensei',
+      generatedFor: ['Sensei', 'Cashier'],
       reason: 'Too Many Discharge Pending',
       createdAt: Date.now(),
     });
     const flags = await Flag.find({
       generatedFrom: 'Registration Officer',
-      $or: [{ status: 'pending' }, { status: 'in_progress' }],
+      status: 'pending',
     });
     globalVariable.io.emit('pendingRO', flags);
   }
@@ -2389,7 +2679,96 @@ exports.addEDNurseRequest = asyncHandler(async (req, res, next) => {
     {
       new: true,
     }
-  );
+  ).populate([
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          populate: [
+            {
+              path: 'rooms.roomId',
+              model: 'room',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
+    },
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+    },
+    {
+      path: 'careStream.careStreamId',
+      model: 'careStream',
+    },
+    {
+      path: 'consultationNote.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'consultationNote.consultant',
+      model: 'staff',
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
+    },
+    {
+      path: 'radRequest.serviceId',
+      model: 'RadiologyService',
+    },
+    {
+      path: 'radRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'labRequest.serviceId',
+      model: 'LaboratoryService',
+    },
+    {
+      path: 'labRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.item.itemId',
+      model: 'Item',
+    },
+    {
+      path: 'doctorNotes.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'edNurseRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'eouNurseRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'nurseTechnicianRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'anesthesiologistNote.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.reconciliationNotes.addedBy',
+      model: 'staff',
+    },
+  ]);
 
   const EDnurseTasksPending = await EDR.aggregate([
     {
@@ -2462,7 +2841,98 @@ exports.updateEDNurseRequest = asyncHandler(async (req, res, next) => {
       },
     },
     { new: true }
-  ).populate('edNurseRequest.edrNurse');
+  )
+    .populate('edNurseRequest.edrNurse')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            populate: [
+              {
+                path: 'rooms.roomId',
+                model: 'room',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+      },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+      },
+      {
+        path: 'careStream.careStreamId',
+        model: 'careStream',
+      },
+      {
+        path: 'consultationNote.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'consultationNote.consultant',
+        model: 'staff',
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+      },
+      {
+        path: 'radRequest.serviceId',
+        model: 'RadiologyService',
+      },
+      {
+        path: 'radRequest.requestedBy',
+        model: 'staff',
+      },
+      {
+        path: 'labRequest.serviceId',
+        model: 'LaboratoryService',
+      },
+      {
+        path: 'labRequest.requestedBy',
+        model: 'staff',
+      },
+      {
+        path: 'pharmacyRequest.requestedBy',
+        model: 'staff',
+      },
+      {
+        path: 'pharmacyRequest.item.itemId',
+        model: 'Item',
+      },
+      {
+        path: 'doctorNotes.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'edNurseRequest.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'eouNurseRequest.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'nurseTechnicianRequest.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'anesthesiologistNote.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'pharmacyRequest.reconciliationNotes.addedBy',
+        model: 'staff',
+      },
+    ]);
 
   // await Staff.findOneAndUpdate(
   //   { _id: parsed.edNurse },
@@ -2503,7 +2973,96 @@ exports.addEOUNurseRequest = asyncHandler(async (req, res, next) => {
     {
       new: true,
     }
-  );
+  ).populate([
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          populate: [
+            {
+              path: 'rooms.roomId',
+              model: 'room',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
+    },
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+    },
+    {
+      path: 'careStream.careStreamId',
+      model: 'careStream',
+    },
+    {
+      path: 'consultationNote.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'consultationNote.consultant',
+      model: 'staff',
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
+    },
+    {
+      path: 'radRequest.serviceId',
+      model: 'RadiologyService',
+    },
+    {
+      path: 'radRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'labRequest.serviceId',
+      model: 'LaboratoryService',
+    },
+    {
+      path: 'labRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.item.itemId',
+      model: 'Item',
+    },
+    {
+      path: 'doctorNotes.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'edNurseRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'eouNurseRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'nurseTechnicianRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'anesthesiologistNote.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.reconciliationNotes.addedBy',
+      model: 'staff',
+    },
+  ]);
 
   // await Staff.findOneAndUpdate(
   //   { _id: parsed.edNurse },
@@ -2543,7 +3102,98 @@ exports.updateEOUNurseRequest = asyncHandler(async (req, res, next) => {
       },
     },
     { new: true }
-  ).populate('eouNurseRequest.eouNurse');
+  )
+    .populate('eouNurseRequest.eouNurse')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            populate: [
+              {
+                path: 'rooms.roomId',
+                model: 'room',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+      },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+      },
+      {
+        path: 'careStream.careStreamId',
+        model: 'careStream',
+      },
+      {
+        path: 'consultationNote.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'consultationNote.consultant',
+        model: 'staff',
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+      },
+      {
+        path: 'radRequest.serviceId',
+        model: 'RadiologyService',
+      },
+      {
+        path: 'radRequest.requestedBy',
+        model: 'staff',
+      },
+      {
+        path: 'labRequest.serviceId',
+        model: 'LaboratoryService',
+      },
+      {
+        path: 'labRequest.requestedBy',
+        model: 'staff',
+      },
+      {
+        path: 'pharmacyRequest.requestedBy',
+        model: 'staff',
+      },
+      {
+        path: 'pharmacyRequest.item.itemId',
+        model: 'Item',
+      },
+      {
+        path: 'doctorNotes.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'edNurseRequest.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'eouNurseRequest.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'nurseTechnicianRequest.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'anesthesiologistNote.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'pharmacyRequest.reconciliationNotes.addedBy',
+        model: 'staff',
+      },
+    ]);
 
   // await Staff.findOneAndUpdate(
   //   { _id: parsed.edNurse },
@@ -2596,7 +3246,96 @@ exports.addNurseTechnicianRequest = asyncHandler(async (req, res, next) => {
     {
       new: true,
     }
-  );
+  ).populate([
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          populate: [
+            {
+              path: 'rooms.roomId',
+              model: 'room',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
+    },
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+    },
+    {
+      path: 'careStream.careStreamId',
+      model: 'careStream',
+    },
+    {
+      path: 'consultationNote.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'consultationNote.consultant',
+      model: 'staff',
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
+    },
+    {
+      path: 'radRequest.serviceId',
+      model: 'RadiologyService',
+    },
+    {
+      path: 'radRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'labRequest.serviceId',
+      model: 'LaboratoryService',
+    },
+    {
+      path: 'labRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.requestedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.item.itemId',
+      model: 'Item',
+    },
+    {
+      path: 'doctorNotes.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'edNurseRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'eouNurseRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'nurseTechnicianRequest.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'anesthesiologistNote.addedBy',
+      model: 'staff',
+    },
+    {
+      path: 'pharmacyRequest.reconciliationNotes.addedBy',
+      model: 'staff',
+    },
+  ]);
 
   Notification(
     'patient assigned',
@@ -2608,11 +3347,6 @@ exports.addNurseTechnicianRequest = asyncHandler(async (req, res, next) => {
     '',
     'Nurse Technician'
   );
-  // await Staff.findOneAndUpdate(
-  //   { _id: parsed.edNurse },
-  //   { $set: { availability: false } },
-  //   { new: true }
-  // );
 
   res.status(200).json({
     success: true,
@@ -2645,7 +3379,98 @@ exports.updateNurseTechnicianRequest = asyncHandler(async (req, res, next) => {
       },
     },
     { new: true }
-  ).populate('nurseTechnicianRequest.nurseTechnicianId');
+  )
+    .populate('nurseTechnicianRequest.nurseTechnicianId')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            populate: [
+              {
+                path: 'rooms.roomId',
+                model: 'room',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+      },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+      },
+      {
+        path: 'careStream.careStreamId',
+        model: 'careStream',
+      },
+      {
+        path: 'consultationNote.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'consultationNote.consultant',
+        model: 'staff',
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+      },
+      {
+        path: 'radRequest.serviceId',
+        model: 'RadiologyService',
+      },
+      {
+        path: 'radRequest.requestedBy',
+        model: 'staff',
+      },
+      {
+        path: 'labRequest.serviceId',
+        model: 'LaboratoryService',
+      },
+      {
+        path: 'labRequest.requestedBy',
+        model: 'staff',
+      },
+      {
+        path: 'pharmacyRequest.requestedBy',
+        model: 'staff',
+      },
+      {
+        path: 'pharmacyRequest.item.itemId',
+        model: 'Item',
+      },
+      {
+        path: 'doctorNotes.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'edNurseRequest.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'eouNurseRequest.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'nurseTechnicianRequest.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'anesthesiologistNote.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'pharmacyRequest.reconciliationNotes.addedBy',
+        model: 'staff',
+      },
+    ]);
 
   // await Staff.findOneAndUpdate(
   //   { _id: parsed.edNurse },
@@ -3011,7 +3836,7 @@ exports.deliverPharmcayRequest = asyncHandler(async (req, res, next) => {
       edrId: req.body.edrId,
       generatedFrom: 'Customer Care',
       card: '3rd',
-      generatedFor: 'Customer Care',
+      generatedFor: ['Customer Care Director'],
       reason: 'Pharma Transfer to ED/EOU Pending',
       createdAt: Date.now(),
     });

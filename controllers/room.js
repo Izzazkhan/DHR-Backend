@@ -166,7 +166,7 @@ exports.assignRoom = asyncHandler(async (req, res, next) => {
       edrId: req.body.edrId,
       generatedFrom: 'Registration Officer',
       card: 'beds',
-      generatedFor: 'Sensei',
+      generatedFor: ['Sensei', 'Shift Nursing Supervisor'],
       reason: 'Need more ED Beds',
       createdAt: Date.now(),
     });

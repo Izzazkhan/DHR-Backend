@@ -87,7 +87,7 @@ exports.edrTransfer = asyncHandler(async (req, res, next) => {
       edrId: req.body.edrId,
       generatedFrom: 'Customer Care',
       card: '2nd',
-      generatedFor: 'Customer Care',
+      generatedFor: ['Customer Care Director'],
       reason: 'Patient Transfer from Ambulance to Bed Pending',
       createdAt: Date.now(),
     });

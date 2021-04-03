@@ -2,6 +2,8 @@ const requestNoFormat = require('dateformat');
 const PA = require('../models/productionArea');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
+const Room = require('../models/room');
+const room = require('../models/room');
 
 exports.getPAs = asyncHandler(async (req, res) => {
   const getPAs = await PA.find({ disabled: false }).populate('rooms.roomId');
@@ -26,6 +28,16 @@ exports.createPA = asyncHandler(async (req, res) => {
     disabled: false,
     status: 'not_assigned',
   });
+
+  rooms.forEach(
+    async (r) =>
+      await Room.findOneAndUpdate(
+        { _id: r.roomId },
+        { $set: { availability: false } },
+        { new: true }
+      )
+  );
+
   res.status(200).json({ success: true, data: createPAs });
 });
 

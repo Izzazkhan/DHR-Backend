@@ -228,7 +228,6 @@ io1.on('connection', (socket) => {
     const flags = await Flag.find({
       generatedFrom: 'Imaging Technician',
       status: 'pending',
-      // card: '1st',
     });
     io1.emit('pendingRad', flags);
   });
