@@ -29,6 +29,9 @@ const RoomsSchema = new mongoose.Schema(
     availability: { type: Boolean },
     disabled: { type: Boolean },
     status: { type: String },
+    assingedToPA: {
+       type: Boolean,
+      default: false },
     updateRecord: [
       {
         updatedAt: {
