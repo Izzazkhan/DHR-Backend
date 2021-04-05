@@ -2385,18 +2385,6 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       '',
       ''
     );
-
-    //   const edrRoom = await EDR.findOne({
-    //     _id: _id,
-    //   }).populate('room.roomId');
-
-    //   const roomId = edrRoom.room[edrRoom.room.length - 1].roomId._id;
-
-    //   await Room.findOneAndUpdate(
-    //     { _id: roomId },
-    //     { $set: { availability: true } },
-    //     { new: true }
-    //   );
   }
 
   if (
@@ -4031,8 +4019,8 @@ exports.addPharmacyRequest = asyncHandler(async (req, res, next) => {
 
   Notification(
     'Medication Request',
-    'ED Doctor has requested Medication from Clinical Pharmacist for' +
-      addedNote.patientId.name,
+    'ED Doctor has requested Medication from Clinical Pharmacist for',
+    //+ addedNote.patientId.name,
     'Sensei',
     'ED Doctor',
     '/dashboard/home/notes',
