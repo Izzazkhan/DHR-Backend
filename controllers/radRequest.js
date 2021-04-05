@@ -282,7 +282,7 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
           edrId: parsed.edrId,
           generatedFrom: 'ED Nurse',
           card: '4th',
-          generatedFor: 'Sensei',
+          generatedFor: ['Sensei', 'Rad Consultant'],
           reason: 'Patients Rad Consultation Notes Pending',
           createdAt: Date.now(),
         });

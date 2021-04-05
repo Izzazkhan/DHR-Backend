@@ -282,7 +282,7 @@ io1.on('connection', (socket) => {
 
   socket.on('eouNurse_flags', async () => {
     const flags = await Flag.find({
-      generatedFrom: 'ED Nurse',
+      generatedFrom: 'EOU Nurse',
       status: 'pending',
     });
     io1.emit('eouNursePending', flags);
