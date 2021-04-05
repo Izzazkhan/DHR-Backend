@@ -1149,7 +1149,98 @@ exports.updateLab = asyncHandler(async (req, res, next) => {
       },
     },
     { new: true }
-  ).populate('labRequest.serviceId');
+  )
+    .populate('labRequest.serviceId')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            populate: [
+              {
+                path: 'rooms.roomId',
+                model: 'room',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+      },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+      },
+      {
+        path: 'careStream.careStreamId',
+        model: 'careStream',
+      },
+      {
+        path: 'consultationNote.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'consultationNote.consultant',
+        model: 'staff',
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+      },
+      {
+        path: 'radRequest.serviceId',
+        model: 'RadiologyService',
+      },
+      {
+        path: 'radRequest.requestedBy',
+        model: 'staff',
+      },
+      {
+        path: 'labRequest.serviceId',
+        model: 'LaboratoryService',
+      },
+      {
+        path: 'labRequest.requestedBy',
+        model: 'staff',
+      },
+      {
+        path: 'pharmacyRequest.requestedBy',
+        model: 'staff',
+      },
+      {
+        path: 'pharmacyRequest.item.itemId',
+        model: 'Item',
+      },
+      {
+        path: 'doctorNotes.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'edNurseRequest.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'eouNurseRequest.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'nurseTechnicianRequest.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'anesthesiologistNote.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'pharmacyRequest.reconciliationNotes.addedBy',
+        model: 'staff',
+      },
+    ]);
 
   res.status(200).json({
     success: true,
