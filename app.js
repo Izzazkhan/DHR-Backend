@@ -327,6 +327,14 @@ io1.on('connection', (socket) => {
     });
     io1.emit('ltPending', flags);
   });
+
+  socket.on('clinicalPharm_flags', async () => {
+    const flags = await Flag.find({
+      generatedFrom: 'Clinical Pharmacist',
+      status: 'pending',
+    });
+    io1.emit('cpPending', flags);
+  });
 });
 
 // Handle unhandled promise rejections

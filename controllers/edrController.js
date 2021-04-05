@@ -1137,7 +1137,6 @@ exports.updateLab = asyncHandler(async (req, res, next) => {
   let note;
   for (let i = 0; i < lab.labRequest.length; i++) {
     if (lab.labRequest[i]._id == req.body.labId) {
-      // console.log(i);
       note = i;
     }
   }
@@ -4016,7 +4015,21 @@ exports.addPharmacyRequest = asyncHandler(async (req, res, next) => {
   }
 
   //  Clinical Pharmacist Flag
-
+  if (pharmacyPending.length > 5) {
+    await Flag.create({
+      edrId: req.body.edrId,
+      generatedFrom: 'Clinical Pharmacist',
+      card: '1st',
+      generatedFor: 'Pharmacy Manager',
+      reason: 'Pharmacy Requests Pending',
+      createdAt: Date.now(),
+    });
+    const flags = await Flag.find({
+      generatedFrom: 'Clinical Pharmacist',
+      status: 'pending',
+    });
+    globalVariable.io.emit('cpPending', flags);
+  }
   Notification(
     'Medication Request',
     'ED Doctor has requested Medication from Clinical Pharmacist for',
