@@ -1907,7 +1907,7 @@ exports.addRadRequest = asyncHandler(async (req, res, next) => {
         'radRequest.$.priority': req.body.priority,
         'radRequest.$.requestedBy': req.body.staffId,
         'radRequest.$.requestedAt': Date.now(),
-        'radRequest.$.imageTechnicianId': req.body.imageTechnicianId,
+        'radRequest.$.imageTechnicianId': req.body.radTechnicianId,
         'radRequest.$.reason': req.body.reason,
         'radRequest.$.notes': req.body.notes,
       },
@@ -2988,7 +2988,7 @@ exports.addAnesthesiologistNote = asyncHandler(async (req, res, next) => {
       edrId: parsed.edrId,
       generatedFrom: 'Anesthesiologist',
       card: '1st',
-      generatedFor: 'ED Doctor',
+      generatedFor: ['ED Doctor', 'Head Of Anesthesia Doctor'],
       reason: 'Too many requests pending',
       createdAt: Date.now(),
     });
@@ -3025,7 +3025,7 @@ exports.addAnesthesiologistNote = asyncHandler(async (req, res, next) => {
       edrId: parsed.edrId,
       generatedFrom: 'Anesthesiologist',
       card: '2nd',
-      generatedFor: 'ED Doctor',
+      generatedFor: ['ED Doctor', 'Head Of Anesthesia Doctor'],
       reason: 'Too many requests pending in ED',
       createdAt: Date.now(),
     });

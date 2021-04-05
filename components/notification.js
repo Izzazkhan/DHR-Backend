@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const webpush = require('web-push');
 const Subscription = require('../models/subscriber/subscriber');
 const Notification = require('../models/notification/notification');
-const EDR = require('../models/EDR/EDR');
+// const EDR = require('../models/EDR/EDR');
 const Staff = require('../models/staffFhir/staff');
 
 const PUBLIC_VAPID_KEYS =
