@@ -4019,8 +4019,8 @@ exports.addPharmacyRequest = asyncHandler(async (req, res, next) => {
 
   Notification(
     'Medication Request',
-    'ED Doctor has requested Medication from Clinical Pharmacist for' +
-      addedNote.patientId.name,
+    'ED Doctor has requested Medication from Clinical Pharmacist for',
+    //+ addedNote.patientId.name,
     'Sensei',
     'ED Doctor',
     '/dashboard/home/notes',

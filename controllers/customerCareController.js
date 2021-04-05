@@ -466,18 +466,6 @@ exports.completeDischarge = asyncHandler(async (req, res, next) => {
       },
     ]);
 
-  const updatedEDR = await EDR.findOne({
-    _id: completedDischarge.edrId._id,
-  }).populate('room.roomId');
-
-  const roomId = updatedEDR.room[updatedEDR.room.length - 1].roomId._id;
-
-  await Room.findOneAndUpdate(
-    { _id: roomId },
-    { $set: { availability: true } },
-    { new: true }
-  );
-
   res.status(200).json({
     success: true,
     data: completedDischarge,

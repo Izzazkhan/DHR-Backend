@@ -202,7 +202,7 @@ exports.registerPatient = asyncHandler(async (req, res) => {
     Notification(
       'ADT_A04',
       'Registration officer add new patient',
-      'Insurance Claim Manager',
+      'Insurance Claims Manager',
       'New Patient',
       '/dashboard/home/patientmanagement/pendingpatients',
       '',
