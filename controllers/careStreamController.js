@@ -301,12 +301,12 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
       edrId: req.body.data.edrId,
       generatedFrom: 'ED Doctor',
       card: '2nd',
-      generatedFor: 'ED Doctor',
+      generatedFor: ['ED Doctor', 'Medical Director'],
       reason: 'Patients pending for Doctor Decisions',
       createdAt: Date.now(),
     });
     const flags = await Flag.find({
-      generatedFrom: 'ED Doctor',
+      generatedFrom: ['ED Doctor', 'Medical Director'],
       status: 'pending',
     });
     globalVariable.io.emit('pendingDoctor', flags);

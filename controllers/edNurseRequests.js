@@ -493,7 +493,7 @@ exports.updateMedicationStatus = asyncHandler(async (req, res, next) => {
         edrId: req.body.edrId,
         generatedFrom: 'ED Doctor',
         card: '7th',
-        generatedFor: 'ED Doctor',
+        generatedFor: ['ED Doctor', 'Medical Director'],
         reason: 'Patients Medications By Nurse Pending',
         createdAt: Date.now(),
       });

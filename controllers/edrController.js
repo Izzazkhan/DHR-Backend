@@ -542,7 +542,7 @@ exports.addDoctorNotes = asyncHandler(async (req, res, next) => {
       edrId: parsed.edrId,
       generatedFrom: 'ED Doctor',
       card: '1st',
-      generatedFor: 'ED Doctor',
+      generatedFor: ['ED Doctor', 'Medical Director'],
       reason: 'Patients diagnoses pending from Doctor',
       createdAt: Date.now(),
     });
@@ -973,7 +973,7 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
       edrId: req.body.edrId,
       generatedFrom: 'Lab Technician',
       card: '2nd',
-      generatedFor: 'Sensei',
+      generatedFor: ['Sensei', 'Lab Supervisor'],
       reason: 'Too Many Lab Results Pending',
       createdAt: Date.now(),
     });
@@ -1024,7 +1024,7 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
       edrId: req.body.edrId,
       generatedFrom: 'Lab Technician',
       card: '1st',
-      generatedFor: 'Sensei',
+      generatedFor: ['Sensei', 'Lab Supervisor'],
       reason: 'Sample Collection Pending',
       createdAt: Date.now(),
     });
@@ -1059,7 +1059,7 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
       edrId: req.body.edrId,
       generatedFrom: 'Lab Technician',
       card: '3rd',
-      generatedFor: 'Sensei',
+      generatedFor: ['Lab Supervisor'],
       reason: 'Blood Sample Collection Pending',
       createdAt: Date.now(),
     });
@@ -1094,7 +1094,7 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
       edrId: req.body.edrId,
       generatedFrom: 'Lab Technician',
       card: '4th',
-      generatedFor: 'Sensei',
+      generatedFor: ['Sensei', 'Lab Supervisor'],
       reason: 'Blood Test Results Pending',
       createdAt: Date.now(),
     });
@@ -1388,17 +1388,18 @@ exports.addConsultationNote = asyncHandler(async (req, res, next) => {
     await Flag.create({
       edrId: parsed.edrId,
       generatedFrom: 'ED Doctor',
-      card: '5th',
-      generatedFor: 'ED Doctor',
+      card: '4th',
+      generatedFor: ['Medical Director'],
       reason: 'Consultant Notes Pending',
       createdAt: Date.now(),
     });
     const flags = await Flag.find({
       generatedFrom: 'ED Doctor',
-      $or: [{ status: 'pending' }, { status: 'in_progress' }],
+      status: 'pending',
     });
     globalVariable.io.emit('pendingDoctor', flags);
   }
+
   if (parsed.subType === 'Internal') {
     Notification(
       'Internal Consultant Request',
@@ -1452,7 +1453,7 @@ exports.addConsultationNote = asyncHandler(async (req, res, next) => {
         edrId: parsed.edrId,
         generatedFrom: 'Internal',
         card: '1st',
-        generatedFor: 'ED Doctor',
+        generatedFor: ['ED Doctor', 'Medical Director'],
         reason: 'Patient Consultations Pending',
         createdAt: Date.now(),
       });
@@ -1519,7 +1520,7 @@ exports.addConsultationNote = asyncHandler(async (req, res, next) => {
         edrId: parsed.edrId,
         generatedFrom: 'External',
         card: '1st',
-        generatedFor: 'ED Doctor',
+        generatedFor: ['ED Doctor', 'Medical Director'],
         reason: 'Patient Consultations Pending',
         createdAt: Date.now(),
       });
@@ -1686,7 +1687,7 @@ exports.updateConsultationNote = asyncHandler(async (req, res, next) => {
         edrId: parsed.edrId,
         generatedFrom: 'External',
         card: '2nd',
-        generatedFor: 'ED Doctor',
+        generatedFor: ['ED Doctor', 'Medical Director'],
         reason: 'Patient Follow Ups Pending',
         createdAt: Date.now(),
       });
@@ -1730,7 +1731,7 @@ exports.updateConsultationNote = asyncHandler(async (req, res, next) => {
         edrId: parsed.edrId,
         generatedFrom: 'Internal',
         card: '2nd',
-        generatedFor: 'ED Doctor',
+        generatedFor: ['ED Doctor', 'Medical Director'],
         reason: 'Patient Follow Ups Pending',
         createdAt: Date.now(),
       });
@@ -4276,13 +4277,13 @@ exports.addPharmacyRequest = asyncHandler(async (req, res, next) => {
       edrId: req.body.edrId,
       generatedFrom: 'ED Doctor',
       card: '7th',
-      generatedFor: 'ED Doctor',
+      generatedFor: ['ED Doctor', 'Medical Director'],
       reason: 'Pharmacy Requests Pending',
       createdAt: Date.now(),
     });
     const flags = await Flag.find({
       generatedFrom: 'ED Doctor',
-      $or: [{ status: 'pending' }, { status: 'in_progress' }],
+      status: 'pending',
     });
     globalVariable.io.emit('pendingDoctor', flags);
   }

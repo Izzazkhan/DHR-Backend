@@ -203,7 +203,7 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
         edrId: parsed.edrId,
         generatedFrom: 'Rad Doctor',
         card: '1st',
-        generatedFor: 'ED Doctor',
+        generatedFor: ['ED Doctor', ' Head Of Radiology Department'],
         reason: 'Too Many Rad Notes Pending',
         createdAt: Date.now(),
       });
