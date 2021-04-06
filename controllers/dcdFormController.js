@@ -63,7 +63,7 @@ exports.addTriageAssessment = asyncHandler(async (req, res, next) => {
       edrId: req.body.data.edrId,
       generatedFrom: 'ED Nurse',
       card: '1st',
-      generatedFor: 'Sensei',
+      generatedFor: ['Sensei'],
       reason: 'Patients pending for TriageAssessment From Nurse',
       createdAt: Date.now(),
     });

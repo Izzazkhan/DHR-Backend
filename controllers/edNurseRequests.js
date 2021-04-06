@@ -477,7 +477,7 @@ exports.updateMedicationStatus = asyncHandler(async (req, res, next) => {
         edrId: req.body.edrId,
         generatedFrom: 'ED Nurse',
         card: '5th',
-        generatedFor: 'Sensei',
+        generatedFor: ['Sensei', 'Pharmacy Manager', 'Clinical Pharmacist'],
         reason: 'Orders Pending',
         createdAt: Date.now(),
       });
@@ -493,7 +493,7 @@ exports.updateMedicationStatus = asyncHandler(async (req, res, next) => {
         edrId: req.body.edrId,
         generatedFrom: 'ED Doctor',
         card: '7th',
-        generatedFor: 'ED Doctor',
+        generatedFor: ['ED Doctor', 'Medical Director'],
         reason: 'Patients Medications By Nurse Pending',
         createdAt: Date.now(),
       });
@@ -540,7 +540,7 @@ exports.updateMedicationStatus = asyncHandler(async (req, res, next) => {
         edrId: req.body.edrId,
         generatedFrom: 'ED Nurse',
         card: '2nd',
-        generatedFor: 'Sensei',
+        generatedFor: ['Sensei'],
         reason: 'Orders Pending',
         createdAt: Date.now(),
       });

@@ -282,7 +282,7 @@ io1.on('connection', (socket) => {
 
   socket.on('eouNurse_flags', async () => {
     const flags = await Flag.find({
-      generatedFrom: 'ED Nurse',
+      generatedFrom: 'EOU Nurse',
       status: 'pending',
     });
     io1.emit('eouNursePending', flags);
@@ -326,6 +326,14 @@ io1.on('connection', (socket) => {
       status: 'pending',
     });
     io1.emit('ltPending', flags);
+  });
+
+  socket.on('clinicalPharm_flags', async () => {
+    const flags = await Flag.find({
+      generatedFrom: 'Clinical Pharmacist',
+      status: 'pending',
+    });
+    io1.emit('cpPending', flags);
   });
 });
 
