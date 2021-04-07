@@ -53,7 +53,7 @@ exports.verify = asyncHandler(async (req, res, next) => {
   if (verify) {
     const data = {
       vendor: verify.name,
-      coverageDetail: 'fullPayment',
+      coverageDetail: 'Full Payment',
       insurerId: verify._id,
     };
     res.status(200).json({ success: true, data: data });

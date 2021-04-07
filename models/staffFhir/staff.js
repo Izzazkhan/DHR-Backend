@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const mongoosePaginate = require('mongoose-paginate-v2');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const name = require('../patient/humanName');
 const telecom = require('../patient/contactPoint');
 const address = require('../patient/address');
@@ -151,6 +152,10 @@ const staffSchema = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: 'Shift',
     },
+    // Tokens
+    resetPasswordToken: String,
+    resetPasswordExpire: Date,
+    passwordChangedAt: Date,
   },
 
   {
@@ -178,6 +183,27 @@ staffSchema.methods.getSignedJwtToken = function () {
     expiresIn: process.env.JWT_EXPIRE,
   });
 };
+
+// Password Reset Token
+staffSchema.methods.createResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  this.resetPasswordToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  // console.log(resetToken, this.resetPasswordToken);
+  this.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
+  return resetToken;
+};
+
+// Setting user password changed at property
+staffSchema.pre('save', function (next) {
+  if (!this.isModified('password') || this.isNew) return next();
+
+  this.passwordChangedAt = Date.now() - 1000;
+  next();
+});
 
 staffSchema.plugin(mongoosePaginate);
 module.exports = mongoose.model('staff', staffSchema);
