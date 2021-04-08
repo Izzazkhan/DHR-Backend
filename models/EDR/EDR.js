@@ -245,6 +245,8 @@ const edrSchema = new mongoose.Schema({
                       selected: Boolean, // to mark it as selected
                     },
                   ],
+                  selectedMedicines: [{ type: String }],
+                  autocomplete: Boolean,
                   List: [
                     {
                       name: String, // for rows such as 'Medications' & 'Allergies' which has 'See list' Option
