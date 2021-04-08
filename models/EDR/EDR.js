@@ -283,7 +283,7 @@ const edrSchema = new mongoose.Schema({
                   name: String, // Chips of rows
                   detail: String, // Chips detail
                   code: String, // Chip's code
-                  dropdownOptions: [
+                  dropdownSelectedValue: [
                     {
                       name: String, // Nasal congestion
                       code: String, // code of sub option

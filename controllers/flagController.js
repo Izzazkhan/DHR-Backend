@@ -20,7 +20,8 @@ const ErrorResponse = require('../utils/errorResponse');
 exports.getAllPendingFlag = asyncHandler(async (req, res, next) => {
   const flag = await Flag.find({
     status: 'pending',
-    generatedFrom: req.params.generatedFrom,
+    $or: [{ generatedFor: req.body.staff }, { generatedFor: req.body.role }],
+    // generatedFrom: req.body.generatedFrom,
   }).populate([
     {
       path: 'edrId',
@@ -51,78 +52,78 @@ exports.getAllPendingFlag = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateFlag = asyncHandler(async (req, res, next) => {
-  let flag;
-  if (req.body.status === 'in_progress') {
-    flag = await Flag.findOneAndUpdate(
-      { _id: req.body.flagId },
-      {
-        $set: {
-          status: req.body.status,
-          inProgressTime: Date.now(),
-          inProgressBy: req.body.staffId,
-        },
-      },
-      { $new: true }
-    ).populate([
-      {
-        path: 'edrId',
-        model: 'EDR',
-        select: 'patientId',
-        populate: [
-          {
-            path: 'patientId',
-            model: 'patientfhir',
-            select: 'identifier name',
-          },
-        ],
-      },
-      {
-        path: 'generatedBy',
-        model: 'staff',
-      },
-      {
-        path: 'patientId',
-        model: 'patientfhir',
-        select: 'identifier name',
-      },
-    ]);
-  }
+  // let flag;
+  // if (req.body.status === 'in_progress') {
+  //   flag = await Flag.findOneAndUpdate(
+  //     { _id: req.body.flagId },
+  //     {
+  //       $set: {
+  //         status: req.body.status,
+  //         inProgressTime: Date.now(),
+  //         inProgressBy: req.body.staffId,
+  //       },
+  //     },
+  //     { $new: true }
+  //   ).populate([
+  //     {
+  //       path: 'edrId',
+  //       model: 'EDR',
+  //       select: 'patientId',
+  //       populate: [
+  //         {
+  //           path: 'patientId',
+  //           model: 'patientfhir',
+  //           select: 'identifier name',
+  //         },
+  //       ],
+  //     },
+  //     {
+  //       path: 'generatedBy',
+  //       model: 'staff',
+  //     },
+  //     {
+  //       path: 'patientId',
+  //       model: 'patientfhir',
+  //       select: 'identifier name',
+  //     },
+  //   ]);
+  // }
 
-  if (req.body.status === 'completed') {
-    flag = await Flag.findOneAndUpdate(
-      { _id: req.body.flagId },
-      {
-        $set: {
-          status: req.body.status,
-          completedTime: Date.now(),
-          completedBy: req.body.staffId,
+  // if (req.body.status === 'completed') {
+  const flag = await Flag.findOneAndUpdate(
+    { _id: req.body.flagId },
+    {
+      $set: {
+        status: req.body.status,
+        completedTime: Date.now(),
+        completedBy: req.body.staffId,
+      },
+    },
+    { $new: true }
+  ).populate([
+    {
+      path: 'edrId',
+      model: 'EDR',
+      select: 'patientId',
+      populate: [
+        {
+          path: 'patientId',
+          model: 'patientfhir',
+          select: 'identifier name',
         },
-      },
-      { $new: true }
-    ).populate([
-      {
-        path: 'edrId',
-        model: 'EDR',
-        select: 'patientId',
-        populate: [
-          {
-            path: 'patientId',
-            model: 'patientfhir',
-            select: 'identifier name',
-          },
-        ],
-      },
-      {
-        path: 'generatedBy',
-        model: 'staff',
-      },
-      {
-        path: 'patientId',
-        model: 'patientfhir',
-        select: 'identifier name',
-      },
-    ]);
-  }
+      ],
+    },
+    {
+      path: 'generatedBy',
+      model: 'staff',
+    },
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+      select: 'identifier name',
+    },
+  ]);
+  // }
 
   res.status(200).json({
     success: true,
@@ -133,7 +134,8 @@ exports.updateFlag = asyncHandler(async (req, res, next) => {
 exports.getAllCompletedFlag = asyncHandler(async (req, res, next) => {
   const flag = await Flag.find({
     status: 'completed',
-    generatedFrom: req.params.generatedFrom,
+    $or: [{ generatedFor: req.body.staff }, { generatedFor: req.body.role }],
+    // generatedFrom: req.body.generatedFrom,
   }).populate([
     {
       path: 'edrId',
@@ -165,7 +167,7 @@ exports.getAllCompletedFlag = asyncHandler(async (req, res, next) => {
 
 exports.getFlagCount = asyncHandler(async (req, res, next) => {
   const flag = await Flag.find({
-    generatedFrom: req.params.generatedFrom,
+    generatedFor: req.params.generatedFor,
   }).countDocuments();
   res.status(200).json({
     success: true,

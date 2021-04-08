@@ -15,9 +15,7 @@ const FlagSchema = new mongoose.Schema(
       type: String,
     },
     // Sensei
-    generatedFor: {
-      type: String,
-    },
+    generatedFor: [{ type: String }],
     card: String,
     reason: {
       type: String,

@@ -221,14 +221,13 @@ io1.on('connection', (socket) => {
       },
     ]);
 
-    io1.emit('count', count.length);
+    io1.emit('count', { count: count.length, user: userId });
   });
 
   socket.on('rad_flags', async () => {
     const flags = await Flag.find({
       generatedFrom: 'Imaging Technician',
       status: 'pending',
-      // card: '1st',
     });
     io1.emit('pendingRad', flags);
   });
@@ -271,6 +270,70 @@ io1.on('connection', (socket) => {
       status: 'pending',
     });
     io1.emit('ccPending', flags);
+  });
+
+  socket.on('edNurse_flags', async () => {
+    const flags = await Flag.find({
+      generatedFrom: 'ED Nurse',
+      status: 'pending',
+    });
+    io1.emit('edNursePending', flags);
+  });
+
+  socket.on('eouNurse_flags', async () => {
+    const flags = await Flag.find({
+      generatedFrom: 'EOU Nurse',
+      status: 'pending',
+    });
+    io1.emit('eouNursePending', flags);
+  });
+
+  socket.on('anesthesia_flags', async () => {
+    const flags = await Flag.find({
+      generatedFrom: 'Anesthesiologist',
+      status: 'pending',
+    });
+    io1.emit('anesthesiaPending', flags);
+  });
+
+  socket.on('external_flags', async () => {
+    const flags = await Flag.find({
+      generatedFrom: 'External',
+      status: 'pending',
+    });
+    io1.emit('externalPending', flags);
+  });
+
+  socket.on('internal_flags', async () => {
+    const flags = await Flag.find({
+      generatedFrom: 'Internal',
+      status: 'pending',
+    });
+    io1.emit('internalPending', flags);
+  });
+
+  socket.on('radDoctor_flags', async () => {
+    const flags = await Flag.find({
+      generatedFrom: 'Rad Doctor',
+      status: 'pending',
+    });
+    io1.emit('radDoctorPending', flags);
+  });
+
+  socket.on('labTechnician_flags', async () => {
+    const flags = await Flag.find({
+      generatedFrom: 'Rad Doctor',
+      status: 'pending',
+    });
+    io1.emit('ltPending', flags);
+  });
+
+  socket.on('clinicalPharm_flags', async () => {
+    const flags = await Flag.find({
+      generatedFrom: 'Clinical Pharmacist',
+      status: 'pending',
+    });
+    io1.emit('cpPending', flags);
   });
 });
 

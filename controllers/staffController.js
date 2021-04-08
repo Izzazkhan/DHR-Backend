@@ -18,6 +18,7 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
   const day = Math.floor(diff / oneDay);
 
   const parsed = JSON.parse(req.body.data);
+
   let profileId;
   switch (parsed.staffType) {
     case 'Doctor':
@@ -92,6 +93,7 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
       password: parsed.password,
       addedBy: parsed.addedBy,
       shift: parsed.shift,
+      additionalRole: parsed.additionalRole,
     });
     res.status(201).json({
       success: true,
@@ -119,6 +121,7 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
       password: parsed.password,
       addedBy: parsed.addedBy,
       shift: parsed.shift,
+      additionalRole: parsed.additionalRole,
     });
     res.status(201).json({
       success: true,
@@ -288,7 +291,22 @@ exports.getAllSensei = asyncHandler(async (req, res) => {
   const sensei = await Staff.find({
     staffType: 'Sensei',
     disabled: false,
-  }).populate('addedBy shift');
+  })
+    .populate('addedBy shift')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+    ]);
   res.status(200).json({ success: 'true', data: sensei });
 });
 
@@ -1167,6 +1185,35 @@ exports.searchRadTestsStats = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: arr,
+  });
+});
+
+// Additional Roles API
+exports.getAdditionalRoles = asyncHandler(async (req, res, next) => {
+  const additionRoles = [
+    'Head Of Radiology Department',
+    'Shift Nursing Supervisor',
+    'Medical Director',
+    'Nursing Director',
+    'Admission officer',
+    'Head of patient services',
+    'House keeping supervisor',
+    'Laundry Supervisor',
+    'Customer Care Director',
+    'Head of ED accountant',
+    'Medical OPs',
+    'RCM Team',
+    'Pharmacy Manager',
+    'Warehouse Supervisor',
+    'Head Of Anesthesia Doctor',
+    'Head of Laboratory Director',
+    'Lab Supervisor',
+    'Lab Director',
+  ];
+
+  res.status(200).json({
+    success: true,
+    data: additionRoles,
   });
 });
 

@@ -49,6 +49,9 @@ const staffSchema = new mongoose.Schema(
         type: String,
       },
     ],
+    additionalRole: {
+      type: String,
+    },
     photo: [photo.attachment],
     education: [
       {

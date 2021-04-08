@@ -2,6 +2,8 @@ const requestNoFormat = require('dateformat');
 const PA = require('../models/productionArea');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
+const Room = require('../models/room');
+const room = require('../models/room');
 
 exports.getPAs = asyncHandler(async (req, res) => {
   const getPAs = await PA.find({ disabled: false }).populate('rooms.roomId');
@@ -18,6 +20,12 @@ exports.createPA = asyncHandler(async (req, res) => {
   const oneDay = 1000 * 60 * 60 * 24;
   const day = Math.floor(diff / oneDay);
   const { paName, rooms } = req.body;
+  let nameExist = await PA.findOne({paName: req.body.paName})
+  if(nameExist)
+{
+return  res.status(400).json({ success: false, data: {msg:"Production area with that name already exist."} });
+}
+
   const createPAs = await PA.create({
     paId: 'PA' + day + requestNoFormat(new Date(), 'yyHHMMss'),
     paName,
@@ -26,6 +34,16 @@ exports.createPA = asyncHandler(async (req, res) => {
     disabled: false,
     status: 'not_assigned',
   });
+
+  rooms.forEach(
+    async (r) =>
+      await Room.findOneAndUpdate(
+        { _id: r.roomId },
+        { $set: {  assingedToPA: true } },
+        { new: true }
+      )
+  );
+
   res.status(200).json({ success: true, data: createPAs });
 });
 

@@ -19,6 +19,8 @@ const {
   getInProgressCS,
   searchInProgressCS,
   completeCareStream,
+  edInProgressCS,
+  getCompletedCS,
 } = require('../controllers/careStreamController');
 
 router.post('/addCareStream', addCareStream);
@@ -37,5 +39,6 @@ router.get('/getEDRswithCS', getEDRswithCS);
 router.get('/getInProgressCS', getInProgressCS);
 router.get('/searchInProgressCS/:keyword', searchInProgressCS);
 router.put('/completeCS', completeCareStream);
-
+router.get('/edInProgressCS', edInProgressCS);
+router.get('/getCompletedCS', getCompletedCS);
 module.exports = router;

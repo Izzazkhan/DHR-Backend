@@ -181,6 +181,39 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
       { new: true }
     ).populate('radRequest.serviceId');
 
+    const pendingRad = await EDR.aggregate([
+      {
+        $project: {
+          radRequest: 1,
+        },
+      },
+      {
+        $unwind: '$radRequest',
+      },
+      {
+        $match: {
+          'radRequest.status': 'pending approval',
+        },
+      },
+    ]);
+
+    // Rasing Flag
+    if (pendingRad.length > 6) {
+      await Flag.create({
+        edrId: parsed.edrId,
+        generatedFrom: 'Rad Doctor',
+        card: '1st',
+        generatedFor: ['ED Doctor', ' Head Of Radiology Department'],
+        reason: 'Too Many Rad Notes Pending',
+        createdAt: Date.now(),
+      });
+      const flags = await Flag.find({
+        generatedFrom: 'Rad Doctor',
+        status: 'pending',
+      });
+      globalVariable.io.emit('radDoctorPending', flags);
+    }
+
     res.status(200).json({
       success: true,
       data: updatedrad,
@@ -233,16 +266,47 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
           edrId: parsed.edrId,
           generatedFrom: 'Imaging Technician',
           card: '2nd',
-          generatedFor: 'Sensei',
+          generatedFor: ['Sensei', 'Head Of Radiology Department'],
           reason: 'Too Many Rad Results Pending',
           createdAt: Date.now(),
         });
         const flags = await Flag.find({
           generatedFrom: 'Imaging Technician',
           status: 'pending',
-          // card: '1st',
         });
         globalVariable.io.emit('pendingRad', flags);
+      }
+
+      if (rads.length > 6) {
+        await Flag.create({
+          edrId: parsed.edrId,
+          generatedFrom: 'ED Nurse',
+          card: '4th',
+          generatedFor: ['Sensei', 'Rad Doctor'],
+          reason: 'Patients Rad Consultation Notes Pending',
+          createdAt: Date.now(),
+        });
+        const flags = await Flag.find({
+          generatedFrom: 'ED Nurse',
+          status: 'pending',
+        });
+        globalVariable.io.emit('edNursePending', flags);
+      }
+
+      if (rads.length > 6) {
+        await Flag.create({
+          edrId: parsed.edrId,
+          generatedFrom: 'Sensei',
+          card: '4th',
+          generatedFor: ['Sensei', 'Rad Doctor'],
+          reason: 'Patients Rad Consultation Notes Pending',
+          createdAt: Date.now(),
+        });
+        const flags = await Flag.find({
+          generatedFrom: 'Sensei',
+          status: 'pending',
+        });
+        globalVariable.io.emit('senseiPending', flags);
       }
       Notification(
         'Report Uploaded',

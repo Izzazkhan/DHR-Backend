@@ -16,6 +16,7 @@ exports.getAvailableRooms = asyncHandler(async (req, res) => {
   const available = await Room.find({
     disabled: false,
     availability: true,
+    assingedToPA: false
   }).select({ roomId: 1, noOfBeds: 1, roomNo: 1 });
   res.status(200).json({ success: true, data: available });
 });
@@ -165,7 +166,7 @@ exports.assignRoom = asyncHandler(async (req, res, next) => {
       edrId: req.body.edrId,
       generatedFrom: 'Registration Officer',
       card: 'beds',
-      generatedFor: 'Sensei',
+      generatedFor: ['Sensei', 'Shift Nursing Supervisor'],
       reason: 'Need more ED Beds',
       createdAt: Date.now(),
     });
@@ -193,7 +194,7 @@ exports.assignRoom = asyncHandler(async (req, res, next) => {
     'Patient Registration and Bed Allocation from Sensei',
     'Admin',
     'New Patient Entry and Allocation',
-    '/dashboard/home/patientlist',
+    '/dashboard/home/notes',
     req.body.edrId,
     '',
     ''
