@@ -17,7 +17,8 @@ exports.registerStaff = asyncHandler(async (req, res, next) => {
   const oneDay = 1000 * 60 * 60 * 24;
   const day = Math.floor(diff / oneDay);
 
-  const parsed = JSON.parse(req.body.data);
+  // const parsed = JSON.parse(req.body.data);
+  const parsed = req.body;
 
   let profileId;
   switch (parsed.staffType) {
