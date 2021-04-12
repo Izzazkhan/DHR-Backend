@@ -256,7 +256,7 @@ exports.updateLabRequest = asyncHandler(async (req, res, next) => {
     }
   }
 
-  console.log(arr);
+  // console.log(arr);
 
   const updateRecord = {
     updatedAt: Date.now(),
@@ -299,7 +299,7 @@ exports.updateLabRequest = asyncHandler(async (req, res, next) => {
 
   if (parsed.status === 'completed') {
     Notification(
-      'Report Uploaded',
+      'Report Uploaded' + parsed.labId,
       'Lab Test Report Generated',
       'Doctor',
       'Lab Technicians',
@@ -310,7 +310,7 @@ exports.updateLabRequest = asyncHandler(async (req, res, next) => {
     );
 
     Notification(
-      'Results',
+      'Results' + parsed.labId,
       'Lab Test Results',
       'Nurses',
       'Lab Technicians',
