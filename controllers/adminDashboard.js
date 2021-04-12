@@ -903,33 +903,3 @@ exports.nursesAssigned = asyncHandler(async (req, res) => {
     data: nurses,
   });
 });
-
-// Admin APis
-// exports.dischargeRequest = asyncHandler(async (req, res, next) => {
-//   const requests = await EDR.find({ status: 'Discharged' })
-//     .populate('patientId', 'identifier name')
-//     .populate([
-//       {
-//         path: 'chiefComplaint.chiefComplaintId',
-//         model: 'chiefComplaint',
-//         select: 'chiefComplaint.chiefComplaintId',
-//         populate: [
-//           {
-//             path: 'productionArea.productionAreaId',
-//             model: 'productionArea',
-//             select: 'paName',
-//           },
-//         ],
-//       },
-//     ])
-//     .select(
-//       'patientId room dischargeTimestamp chiefComplaint.chiefComplaintId'
-//     );
-
-//   res.status(200).json({
-//     success: true,
-//     data: requests,
-//   });
-// });
-
-// exports.medicationRequest

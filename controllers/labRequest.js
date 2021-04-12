@@ -89,16 +89,9 @@ exports.getCompletedLabEdr = asyncHandler(async (req, res, next) => {
     },
     {
       $match: {
-        $and: [
-          {
-            'labRequest.labTechnicianId': mongoose.Types.ObjectId(
-              req.params.labTechnicianId
-            ),
-          },
-          {
-            'labRequest.status': 'completed',
-          },
-        ],
+        'labRequest.labTechnicianId': mongoose.Types.ObjectId(
+          req.params.labTechnicianId
+        ),
       },
     },
   ]);
@@ -137,6 +130,106 @@ exports.getCompletedLabEdr = asyncHandler(async (req, res, next) => {
   });
 });
 
+// Search Completed Lab Edr
+exports.searchCompletedLabEdr = asyncHandler(async (req, res, next) => {
+  const unwindEdr = await EDR.aggregate([
+    {
+      $project: {
+        _id: 1,
+        labRequest: 1,
+        room: 1,
+        patientId: 1,
+        chiefComplaint: 1,
+      },
+    },
+    {
+      $unwind: '$labRequest',
+    },
+    {
+      $match: {
+        $and: [
+          {
+            'labRequest._id': mongoose.Types.ObjectId(req.params.labId),
+          },
+          {
+            'labRequest.status': 'completed',
+          },
+        ],
+      },
+    },
+  ]);
+
+  // console.log(unwindEdr);
+
+  const patients = await EDR.populate(unwindEdr, [
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      select: 'chiefComplaintId',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      ],
+    },
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+      //   select: 'identifier name',
+    },
+    {
+      path: 'labRequest.serviceId',
+      model: 'LaboratoryService',
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
+      select: 'roomNo',
+    },
+  ]);
+
+  // console.log(patients);
+  // const arr = [];
+
+  // for (let i = 0; i < patients.length; i++) {
+  //   const fullName =
+  //     patients[i].patientId.name[0].given[0] +
+  //     ' ' +
+  //     patients[i].patientId.name[0].family;
+  //   if (
+  //     (patients[i].patientId.name[0].given[0] &&
+  //       patients[i].patientId.name[0].given[0]
+  //         .toLowerCase()
+  //         .startsWith(req.params.keyword.toLowerCase())) ||
+  //     (patients[i].patientId.name[0].family &&
+  //       patients[i].patientId.name[0].family
+  //         .toLowerCase()
+  //         .startsWith(req.params.keyword.toLowerCase())) ||
+  //     (patients[i].patientId.identifier[0].value &&
+  //       patients[i].patientId.identifier[0].value
+  //         .toLowerCase()
+  //         .startsWith(req.params.keyword.toLowerCase())) ||
+  //     fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
+  //     (patients[i].patientId.telecom[1].value &&
+  //       patients[i].patientId.telecom[1].value
+  //         .toLowerCase()
+  //         .startsWith(req.params.keyword.toLowerCase())) ||
+  //     (patients[i].patientId.nationalID &&
+  //       patients[i].patientId.nationalID
+  //         .toLowerCase()
+  //         .startsWith(req.params.keyword.toLowerCase()))
+  //   ) {
+  //     arr.push(patients[i]);
+  //   }
+  // }
+  res.status(200).json({
+    success: true,
+    data: patients,
+  });
+});
+
 exports.updateLabRequest = asyncHandler(async (req, res, next) => {
   console.log(req.files);
   const parsed = JSON.parse(req.body.data);
@@ -154,7 +247,7 @@ exports.updateLabRequest = asyncHandler(async (req, res, next) => {
     }
   }
 
-  console.log(arr);
+  // console.log(arr);
 
   const updateRecord = {
     updatedAt: Date.now(),
@@ -197,7 +290,7 @@ exports.updateLabRequest = asyncHandler(async (req, res, next) => {
 
   if (parsed.status === 'completed') {
     Notification(
-      'Report Uploaded',
+      'Report Uploaded' + parsed.labId,
       'Lab Test Report Generated',
       'Doctor',
       'Lab Technicians',
@@ -208,7 +301,7 @@ exports.updateLabRequest = asyncHandler(async (req, res, next) => {
     );
 
     Notification(
-      'Results',
+      'Results' + parsed.labId,
       'Lab Test Results',
       'Nurses',
       'Lab Technicians',
