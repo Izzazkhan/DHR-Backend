@@ -72,6 +72,8 @@ const {
 
   getPendingDcd,
   updatedDcdFormStatus,
+
+  searchAllEdrs,
 } = require('../controllers/edrController');
 
 const router = express.Router();
@@ -84,6 +86,7 @@ router.get('/getEDRs', getEDRs);
 router.get('/getPendingEDRs', getPendingEDRs);
 router.get('/getSenseiPendingEDRs', getSenseiPendingEDRs);
 router.get('/searchEdrPatient/:keyword', getEdrPatientByKeyword);
+router.get('/searchAllEdrs/:keyword', searchAllEdrs);
 router.get('/searchPendingSenseiEdr/:keyword', getSenseiPendingEdrByKeyword);
 router.get('/searchPendingEdr/:keyword', getPendingEdrByKeyword);
 router.put('/addDoctorNotes', upload.single('file'), addDoctorNotes);
