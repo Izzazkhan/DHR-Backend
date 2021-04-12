@@ -30,10 +30,7 @@ router.get('/getPendingLabEdr/:labTechnicianId', getPendingLabEdr);
 router.get('/getCompletedLabEdr/:labTechnicianId', getCompletedLabEdr);
 router.get('/searchPendingLabRequest/:keyword', searchPendingLabRequest);
 router.get('/searchComletedLabRequest/:keyword', searchComletedLabRequest);
-router.get(
-  '/searchCompletedLabEdr/:labTechnicianId/:keyword',
-  searchCompletedLabEdr
-);
+router.get('/searchCompletedLabEdr/:labId', searchCompletedLabEdr);
 router.put('/updateLabRequest', upload.any(), updateLabRequest);
 
 module.exports = router;

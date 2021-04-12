@@ -660,7 +660,7 @@ exports.getPatientWithoutCSByKeyword = asyncHandler(async (req, res, next) => {
   const patients = await EDR.find({
     status: 'pending',
     careStream: { $eq: [] },
-    room: { $ne: [] },
+    // room: { $ne: [] },
   }).populate('patientId ');
 
   for (let i = 0; i < patients.length; i++) {

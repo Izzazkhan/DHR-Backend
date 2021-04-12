@@ -89,16 +89,9 @@ exports.getCompletedLabEdr = asyncHandler(async (req, res, next) => {
     },
     {
       $match: {
-        $and: [
-          {
-            'labRequest.labTechnicianId': mongoose.Types.ObjectId(
-              req.params.labTechnicianId
-            ),
-          },
-          {
-            'labRequest.status': 'completed',
-          },
-        ],
+        'labRequest.labTechnicianId': mongoose.Types.ObjectId(
+          req.params.labTechnicianId
+        ),
       },
     },
   ]);
@@ -156,9 +149,7 @@ exports.searchCompletedLabEdr = asyncHandler(async (req, res, next) => {
       $match: {
         $and: [
           {
-            'labRequest.labTechnicianId': mongoose.Types.ObjectId(
-              req.params.labTechnicianId
-            ),
+            'labRequest._id': mongoose.Types.ObjectId(req.params.labId),
           },
           {
             'labRequest.status': 'completed',
@@ -200,42 +191,42 @@ exports.searchCompletedLabEdr = asyncHandler(async (req, res, next) => {
   ]);
 
   // console.log(patients);
-  const arr = [];
+  // const arr = [];
 
-  for (let i = 0; i < patients.length; i++) {
-    const fullName =
-      patients[i].patientId.name[0].given[0] +
-      ' ' +
-      patients[i].patientId.name[0].family;
-    if (
-      (patients[i].patientId.name[0].given[0] &&
-        patients[i].patientId.name[0].given[0]
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.name[0].family &&
-        patients[i].patientId.name[0].family
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.identifier[0].value &&
-        patients[i].patientId.identifier[0].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
-      (patients[i].patientId.telecom[1].value &&
-        patients[i].patientId.telecom[1].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.nationalID &&
-        patients[i].patientId.nationalID
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase()))
-    ) {
-      arr.push(patients[i]);
-    }
-  }
+  // for (let i = 0; i < patients.length; i++) {
+  //   const fullName =
+  //     patients[i].patientId.name[0].given[0] +
+  //     ' ' +
+  //     patients[i].patientId.name[0].family;
+  //   if (
+  //     (patients[i].patientId.name[0].given[0] &&
+  //       patients[i].patientId.name[0].given[0]
+  //         .toLowerCase()
+  //         .startsWith(req.params.keyword.toLowerCase())) ||
+  //     (patients[i].patientId.name[0].family &&
+  //       patients[i].patientId.name[0].family
+  //         .toLowerCase()
+  //         .startsWith(req.params.keyword.toLowerCase())) ||
+  //     (patients[i].patientId.identifier[0].value &&
+  //       patients[i].patientId.identifier[0].value
+  //         .toLowerCase()
+  //         .startsWith(req.params.keyword.toLowerCase())) ||
+  //     fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
+  //     (patients[i].patientId.telecom[1].value &&
+  //       patients[i].patientId.telecom[1].value
+  //         .toLowerCase()
+  //         .startsWith(req.params.keyword.toLowerCase())) ||
+  //     (patients[i].patientId.nationalID &&
+  //       patients[i].patientId.nationalID
+  //         .toLowerCase()
+  //         .startsWith(req.params.keyword.toLowerCase()))
+  //   ) {
+  //     arr.push(patients[i]);
+  //   }
+  // }
   res.status(200).json({
     success: true,
-    data: arr,
+    data: patients,
   });
 });
 
