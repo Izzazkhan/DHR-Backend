@@ -309,22 +309,22 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
         globalVariable.io.emit('senseiPending', flags);
       }
       Notification(
-        'Report Uploaded',
+        'Report Uploaded' + parsed.radId,
         'Radiology Test Report Generated',
         'Doctor',
         'Imaging Technicians',
-        '/dashboard/home/radiologyTasks',
+        '/dashboard/home/radiologyReports',
         parsed.edrId,
         '',
         'ED Doctor'
       );
 
       Notification(
-        'Report Uploaded',
+        'Report Uploaded' + parsed.radId,
         'Radiology Report Generated',
         'Nurses',
         'Radiologist',
-        '/dashboard/home/notes',
+        'git',
         parsed.edrId,
         '',
         'ED Nurse'
@@ -599,5 +599,60 @@ exports.getCompletedRadEdrForED = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: edrs,
+  });
+});
+
+exports.searchCompletedRadEdr = asyncHandler(async (req, res, next) => {
+  const unwindEdr = await EDR.aggregate([
+    {
+      $project: {
+        _id: 1,
+        radRequest: 1,
+        room: 1,
+        patientId: 1,
+        chiefComplaint: 1,
+      },
+    },
+    {
+      $unwind: '$radRequest',
+    },
+    {
+      $match: {
+        'radRequest._id': mongoose.Types.ObjectId(req.params.radId),
+      },
+    },
+  ]);
+
+  const patients = await EDR.populate(unwindEdr, [
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      select: 'chiefComplaintId',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      ],
+    },
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+      //   select: 'identifier name',
+    },
+    {
+      path: 'radRequest.serviceId',
+      model: 'RadiologyService',
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
+      select: 'roomNo',
+    },
+  ]);
+  res.status(200).json({
+    success: true,
+    data: patients,
   });
 });

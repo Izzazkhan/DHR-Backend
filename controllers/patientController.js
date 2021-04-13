@@ -199,16 +199,18 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       ''
     );
 
-    Notification(
-      'ADT_A04',
-      'Registration officer add new patient',
-      'Insurance Claims Manager',
-      'New Patient',
-      '/dashboard/home/completedregistration',
-      '',
-      newPatient._id,
-      ''
-    );
+    if (parsed.paymentMethod[0].payment === 'Insured') {
+      Notification(
+        'ADT_A04',
+        'Registration officer add new patient',
+        'Insurance Claims Manager',
+        'New Patient',
+        '/dashboard/home/completedregistration',
+        '',
+        newPatient._id,
+        ''
+      );
+    }
   }
 
   const obj = {};
@@ -634,6 +636,17 @@ exports.getPatient = asyncHandler(async (req, res, next) => {
 exports.getAllPatients = asyncHandler(async (req, res) => {
   const patients = await patientFHIR.find();
   // console.log(patients);
+  res.status(200).json({
+    success: true,
+    data: patients,
+  });
+});
+
+exports.getInsuredPatients = asyncHandler(async (req, res) => {
+  const patients = await patientFHIR.find({
+    'paymentMethod.payment': 'Insured',
+  });
+
   res.status(200).json({
     success: true,
     data: patients,
