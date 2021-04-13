@@ -642,6 +642,17 @@ exports.getAllPatients = asyncHandler(async (req, res) => {
   });
 });
 
+exports.getInsuredPatients = asyncHandler(async (req, res) => {
+  const patients = await patientFHIR.find({
+    'paymentMethod.payment': 'Insured',
+  });
+
+  res.status(200).json({
+    success: true,
+    data: patients,
+  });
+});
+
 exports.getPendingRegistration = asyncHandler(async (req, res, next) => {
   const pendingPatients = await patientFHIR.find({
     registrationStatus: 'pending',
