@@ -2698,11 +2698,11 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     Notification(
       'ADT_A03',
       'Patient Disposition/Discharged',
-      'Insurance Claim Manager',
+      'Insurance Claims Manager',
       'Patient Disposition OR Discharged',
       '/dashboard/home/patientmanagement/pendingpatients',
-      '',
       _id,
+      '',
       ''
     );
   }
@@ -2713,8 +2713,8 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     'Admin',
     'Discharge Requests',
     '/dashboard/home/patientmanagement/pendingpatients',
-    '',
     _id,
+    '',
     ''
   );
   const dischargePending = await EDR.find({
