@@ -199,16 +199,18 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       ''
     );
 
-    Notification(
-      'ADT_A04',
-      'Registration officer add new patient',
-      'Insurance Claims Manager',
-      'New Patient',
-      '/dashboard/home/completedregistration',
-      '',
-      newPatient._id,
-      ''
-    );
+    if (parsed.paymentMethod[0].payment === 'Insured') {
+      Notification(
+        'ADT_A04',
+        'Registration officer add new patient',
+        'Insurance Claims Manager',
+        'New Patient',
+        '/dashboard/home/completedregistration',
+        '',
+        newPatient._id,
+        ''
+      );
+    }
   }
 
   const obj = {};

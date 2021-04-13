@@ -28,8 +28,7 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
       versionNo: patient.identifier[0].value + '-' + requestNo + '-' + '1',
     },
   ];
-  // console.log(patient);
-  // console.log(patient.paymentMethod[0].payment);
+
   const paymentMethod = patient.paymentMethod[0].payment;
   const {
     patientId,
@@ -2695,16 +2694,18 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     );
   }
 
-  Notification(
-    'ADT_A03',
-    'Patient Disposition/Discharged',
-    'Insurance Claim Manager',
-    'Patient Disposition OR Discharged',
-    '/dashboard/home/patientmanagement/pendingpatients',
-    '',
-    _id,
-    ''
-  );
+  if (edr.paymentMethod === 'Insured') {
+    Notification(
+      'ADT_A03',
+      'Patient Disposition/Discharged',
+      'Insurance Claim Manager',
+      'Patient Disposition OR Discharged',
+      '/dashboard/home/patientmanagement/pendingpatients',
+      '',
+      _id,
+      ''
+    );
+  }
 
   Notification(
     'ADT_A03',
