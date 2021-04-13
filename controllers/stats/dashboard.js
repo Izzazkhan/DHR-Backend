@@ -671,6 +671,7 @@ exports.ntDashboard = asyncHandler(async (req, res, next) => {
     obj.collectedTime = obj.transferOfCare.observedTime;
     totalTasks.push(obj);
   }
+  // console.log(totalTasks);
 
   totalTasks.map((o) =>
     // console.log(o)
@@ -694,11 +695,11 @@ exports.ntDashboard = asyncHandler(async (req, res, next) => {
       totalPending: transferPending.length,
       transferPerHour,
     },
-    // thirdCard: {
-    //   TAT: completedTransferTAT,
-    //   totalPending: transferPending.length,
-    //   tasksPerHour,
-    // },
+    thirdCard: {
+      TAT: completedTransferTAT,
+      totalPending: totalTasks.length,
+      tasksPerHour,
+    },
   });
 });
 
