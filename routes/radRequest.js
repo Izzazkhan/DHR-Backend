@@ -24,6 +24,7 @@ const {
   assignHouseKeeper,
   getPendingRadEdrForED,
   getCompletedRadEdrForED,
+  searchCompletedRadEdr,
 } = require('../controllers/radRequest');
 
 const router = express.Router();
@@ -39,5 +40,6 @@ router.get(
   '/getCompletedRadEdrForED/:radTechnicianId',
   getCompletedRadEdrForED
 );
+router.get('/searchCompletedRadEdr/:radId', searchCompletedRadEdr);
 
 module.exports = router;
