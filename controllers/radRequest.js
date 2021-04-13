@@ -313,7 +313,7 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
         'Radiology Test Report Generated',
         'Doctor',
         'Imaging Technicians',
-        '/dashboard/home/radiologyTasks',
+        '/dashboard/home/radiologyReports',
         parsed.edrId,
         '',
         'ED Doctor'
@@ -643,7 +643,7 @@ exports.searchCompletedRadEdr = asyncHandler(async (req, res, next) => {
     },
     {
       path: 'radRequest.serviceId',
-      model: 'radoratoryService',
+      model: 'RadiologyService',
     },
     {
       path: 'room.roomId',
