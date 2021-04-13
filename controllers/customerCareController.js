@@ -842,6 +842,17 @@ exports.updateAmbulanceRequest = asyncHandler(async (req, res, next) => {
     'ED Doctor'
   );
 
+  Notification(
+    'ADT_A04',
+    'Details from Paramedics',
+    'Sensei',
+    'Paramedics',
+    '/dashboard/home/patientmanagement/pendingpatients',
+    req.body.edrId,
+    '',
+    ''
+  );
+
   res.status(200).json({
     success: true,
     data: completedRequest,

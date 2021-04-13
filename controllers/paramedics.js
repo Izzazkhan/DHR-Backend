@@ -65,7 +65,7 @@ exports.edrTransfer = asyncHandler(async (req, res, next) => {
   }).select('shift');
 
   const randomCC = Math.floor(Math.random() * (customerCares.length - 1));
-  // console.log(randomCC);
+
   const customerCare = customerCares[randomCC];
 
   const cc = await CCRequest.create({
@@ -75,7 +75,7 @@ exports.edrTransfer = asyncHandler(async (req, res, next) => {
     staffId: req.body.staffId,
     requestedFor: 'Transfer',
     requestedAt: Date.now(),
-    customerCareId: customerCare._id,
+    costomerCareId: customerCare._id,
   });
 
   const requests = await CCRequest.find({
