@@ -309,7 +309,7 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
         globalVariable.io.emit('senseiPending', flags);
       }
       Notification(
-        'Report Uploaded',
+        'Report Uploaded' + parsed.radId,
         'Radiology Test Report Generated',
         'Doctor',
         'Imaging Technicians',
@@ -320,7 +320,7 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
       );
 
       Notification(
-        'Report Uploaded',
+        'Report Uploaded' + parsed.radId,
         'Radiology Report Generated',
         'Nurses',
         'Radiologist',
