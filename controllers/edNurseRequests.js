@@ -620,7 +620,10 @@ exports.dashboardData = asyncHandler(async (req, res, next) => {
 
   const patientWithRegToTriage = await EDR.find({
     createdTimeStamp: { $gte: sixHour },
-    'dcdForm.$.triageAssessment': { $ne: [] },
+    // 'dcdForm.$.triageAssessment': { $ne: [] },
+    dcdForm: {
+      $elemMatch: { triageAssessment: { $ne: [] } },
+    },
   });
 
   let totalTimeBetweenRegAndTriage = 0;
