@@ -32,6 +32,7 @@ const {
   getApprovedPatientByKeyword,
   getPendingPatientByKeyword,
   getInsuredPatients,
+  searchInsuredPatient,
 } = require('../controllers/patientController');
 
 const router = express.Router();
@@ -41,6 +42,7 @@ router.get('/completedRegistration', getCompletedRegistration);
 router.post('/registerPatient', cpUpload, registerPatient);
 router.get('/getAllPatients', getAllPatients);
 router.get('/searchPatient/:keyword', getPatientByKeyword);
+router.get('/searchInsuredPatient/:keyword', searchInsuredPatient);
 router.get('/approvedPatient/:keyword', getApprovedPatientByKeyword);
 router.put('/updatePatient', cpUpload, updatePatient);
 router.get('/pendingPatient/:keyword', getPendingPatientByKeyword);

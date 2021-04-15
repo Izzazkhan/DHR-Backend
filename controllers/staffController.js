@@ -481,7 +481,7 @@ exports.searchAnesthesiologist = asyncHandler(async (req, res, next) => {
     staffType: 'Doctor',
     subType: 'Anesthesiologist',
     disabled: false,
-  });
+  }).populate('shift');
   for (let i = 0; i < staff.length; i++) {
     const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
     if (

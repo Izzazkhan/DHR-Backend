@@ -653,6 +653,47 @@ exports.getInsuredPatients = asyncHandler(async (req, res) => {
   });
 });
 
+exports.searchInsuredPatient = asyncHandler(async (req, res, next) => {
+  const patients = await patientFHIR.find({
+    'paymentMethod.payment': 'Insured',
+  });
+
+  const arr = [];
+  for (let i = 0; i < patients.length; i++) {
+    const fullName =
+      patients[i].name[0].given[0] + ' ' + patients[i].name[0].family;
+    if (
+      (patients[i].name[0].given[0] &&
+        patients[i].name[0].given[0]
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (patients[i].name[0].family &&
+        patients[i].name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (patients[i].identifier[0].value &&
+        patients[i].identifier[0].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
+      (patients[i].telecom[1].value &&
+        patients[i].telecom[1].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (patients[i].nationalID &&
+        patients[i].nationalID
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase()))
+    ) {
+      arr.push(patients[i]);
+    }
+  }
+  res.status(200).json({
+    success: true,
+    data: arr,
+  });
+});
+
 exports.getPendingRegistration = asyncHandler(async (req, res, next) => {
   const pendingPatients = await patientFHIR.find({
     registrationStatus: 'pending',
