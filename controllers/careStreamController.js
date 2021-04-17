@@ -524,52 +524,65 @@ exports.edInProgressCS = asyncHandler(async (req, res, next) => {
 
 exports.searchInProgressCS = asyncHandler(async (req, res, next) => {
   const arr = [];
-  const patients = await EDR.find({
-    status: 'pending',
-    'careStream.status': 'in_progress',
-  })
-    .populate('patientId')
-    .populate([
-      {
-        path: 'chiefComplaint.chiefComplaintId',
-        model: 'chiefComplaint',
-        select: 'chiefComplaint.chiefComplaintId',
-        populate: [
-          {
-            path: 'productionArea.productionAreaId',
-            model: 'productionArea',
-            select: 'paName',
-          },
-        ],
+  const edrs = await EDR.aggregate([
+    {
+      $project: {
+        status: 1,
+        careStream: 1,
+        patientId: 1,
+        chiefComplaint: 1,
       },
-      {
-        path: 'careStream.careStreamId',
-        select: 'identifier name',
+    },
+    {
+      $unwind: '$careStream',
+    },
+    {
+      $match: {
+        'careStream.status': 'in_progress',
       },
-    ]);
+    },
+  ]);
+  const patients = await EDR.populate(edrs, [
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      select: 'chiefComplaint.chiefComplaintId',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      ],
+    },
+    {
+      path: 'careStream.careStreamId',
+      select: 'identifier name',
+    },
+  ]);
 
   for (let i = 0; i < patients.length; i++) {
-    for (let j = 0; j < patients[i].careStream.length; j++) {
-      if (
-        (patients[i].careStream[j].careStreamId.name &&
-          patients[i].careStream[j].careStreamId.name
-            .toLowerCase()
-            .startsWith(req.params.keyword.toLowerCase())) ||
-        (patients[i].careStream[j].careStreamId.identifier[0].value &&
-          patients[i].careStream[j].careStreamId.identifier[0].value
-            .toLowerCase()
-            .startsWith(req.params.keyword.toLowerCase())) ||
-        (patients[i].chiefComplaint[patients[i].chiefComplaint.length - 1]
-          .chiefComplaintId.productionArea[0].productionAreaId.paName &&
-          patients[i].chiefComplaint[
-            patients[i].chiefComplaint.length - 1
-          ].chiefComplaintId.productionArea[0].productionAreaId.paName
-            .toLowerCase()
-            .startsWith(req.params.keyword.toLowerCase()))
-      ) {
-        arr.push(patients[i]);
-      }
+    // for (let j = 0; j < patients[i].careStream.length; j++) {
+    if (
+      (patients[i].careStream.careStreamId.name &&
+        patients[i].careStream.careStreamId.name
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (patients[i].careStream.careStreamId.identifier[0].value &&
+        patients[i].careStream.careStreamId.identifier[0].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (patients[i].chiefComplaint[patients[i].chiefComplaint.length - 1]
+        .chiefComplaintId.productionArea[0].productionAreaId.paName &&
+        patients[i].chiefComplaint[
+          patients[i].chiefComplaint.length - 1
+        ].chiefComplaintId.productionArea[0].productionAreaId.paName
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase()))
+    ) {
+      arr.push(patients[i]);
     }
+    // }
   }
   res.status(200).json({
     success: true,
@@ -659,7 +672,7 @@ exports.getPatientWithoutCSByKeyword = asyncHandler(async (req, res, next) => {
   const arr = [];
   const patients = await EDR.find({
     status: 'pending',
-    careStream: { $eq: [] },
+    // careStream: { $eq: [] },
     // room: { $ne: [] },
   }).populate('patientId ');
 
