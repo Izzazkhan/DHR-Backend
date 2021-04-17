@@ -408,6 +408,7 @@ const edrSchema = new mongoose.Schema({
                 {
                   name: String, // Chip names e.g. Agree W/ Vital Sign
                   image: [{ type: String }], // multiple images
+                  imageMarkers: [{ top: Number, left: Number }], // For Image Markers on Human Body
                   detail: String, // Chips's Textfield
                   right: [
                     //  Chips further having Right side Details
