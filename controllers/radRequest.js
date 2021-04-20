@@ -324,7 +324,7 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
         'Radiology Report Generated',
         'Nurses',
         'Radiologist',
-        'git',
+        '/dashboard/home/patientmanagement/viewrequests/rad/viewrad',
         parsed.edrId,
         '',
         'ED Nurse'

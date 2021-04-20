@@ -277,7 +277,7 @@ exports.updateLabRequest = asyncHandler(async (req, res, next) => {
       'Lab Test Results',
       'Nurses',
       'Lab Technicians',
-      '/dashboard/taskslist',
+      '/dashboard/home/patientmanagement/viewrequests/lab/viewlab',
       parsed.edrId,
       '',
       'ED Nurse'

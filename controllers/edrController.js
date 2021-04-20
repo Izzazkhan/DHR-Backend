@@ -2676,7 +2676,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       'Medication For Discharged',
       'Nurses',
       'Pharmacist',
-      '/dashboard/home/notes',
+      '/dashboard/home/patientmanagement/viewrequests/pharma/viewpharma',
       _id,
       '',
       'ED Nurse'
