@@ -164,6 +164,86 @@ exports.getPharmacy = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.searchGetPharmacy = asyncHandler(async (req, res, next) => {
+  const unwindEdr = await EDR.aggregate([
+    {
+      $project: {
+        _id: 1,
+        pharmacyRequest: 1,
+        patientId: 1,
+      },
+    },
+    {
+      $unwind: '$pharmacyRequest',
+    },
+    // {
+    //   $match: {
+    //     'pharmacyRequest.status': 'pending',
+    //   },
+    // },
+    {
+      $group: {
+        _id: '$_id',
+        patientId: { $push: '$patientId' },
+        pharmacyRequest: { $push: '$pharmacyRequest' },
+      },
+    },
+    {
+      $project: {
+        patientId: 1,
+        _id: 1,
+        pharmacyRequest: 1,
+      },
+    },
+  ]);
+
+  const patients = await EDR.populate(unwindEdr, [
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+      select: 'identifier name createdAt telecom nationalID  weight age gender',
+    },
+  ]);
+
+  const arr = [];
+
+  for (let i = 0; i < patients.length; i++) {
+    const fullName =
+      patients[i].patientId.name[0].given[0] +
+      ' ' +
+      patients[i].patientId.name[0].family;
+    if (
+      (patients[i].patientId.name[0].given[0] &&
+        patients[i].patientId.name[0].given[0]
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (patients[i].patientId.name[0].family &&
+        patients[i].patientId.name[0].family
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (patients[i].patientId.identifier[0].value &&
+        patients[i].patientId.identifier[0].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
+      (patients[i].patientId.telecom[1].value &&
+        patients[i].patientId.telecom[1].value
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (patients[i].patientId.nationalID &&
+        patients[i].patientId.nationalID
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase()))
+    ) {
+      arr.push(patients[i]);
+    }
+  }
+  res.status(200).json({
+    success: true,
+    data: arr,
+  });
+});
+
 exports.submitRequest = asyncHandler(async (req, res, next) => {
   const { patientId, staffId, assignedBy, staffType, reason } = req.body;
   let request;

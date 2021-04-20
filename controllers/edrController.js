@@ -3054,7 +3054,7 @@ exports.addAnesthesiologistNote = asyncHandler(async (req, res, next) => {
     'Ed Doctor request for anesthesiologist',
     'Doctor',
     'ED Doctor',
-    '/dashboard/home/notes',
+    '/dashboard/home/anesthesiarequests',
     parsed.edrId,
     '',
     'Anesthesiologist'

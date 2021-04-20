@@ -18,12 +18,14 @@ const {
   completeRequest,
   completedEDNurseEdrRequest,
   updateMedicationStatus,
-  dashboardData
+  dashboardData,
+  searchGetPharmacy,
 } = require('../controllers/edNurseRequests');
 
 router.get('/getLab', getLab);
 router.get('/getRad', getRad);
 router.get('/getPharmacy', getPharmacy);
+router.get('/searchGetPharmacy/:keyword', searchGetPharmacy);
 router.get('/getHKRequests', getHouskeepingRequests);
 router.get('/getHKRequestsById/:staffId', getHouskeepingRequestsById);
 router.get('/getCCRequests', getCustomerCareRequests);
