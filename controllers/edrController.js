@@ -2562,7 +2562,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       'Patient has been discharged/disposition without customer care',
       'Sensei',
       'ED Doctor',
-      '/dashboard/home/patientlist',
+      'dashboard/home/viewalldischargedpatients',
       _id,
       '',
       ''
@@ -2624,7 +2624,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     'Patient has been discharged/disposition with customer care',
     'Sensei',
     'ED Doctor',
-    '/dashboard/home/patientlist',
+    'dashboard/home/viewalldischargedpatients',
     _id,
     '',
     ''
@@ -4031,6 +4031,7 @@ exports.getDischargedEDR = asyncHandler(async (req, res) => {
   const edr = await EDR.find({ status: 'Discharged' }).populate('patientId');
   res.status(200).json({ success: true, data: edr });
 });
+
 exports.searchDischargedEDR = asyncHandler(async (req, res) => {
   const patients = await EDR.find({ status: 'Discharged' }).populate(
     'patientId'
