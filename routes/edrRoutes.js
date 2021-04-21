@@ -48,6 +48,7 @@ const {
   addNurseTechnicianRequest,
   updateNurseTechnicianRequest,
   getDischargedEDR,
+  searchDischargedEDR,
   getCompletedEDR,
   getSenseiPendingEDRs,
 
@@ -161,6 +162,7 @@ router.get(
   getEDRFromPatientIdForDischarge
 );
 router.get('/getDischargedEDR', getDischargedEDR);
+router.get('/searchDischargedEDR/:keyword', searchDischargedEDR);
 router.get('/getCompletedEDR', getCompletedEDR);
 router.get('/getedripr/:_id', getEDRorIPR);
 
