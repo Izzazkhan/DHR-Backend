@@ -2563,6 +2563,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       'Sensei',
       'ED Doctor',
       '/dashboard/home/patientlist',
+      _id,
       '',
       ''
     );
@@ -2624,6 +2625,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     'Sensei',
     'ED Doctor',
     '/dashboard/home/patientlist',
+    _id,
     '',
     ''
   );
@@ -4026,9 +4028,7 @@ exports.updateNurseTechnicianRequest = asyncHandler(async (req, res, next) => {
 });
 
 exports.getDischargedEDR = asyncHandler(async (req, res) => {
-  const edr = await EDR.find({ status: { $eq: 'Discharged' } }).populate(
-    'patientId'
-  );
+  const edr = await EDR.find({ status: 'Discharged' }).populate('patientId');
   res.status(200).json({ success: true, data: edr });
 });
 

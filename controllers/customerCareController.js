@@ -242,8 +242,9 @@ exports.completeEOUTransfer = asyncHandler(async (req, res, next) => {
     'Patient has been transferred to EOU',
     'Sensei',
     'Transfer To EOU',
-    '',
+    '/dashboard/home/patientlog/EOU',
     completedTransfer.edrId._id,
+    '',
     ''
   );
 

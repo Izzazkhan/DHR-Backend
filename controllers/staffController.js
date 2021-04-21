@@ -370,7 +370,22 @@ exports.searchSensei = asyncHandler(async (req, res, next) => {
   const staff = await Staff.find({
     staffType: 'Sensei',
     disabled: false,
-  }).populate('addedBy');
+  })
+    .populate('addedBy shift')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+    ]);
   for (let i = 0; i < staff.length; i++) {
     const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
     if (
