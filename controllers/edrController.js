@@ -2562,7 +2562,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       'Patient has been discharged/disposition without customer care',
       'Sensei',
       'ED Doctor',
-      'dashboard/home/viewalldischargedpatients',
+      '/dashboard/home/viewalldischargedpatients',
       _id,
       '',
       ''
@@ -2624,7 +2624,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     'Patient has been discharged/disposition with customer care',
     'Sensei',
     'ED Doctor',
-    'dashboard/home/viewalldischargedpatients',
+    '/dashboard/home/viewalldischargedpatients',
     _id,
     '',
     ''
@@ -2678,7 +2678,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       'Medication For Discharged',
       'Nurses',
       'Pharmacist',
-      '/dashboard/home/patientmanagement/viewrequests/pharma/viewpharma',
+      '/dashboard/home/viewalldischargedpatients',
       _id,
       '',
       'ED Nurse'
