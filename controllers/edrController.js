@@ -2714,7 +2714,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     'Discharge Request',
     'Admin',
     'Discharge Requests',
-    '/dashboard/home/patientmanagement/pendingpatients',
+    '/dashboard/home/viewalldischargedpatients',
     _id,
     '',
     ''
