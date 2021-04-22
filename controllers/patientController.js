@@ -394,7 +394,9 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
         'Registration Officer',
         'Sensei',
         '/dashboard/home/pendingregistration',
-        edr && edr.length > 0 && edr._id,
+        // edr && edr.length > 0 && edr._id,
+        '',
+        patient._id,
         ''
       );
     }
@@ -550,8 +552,10 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
         'ADT_A04',
         'Details from Sensei',
         'Registration Officer',
-        '/home/rcm/patientAssessment',
-        patient._id
+        '/dashboard/home/pendingregistration',
+        '',
+        patient._id,
+        ''
       );
     }
 
@@ -564,15 +568,18 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
         'ADT_A04',
         'Details from Paramedics',
         'Registration Officer',
-        '/home/rcm/patientAssessment',
-        patient._id
+        '/dashboard/home/pendingregistration',
+        '',
+        patient._id,
+        ''
       );
 
       Notification(
         'ADT_A04',
         'Patient Details',
         'Sensei',
-        '/home/rcm/patientAssessment',
+        '/dashboard/home/patientmanagement/patientregistration',
+        '',
         patient._id
       );
     }
@@ -733,7 +740,7 @@ exports.getApprovedPatientById = asyncHandler(async (req, res, next) => {
 
 exports.getApprovedPatientByKeyword = asyncHandler(async (req, res, next) => {
   const patients = await patientFHIR.find({ registrationStatus: 'completed' });
-
+  // const arr = searchPatient(patients);
   const arr = [];
   for (let i = 0; i < patients.length; i++) {
     const fullName =
