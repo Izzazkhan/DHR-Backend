@@ -9,9 +9,9 @@ const Staff = require('../models/staffFhir/staff');
 const CCRequest = require('../models/customerCareRequest');
 const Notification = require('../components/notification');
 const Flag = require('../models/flag/Flag');
+const searchPatient = require('../components/searchEdr');
 
 exports.generateEDR = asyncHandler(async (req, res, next) => {
-  // console.log('request body', req.body);
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
   const diff =
@@ -87,7 +87,6 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
       },
     }
   );
-  // console.log('edr created', newEDR);
   newEDR = await EDR.findOne({ _id: newEDR._id }).populate('patientId');
   // * Sending Notifications
 
@@ -98,7 +97,7 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
       'Details from Paramedics',
       'Registration Officer',
       'Paramedics',
-      '/dashboard/home/pendingregistration',
+      '/dashboard/home/patientregistration',
       newEDR._id,
       '',
       ''
@@ -111,7 +110,7 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
       'Details from Sensei',
       'Registration Officer',
       'Sensei',
-      '/dashboard/home/pendingregistration',
+      '/dashboard/home/patientregistration',
       newEDR._id,
       '',
       ''
@@ -143,8 +142,7 @@ exports.getEDRById = asyncHandler(async (req, res, next) => {
   if (!edr) {
     return next(new ErrorResponse('No Edr found for this patient', 404));
   }
-  // const latestForm = edr.dcdForm.length - 1;
-  // console.log(edr);
+
   res.status(200).json({
     success: true,
     data: edr,
@@ -153,7 +151,10 @@ exports.getEDRById = asyncHandler(async (req, res, next) => {
 
 exports.getEdrsByPatient = asyncHandler(async (req, res, next) => {
   const edrs = await EDR.find({ patientId: req.params.id });
-  // console.log(edrs.length);
+  res.status(200).json({
+    status: 'Success',
+    data: edrs,
+  });
 });
 
 exports.getEDRs = asyncHandler(async (req, res, next) => {
@@ -276,52 +277,21 @@ exports.updatedDcdFormStatus = asyncHandler(async (req, res, next) => {
 });
 
 exports.getEdrPatientByKeyword = asyncHandler(async (req, res, next) => {
-  const arr = [];
   const patients = await EDR.find({ patientInHospital: true })
     .populate('patientId')
     .populate('chiefComplaint.chiefComplaintId')
     .populate('room.roomId');
 
-  for (let i = 0; i < patients.length; i++) {
-    const fullName =
-      patients[i].patientId.name[0].given[0] +
-      ' ' +
-      patients[i].patientId.name[0].family;
-    if (
-      (patients[i].patientId.name[0].given[0] &&
-        patients[i].patientId.name[0].given[0]
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.name[0].family &&
-        patients[i].patientId.name[0].family
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.identifier[0].value &&
-        patients[i].patientId.identifier[0].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
-      (patients[i].patientId.telecom[1].value &&
-        patients[i].patientId.telecom[1].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.nationalID &&
-        patients[i].patientId.nationalID
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase()))
-    ) {
-      arr.push(patients[i]);
-    }
-  }
+  // Search Function
+  const arr = searchPatient(req, patients);
+
   res.status(200).json({
     success: true,
     data: arr,
   });
 });
-const searchPatient = require('../components/search');
 
 exports.getPendingEdrByKeyword = asyncHandler(async (req, res, next) => {
-  // const arr = [];
   const patients = await EDR.find({
     status: 'pending',
     patientInHospital: true,
@@ -329,37 +299,6 @@ exports.getPendingEdrByKeyword = asyncHandler(async (req, res, next) => {
 
   const arr = searchPatient(req, patients);
 
-  // for (let i = 0; i < patients.length; i++) {
-  //   const fullName =
-  //     patients[i].patientId.name[0].given[0] +
-  //     ' ' +
-  //     patients[i].patientId.name[0].family;
-  //   if (
-  //     (patients[i].patientId.name[0].given[0] &&
-  //       patients[i].patientId.name[0].given[0]
-  //         .toLowerCase()
-  //         .startsWith(req.params.keyword.toLowerCase())) ||
-  //     (patients[i].patientId.name[0].family &&
-  //       patients[i].patientId.name[0].family
-  //         .toLowerCase()
-  //         .startsWith(req.params.keyword.toLowerCase())) ||
-  //     (patients[i].patientId.identifier[0].value &&
-  //       patients[i].patientId.identifier[0].value
-  //         .toLowerCase()
-  //         .startsWith(req.params.keyword.toLowerCase())) ||
-  //     fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
-  //     (patients[i].patientId.telecom[1].value &&
-  //       patients[i].patientId.telecom[1].value
-  //         .toLowerCase()
-  //         .startsWith(req.params.keyword.toLowerCase())) ||
-  //     (patients[i].patientId.nationalID &&
-  //       patients[i].patientId.nationalID
-  //         .toLowerCase()
-  //         .startsWith(req.params.keyword.toLowerCase()))
-  //   ) {
-  //     arr.push(patients[i]);
-  //   }
-  // }
   res.status(200).json({
     success: true,
     data: arr,
@@ -367,44 +306,14 @@ exports.getPendingEdrByKeyword = asyncHandler(async (req, res, next) => {
 });
 
 exports.getSenseiPendingEdrByKeyword = asyncHandler(async (req, res, next) => {
-  const arr = [];
   const patients = await EDR.find({
     status: 'pending',
     generatedFrom: 'Sensei',
     patientInHospital: true,
   }).populate('patientId');
 
-  for (let i = 0; i < patients.length; i++) {
-    const fullName =
-      patients[i].patientId.name[0].given[0] +
-      ' ' +
-      patients[i].patientId.name[0].family;
-    if (
-      (patients[i].patientId.name[0].given[0] &&
-        patients[i].patientId.name[0].given[0]
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.name[0].family &&
-        patients[i].patientId.name[0].family
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.identifier[0].value &&
-        patients[i].patientId.identifier[0].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
-      (patients[i].patientId.telecom[1].value &&
-        patients[i].patientId.telecom[1].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.nationalID &&
-        patients[i].patientId.nationalID
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase()))
-    ) {
-      arr.push(patients[i]);
-    }
-  }
+  const arr = searchPatient(req, patients);
+
   res.status(200).json({
     success: true,
     data: arr,
@@ -814,13 +723,6 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
     type: req.body.type,
     price: req.body.price,
     status: req.body.status,
-    // priority: req.body.priority,
-    // requestedBy: req.body.staffId,
-    // requestedAt: Date.now(),
-    // assignedTo: nurseTechnician._id,
-    // labTechnicianId: req.body.labTechnicianId,
-    // reason: req.body.reason,
-    // notes: req.body.notes,
   };
 
   const newLab = await EDR.findOneAndUpdate(
@@ -1763,18 +1665,6 @@ exports.completeConsultationNote = asyncHandler(async (req, res, next) => {
     parsed = req.body;
   }
 
-  // const parsed = req.body;
-  // console.log(parsed);
-  // const edrNotes = await EDR.findOne({ _id: parsed.edrId });
-
-  // let note;
-  // for (let i = 0; i < edrNotes.consultationNote.length; i++) {
-  //   if (edrNotes.consultationNote[i]._id == parsed.noteId) {
-  //     // console.log(i);
-  //     note = i;
-  //   }
-  // }
-  // // console.log(note);
   const updatedNote = await EDR.findOneAndUpdate(
     { _id: parsed.edrId, 'consultationNote._id': parsed._id },
     {
@@ -1867,7 +1757,6 @@ exports.getEDRwihtConsultationNote = asyncHandler(async (req, res, next) => {
 });
 
 exports.addRadRequest = asyncHandler(async (req, res, next) => {
-  // console.log(req.body);
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
   const diff =
@@ -1886,12 +1775,6 @@ exports.addRadRequest = asyncHandler(async (req, res, next) => {
     type: req.body.type,
     price: req.body.price,
     status: req.body.status,
-    // priority: req.body.priority,
-    // requestedBy: req.body.staffId,
-    // imageTechnicianId: req.body.radTechnicianId,
-    // requestedAt: Date.now(),
-    // reason: req.body.reason,
-    // notes: req.body.notes,
   };
 
   const newRad = await EDR.findOneAndUpdate(
@@ -2860,8 +2743,6 @@ exports.addAnesthesiologistNote = asyncHandler(async (req, res, next) => {
   )}`;
 
   const parsed = JSON.parse(req.body.data);
-  // console.log(parsed);
-  // console.log(parsed.anesthesiologist);
   const anesthesiologistNote = {
     anesthesiologistNo,
     addedBy: parsed.addedBy,
@@ -2967,12 +2848,6 @@ exports.addAnesthesiologistNote = asyncHandler(async (req, res, next) => {
       model: 'staff',
     },
   ]);
-
-  // await Staff.findOneAndUpdate(
-  //   { _id: parsed.anesthesiologist },
-  //   { $set: { availability: false } },
-  //   { new: true }
-  // );
 
   const pending = await EDR.aggregate([
     {
@@ -3349,12 +3224,6 @@ exports.addEDNurseRequest = asyncHandler(async (req, res, next) => {
     globalVariable.io.emit('edNursePending', flags);
   }
 
-  // await Staff.findOneAndUpdate(
-  //   { _id: parsed.edNurse },
-  //   { $set: { availability: false } },
-  //   { new: true }
-  // );
-
   res.status(200).json({
     success: true,
     data: addedRequest,
@@ -3480,12 +3349,6 @@ exports.updateEDNurseRequest = asyncHandler(async (req, res, next) => {
       },
     ]);
 
-  // await Staff.findOneAndUpdate(
-  //   { _id: parsed.edNurse },
-  //   { $set: { availability: false } },
-  //   { new: true }
-  // );
-
   res.status(200).json({
     success: true,
     data: updatedRequest,
@@ -3609,12 +3472,6 @@ exports.addEOUNurseRequest = asyncHandler(async (req, res, next) => {
       model: 'staff',
     },
   ]);
-
-  // await Staff.findOneAndUpdate(
-  //   { _id: parsed.edNurse },
-  //   { $set: { availability: false } },
-  //   { new: true }
-  // );
 
   res.status(200).json({
     success: true,
@@ -3740,12 +3597,6 @@ exports.updateEOUNurseRequest = asyncHandler(async (req, res, next) => {
         model: 'staff',
       },
     ]);
-
-  // await Staff.findOneAndUpdate(
-  //   { _id: parsed.edNurse },
-  //   { $set: { availability: false } },
-  //   { new: true }
-  // );
 
   Notification(
     'Required An Assistance',
@@ -4018,12 +3869,6 @@ exports.updateNurseTechnicianRequest = asyncHandler(async (req, res, next) => {
       },
     ]);
 
-  // await Staff.findOneAndUpdate(
-  //   { _id: parsed.edNurse },
-  //   { $set: { availability: false } },
-  //   { new: true }
-  // );
-
   res.status(200).json({
     success: true,
     data: updatedRequest,
@@ -4039,38 +3884,7 @@ exports.searchDischargedEDR = asyncHandler(async (req, res) => {
   const patients = await EDR.find({ status: 'Discharged' }).populate(
     'patientId'
   );
-  const arr = [];
-  for (let i = 0; i < patients.length; i++) {
-    const fullName =
-      patients[i].patientId.name[0].given[0] +
-      ' ' +
-      patients[i].patientId.name[0].family;
-    if (
-      (patients[i].patientId.name[0].given[0] &&
-        patients[i].patientId.name[0].given[0]
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.name[0].family &&
-        patients[i].patientId.name[0].family
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.identifier[0].value &&
-        patients[i].patientId.identifier[0].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
-      (patients[i].patientId.telecom[1].value &&
-        patients[i].patientId.telecom[1].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.nationalID &&
-        patients[i].patientId.nationalID
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase()))
-    ) {
-      arr.push(patients[i]);
-    }
-  }
+  const arr = searchPatient(req, patients);
   res.status(200).json({
     success: true,
     data: arr,
@@ -4406,38 +4220,6 @@ exports.updatePharmcayRequest = asyncHandler(async (req, res, next) => {
     'ED Nurse'
   );
 
-  // const pharmacyRequest = await EDR.aggregate([
-  //   {
-  //     $project: {
-  //       pharmacyRequest: 1,
-  //     },
-  //   },
-  //   {
-  //     $unwind: '$pharmacyRequest',
-  //   },
-  //   {
-  //     $match: {
-  //       'pharmacyRequest.status': 'pending',
-  //     },
-  //   },
-  // ]);
-
-  // if (pharmacyRequest.length > 4) {
-  //   await Flag.create({
-  //     edrId: req.body.edrId,
-  //     generatedFrom: 'ED Doctor',
-  //     card: '7th',
-  //     generatedFor: 'ED Doctor',
-  //     reason: 'Pharmacy Requests Pending',
-  //     createdAt: Date.now(),
-  //   });
-  //   const flags = await Flag.find({
-  //     generatedFrom: 'ED Doctor',
-  //     $or: [{ status: 'pending' }, { status: 'in_progress' }],
-  //   });
-  //   globalVariable.io.emit('pendingDoctor', flags);
-  // }
-
   res.status(200).json({
     success: true,
     data: addedNote,
@@ -4626,51 +4408,11 @@ exports.getEDRsWithPharmacyRequest = asyncHandler(async (req, res) => {
 });
 // Search edr where edr status is not completed
 exports.getNurseEdrByKeyword = asyncHandler(async (req, res, next) => {
-  const arr = [];
   const patients = await EDR.find({ status: { $ne: 'completed' } })
     .select('patientId')
     .populate('patientId', 'name identifier telecom nationalID gender age');
 
-  for (let i = 0; i < patients.length; i++) {
-    const fullName =
-      patients[i].patientId.name[0].given[0] +
-      ' ' +
-      patients[i].patientId.name[0].family;
-    if (
-      (patients[i].patientId.name[0].given[0] &&
-        patients[i].patientId.name[0].given[0]
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.name[0].family &&
-        patients[i].patientId.name[0].family
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.identifier[0].value &&
-        patients[i].patientId.identifier[0].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
-      (patients[i].patientId.telecom[1].value &&
-        patients[i].patientId.telecom[1].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.nationalID &&
-        patients[i].patientId.nationalID
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase()))
-    ) {
-      arr.push(patients[i]);
-      break;
-    }
-  }
-  // const patientArr = [];
-  // for (let i = 0; i < patients.length; i++) {
-  //   if (patients[i]._id == arr[arr.length - 1]._id) {
-  //     patientArr.push(patients[i]);
-  //     break;
-  //   }
-  // }
-  // console.log(patientArr);
+  const arr = searchPatient(req, patients);
 
   res.status(200).json({
     success: true,
@@ -4679,7 +4421,6 @@ exports.getNurseEdrByKeyword = asyncHandler(async (req, res, next) => {
 });
 
 exports.getAllEDRByKeyword = asyncHandler(async (req, res, next) => {
-  const arr = [];
   const patients = await EDR.find({
     $and: [{ status: { $ne: 'Completed' } }, { status: { $ne: 'completed' } }],
   })
@@ -4687,45 +4428,7 @@ exports.getAllEDRByKeyword = asyncHandler(async (req, res, next) => {
     .populate('patientId', 'name identifier telecom nationalID gender age');
   console.log(patients.length);
 
-  for (let i = 0; i < patients.length; i++) {
-    const fullName =
-      patients[i].patientId.name[0].given[0] +
-      ' ' +
-      patients[i].patientId.name[0].family;
-    if (
-      (patients[i].patientId.name[0].given[0] &&
-        patients[i].patientId.name[0].given[0]
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.name[0].family &&
-        patients[i].patientId.name[0].family
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.identifier[0].value &&
-        patients[i].patientId.identifier[0].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
-      (patients[i].patientId.telecom[1].value &&
-        patients[i].patientId.telecom[1].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.nationalID &&
-        patients[i].patientId.nationalID
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase()))
-    ) {
-      arr.push(patients[i]);
-    }
-  }
-  // const patientArr = [];
-  // for (let i = 0; i < patients.length; i++) {
-  //   if (patients[i]._id == arr[arr.length - 1]._id) {
-  //     patientArr.push(patients[i]);
-  //     break;
-  //   }
-  // }
-  // console.log(patientArr);
+  const arr = searchPatient(req, patients);
 
   res.status(200).json({
     success: true,
@@ -4735,7 +4438,6 @@ exports.getAllEDRByKeyword = asyncHandler(async (req, res, next) => {
 
 // Search All EDR
 exports.searchAllEdrs = asyncHandler(async (req, res, next) => {
-  const arr = [];
   const patients = await EDR.find().populate([
     {
       path: 'chiefComplaint.chiefComplaintId',
@@ -4827,37 +4529,7 @@ exports.searchAllEdrs = asyncHandler(async (req, res, next) => {
     },
   ]);
 
-  for (let i = 0; i < patients.length; i++) {
-    const fullName =
-      patients[i].patientId.name[0].given[0] +
-      ' ' +
-      patients[i].patientId.name[0].family;
-    if (
-      (patients[i].patientId.name[0].given[0] &&
-        patients[i].patientId.name[0].given[0]
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.name[0].family &&
-        patients[i].patientId.name[0].family
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.identifier[0].value &&
-        patients[i].patientId.identifier[0].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
-      (patients[i].patientId.telecom[1].value &&
-        patients[i].patientId.telecom[1].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.nationalID &&
-        patients[i].patientId.nationalID
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase()))
-    ) {
-      arr.push(patients[i]);
-    }
-  }
+  const arr = searchPatient(req, patients);
   res.status(200).json({
     success: true,
     data: arr,

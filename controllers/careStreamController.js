@@ -7,6 +7,7 @@ const Items = require('../models/item');
 const Staff = require('../models/staffFhir/staff');
 const Notification = require('../components/notification');
 const Flag = require('../models/flag/Flag');
+const searchEdrPatient = require('../components/searchEdr');
 
 exports.addCareStream = asyncHandler(async (req, res, next) => {
   const {
@@ -669,44 +670,14 @@ exports.getCompletedCS = asyncHandler(async (req, res, next) => {
 });
 
 exports.getPatientWithoutCSByKeyword = asyncHandler(async (req, res, next) => {
-  const arr = [];
   const patients = await EDR.find({
     status: 'pending',
     // careStream: { $eq: [] },
     // room: { $ne: [] },
   }).populate('patientId ');
 
-  for (let i = 0; i < patients.length; i++) {
-    const fullName =
-      patients[i].patientId.name[0].given[0] +
-      ' ' +
-      patients[i].patientId.name[0].family;
-    if (
-      (patients[i].patientId.name[0].given[0] &&
-        patients[i].patientId.name[0].given[0]
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.name[0].family &&
-        patients[i].patientId.name[0].family
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.identifier[0].value &&
-        patients[i].patientId.identifier[0].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
-      (patients[i].patientId.telecom[1].value &&
-        patients[i].patientId.telecom[1].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.nationalID &&
-        patients[i].patientId.nationalID
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase()))
-    ) {
-      arr.push(patients[i]);
-    }
-  }
+  const arr = searchEdrPatient(req, patients);
+
   res.status(200).json({
     success: true,
     data: arr,
@@ -714,7 +685,6 @@ exports.getPatientWithoutCSByKeyword = asyncHandler(async (req, res, next) => {
 });
 
 exports.getPatientsWithCSByKeyword = asyncHandler(async (req, res, next) => {
-  const arr = [];
   const patients = await EDR.find({
     status: 'pending',
     // careStream: { $ne: [] },
@@ -810,37 +780,8 @@ exports.getPatientsWithCSByKeyword = asyncHandler(async (req, res, next) => {
     },
   ]);
 
-  for (let i = 0; i < patients.length; i++) {
-    const fullName =
-      patients[i].patientId.name[0].given[0] +
-      ' ' +
-      patients[i].patientId.name[0].family;
-    if (
-      (patients[i].patientId.name[0].given[0] &&
-        patients[i].patientId.name[0].given[0]
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.name[0].family &&
-        patients[i].patientId.name[0].family
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.identifier[0].value &&
-        patients[i].patientId.identifier[0].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
-      (patients[i].patientId.telecom[1].value &&
-        patients[i].patientId.telecom[1].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.nationalID &&
-        patients[i].patientId.nationalID
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase()))
-    ) {
-      arr.push(patients[i]);
-    }
-  }
+  const arr = searchEdrPatient(req, patients);
+
   res.status(200).json({
     success: true,
     data: arr,

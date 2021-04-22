@@ -8,6 +8,7 @@ const PA = require('../models/productionArea');
 const EDR = require('../models/EDR/EDR');
 const CC = require('../models/chiefComplaint/chiefComplaint');
 const Flag = require('../models/flag/Flag');
+const searchStaff = require('../components/searchStaff');
 
 exports.addChiefComplaint = asyncHandler(async (req, res, next) => {
   const { name } = req.body;
@@ -203,7 +204,6 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
 });
 
 exports.getCCDoctorByKeyword = asyncHandler(async (req, res, next) => {
-  const arr = [];
   const staff = await Staff.find({
     staffType: 'Doctor',
     chiefComplaint: { $ne: [] },
@@ -222,27 +222,8 @@ exports.getCCDoctorByKeyword = asyncHandler(async (req, res, next) => {
     },
   ]);
 
-  for (let i = 0; i < staff.length; i++) {
-    const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
-    if (
-      (staff[i].name[0].given[0] &&
-        staff[i].name[0].given[0]
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (staff[i].name[0].family &&
-        staff[i].name[0].family
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (staff[i].identifier[0].value &&
-        staff[i].identifier[0].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase())
-    ) {
-      arr.push(staff[i]);
-    }
-  }
-  // console.log(arr);
+  const arr = searchStaff(req, staff);
+
   res.status(200).json({
     success: true,
     data: arr,
@@ -250,7 +231,6 @@ exports.getCCDoctorByKeyword = asyncHandler(async (req, res, next) => {
 });
 
 exports.getCCNurseByKeyword = asyncHandler(async (req, res, next) => {
-  const arr = [];
   const staff = await Staff.find({
     staffType: 'Nurses',
     chiefComplaint: { $ne: [] },
@@ -269,27 +249,8 @@ exports.getCCNurseByKeyword = asyncHandler(async (req, res, next) => {
     },
   ]);
 
-  for (let i = 0; i < staff.length; i++) {
-    const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
-    if (
-      (staff[i].name[0].given[0] &&
-        staff[i].name[0].given[0]
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (staff[i].name[0].family &&
-        staff[i].name[0].family
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (staff[i].identifier[0].value &&
-        staff[i].identifier[0].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase())
-    ) {
-      arr.push(staff[i]);
-    }
-  }
-  // console.log(arr);
+  const arr = searchStaff(req, staff);
+
   res.status(200).json({
     success: true,
     data: arr,

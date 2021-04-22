@@ -5,15 +5,10 @@ const http = require('http');
 const socketIO = require('socket.io');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
-const cron = require('node-cron');
-const webPush = require('web-push');
+// const cron = require('node-cron');
+// const webPush = require('web-push');
 const errorHandler = require('./middleware/error');
 const webRTCSocket = require('./lib/socket');
-
-// const Subscription = require('./models/subscriber/subscriber');
-// cron.schedule('* * * * *', () => {
-//   console.log('cron running every minute');
-// });
 
 // Router Files
 const patientRouter = require('./routes/patientRoutes');

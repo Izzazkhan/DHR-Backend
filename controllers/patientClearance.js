@@ -1,9 +1,10 @@
+const requestNoFormat = require('dateformat');
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const PatientClearance = require('../models/patientClearance');
 const EDR = require('../models/EDR/EDR');
 // const IPR = require('../models/IPR')
-const requestNoFormat = require('dateformat');
+const searchEdrPatient = require('../components/searchEdr');
 
 exports.getPatientClearance = asyncHandler(async (req, res) => {
   const patient = await PatientClearance.find()
@@ -39,7 +40,6 @@ exports.getClearedPatients = asyncHandler(async (req, res) => {
 });
 
 exports.searchClearedPatients = asyncHandler(async (req, res) => {
-  const arr = [];
   const patients = await PatientClearance.find()
     .populate('patientId')
     .populate('edrId')
@@ -57,37 +57,7 @@ exports.searchClearedPatients = asyncHandler(async (req, res) => {
     })
     .populate('generatedBy');
 
-  for (let i = 0; i < patients.length; i++) {
-    const fullName =
-      patients[i].patientId.name[0].given[0] +
-      ' ' +
-      patients[i].patientId.name[0].family;
-    if (
-      (patients[i].patientId.name[0].given[0] &&
-        patients[i].patientId.name[0].given[0]
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.name[0].family &&
-        patients[i].patientId.name[0].family
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.identifier[0].value &&
-        patients[i].patientId.identifier[0].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
-      (patients[i].patientId.telecom[1].value &&
-        patients[i].patientId.telecom[1].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.nationalID &&
-        patients[i].patientId.nationalID
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase()))
-    ) {
-      arr.push(patients[i]);
-    }
-  }
+  const arr = searchEdrPatient(req, patients);
 
   res.status(200).json({ success: true, data: arr });
 });

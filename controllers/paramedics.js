@@ -6,6 +6,8 @@ const CCRequest = require('../models/customerCareRequest');
 const Staff = require('../models/staffFhir/staff');
 const Notification = require('../components/notification');
 const Flag = require('../models/flag/Flag');
+const searchStaff = require('../components/searchStaff');
+const searchEdrPatient = require('../components/searchEdr');
 
 exports.paramedicsEdr = asyncHandler(async (req, res, next) => {
   const paramedicsEdr = await EDR.find({
@@ -127,7 +129,6 @@ exports.transferredParamedicsEdr = asyncHandler(async (req, res, next) => {
 });
 
 exports.searchPendingPMEdr = asyncHandler(async (req, res, next) => {
-  const arr = [];
   const patients = await EDR.find({
     patientInHospital: false,
     generatedFrom: 'Paramedics',
@@ -138,38 +139,7 @@ exports.searchPendingPMEdr = asyncHandler(async (req, res, next) => {
       'name identifier telecom nationalID gender age createdAt'
     );
 
-  for (let i = 0; i < patients.length; i++) {
-    const fullName =
-      patients[i].patientId.name[0].given[0] +
-      ' ' +
-      patients[i].patientId.name[0].family;
-    if (
-      (patients[i].patientId.name[0].given[0] &&
-        patients[i].patientId.name[0].given[0]
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.name[0].family &&
-        patients[i].patientId.name[0].family
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.identifier[0].value &&
-        patients[i].patientId.identifier[0].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
-      (patients[i].patientId.telecom[1].value &&
-        patients[i].patientId.telecom[1].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.nationalID &&
-        patients[i].patientId.nationalID
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase()))
-    ) {
-      arr.push(patients[i]);
-      //  break;
-    }
-  }
+  const arr = searchEdrPatient(req, patients);
 
   res.status(200).json({
     success: true,
@@ -178,7 +148,6 @@ exports.searchPendingPMEdr = asyncHandler(async (req, res, next) => {
 });
 
 exports.searchCompletedPMEdr = asyncHandler(async (req, res, next) => {
-  const arr = [];
   const patients = await EDR.find({
     patientInHospital: true,
     generatedFrom: 'Paramedics',
@@ -189,38 +158,7 @@ exports.searchCompletedPMEdr = asyncHandler(async (req, res, next) => {
       'name identifier telecom nationalID gender age createdAt'
     );
 
-  for (let i = 0; i < patients.length; i++) {
-    const fullName =
-      patients[i].patientId.name[0].given[0] +
-      ' ' +
-      patients[i].patientId.name[0].family;
-    if (
-      (patients[i].patientId.name[0].given[0] &&
-        patients[i].patientId.name[0].given[0]
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.name[0].family &&
-        patients[i].patientId.name[0].family
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.identifier[0].value &&
-        patients[i].patientId.identifier[0].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
-      (patients[i].patientId.telecom[1].value &&
-        patients[i].patientId.telecom[1].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.nationalID &&
-        patients[i].patientId.nationalID
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase()))
-    ) {
-      arr.push(patients[i]);
-      //  break;
-    }
-  }
+  const arr = searchEdrPatient(req, patients);
 
   res.status(200).json({
     success: true,
@@ -229,7 +167,6 @@ exports.searchCompletedPMEdr = asyncHandler(async (req, res, next) => {
 });
 
 exports.searchPMEdr = asyncHandler(async (req, res, next) => {
-  const arr = [];
   const patients = await EDR.find({
     generatedFrom: 'Paramedics',
   })
@@ -239,38 +176,7 @@ exports.searchPMEdr = asyncHandler(async (req, res, next) => {
       'name identifier telecom nationalID gender age createdAt'
     );
 
-  for (let i = 0; i < patients.length; i++) {
-    const fullName =
-      patients[i].patientId.name[0].given[0] +
-      ' ' +
-      patients[i].patientId.name[0].family;
-    if (
-      (patients[i].patientId.name[0].given[0] &&
-        patients[i].patientId.name[0].given[0]
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.name[0].family &&
-        patients[i].patientId.name[0].family
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.identifier[0].value &&
-        patients[i].patientId.identifier[0].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
-      (patients[i].patientId.telecom[1].value &&
-        patients[i].patientId.telecom[1].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (patients[i].patientId.nationalID &&
-        patients[i].patientId.nationalID
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase()))
-    ) {
-      arr.push(patients[i]);
-      //  break;
-    }
-  }
+  const arr = searchEdrPatient(req, patients);
 
   res.status(200).json({
     success: true,
@@ -307,7 +213,6 @@ exports.criticalCasesPerParamedics = asyncHandler(async (req, res, next) => {
 
 exports.searchParamedicsByCriricalCases = asyncHandler(
   async (req, res, next) => {
-    const arr = [];
     const paramedicsEdr = await EDR.find({
       generatedFrom: 'Paramedics',
       generatedBy: { $exists: true },
@@ -327,35 +232,7 @@ exports.searchParamedicsByCriricalCases = asyncHandler(
       staff.push(obj);
     }
 
-    for (let i = 0; i < staff.length; i++) {
-      const fullName =
-        staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
-      if (
-        (staff[i].name[0].given[0] &&
-          staff[i].name[0].given[0]
-            .toLowerCase()
-            .startsWith(req.params.keyword.toLowerCase())) ||
-        (staff[i].name[0].family &&
-          staff[i].name[0].family
-            .toLowerCase()
-            .startsWith(req.params.keyword.toLowerCase())) ||
-        (staff[i].identifier[0].value &&
-          staff[i].identifier[0].value
-            .toLowerCase()
-            .startsWith(req.params.keyword.toLowerCase())) ||
-        fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
-        (staff[i].telecom[1].value &&
-          staff[i].telecom[1].value
-            .toLowerCase()
-            .startsWith(req.params.keyword.toLowerCase())) ||
-        (staff[i].nationalID &&
-          staff[i].nationalID
-            .toLowerCase()
-            .startsWith(req.params.keyword.toLowerCase()))
-      ) {
-        arr.push(staff[i]);
-      }
-    }
+    const arr = searchStaff(req, staff);
     res.status(200).json({
       success: true,
       data: arr,

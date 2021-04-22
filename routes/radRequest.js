@@ -20,7 +20,7 @@ const {
   getCompletedRadEdr,
   updateRadRequest,
   searchPendingRadRequest,
-  searchComletedRadRequest,
+  searchCompletedRadRequest,
   assignHouseKeeper,
   getPendingRadEdrForED,
   getCompletedRadEdrForED,
@@ -32,7 +32,7 @@ const router = express.Router();
 router.get('/getPendingRadEdr/:radTechnicianId', getPendingRadEdr);
 router.get('/getCompletedRadEdr/:radTechnicianId', getCompletedRadEdr);
 router.get('/searchPendingRadRequest/:keyword', searchPendingRadRequest);
-router.get('/searchComletedRadRequest/:keyword', searchComletedRadRequest);
+router.get('/searchComletedRadRequest/:keyword', searchCompletedRadRequest);
 router.put('/updateRadRequest', upload.any(), updateRadRequest);
 router.post('/assignHouseKeeper', assignHouseKeeper);
 router.get('/getPendingRadEdrForED/:radTechnicianId', getPendingRadEdrForED);

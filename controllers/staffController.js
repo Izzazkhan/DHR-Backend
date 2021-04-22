@@ -5,6 +5,7 @@ const Staff = require('../models/staffFhir/staff');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const EDR = require('../models/EDR/EDR');
+const searchStaff = require('../components/searchStaff');
 
 // register a staff
 exports.registerStaff = asyncHandler(async (req, res, next) => {
@@ -329,36 +330,10 @@ exports.getAllDoctors = asyncHandler(async (req, res) => {
 });
 
 exports.searchDoctor = asyncHandler(async (req, res, next) => {
-  const arr = [];
   const staff = await Staff.find({ staffType: 'Doctor', disabled: false });
-  for (let i = 0; i < staff.length; i++) {
-    const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
-    if (
-      (staff[i].name[0].given[0] &&
-        staff[i].name[0].given[0]
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (staff[i].name[0].family &&
-        staff[i].name[0].family
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (staff[i].identifier[0].value &&
-        staff[i].identifier[0].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
-      (staff[i].telecom[1].value &&
-        staff[i].telecom[1].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (staff[i].nationalID &&
-        staff[i].nationalID
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase()))
-    ) {
-      arr.push(staff[i]);
-    }
-  }
+
+  const arr = searchStaff(req, staff);
+
   res.status(200).json({
     success: true,
     data: arr,
@@ -366,7 +341,6 @@ exports.searchDoctor = asyncHandler(async (req, res, next) => {
 });
 
 exports.searchSensei = asyncHandler(async (req, res, next) => {
-  const arr = [];
   const staff = await Staff.find({
     staffType: 'Sensei',
     disabled: false,
@@ -386,34 +360,9 @@ exports.searchSensei = asyncHandler(async (req, res, next) => {
         ],
       },
     ]);
-  for (let i = 0; i < staff.length; i++) {
-    const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
-    if (
-      (staff[i].name[0].given[0] &&
-        staff[i].name[0].given[0]
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (staff[i].name[0].family &&
-        staff[i].name[0].family
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (staff[i].identifier[0].value &&
-        staff[i].identifier[0].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
-      (staff[i].telecom[1].value &&
-        staff[i].telecom[1].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (staff[i].nationalID &&
-        staff[i].nationalID
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase()))
-    ) {
-      arr.push(staff[i]);
-    }
-  }
+
+  const arr = searchStaff(req, staff);
+
   res.status(200).json({
     success: true,
     data: arr,
@@ -421,39 +370,13 @@ exports.searchSensei = asyncHandler(async (req, res, next) => {
 });
 
 exports.searchParamedics = asyncHandler(async (req, res, next) => {
-  const arr = [];
   const staff = await Staff.find({
     staffType: 'Paramedics',
     disabled: false,
   }).populate('addedBy');
-  for (let i = 0; i < staff.length; i++) {
-    const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
-    if (
-      (staff[i].name[0].given[0] &&
-        staff[i].name[0].given[0]
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (staff[i].name[0].family &&
-        staff[i].name[0].family
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (staff[i].identifier[0].value &&
-        staff[i].identifier[0].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
-      (staff[i].telecom[1].value &&
-        staff[i].telecom[1].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (staff[i].nationalID &&
-        staff[i].nationalID
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase()))
-    ) {
-      arr.push(staff[i]);
-    }
-  }
+
+  const arr = searchStaff(req, staff);
+
   res.status(200).json({
     success: true,
     data: arr,
@@ -491,40 +414,14 @@ exports.getAnesthesiologist = asyncHandler(async (req, res, next) => {
 });
 
 exports.searchAnesthesiologist = asyncHandler(async (req, res, next) => {
-  const arr = [];
   const staff = await Staff.find({
     staffType: 'Doctor',
     subType: 'Anesthesiologist',
     disabled: false,
   }).populate('shift');
-  for (let i = 0; i < staff.length; i++) {
-    const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
-    if (
-      (staff[i].name[0].given[0] &&
-        staff[i].name[0].given[0]
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (staff[i].name[0].family &&
-        staff[i].name[0].family
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (staff[i].identifier[0].value &&
-        staff[i].identifier[0].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
-      (staff[i].telecom[1].value &&
-        staff[i].telecom[1].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (staff[i].nationalID &&
-        staff[i].nationalID
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase()))
-    ) {
-      arr.push(staff[i]);
-    }
-  }
+
+  const arr = searchStaff(req, staff);
+
   res.status(200).json({
     success: true,
     data: arr,
@@ -595,7 +492,6 @@ exports.getAllEOUNurses = asyncHandler(async (req, res, next) => {
 });
 
 exports.searchEouNurses = asyncHandler(async (req, res, next) => {
-  const arr = [];
   const staff = await Staff.find({
     staffType: 'Nurses',
     subType: 'EOU Nurse',
@@ -615,34 +511,9 @@ exports.searchEouNurses = asyncHandler(async (req, res, next) => {
       ],
     },
   ]);
-  for (let i = 0; i < staff.length; i++) {
-    const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
-    if (
-      (staff[i].name[0].given[0] &&
-        staff[i].name[0].given[0]
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (staff[i].name[0].family &&
-        staff[i].name[0].family
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (staff[i].identifier[0].value &&
-        staff[i].identifier[0].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
-      (staff[i].telecom[1].value &&
-        staff[i].telecom[1].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (staff[i].nationalID &&
-        staff[i].nationalID
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase()))
-    ) {
-      arr.push(staff[i]);
-    }
-  }
+
+  const arr = searchStaff(req, staff);
+
   res.status(200).json({
     success: true,
     data: arr,
@@ -731,40 +602,14 @@ exports.getCustomerCares = asyncHandler(async (req, res, next) => {
 });
 
 exports.searchCustomerCare = asyncHandler(async (req, res, next) => {
-  const arr = [];
   const staff = await Staff.find({
     staffType: 'Customer Care',
     disabled: false,
     // availability: true,
   });
-  for (let i = 0; i < staff.length; i++) {
-    const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
-    if (
-      (staff[i].name[0].given[0] &&
-        staff[i].name[0].given[0]
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (staff[i].name[0].family &&
-        staff[i].name[0].family
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (staff[i].identifier[0].value &&
-        staff[i].identifier[0].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
-      (staff[i].telecom[1].value &&
-        staff[i].telecom[1].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (staff[i].nationalID &&
-        staff[i].nationalID
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase()))
-    ) {
-      arr.push(staff[i]);
-    }
-  }
+
+  const arr = searchStaff(req, staff);
+
   res.status(200).json({
     success: true,
     data: arr,
@@ -784,40 +629,14 @@ exports.getNurseTechnicians = asyncHandler(async (req, res, next) => {
 });
 
 exports.searchEdNurse = asyncHandler(async (req, res, next) => {
-  const arr = [];
   const staff = await Staff.find({
     staffType: 'Nurses',
     subType: 'ED Nurse',
     disabled: false,
   });
-  for (let i = 0; i < staff.length; i++) {
-    const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
-    if (
-      (staff[i].name[0].given[0] &&
-        staff[i].name[0].given[0]
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (staff[i].name[0].family &&
-        staff[i].name[0].family
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (staff[i].identifier[0].value &&
-        staff[i].identifier[0].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
-      (staff[i].telecom[1].value &&
-        staff[i].telecom[1].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (staff[i].nationalID &&
-        staff[i].nationalID
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase()))
-    ) {
-      arr.push(staff[i]);
-    }
-  }
+
+  const arr = searchStaff(req, staff);
+
   res.status(200).json({
     success: true,
     data: arr,
@@ -863,7 +682,6 @@ exports.getEDNurses = asyncHandler(async (req, res, next) => {
 });
 
 exports.searchExternalConsultant = asyncHandler(async (req, res, next) => {
-  const arr = [];
   const staff = await Staff.find({
     subType: 'External',
     disabled: false,
@@ -885,34 +703,9 @@ exports.searchExternalConsultant = asyncHandler(async (req, res, next) => {
         ],
       },
     ]);
-  for (let i = 0; i < staff.length; i++) {
-    const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
-    if (
-      (staff[i].name[0].given[0] &&
-        staff[i].name[0].given[0]
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (staff[i].name[0].family &&
-        staff[i].name[0].family
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (staff[i].identifier[0].value &&
-        staff[i].identifier[0].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase()) ||
-      (staff[i].telecom[1].value &&
-        staff[i].telecom[1].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (staff[i].nationalID &&
-        staff[i].nationalID
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase()))
-    ) {
-      arr.push(staff[i]);
-    }
-  }
+
+  const arr = searchStaff(req, staff);
+
   res.status(200).json({
     success: true,
     data: arr,
@@ -1177,27 +970,8 @@ exports.searchRadTestsStats = asyncHandler(async (req, res, next) => {
     staff.push(obj);
   }
 
-  const arr = [];
-  for (let i = 0; i < staff.length; i++) {
-    const fullName = staff[i].name[0].given[0] + ' ' + staff[i].name[0].family;
-    if (
-      (staff[i].name[0].given[0] &&
-        staff[i].name[0].given[0]
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (staff[i].name[0].family &&
-        staff[i].name[0].family
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      (staff[i].identifier[0].value &&
-        staff[i].identifier[0].value
-          .toLowerCase()
-          .startsWith(req.params.keyword.toLowerCase())) ||
-      fullName.toLowerCase().startsWith(req.params.keyword.toLowerCase())
-    ) {
-      arr.push(staff[i]);
-    }
-  }
+  const arr = searchStaff(req, staff);
+
   res.status(200).json({
     success: true,
     data: arr,
@@ -1238,8 +1012,4 @@ exports.getUsersFromRole = asyncHandler(async (req, res) => {
     const sensei = await Staff.find({}).populate('addedBy');
     res.status(200).json({ success: 'true', data: sensei });
   }
-  // const sensei = await Staff.find({ staffType: req.params.role }).populate(
-  //   'addedBy'
-  // );
-  // res.status(200).json({ success: 'true', data: sensei });
 });
