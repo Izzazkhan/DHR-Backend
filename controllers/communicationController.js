@@ -1,5 +1,5 @@
 const nodemailer = require('nodemailer');
-const requestNoFormat = require('dateformat');
+const generateReqNo = require('../components/requestNoGenerator');
 const Communication = require('../models/requests/communication');
 const asyncHandler = require('../middleware/async');
 const staff = require('../models/staffFhir/staff');
@@ -8,16 +8,7 @@ const Notification = require('../components/notification');
 exports.addCommunicationRequest = asyncHandler(async (req, res, next) => {
   const { reason, others, generatedById } = req.body;
 
-  const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 0);
-  const diff =
-    now -
-    start +
-    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
-  const oneDay = 1000 * 60 * 60 * 24;
-  const day = Math.floor(diff / oneDay);
-
-  const CRequestNo = `CR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
+  const CRequestNo = generateReqNo('CR');
 
   const sender = await staff
     .findOne({ _id: generatedById })

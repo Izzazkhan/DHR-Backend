@@ -10,19 +10,12 @@ const CCRequest = require('../models/customerCareRequest');
 const Notification = require('../components/notification');
 const Flag = require('../models/flag/Flag');
 const searchPatient = require('../components/searchEdr');
+const generateReqNo = require('../components/requestNoGenerator');
 
 exports.generateEDR = asyncHandler(async (req, res, next) => {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 0);
-  const diff =
-    now -
-    start +
-    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
-  const oneDay = 1000 * 60 * 60 * 24;
-  const day = Math.floor(diff / oneDay);
   let newEDR;
   const patient = await Patient.findOne({ _id: req.body.patientId });
-  const requestNo = `EDR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
+  const requestNo = generateReqNo('EDR');
   const dcdFormVersion = [
     {
       versionNo: patient.identifier[0].value + '-' + requestNo + '-' + '1',
@@ -690,16 +683,6 @@ exports.completedDoctorNotes = asyncHandler(async (req, res, next) => {
 });
 
 exports.addLabRequest = asyncHandler(async (req, res, next) => {
-  // console.log(req.body);
-  const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 0);
-  const diff =
-    now -
-    start +
-    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
-  const oneDay = 1000 * 60 * 60 * 24;
-  const day = Math.floor(diff / oneDay);
-
   // Sample Collection Task
   const currentStaff = await Staff.findById(req.body.staffId).select('shift');
 
@@ -708,13 +691,12 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
     subType: 'Nurse Technician',
     disabled: false,
     shift: currentStaff.shift,
-    // availability: true,
   }).select('identifier name');
 
   const random = Math.floor(Math.random() * (nurses.length - 1));
   const nurseTechnician = nurses[random];
 
-  const requestId = `LR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
+  const requestId = generateReqNo('LR');
 
   const labRequest = {
     requestId,
@@ -1153,15 +1135,7 @@ exports.updateLab = asyncHandler(async (req, res, next) => {
 });
 
 exports.addConsultationNote = asyncHandler(async (req, res, next) => {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 0);
-  const diff =
-    now -
-    start +
-    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
-  const oneDay = 1000 * 60 * 60 * 24;
-  const day = Math.floor(diff / oneDay);
-  const requestNo = `CN${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
+  const requestNo = generateReqNo('CN');
 
   const parsed = JSON.parse(req.body.data);
   const consultationNote = {
@@ -1757,16 +1731,7 @@ exports.getEDRwihtConsultationNote = asyncHandler(async (req, res, next) => {
 });
 
 exports.addRadRequest = asyncHandler(async (req, res, next) => {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 0);
-  const diff =
-    now -
-    start +
-    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
-  const oneDay = 1000 * 60 * 60 * 24;
-  const day = Math.floor(diff / oneDay);
-
-  const requestId = `RR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
+  const requestId = generateReqNo('RR');
 
   const radRequest = {
     requestId,
@@ -2294,15 +2259,8 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
   }).populate('patientId');
 
   // Generating Housekeeping Request Id
-  const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 0);
-  const diff =
-    now -
-    start +
-    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
-  const oneDay = 1000 * 60 * 60 * 24;
-  const day = Math.floor(diff / oneDay);
-  const requestNo = 'HKID' + day + requestNoFormat(new Date(), 'yyHHMMss');
+
+  const requestNo = generateReqNo('HKID');
 
   // Creating Housekeeping Request
   await HK.create({
@@ -2729,18 +2687,7 @@ exports.getEDRorIPR = asyncHandler(async (req, res) => {
 });
 
 exports.addAnesthesiologistNote = asyncHandler(async (req, res, next) => {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 0);
-  const diff =
-    now -
-    start +
-    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
-  const oneDay = 1000 * 60 * 60 * 24;
-  const day = Math.floor(diff / oneDay);
-  const anesthesiologistNo = `ANR${day}${requestNoFormat(
-    new Date(),
-    'yyHHMM'
-  )}`;
+  const anesthesiologistNo = generateReqNo('ANR');
 
   const parsed = JSON.parse(req.body.data);
   const anesthesiologistNote = {
@@ -3074,15 +3021,7 @@ exports.updateAnesthesiologistNote = asyncHandler(async (req, res, next) => {
 });
 
 exports.addEDNurseRequest = asyncHandler(async (req, res, next) => {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 0);
-  const diff =
-    now -
-    start +
-    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
-  const oneDay = 1000 * 60 * 60 * 24;
-  const day = Math.floor(diff / oneDay);
-  const requestNo = `EDNR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
+  const requestNo = generateReqNo('EDNR');
 
   const parsed = JSON.parse(req.body.data);
   const edNurseRequest = {
@@ -3356,15 +3295,7 @@ exports.updateEDNurseRequest = asyncHandler(async (req, res, next) => {
 });
 
 exports.addEOUNurseRequest = asyncHandler(async (req, res, next) => {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 0);
-  const diff =
-    now -
-    start +
-    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
-  const oneDay = 1000 * 60 * 60 * 24;
-  const day = Math.floor(diff / oneDay);
-  const requestNo = `EOUNR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
+  const requestNo = generateReqNo('EOUNR');
 
   const parsed = JSON.parse(req.body.data);
   const eouNurseRequest = {
@@ -3616,18 +3547,9 @@ exports.updateEOUNurseRequest = asyncHandler(async (req, res, next) => {
 });
 
 exports.addNurseTechnicianRequest = asyncHandler(async (req, res, next) => {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 0);
-  const diff =
-    now -
-    start +
-    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
-  const oneDay = 1000 * 60 * 60 * 24;
-  const day = Math.floor(diff / oneDay);
-  const requestNo = `NTR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
-
+  const requestNo = generateReqNo('NTR');
   const parsed = JSON.parse(req.body.data);
-  // console.log(parsed);
+
   const nurseTechnicianRequest = {
     requestNo,
     addedBy: parsed.addedBy,
@@ -4002,17 +3924,7 @@ exports.getAllCompletedRadRequests = asyncHandler(async (req, res) => {
 });
 
 exports.addPharmacyRequest = asyncHandler(async (req, res, next) => {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 0);
-  const diff =
-    now -
-    start +
-    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
-  const oneDay = 1000 * 60 * 60 * 24;
-  const day = Math.floor(diff / oneDay);
-  const pharmacyRequestNo = `PHR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
-
-  // console.log(req.body);
+  const pharmacyRequestNo = generateReqNo('PHR');
   const pharmacyObj = {
     ...req.body,
     pharmacyRequestNo,

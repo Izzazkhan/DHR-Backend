@@ -8,6 +8,7 @@ const Staff = require('../models/staffFhir/staff');
 const Notification = require('../components/notification');
 const Flag = require('../models/flag/Flag');
 const searchEdrPatient = require('../components/searchEdr');
+const generateReqNo = require('../components/requestNoGenerator');
 
 exports.addCareStream = asyncHandler(async (req, res, next) => {
   const {
@@ -22,17 +23,9 @@ exports.addCareStream = asyncHandler(async (req, res, next) => {
     mdNotification,
     createdBy,
   } = req.body;
-  const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 0);
-  const diff =
-    now -
-    start +
-    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
-  const oneDay = 1000 * 60 * 60 * 24;
-  const day = Math.floor(diff / oneDay);
   const MRN = [
     {
-      value: 'CS' + day + requestNoFormat(new Date(), 'yyHHMMss'),
+      value: generateReqNo('CS'),
     },
   ];
   const careStream = await CareStream.create({
@@ -199,19 +192,7 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
       });
 
       console.log('Item : ', item);
-
-      const now = new Date();
-      const start = new Date(now.getFullYear(), 0, 0);
-      const diff =
-        now -
-        start +
-        (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
-      const oneDay = 1000 * 60 * 60 * 24;
-      const day = Math.floor(diff / oneDay);
-      const pharmacyRequestNo = `PHR${day}${requestNoFormat(
-        new Date(),
-        'yyHHMM'
-      )}`;
+      const pharmacyRequestNo = generateReqNo('PHR');
 
       let pharmaObj = {
         pharmacyRequestNo,

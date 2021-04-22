@@ -3,6 +3,7 @@ const EDR = require('../models/EDR/EDR');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const Patient = require('../models/patient/patient');
+const generateReqNo = require('../components/requestNoGenerator');
 // const Staff = require('../models/staffFhir/staff');
 
 exports.addDoctorNotes = asyncHandler(async (req, res, next) => {
@@ -63,23 +64,7 @@ exports.updateDoctorNotes = asyncHandler(async (req, res, next) => {
 });
 
 exports.addLabRequest = asyncHandler(async (req, res, next) => {
-  // console.log(req.body);
-  const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 0);
-  const diff =
-    now -
-    start +
-    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
-  const oneDay = 1000 * 60 * 60 * 24;
-  const day = Math.floor(diff / oneDay);
-  // const edrCheck = await EDR.find({ _id: req.body.edrId }).populate(
-  //   'patientId labRequest.serviceId'
-  // );
-  // const latestEdr = edrCheck.length - 1;
-  // const latestLabRequest = edrCheck[0].labRequest.length - 1;
-  // const updatedRequest = latestLabRequest + 2;
-
-  const requestId = `LR${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
+  const requestId = generateReqNo('LR');
 
   const labRequest = {
     requestId,

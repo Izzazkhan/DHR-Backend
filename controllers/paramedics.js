@@ -8,6 +8,7 @@ const Notification = require('../components/notification');
 const Flag = require('../models/flag/Flag');
 const searchStaff = require('../components/searchStaff');
 const searchEdrPatient = require('../components/searchEdr');
+const generateReqNo = require('../components/requestNoGenerator');
 
 exports.paramedicsEdr = asyncHandler(async (req, res, next) => {
   const paramedicsEdr = await EDR.find({
@@ -39,27 +40,17 @@ exports.edrTransfer = asyncHandler(async (req, res, next) => {
     edrId: req.body.edrId,
     requestedFor: 'Transfer',
   });
-  // console.log(request);
   if (request && request.length > 0) {
     return next(
       new ErrorResponse('A request is already generated for this Edr', 400)
     );
   }
-  const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 0);
-  const diff =
-    now -
-    start +
-    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
-  const oneDay = 1000 * 60 * 60 * 24;
-  const day = Math.floor(diff / oneDay);
-  // const requestNo = '' + day + requestNoFormat(new Date(), 'yyHHMMss');
 
   // Customer Care Request
 
   const currentStaff = await Staff.findById(req.body.staffId).select('shift');
 
-  const CCRequestNo = 'ARID' + day + requestNoFormat(new Date(), 'yyHHMMss');
+  const CCRequestNo = generateReqNo('ARID');
   const customerCares = await Staff.find({
     staffType: 'Customer Care',
     disabled: false,

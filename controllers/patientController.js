@@ -9,20 +9,13 @@ const Flag = require('../models/flag/Flag');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const EDR = require('../models/EDR/EDR');
+const generateReqNo = require('../components/requestNoGenerator');
 
 exports.registerPatient = asyncHandler(async (req, res) => {
   let newPatient;
-  const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 0);
-  const diff =
-    now -
-    start +
-    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
-  const oneDay = 1000 * 60 * 60 * 24;
-  const day = Math.floor(diff / oneDay);
   const MRN = [
     {
-      value: 'KHMC' + day + requestNoFormat(new Date(), 'yyHHMMss'),
+      value: generateReqNo('KHMC'),
     },
   ];
 
