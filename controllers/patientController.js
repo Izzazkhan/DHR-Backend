@@ -393,7 +393,7 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
         'Details from Sensei',
         'Registration Officer',
         'Sensei',
-        '/dashboard/home/pendingregistration',
+        '/dashboard/home/patientregistration',
         // edr && edr.length > 0 && edr._id,
         '',
         patient._id,
@@ -552,7 +552,7 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
         'ADT_A04',
         'Details from Sensei',
         'Registration Officer',
-        '/dashboard/home/pendingregistration',
+        '/dashboard/home/patientregistration',
         '',
         patient._id,
         ''
