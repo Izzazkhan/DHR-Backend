@@ -976,9 +976,15 @@ exports.workDoneByCC = asyncHandler(async (req, res, next) => {
       select: 'identifier name',
     },
   ]);
+  const newTransfers = transfers.map(
+    ({ requestedTo: costomerCareId, edrId }) => ({
+      costomerCareId,
+      edrId,
+    })
+  );
 
-  // const assistance = await Assistance.find({staffType:'Customer Care'})
-  const workDone = [...request, ...transfers];
+  const workDone = [...request, ...newTransfers];
+
   res.status(200).json({
     success: true,
     data: workDone,

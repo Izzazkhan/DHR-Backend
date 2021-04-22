@@ -46,6 +46,19 @@ exports.readNotifications = asyncHandler(async (req, res, next) => {
         natural: -1,
       },
     },
+    // {
+    //   $group: {
+    //     _id: { patient: '$patient' },
+    //     sendTo: { $push: '$sendTo' },
+    //   },
+    // },
+    // {
+    //   $project: {
+    //     patient: '$_id',
+    //     _id: 0,
+    //     sendTo: 1,
+    //   },
+    // },
   ]);
   const read = await Notification.populate(unwind, [
     {
