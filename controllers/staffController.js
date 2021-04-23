@@ -1,6 +1,5 @@
 // const generatePassword = require('password-generator');
 // const nodemailer = require('nodemailer');
-const requestNoFormat = require('dateformat');
 const Staff = require('../models/staffFhir/staff');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');

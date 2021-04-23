@@ -1,5 +1,4 @@
 const moment = require('moment');
-const cron = require('node-cron');
 const Patient = require('../models/patient/patient');
 const Room = require('../models/room');
 const HKRequests = require('../models/houseKeepingRequest');
@@ -30,7 +29,6 @@ function setLastSixHours() {
 
 // Registration Officer Dashboard Stats
 exports.roDashboard = asyncHandler(async (req, res) => {
-  // cron.schedule('* * * * *', async () => {
   setLastSixHours();
   // * Register Officer Registrations Per Hour
   const patients = await Patient.aggregate([
@@ -1867,7 +1865,6 @@ exports.edDoctorDashboard = asyncHandler(async (req, res, next) => {
     t.noteTime = new Date(t.doctorNotes[0].assignedTime);
 
     t.careStreamTime = new Date(t.careStream.assignedTime);
-
     t.time = Math.round(
       (t.careStreamTime.getTime() - t.noteTime.getTime()) / (1000 * 60)
     );
