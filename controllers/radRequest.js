@@ -8,6 +8,7 @@ const Room = require('../models/room');
 const PA = require('../models/productionArea');
 const Flag = require('../models/flag/Flag');
 const searchEdrPatient = require('../components/searchEdr');
+const generateReqNo = require('../components/requestNoGenerator');
 
 exports.getPendingRadEdr = asyncHandler(async (req, res, next) => {
   const unwindEdr = await EDR.aggregate([
@@ -368,15 +369,7 @@ exports.searchCompletedRadRequest = asyncHandler(async (req, res, next) => {
 });
 
 exports.assignHouseKeeper = asyncHandler(async (req, res, next) => {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 0);
-  const diff =
-    now -
-    start +
-    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
-  const oneDay = 1000 * 60 * 60 * 24;
-  const day = Math.floor(diff / oneDay);
-  const requestNo = 'HKID' + day + requestNoFormat(new Date(), 'yyHHMMss');
+  const requestNo = generateReqNo('HKID');
 
   const {
     staffId,

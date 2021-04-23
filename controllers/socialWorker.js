@@ -7,6 +7,7 @@ const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const Notification = require('../components/notification');
 const searchEdrPatient = require('../components/searchEdr');
+const generateReqNo = require('../components/requestNoGenerator');
 
 exports.getAdmittedEDRs = asyncHandler(async (req, res, next) => {
   const admittedEdrs = await EDR.find({
@@ -329,16 +330,7 @@ exports.getCompletedDeceasedEDRs = asyncHandler(async (req, res, next) => {
 });
 
 exports.addSurvey = asyncHandler(async (req, res, next) => {
-  // console.log(req.body);
-  const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 0);
-  const diff =
-    now -
-    start +
-    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
-  const oneDay = 1000 * 60 * 60 * 24;
-  const day = Math.floor(diff / oneDay);
-  const requestId = `CSID${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
+  const requestId = generateReqNo('CR');
   const survey = {
     requestId,
     data: req.body.object,

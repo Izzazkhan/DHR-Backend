@@ -6,6 +6,7 @@ const EDR = require('../models/EDR/EDR');
 const ProductionArea = require('../models/productionArea');
 const Notification = require('../components/notification');
 const Flag = require('../models/flag/Flag');
+const generateReqNo = require('../components/requestNoGenerator');
 
 exports.getRooms = asyncHandler(async (req, res) => {
   const getRooms = await Room.find();
@@ -37,14 +38,6 @@ exports.getAvailableRoomsAganistPA = asyncHandler(async (req, res) => {
 });
 
 exports.createRoom = asyncHandler(async (req, res, next) => {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 0);
-  const diff =
-    now -
-    start +
-    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
-  const oneDay = 1000 * 60 * 60 * 24;
-  const day = Math.floor(diff / oneDay);
   const { noOfBeds } = req.body;
   const beds = [];
   const room = await Room.find().countDocuments();
@@ -53,9 +46,10 @@ exports.createRoom = asyncHandler(async (req, res, next) => {
       new ErrorResponse('You can not create more than 14 ED Beds', 400)
     );
   }
+  const requestNo = generateReqNo('BD');
   for (let i = 0; i < noOfBeds; i++) {
     beds.push({
-      bedId: 'BD' + i + day + requestNoFormat(new Date(), 'yyHHMMss'),
+      bedId: requestNo,
       availability: true,
       status: 'not_assigned',
     });

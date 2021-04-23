@@ -6,64 +6,55 @@ const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const EDR = require('../models/EDR/EDR');
 const searchStaff = require('../components/searchStaff');
+const generateReqNo = require('../components/requestNoGenerator');
 
 // register a staff
 exports.registerStaff = asyncHandler(async (req, res, next) => {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 0);
-  const diff =
-    now -
-    start +
-    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
-  const oneDay = 1000 * 60 * 60 * 24;
-  const day = Math.floor(diff / oneDay);
-
   const parsed = JSON.parse(req.body.data);
-  // const parsed = req.body;
 
   let profileId;
   switch (parsed.staffType) {
     case 'Doctor':
-      profileId = 'Dr' + day + requestNoFormat(new Date(), 'yyHHMMss');
+      profileId = generateReqNo('Dr');
       break;
     case 'Sensei':
-      profileId = 'Se' + day + requestNoFormat(new Date(), 'yyHHMMss');
+      profileId = generateReqNo('Se');
       break;
     case 'Nurse':
-      profileId = 'Nu' + day + requestNoFormat(new Date(), 'yyHHMMss');
+      profileId = generateReqNo('Nu');
       break;
     case 'Clinical Pharmacist':
-      profileId = 'CP' + day + requestNoFormat(new Date(), 'yyHHMMss');
+      profileId = generateReqNo('CP');
       break;
     case 'Registration Officer':
-      profileId = 'RO' + day + requestNoFormat(new Date(), 'yyHHMMss');
+      profileId = generateReqNo('RO');
       break;
     case 'Paramedics':
-      profileId = 'PM' + day + requestNoFormat(new Date(), 'yyHHMMss');
+      profileId = generateReqNo('PM');
       break;
     case 'Customer Care':
-      profileId = 'CC' + day + requestNoFormat(new Date(), 'yyHHMMss');
+      profileId = generateReqNo('CC');
       break;
     case 'Housekeeping':
-      profileId = 'HK' + day + requestNoFormat(new Date(), 'yyHHMMss');
+      profileId = generateReqNo('HK');
       break;
     case 'Social Worker':
-      profileId = 'SW' + day + requestNoFormat(new Date(), 'yyHHMMss');
+      profileId = generateReqNo('SW');
       break;
     case 'Imaging Technician':
-      profileId = 'IT' + day + requestNoFormat(new Date(), 'yyHHMMss');
+      profileId = generateReqNo('IT');
       break;
     case 'Lab Technician':
-      profileId = 'LT' + day + requestNoFormat(new Date(), 'yyHHMMss');
+      profileId = generateReqNo('LT');
       break;
     case 'Cashier':
-      profileId = 'Ca' + day + requestNoFormat(new Date(), 'yyHHMMss');
+      profileId = generateReqNo('Ca');
       break;
     case 'Insurance Claims Manager':
-      profileId = 'ICM' + day + requestNoFormat(new Date(), 'yyHHMMss');
+      profileId = generateReqNo('ICM');
       break;
     default:
-      profileId = 'St' + day + requestNoFormat(new Date(), 'yyHHMMss');
+      profileId = generateReqNo('St');
   }
   const staffId = [
     {

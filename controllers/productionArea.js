@@ -3,7 +3,7 @@ const PA = require('../models/productionArea');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const Room = require('../models/room');
-const room = require('../models/room');
+const generateReqNo = require('../components/requestNoGenerator');
 
 exports.getPAs = asyncHandler(async (req, res) => {
   const getPAs = await PA.find({ disabled: false }).populate('rooms.roomId');
@@ -11,23 +11,17 @@ exports.getPAs = asyncHandler(async (req, res) => {
 });
 
 exports.createPA = asyncHandler(async (req, res) => {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 0);
-  const diff =
-    now -
-    start +
-    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
-  const oneDay = 1000 * 60 * 60 * 24;
-  const day = Math.floor(diff / oneDay);
   const { paName, rooms } = req.body;
-  let nameExist = await PA.findOne({paName: req.body.paName})
-  if(nameExist)
-{
-return  res.status(400).json({ success: false, data: {msg:"Production area with that name already exist."} });
-}
-
+  const nameExist = await PA.findOne({ paName: req.body.paName });
+  if (nameExist) {
+    return res.status(400).json({
+      success: false,
+      data: { msg: 'Production area with that name already exist.' },
+    });
+  }
+  const requestNo = generateReqNo('PA');
   const createPAs = await PA.create({
-    paId: 'PA' + day + requestNoFormat(new Date(), 'yyHHMMss'),
+    paId: requestNo,
     paName,
     rooms,
     availability: true,
@@ -39,7 +33,7 @@ return  res.status(400).json({ success: false, data: {msg:"Production area with 
     async (r) =>
       await Room.findOneAndUpdate(
         { _id: r.roomId },
-        { $set: {  assingedToPA: true } },
+        { $set: { assingedToPA: true } },
         { new: true }
       )
   );

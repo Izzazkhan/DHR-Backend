@@ -2,19 +2,13 @@ const requestNoFormat = require('dateformat');
 const Pharm = require('../models/requests/pharm');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
+const generateReqNo = require('../components/requestNoGenerator');
 
 exports.createPharmRequest = asyncHandler(async (req, res, next) => {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 0);
-  const diff =
-    now -
-    start +
-    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
-  const oneDay = 1000 * 60 * 60 * 24;
-  const day = Math.floor(diff / oneDay);
   const { subject, medication, dispenseRequest, dosage, status } = req.body;
+  const requestNO = generateReqNo('Pharm');
   const medicationRequest = await Pharm.create({
-    PharmRequestNo: `Pharm${day} ${requestNoFormat(new Date(), 'yyHHMM')}`,
+    PharmRequestNo: requestNO,
     subject,
     medication,
     dispenseRequest,

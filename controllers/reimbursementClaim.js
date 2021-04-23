@@ -8,6 +8,7 @@ const RC = require('../models/reimbursementClaim');
 const IT = require('../models/insuranceItem');
 const Staff = require('../models/staffFhir/staff');
 const searchEdrPatient = require('../components/searchEdr');
+const generateReqNo = require('../components/requestNoGenerator');
 
 exports.getClaims = asyncHandler(async (req, res) => {
   const rc = await RC.find()
@@ -191,16 +192,9 @@ exports.addClaims = asyncHandler(async (req, res) => {
       for (let i = 0; i < req.files.length; i++) {
         arr.push(req.files[i].path);
       }
-      const now = new Date();
-      const start = new Date(now.getFullYear(), 0, 0);
-      const diff =
-        now -
-        start +
-        (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
-      const oneDay = 1000 * 60 * 60 * 24;
-      const day = Math.floor(diff / oneDay);
+      const requestNo = generateReqNo('RC');
       rc = await RC.create({
-        requestNo: 'RC' + day + requestNoFormat(new Date(), 'yyHHMMss'),
+        requestNo,
         generatedBy: parsed.generatedBy,
         patient: parsed.patient,
         insurer: parsed.insurer,
@@ -210,16 +204,9 @@ exports.addClaims = asyncHandler(async (req, res) => {
         status: parsed.status,
       });
     } else {
-      const now = new Date();
-      const start = new Date(now.getFullYear(), 0, 0);
-      const diff =
-        now -
-        start +
-        (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
-      const oneDay = 1000 * 60 * 60 * 24;
-      const day = Math.floor(diff / oneDay);
+      const requestNo = generateReqNo('RC');
       rc = await RC.create({
-        requestNo: 'RC' + day + requestNoFormat(new Date(), 'yyHHMMss'),
+        requestNo,
         generatedBy: parsed.generatedBy,
         patient: parsed.patient,
         insurer: parsed.insurer,

@@ -2,19 +2,12 @@ const requestNoFormat = require('dateformat');
 const Radiology = require('../models/service/radiology');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
+const generateReqNo = require('../components/requestNoGenerator');
 
 exports.addRadService = asyncHandler(async (req, res, next) => {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 0);
-  const diff =
-    now -
-    start +
-    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
-  const oneDay = 1000 * 60 * 60 * 24;
-  const day = Math.floor(diff / oneDay);
   const MRN = [
     {
-      value: 'Rs' + day + requestNoFormat(new Date(), 'yyHHMMss'),
+      value: generateReqNo('RS'),
     },
   ];
   const { name, type, price, status } = req.body;

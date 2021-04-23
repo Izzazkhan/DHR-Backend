@@ -2,17 +2,10 @@ const requestNoFormat = require('dateformat');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const Shift = require('../models/shift');
+const generateReqNo = require('../components/requestNoGenerator');
 
 exports.addShift = asyncHandler(async (req, res, next) => {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 0);
-  const diff =
-    now -
-    start +
-    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
-  const oneDay = 1000 * 60 * 60 * 24;
-  const day = Math.floor(diff / oneDay);
-  const shiftId = 'SID' + day + requestNoFormat(new Date(), 'yyHHMMss');
+  const shiftId = generateReqNo('SID');
 
   const { name, startTime, endTime, addedBy } = req.body;
   const shiftName = await Shift.findOne({
