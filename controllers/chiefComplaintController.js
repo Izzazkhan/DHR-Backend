@@ -374,8 +374,8 @@ exports.assignCCtoPatient = asyncHandler(async (req, res, next) => {
 
   const room = paRooms.rooms.find((r) => r.roomId.availability === true);
   if (!room) {
-    res.status(400).json({
-      success: true,
+    return res.status(400).json({
+      success: false,
       data: 'No Room Available In this Production Area Right Now',
     });
   }
