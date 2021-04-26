@@ -363,8 +363,6 @@ exports.assignCCtoPatient = asyncHandler(async (req, res, next) => {
     comments: parsed.comments,
   };
 
-<<<<<<< HEAD
-<<<<<<< HEAD
   // Checking For Available Rooms for The Production Area
   const paId = await CC.findById(parsed.chiefComplaint).select(
     'productionArea.productionAreaId'
@@ -385,10 +383,6 @@ exports.assignCCtoPatient = asyncHandler(async (req, res, next) => {
   }
 
   // Assigning Chief Complaint
-=======
->>>>>>> 4f26af1c912ada7e85841966a9f754517c018ecb
-=======
->>>>>>> 4f26af1c912ada7e85841966a9f754517c018ecb
   const assignedCC = await EDR.findOneAndUpdate(
     { _id: parsed.patientid },
     { $push: { chiefComplaint } },
@@ -397,13 +391,7 @@ exports.assignCCtoPatient = asyncHandler(async (req, res, next) => {
     }
   );
 
-<<<<<<< HEAD
-<<<<<<< HEAD
   // Checking For Flags
-=======
->>>>>>> 4f26af1c912ada7e85841966a9f754517c018ecb
-=======
->>>>>>> 4f26af1c912ada7e85841966a9f754517c018ecb
   const patients = await EDR.find({
     chiefComplaint: { $eq: [] },
   });
@@ -424,14 +412,6 @@ exports.assignCCtoPatient = asyncHandler(async (req, res, next) => {
     globalVariable.io.emit('pendingSensei', flags);
   }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  // console.log(assignedCC);
->>>>>>> 4f26af1c912ada7e85841966a9f754517c018ecb
-=======
-  // console.log(assignedCC);
->>>>>>> 4f26af1c912ada7e85841966a9f754517c018ecb
   res.status(200).json({
     success: true,
     data: assignedCC,
