@@ -372,8 +372,7 @@ exports.assignCCtoPatient = asyncHandler(async (req, res, next) => {
     .select('rooms')
     .populate('rooms.roomId');
 
-  const room = paRooms.rooms.find((r) => r.roomId.assingedToPA === false);
-  // console.log(room);
+  const room = paRooms.rooms.find((r) => r.roomId.availability === true);
   if (!room) {
     return next(
       new ErrorResponse(
