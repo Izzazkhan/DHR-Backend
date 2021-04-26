@@ -374,12 +374,10 @@ exports.assignCCtoPatient = asyncHandler(async (req, res, next) => {
 
   const room = paRooms.rooms.find((r) => r.roomId.availability === true);
   if (!room) {
-    return next(
-      new ErrorResponse(
-        'No Room Available In this Production Area Right Now',
-        400
-      )
-    );
+    res.status(400).json({
+      success: true,
+      data: 'No Room Available In this Production Area Right Now',
+    });
   }
 
   // Assigning Chief Complaint
