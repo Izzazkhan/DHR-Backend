@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 const ErrorResponse = require('../utils/errorResponse');
 
 const errorHandler = (err, req, res, next) => {
@@ -35,6 +36,8 @@ const errorHandler = (err, req, res, next) => {
 
 module.exports = errorHandler;
 =======
+=======
+>>>>>>> 4f26af1c912ada7e85841966a9f754517c018ecb
 const ErrorResponse = require('../utils/errorResponse');
 
 const errorHandler = (err, req, res, next) => {
@@ -70,4 +73,7 @@ const errorHandler = (err, req, res, next) => {
 };
 
 module.exports = errorHandler;
+<<<<<<< HEAD
+>>>>>>> 4f26af1c912ada7e85841966a9f754517c018ecb
+=======
 >>>>>>> 4f26af1c912ada7e85841966a9f754517c018ecb

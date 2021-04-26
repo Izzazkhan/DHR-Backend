@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 const crypto = require('crypto');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
@@ -71,6 +72,8 @@ UserSchema.methods.matchPassword = async function (enteredPassword) {
 
 module.exports = mongoose.model('User', UserSchema);
 =======
+=======
+>>>>>>> 4f26af1c912ada7e85841966a9f754517c018ecb
 const crypto = require('crypto');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
@@ -142,4 +145,7 @@ UserSchema.methods.matchPassword = async function (enteredPassword) {
 };
 
 module.exports = mongoose.model('User', UserSchema);
+<<<<<<< HEAD
+>>>>>>> 4f26af1c912ada7e85841966a9f754517c018ecb
+=======
 >>>>>>> 4f26af1c912ada7e85841966a9f754517c018ecb

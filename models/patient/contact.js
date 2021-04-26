@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const period = require('./common/period');
 const address = require('./address');
 const telecom = require('./contactPoint');
+
 const contact = {
   relationship: [
     {

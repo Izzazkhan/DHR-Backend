@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 const period = require('./common/period');
 // address
 const address = {
@@ -22,6 +23,8 @@ const address = {
 
 module.exports = { address };
 =======
+=======
+>>>>>>> 4f26af1c912ada7e85841966a9f754517c018ecb
 const period = require('./common/period');
 // address
 const address = {
@@ -44,4 +47,7 @@ const address = {
 };
 
 module.exports = { address };
+<<<<<<< HEAD
+>>>>>>> 4f26af1c912ada7e85841966a9f754517c018ecb
+=======
 >>>>>>> 4f26af1c912ada7e85841966a9f754517c018ecb

@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 const period = require('./common/period');
 
 const contactPoint = {
@@ -21,6 +22,8 @@ const contactPoint = {
 };
 module.exports = { contactPoint };
 =======
+=======
+>>>>>>> 4f26af1c912ada7e85841966a9f754517c018ecb
 const period = require('./common/period');
 
 const contactPoint = {
@@ -42,4 +45,7 @@ const contactPoint = {
   period: period.period,
 };
 module.exports = { contactPoint };
+<<<<<<< HEAD
+>>>>>>> 4f26af1c912ada7e85841966a9f754517c018ecb
+=======
 >>>>>>> 4f26af1c912ada7e85841966a9f754517c018ecb

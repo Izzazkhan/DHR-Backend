@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 const mongoose = require('mongoose');
 
 const notificationSchema = new mongoose.Schema({
@@ -41,6 +42,8 @@ const notificationSchema = new mongoose.Schema({
 });
 module.exports = mongoose.model('notification', notificationSchema);
 =======
+=======
+>>>>>>> 4f26af1c912ada7e85841966a9f754517c018ecb
 const mongoose = require('mongoose');
 
 const notificationSchema = new mongoose.Schema({
@@ -82,4 +85,7 @@ const notificationSchema = new mongoose.Schema({
   },
 });
 module.exports = mongoose.model('notification', notificationSchema);
+<<<<<<< HEAD
+>>>>>>> 4f26af1c912ada7e85841966a9f754517c018ecb
+=======
 >>>>>>> 4f26af1c912ada7e85841966a9f754517c018ecb

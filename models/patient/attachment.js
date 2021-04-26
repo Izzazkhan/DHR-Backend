@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 const attachment = {
   contentType: { type: String },
   language: {
@@ -15,6 +16,8 @@ const attachment = {
 
 module.exports = { attachment };
 =======
+=======
+>>>>>>> 4f26af1c912ada7e85841966a9f754517c018ecb
 const attachment = {
   contentType: { type: String },
   language: {
@@ -30,4 +33,7 @@ const attachment = {
 };
 
 module.exports = { attachment };
+<<<<<<< HEAD
+>>>>>>> 4f26af1c912ada7e85841966a9f754517c018ecb
+=======
 >>>>>>> 4f26af1c912ada7e85841966a9f754517c018ecb
