@@ -706,6 +706,16 @@ exports.getPendingRegistration = asyncHandler(async (req, res, next) => {
 });
 
 exports.getCompletedRegistration = asyncHandler(async (req, res, next) => {
+  // const options = {
+  //   limit: req.query.limit,
+  //   page: req.query.page,
+  // };
+  // const approvedPatients = await patientFHIR.paginate(
+  //   {
+  //     registrationStatus: 'completed',
+  //   },
+  //   options
+  // );
   const approvedPatients = await patientFHIR.find({
     registrationStatus: 'completed',
   });
