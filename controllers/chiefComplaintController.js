@@ -303,19 +303,14 @@ exports.getAvailablePA = asyncHandler(async (req, res, next) => {
 });
 
 exports.getCCandPAByKeyword = asyncHandler(async (req, res, next) => {
-  // console.log(req.body);
   const arr = [];
   const prodAreas = await CC.find({
     productionArea: { $ne: [] },
     disabled: false,
   }).populate('productionArea.productionAreaId');
-  // console.log(prodAreas[0].chiefComplaint.length);
-  // console.log(prodAreas);
 
   for (let i = 0; i < prodAreas.length; i++) {
-    // console.log(prodAreas[i].chiefComplaint);
     const index = prodAreas[i].productionArea.length - 1;
-    // console.log(index);
     if (
       (prodAreas[i].name &&
         prodAreas[i].name

@@ -115,6 +115,13 @@ const patientSchema = new mongoose.Schema({
     },
   ],
 });
+patientSchema.index({
+  'identifier.value': 'text',
+  'name.given': 'text',
+  // 'name.family': 'text',
+  'telecom.value': 'text',
+  nationalID: 'text',
+});
 
 patientSchema.plugin(mongoosePaginate);
 module.exports = mongoose.model('patientfhir', patientSchema);

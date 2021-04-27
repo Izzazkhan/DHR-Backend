@@ -233,7 +233,7 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
       'Nurses',
       'Pharmacist',
       '/dashboard/home/patientmanagement/viewrequests/pharma/viewpharma',
-      req.body.edrId,
+      req.body.data.edrId,
       '',
       'ED Nurse'
     );

@@ -719,6 +719,7 @@ exports.getCompletedRegistration = asyncHandler(async (req, res, next) => {
   const approvedPatients = await patientFHIR.find({
     registrationStatus: 'completed',
   });
+
   res.status(200).json({
     success: true,
     data: approvedPatients,
@@ -856,3 +857,13 @@ exports.getPatientByKeyword = asyncHandler(async (req, res, next) => {
     data: patient,
   });
 });
+
+// exports.getPatientByKeyword = asyncHandler(async (req, res, next) => {
+//   const patient = await patientFHIR.find({
+//     $text: { $search: req.params.keyword, $caseSensitive: false },
+//   });
+//   res.status(200).json({
+//     success: true,
+//     data: patient,
+//   });
+// });

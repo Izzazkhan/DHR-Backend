@@ -55,6 +55,24 @@ exports.getLab = asyncHandler(async (req, res, next) => {
       path: 'labRequest.serviceId',
       model: 'LaboratoryService',
     },
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+        },
+      ],
+    },
+    {
+      path: 'careStream.careStreamId',
+      model: 'careStream',
+    },
+    {
+      path: 'doctorNotes.addedBy',
+      model: 'staff',
+    },
   ]);
   res.status(200).json({
     success: true,
@@ -107,6 +125,24 @@ exports.getRad = asyncHandler(async (req, res, next) => {
       path: 'radRequest.serviceId',
       model: 'RadiologyService',
     },
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+        },
+      ],
+    },
+    {
+      path: 'careStream.careStreamId',
+      model: 'careStream',
+    },
+    {
+      path: 'doctorNotes.addedBy',
+      model: 'staff',
+    },
   ]);
   res.status(200).json({
     success: true,
@@ -157,6 +193,24 @@ exports.getPharmacy = asyncHandler(async (req, res, next) => {
     {
       path: 'pharmacyRequest.item.itemId',
       model: 'Item',
+    },
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+        },
+      ],
+    },
+    {
+      path: 'careStream.careStreamId',
+      model: 'careStream',
+    },
+    {
+      path: 'doctorNotes.addedBy',
+      model: 'staff',
     },
   ]);
   res.status(200).json({
