@@ -17,6 +17,9 @@ exports.getLab = asyncHandler(async (req, res, next) => {
         _id: 1,
         labRequest: 1,
         patientId: 1,
+        chiefComplaint: 1,
+        careStream: 1,
+        doctorNotes: 1,
       },
     },
     {
@@ -34,6 +37,9 @@ exports.getLab = asyncHandler(async (req, res, next) => {
       $group: {
         _id: { patientId: '$patientId' },
         labRequest: { $push: '$labRequest' },
+        chiefComplaint: { $push: '$chiefComplaint' },
+        careStream: { $push: '$careStream' },
+        doctorNotes: { $push: '$doctorNotes' },
       },
     },
     {
@@ -41,6 +47,9 @@ exports.getLab = asyncHandler(async (req, res, next) => {
         patientId: '$_id',
         _id: 0,
         labRequest: 1,
+        chiefComplaint: 1,
+        careStream: 1,
+        doctorNotes: 1,
       },
     },
   ]);
@@ -87,6 +96,9 @@ exports.getRad = asyncHandler(async (req, res, next) => {
         _id: 1,
         radRequest: 1,
         patientId: 1,
+        chiefComplaint: 1,
+        careStream: 1,
+        doctorNotes: 1,
       },
     },
     {
@@ -104,6 +116,9 @@ exports.getRad = asyncHandler(async (req, res, next) => {
       $group: {
         _id: { patientId: '$patientId' },
         radRequest: { $push: '$radRequest' },
+        chiefComplaint: { $push: '$chiefComplaint' },
+        careStream: { $push: '$careStream' },
+        doctorNotes: { $push: '$doctorNotes' },
       },
     },
     {
@@ -111,6 +126,9 @@ exports.getRad = asyncHandler(async (req, res, next) => {
         patientId: '$_id',
         _id: 0,
         radRequest: 1,
+        chiefComplaint: 1,
+        careStream: 1,
+        doctorNotes: 1,
       },
     },
   ]);
@@ -157,6 +175,9 @@ exports.getPharmacy = asyncHandler(async (req, res, next) => {
         _id: 1,
         pharmacyRequest: 1,
         patientId: 1,
+        chiefComplaint: 1,
+        careStream: 1,
+        doctorNotes: 1,
       },
     },
     {
@@ -172,6 +193,9 @@ exports.getPharmacy = asyncHandler(async (req, res, next) => {
         _id: '$_id',
         patientId: { $push: '$patientId' },
         pharmacyRequest: { $push: '$pharmacyRequest' },
+        chiefComplaint: { $push: '$chiefComplaint' },
+        careStream: { $push: '$careStream' },
+        doctorNotes: { $push: '$doctorNotes' },
       },
     },
     {
@@ -179,6 +203,9 @@ exports.getPharmacy = asyncHandler(async (req, res, next) => {
         patientId: 1,
         _id: 1,
         pharmacyRequest: 1,
+        chiefComplaint: 1,
+        careStream: 1,
+        doctorNotes: 1,
       },
     },
   ]);
