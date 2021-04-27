@@ -3813,6 +3813,23 @@ exports.searchDischargedEDR = asyncHandler(async (req, res) => {
   });
 });
 
+//* Alternate Search
+// exports.searchDischargedEDR = asyncHandler(async (req, res, next) => {
+//   const patients = await Patient.find({
+//     $text: { $search: req.params.keyword, $caseSensitive: false },
+//   });
+
+//   const promises = patients.map(async (p) =>
+//     EDR.find({ $and: [{ patientId: p._id }, { status: 'Discharged' }] })
+//   );
+//   let patient = await Promise.all(promises);
+//   patient = patient.filter(String);
+//   res.status(200).json({
+//     success: true,
+//     data: patient,
+//   });
+// });
+
 exports.getCompletedEDR = asyncHandler(async (req, res) => {
   const edr = await EDR.find({ status: { $eq: 'Completed' } }).populate(
     'patientId'
