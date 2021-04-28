@@ -43,6 +43,15 @@ exports.getLab = asyncHandler(async (req, res, next) => {
       },
     },
     {
+      $unwind: '$chiefComplaint',
+    },
+    {
+      $unwind: '$careStream',
+    },
+    {
+      $unwind: '$doctorNotes',
+    },
+    {
       $project: {
         patientId: '$_id',
         _id: 0,
@@ -122,6 +131,15 @@ exports.getRad = asyncHandler(async (req, res, next) => {
       },
     },
     {
+      $unwind: '$chiefComplaint',
+    },
+    {
+      $unwind: '$careStream',
+    },
+    {
+      $unwind: '$doctorNotes',
+    },
+    {
       $project: {
         patientId: '$_id',
         _id: 0,
@@ -197,6 +215,15 @@ exports.getPharmacy = asyncHandler(async (req, res, next) => {
         careStream: { $push: '$careStream' },
         doctorNotes: { $push: '$doctorNotes' },
       },
+    },
+    {
+      $unwind: '$chiefComplaint',
+    },
+    {
+      $unwind: '$careStream',
+    },
+    {
+      $unwind: '$doctorNotes',
     },
     {
       $project: {
