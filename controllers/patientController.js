@@ -822,49 +822,49 @@ exports.getPendingPatientByKeyword = asyncHandler(async (req, res, next) => {
   });
 });
 
-// exports.getPatientByKeyword = asyncHandler(async (req, res, next) => {
-//   const patient = await patientFHIR
-//     .aggregate([
-//       {
-//         $match: {
-//           $or: [
-//             {
-//               'name.given': { $regex: req.params.keyword, $options: 'i' },
-//             },
-//             {
-//               'name.family': { $regex: req.params.keyword, $options: 'i' },
-//             },
-//             {
-//               'identifier.value': { $regex: req.params.keyword, $options: 'i' },
-//             },
-//             { nationalID: { $regex: req.params.keyword, $options: 'i' } },
-//             {
-//               'telecom.value': {
-//                 $regex: req.params.keyword,
-//                 $options: 'i',
-//               },
-//             },
-//           ],
-//         },
-//       },
-//     ])
-//     .limit(50);
-//   if (!patient) {
-//     return next(new ErrorResponse('No Data Found With this keyword', 404));
-//   }
-
-//   res.status(200).json({
-//     success: true,
-//     data: patient,
-//   });
-// });
-
 exports.getPatientByKeyword = asyncHandler(async (req, res, next) => {
-  const patient = await patientFHIR.find({
-    $text: { $search: req.params.keyword, $caseSensitive: false },
-  });
+  const patient = await patientFHIR
+    .aggregate([
+      {
+        $match: {
+          $or: [
+            {
+              'name.given': { $regex: req.params.keyword, $options: 'i' },
+            },
+            {
+              'name.family': { $regex: req.params.keyword, $options: 'i' },
+            },
+            {
+              'identifier.value': { $regex: req.params.keyword, $options: 'i' },
+            },
+            { nationalID: { $regex: req.params.keyword, $options: 'i' } },
+            {
+              'telecom.value': {
+                $regex: req.params.keyword,
+                $options: 'i',
+              },
+            },
+          ],
+        },
+      },
+    ])
+    .limit(50);
+  if (!patient) {
+    return next(new ErrorResponse('No Data Found With this keyword', 404));
+  }
+
   res.status(200).json({
     success: true,
     data: patient,
   });
 });
+
+// exports.getPatientByKeyword = asyncHandler(async (req, res, next) => {
+//   const patient = await patientFHIR.find({
+//     $text: { $search: req.params.keyword, $caseSensitive: false },
+//   });
+//   res.status(200).json({
+//     success: true,
+//     data: patient,
+//   });
+// });
