@@ -20,6 +20,7 @@ exports.getLab = asyncHandler(async (req, res, next) => {
         chiefComplaint: 1,
         careStream: 1,
         doctorNotes: 1,
+        pharmacyRequest: 1,
       },
     },
     {
@@ -40,6 +41,7 @@ exports.getLab = asyncHandler(async (req, res, next) => {
         chiefComplaint: { $push: '$chiefComplaint' },
         careStream: { $push: '$careStream' },
         doctorNotes: { $push: '$doctorNotes' },
+        pharmacyRequest: { $push: '$pharmacyRequest' },
       },
     },
     {
@@ -52,6 +54,9 @@ exports.getLab = asyncHandler(async (req, res, next) => {
       $unwind: '$doctorNotes',
     },
     {
+      $unwind: '$pharmacyRequest',
+    },
+    {
       $project: {
         patientId: '$_id',
         _id: 0,
@@ -59,6 +64,7 @@ exports.getLab = asyncHandler(async (req, res, next) => {
         chiefComplaint: 1,
         careStream: 1,
         doctorNotes: 1,
+        pharmacyRequest: 1,
       },
     },
   ]);
@@ -91,6 +97,10 @@ exports.getLab = asyncHandler(async (req, res, next) => {
       path: 'doctorNotes.addedBy',
       model: 'staff',
     },
+    {
+      path: 'pharmacyRequest.item.itemId',
+      model: 'Item',
+    },
   ]);
   res.status(200).json({
     success: true,
@@ -108,6 +118,7 @@ exports.getRad = asyncHandler(async (req, res, next) => {
         chiefComplaint: 1,
         careStream: 1,
         doctorNotes: 1,
+        pharmacyRequest: 1,
       },
     },
     {
@@ -128,6 +139,7 @@ exports.getRad = asyncHandler(async (req, res, next) => {
         chiefComplaint: { $push: '$chiefComplaint' },
         careStream: { $push: '$careStream' },
         doctorNotes: { $push: '$doctorNotes' },
+        pharmacyRequest: { $push: '$pharmacyRequest' },
       },
     },
     {
@@ -140,6 +152,9 @@ exports.getRad = asyncHandler(async (req, res, next) => {
       $unwind: '$doctorNotes',
     },
     {
+      $unwind: '$pharmacyRequest',
+    },
+    {
       $project: {
         patientId: '$_id',
         _id: 0,
@@ -147,6 +162,7 @@ exports.getRad = asyncHandler(async (req, res, next) => {
         chiefComplaint: 1,
         careStream: 1,
         doctorNotes: 1,
+        pharmacyRequest: 1,
       },
     },
   ]);
@@ -179,6 +195,10 @@ exports.getRad = asyncHandler(async (req, res, next) => {
       path: 'doctorNotes.addedBy',
       model: 'staff',
     },
+    {
+      path: 'pharmacyRequest.item.itemId',
+      model: 'Item',
+    },
   ]);
   res.status(200).json({
     success: true,
@@ -187,86 +207,119 @@ exports.getRad = asyncHandler(async (req, res, next) => {
 });
 
 exports.getPharmacy = asyncHandler(async (req, res, next) => {
-  const unwindEdr = await EDR.aggregate([
-    {
-      $project: {
-        _id: 1,
-        pharmacyRequest: 1,
-        patientId: 1,
-        chiefComplaint: 1,
-        careStream: 1,
-        doctorNotes: 1,
-      },
-    },
-    {
-      $unwind: '$pharmacyRequest',
-    },
-    // {
-    //   $match: {
-    //     'pharmacyRequest.status': 'pending',
-    //   },
-    // },
-    {
-      $group: {
-        _id: '$_id',
-        patientId: { $push: '$patientId' },
-        pharmacyRequest: { $push: '$pharmacyRequest' },
-        chiefComplaint: { $push: '$chiefComplaint' },
-        careStream: { $push: '$careStream' },
-        doctorNotes: { $push: '$doctorNotes' },
-      },
-    },
-    {
-      $unwind: '$chiefComplaint',
-    },
-    {
-      $unwind: '$careStream',
-    },
-    {
-      $unwind: '$doctorNotes',
-    },
-    {
-      $project: {
-        patientId: 1,
-        _id: 1,
-        pharmacyRequest: 1,
-        chiefComplaint: 1,
-        careStream: 1,
-        doctorNotes: 1,
-      },
-    },
-  ]);
-  // console.log(unwindEdr);
+  // console.log('here');
+  // const unwindEdr = await EDR.aggregate([
+  //   {
+  //     $project: {
+  //       _id: 1,
+  //       pharmacyRequest: 1,
+  //       patientId: 1,
+  //       chiefComplaint: 1,
+  //       careStream: 1,
+  //       doctorNotes: 1,
+  //     },
+  //   },
+  //   {
+  //     $unwind: '$pharmacyRequest',
+  //   },
+  //   // {
+  //   //   $match: {
+  //   //     'pharmacyRequest.status': 'pending',
+  //   //   },
+  //   // },
+  //   {
+  //     $group: {
+  //       _id: '$_id',
+  //       patientId: { $push: '$patientId' },
+  //       pharmacyRequest: { $push: '$pharmacyRequest' },
+  //       chiefComplaint: { $push: '$chiefComplaint' },
+  //       careStream: { $push: '$careStream' },
+  //       doctorNotes: { $push: '$doctorNotes' },
+  //     },
+  //   },
+  //   {
+  //     $unwind: '$chiefComplaint',
+  //   },
+  //   {
+  //     $unwind: '$careStream',
+  //   },
+  //   {
+  //     $unwind: '$doctorNotes',
+  //   },
+  //   {
+  //     $project: {
+  //       patientId: 1,
+  //       _id: 1,
+  //       pharmacyRequest: 1,
+  //       chiefComplaint: 1,
+  //       careStream: 1,
+  //       doctorNotes: 1,
+  //     },
+  //   },
+  // ]);
 
-  const pharmacyRequest = await EDR.populate(unwindEdr, [
-    {
-      path: 'patientId',
-      model: 'patientfhir',
-      select: 'identifier name createdAt weight age gender',
-    },
-    {
-      path: 'pharmacyRequest.item.itemId',
-      model: 'Item',
-    },
-    {
-      path: 'chiefComplaint.chiefComplaintId',
-      model: 'chiefComplaint',
-      populate: [
-        {
-          path: 'productionArea.productionAreaId',
-          model: 'productionArea',
-        },
-      ],
-    },
-    {
-      path: 'careStream.careStreamId',
-      model: 'careStream',
-    },
-    {
-      path: 'doctorNotes.addedBy',
-      model: 'staff',
-    },
-  ]);
+  // const pharmacyRequest = await EDR.populate(unwindEdr, [
+  //   {
+  //     path: 'patientId',
+  //     model: 'patientfhir',
+  //     select: 'identifier name createdAt weight age gender',
+  //   },
+  //   {
+  //     path: 'pharmacyRequest.item.itemId',
+  //     model: 'Item',
+  //   },
+  //   {
+  //     path: 'chiefComplaint.chiefComplaintId',
+  //     model: 'chiefComplaint',
+  //     populate: [
+  //       {
+  //         path: 'productionArea.productionAreaId',
+  //         model: 'productionArea',
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     path: 'careStream.careStreamId',
+  //     model: 'careStream',
+  //   },
+  //   {
+  //     path: 'doctorNotes.addedBy',
+  //     model: 'staff',
+  //   },
+  // ]);
+  const pharmacyRequest = await EDR.find({
+    pharmacyRequest: { $ne: [] },
+  })
+    .select('patientId pharmacyRequest chiefComplaint careStream doctorNotes')
+    .populate([
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'identifier name createdAt weight age gender',
+      },
+      {
+        path: 'pharmacyRequest.item.itemId',
+        model: 'Item',
+      },
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+          },
+        ],
+      },
+      {
+        path: 'careStream.careStreamId',
+        model: 'careStream',
+      },
+      {
+        path: 'doctorNotes.addedBy',
+        model: 'staff',
+      },
+    ]);
   res.status(200).json({
     success: true,
     data: pharmacyRequest,
