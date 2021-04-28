@@ -2,13 +2,12 @@ const moment = require('moment');
 const mongoose = require('mongoose');
 const EDR = require('../models/EDR/EDR');
 const asyncHandler = require('../middleware/async');
-const ErrorResponse = require('../utils/errorResponse');
-const Staff = require('../models/staffFhir/staff');
 const EDN = require('../models/edNurseAssistanceRequest');
 const Room = require('../models/room');
 const CCRequests = require('../models/customerCareRequest');
 const Flag = require('../models/flag/Flag');
-require('../components/searchEdr');
+const searchEdrPatient = require('../components/searchEdr');
+const HK = require('../models/houseKeepingRequest');
 
 exports.getLab = asyncHandler(async (req, res, next) => {
   const unwindEdr = await EDR.aggregate([
@@ -207,86 +206,6 @@ exports.getRad = asyncHandler(async (req, res, next) => {
 });
 
 exports.getPharmacy = asyncHandler(async (req, res, next) => {
-  // console.log('here');
-  // const unwindEdr = await EDR.aggregate([
-  //   {
-  //     $project: {
-  //       _id: 1,
-  //       pharmacyRequest: 1,
-  //       patientId: 1,
-  //       chiefComplaint: 1,
-  //       careStream: 1,
-  //       doctorNotes: 1,
-  //     },
-  //   },
-  //   {
-  //     $unwind: '$pharmacyRequest',
-  //   },
-  //   // {
-  //   //   $match: {
-  //   //     'pharmacyRequest.status': 'pending',
-  //   //   },
-  //   // },
-  //   {
-  //     $group: {
-  //       _id: '$_id',
-  //       patientId: { $push: '$patientId' },
-  //       pharmacyRequest: { $push: '$pharmacyRequest' },
-  //       chiefComplaint: { $push: '$chiefComplaint' },
-  //       careStream: { $push: '$careStream' },
-  //       doctorNotes: { $push: '$doctorNotes' },
-  //     },
-  //   },
-  //   {
-  //     $unwind: '$chiefComplaint',
-  //   },
-  //   {
-  //     $unwind: '$careStream',
-  //   },
-  //   {
-  //     $unwind: '$doctorNotes',
-  //   },
-  //   {
-  //     $project: {
-  //       patientId: 1,
-  //       _id: 1,
-  //       pharmacyRequest: 1,
-  //       chiefComplaint: 1,
-  //       careStream: 1,
-  //       doctorNotes: 1,
-  //     },
-  //   },
-  // ]);
-
-  // const pharmacyRequest = await EDR.populate(unwindEdr, [
-  //   {
-  //     path: 'patientId',
-  //     model: 'patientfhir',
-  //     select: 'identifier name createdAt weight age gender',
-  //   },
-  //   {
-  //     path: 'pharmacyRequest.item.itemId',
-  //     model: 'Item',
-  //   },
-  //   {
-  //     path: 'chiefComplaint.chiefComplaintId',
-  //     model: 'chiefComplaint',
-  //     populate: [
-  //       {
-  //         path: 'productionArea.productionAreaId',
-  //         model: 'productionArea',
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     path: 'careStream.careStreamId',
-  //     model: 'careStream',
-  //   },
-  //   {
-  //     path: 'doctorNotes.addedBy',
-  //     model: 'staff',
-  //   },
-  // ]);
   const pharmacyRequest = await EDR.find({
     pharmacyRequest: { $ne: [] },
   })
@@ -327,45 +246,14 @@ exports.getPharmacy = asyncHandler(async (req, res, next) => {
 });
 
 exports.searchGetPharmacy = asyncHandler(async (req, res, next) => {
-  const unwindEdr = await EDR.aggregate([
-    {
-      $project: {
-        _id: 1,
-        pharmacyRequest: 1,
-        patientId: 1,
-      },
-    },
-    {
-      $unwind: '$pharmacyRequest',
-    },
-    // {
-    //   $match: {
-    //     'pharmacyRequest.status': 'pending',
-    //   },
-    // },
-    {
-      $group: {
-        _id: '$_id',
-        patientId: { $push: '$patientId' },
-        pharmacyRequest: { $push: '$pharmacyRequest' },
-      },
-    },
-    {
-      $project: {
-        patientId: 1,
-        _id: 1,
-        pharmacyRequest: 1,
-      },
-    },
-  ]);
-
-  const patients = await EDR.populate(unwindEdr, [
-    {
-      path: 'patientId',
-      model: 'patientfhir',
-      select: 'identifier name createdAt telecom nationalID  weight age gender',
-    },
-  ]);
+  const patients = await EDR.find({
+    pharmacyRequest: { $ne: [] },
+  })
+    .select('patientId')
+    .populate(
+      'patientId',
+      'identifier name createdAt telecom nationalID  weight age gender'
+    );
 
   const arr = searchEdrPatient(req, patients);
 
@@ -509,19 +397,6 @@ exports.pendingEDNurseEdrRequest = asyncHandler(async (req, res, next) => {
         ],
       },
     },
-    // {
-    //   $group: {
-    //     _id: { patientId: '$patientId' },
-    //     labRequest: { $push: '$labRequest' },
-    //   },
-    // },
-    // {
-    //   $project: {
-    //     patientId: '$_id',
-    //     _id: 0,
-    //     labRequest: 1,
-    //   },
-    // },
   ]);
 
   const request = await EDR.populate(unwindEdr, [
@@ -530,10 +405,6 @@ exports.pendingEDNurseEdrRequest = asyncHandler(async (req, res, next) => {
       model: 'patientfhir',
       select: 'identifier name',
     },
-    // {
-    //   path: 'labRequest.serviceId',
-    //   model: 'LaboratoryService',
-    // },
   ]);
   res.status(200).json({
     success: true,
@@ -593,20 +464,6 @@ exports.completedEDNurseEdrRequest = asyncHandler(async (req, res, next) => {
         ],
       },
     },
-
-    // {
-    //   $group: {
-    //     _id: { patientId: '$patientId' },
-    //     labRequest: { $push: '$labRequest' },
-    //   },
-    // },
-    // {
-    //   $project: {
-    //     patientId: '$_id',
-    //     _id: 0,
-    //     labRequest: 1,
-    //   },
-    // },
   ]);
 
   const request = await EDR.populate(unwindEdr, [
@@ -615,10 +472,6 @@ exports.completedEDNurseEdrRequest = asyncHandler(async (req, res, next) => {
       model: 'patientfhir',
       select: 'identifier name',
     },
-    // {
-    //   path: 'labRequest.serviceId',
-    //   model: 'LaboratoryService',
-    // },
   ]);
   res.status(200).json({
     success: true,
@@ -1236,5 +1089,70 @@ exports.dashboardData = asyncHandler(async (req, res, next) => {
     },
     cumulativePatients,
     PatientsPerHour,
+  });
+});
+
+// * House Keeping Requests
+exports.pendingHKRequests = asyncHandler(async (req, res, next) => {
+  const HKRequests = await HK.find({
+    status: 'pending',
+    assignedBy: req.params.nurseId,
+  }).populate([
+    {
+      path: 'productionAreaId',
+      model: 'productionArea',
+      select: 'paName',
+    },
+    {
+      path: 'assignedBy',
+      model: 'staff',
+      select: 'name',
+    },
+    {
+      path: 'houseKeeperId',
+      model: 'staff',
+      select: 'name',
+    },
+    {
+      path: 'roomId',
+      model: 'room',
+      select: 'roomNo',
+    },
+  ]);
+  res.status(200).json({
+    success: true,
+    data: HKRequests,
+  });
+});
+
+exports.completedHKRequests = asyncHandler(async (req, res, next) => {
+  const HKRequests = await HK.find({
+    status: 'completed',
+    assignedBy: req.params.nurseId,
+  }).populate([
+    {
+      path: 'productionAreaId',
+      model: 'productionArea',
+      select: 'paName',
+    },
+    {
+      path: 'assignedBy',
+      model: 'staff',
+      select: 'name',
+    },
+    {
+      path: 'houseKeeperId',
+      model: 'staff',
+      select: 'name',
+    },
+    {
+      path: 'roomId',
+      model: 'room',
+      select: 'roomNo',
+    },
+  ]);
+  res.status(200).json({
+    success: true,
+    data: HKRequests,
   });
 });

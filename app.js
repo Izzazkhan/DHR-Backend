@@ -5,8 +5,6 @@ const http = require('http');
 const socketIO = require('socket.io');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
-// const cron = require('node-cron');
-// const webPush = require('web-push');
 const errorHandler = require('./middleware/error');
 const webRTCSocket = require('./lib/socket');
 
@@ -176,7 +174,7 @@ let connectedUsers = [];
 io1.origins('*:*');
 io1.on('connection', (socket) => {
   socket.on('connected', (userId) => {
-    let arr = connectedUsers.filter((i) => i !== userId);
+    const arr = connectedUsers.filter((i) => i !== userId);
     arr.push(userId);
     connectedUsers = arr;
     // console.log('chat user connected', connectedUsers);
@@ -184,7 +182,7 @@ io1.on('connection', (socket) => {
   });
 
   socket.on('disconnected', (userId) => {
-    let arr = connectedUsers.filter((i) => i !== userId);
+    const arr = connectedUsers.filter((i) => i !== userId);
     connectedUsers = arr;
     // console.log('chat user disconnected', connectedUsers);
     io1.emit('getConnectedUsers', connectedUsers);
@@ -196,7 +194,7 @@ io1.on('connection', (socket) => {
       {
         $push: { chat: msg.obj1 },
       }
-    ).then((docs) => {
+    ).then(() => {
       io1.emit('chat_receive', { message: msg.obj1 });
     });
   });
