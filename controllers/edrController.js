@@ -2180,6 +2180,20 @@ exports.getEDRFromPatientIdForDischarge = asyncHandler(async (req, res) => {
       .populate('dischargeRequest.dischargeMedication.requester')
       .populate('dischargeRequest.dischargeMedication.medicine.itemId')
       .populate('triageAssessment.requester')
+      .populate([
+        {
+          path: 'chiefComplaint.chiefComplaintId',
+          model: 'chiefComplaint',
+          select: 'chiefComplaintId',
+          populate: [
+            {
+              path: 'productionArea.productionAreaId',
+              model: 'productionArea',
+              select: 'paName',
+            },
+          ],
+        },
+      ])
       .sort({
         createdAt: 'desc',
       })
