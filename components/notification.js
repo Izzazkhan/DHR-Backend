@@ -131,9 +131,13 @@ var notification = async function (
                                 ],
                               },
                             },
-                          ]).then((count) =>
-                            globalVariable.io.emit('count', count.length)
-                          );
+                          ]).then((count) => {
+                            console.log(count);
+                            globalVariable.io.emit('count', {
+                              count: count.length,
+                              user: user[i]._id,
+                            });
+                          });
                         })
                         .catch((e) => {
                           console.log('Error in Notification find : ', e);

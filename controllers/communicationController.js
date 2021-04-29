@@ -76,10 +76,10 @@ exports.addCommunicationRequest = asyncHandler(async (req, res, next) => {
       CRequestNo + sender.chiefComplaint + sender.identifier + sender.name,
       'Admin',
       'Communication Request',
-      '/dashboard/home/patientlist',
+      '/dashboard/home/communicationMgmt/viewRequests',
       req.body.edrId,
       '',
-      'ED Nurse'
+      ''
     );
   }
 
@@ -89,10 +89,10 @@ exports.addCommunicationRequest = asyncHandler(async (req, res, next) => {
       CRequestNo + sender.identifier + sender.name,
       'Admin',
       'Communication Request',
-      '/dashboard/home/patientlist',
+      '/dashboard/home/communicationMgmt/viewRequests',
       req.body.edrId,
       '',
-      'ED Nurse'
+      ''
     );
   }
 
