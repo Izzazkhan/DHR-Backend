@@ -1,4 +1,4 @@
-const requestNoFormat = require('dateformat');
+/* eslint-disable no-restricted-syntax */
 const asyncHandler = require('../middleware/async');
 // const ErrorResponse = require('../utils/errorResponse');
 const CareStream = require('../models/CareStreams/CareStreams');
@@ -9,6 +9,8 @@ const Notification = require('../components/notification');
 const Flag = require('../models/flag/Flag');
 const searchEdrPatient = require('../components/searchEdr');
 const generateReqNo = require('../components/requestNoGenerator');
+const addLab = require('../components/addLab');
+const LabService = require('../models/service/lab');
 
 exports.addCareStream = asyncHandler(async (req, res, next) => {
   const {
@@ -256,6 +258,20 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     { $push: { careStream } },
     { new: true }
   ).populate('careStream.careStreamId', 'identifier');
+
+  // * Assigning tests
+  // if (req.body.data.investigations) {
+  //   const { investigations } = req.body.data;
+
+  //   const tests = investigations.filter((t) => t.selected === true);
+  //   for (const test of tests) {
+  //     if (test.testType === 'lab') {
+  //       const lab = await LabService.find({ name: test.name });
+  // const data = { staffId: req.body.data.staffId };
+  // addLab(data);
+  //     }
+  //   }
+  // }
 
   const decisionPending = await EDR.find({
     careStream: { $eq: [] },

@@ -953,6 +953,10 @@ const edrSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'staff',
       },
+      reqFromCareStream: {
+        type: Boolean,
+        default: false,
+      },
       // pendingApprovalTime: {
       //   type: Date,
       // },
@@ -1033,6 +1037,10 @@ const edrSchema = new mongoose.Schema({
       },
       delayedReason: {
         type: String,
+      },
+      reqFromCareStream: {
+        type: Boolean,
+        default: false,
       },
       updateRecord: [
         {
