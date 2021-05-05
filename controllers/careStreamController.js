@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 const asyncHandler = require('../middleware/async');
 // const ErrorResponse = require('../utils/errorResponse');
@@ -23,6 +24,7 @@ exports.addCareStream = asyncHandler(async (req, res, next) => {
     fluidsIV,
     medications,
     mdNotification,
+    reassessments,
     createdBy,
   } = req.body;
   const MRN = [
@@ -41,6 +43,7 @@ exports.addCareStream = asyncHandler(async (req, res, next) => {
     fluidsIV,
     medications,
     mdNotification,
+    reassessments,
     createdBy,
   });
   res.status(201).json({
@@ -178,6 +181,7 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     fluidsIV: req.body.data.fluidsIV,
     medications: req.body.data.medications,
     mdNotification: req.body.data.mdNotification,
+    reassessments: req.body.data.reassessments,
     careStreamId: req.body.data.careStreamId,
     assignedBy: req.body.data.staffId,
     assignedTime: Date.now(),
@@ -266,9 +270,15 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
   //   const tests = investigations.filter((t) => t.selected === true);
   //   for (const test of tests) {
   //     if (test.testType === 'lab') {
-  //       const lab = await LabService.find({ name: test.name });
-  // const data = { staffId: req.body.data.staffId };
-  // addLab(data);
+  //       const lab = await LabService.findOne({ name: test.name });
+  //       const data = {
+  //         staffId: req.body.data.staffId,
+  //         edrId: req.body.data.edrId,
+  //         name: lab.name,
+  //         serviceId: lab._id,
+  //         price: lab.price,
+  //       };
+  //       addLab(data);
   //     }
   //   }
   // }
