@@ -50,23 +50,38 @@ const edrSchema = new mongoose.Schema({
       name: {
         type: String,
       },
-      inclusionCriteria: [{ type: String }],
-      exclusionCriteria: [{ type: String }],
-      investigations: [{ type: String }],
-      precautions: [{ type: String }],
+      inclusionCriteria: [{ name: String, selected: Boolean }],
+      exclusionCriteria: [{ name: String, selected: Boolean }],
+      investigations: [{ name: String, selected: Boolean }],
+      precautions: [{ name: String, selected: Boolean }],
       treatmentOrders: [
         {
           name: String,
+          selected: Boolean,
           subType: [
             {
-              type: String,
+              name: String,
+              selected: Boolean,
             },
           ],
         },
       ],
       fluidsIV: [
         {
-          type: String,
+          name: String,
+          selected: Boolean,
+        },
+      ],
+      reassessments: [
+        {
+          name: String,
+          selected: Boolean,
+          subType: [
+            {
+              name: String,
+              selected: Boolean,
+            },
+          ],
         },
       ],
       medications: [
@@ -94,9 +109,11 @@ const edrSchema = new mongoose.Schema({
       mdNotification: [
         {
           name: String,
+          selected: Boolean,
           subType: [
             {
-              type: String,
+              name: String,
+              selected: Boolean,
             },
           ],
         },
@@ -936,6 +953,10 @@ const edrSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'staff',
       },
+      reqFromCareStream: {
+        type: Boolean,
+        default: false,
+      },
       // pendingApprovalTime: {
       //   type: Date,
       // },
@@ -1016,6 +1037,10 @@ const edrSchema = new mongoose.Schema({
       },
       delayedReason: {
         type: String,
+      },
+      reqFromCareStream: {
+        type: Boolean,
+        default: false,
       },
       updateRecord: [
         {

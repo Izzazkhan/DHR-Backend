@@ -1,4 +1,5 @@
-const requestNoFormat = require('dateformat');
+/* eslint-disable no-await-in-loop */
+/* eslint-disable no-restricted-syntax */
 const asyncHandler = require('../middleware/async');
 // const ErrorResponse = require('../utils/errorResponse');
 const CareStream = require('../models/CareStreams/CareStreams');
@@ -9,6 +10,8 @@ const Notification = require('../components/notification');
 const Flag = require('../models/flag/Flag');
 const searchEdrPatient = require('../components/searchEdr');
 const generateReqNo = require('../components/requestNoGenerator');
+const addLab = require('../components/addLab');
+const LabService = require('../models/service/lab');
 
 exports.addCareStream = asyncHandler(async (req, res, next) => {
   const {
@@ -21,6 +24,7 @@ exports.addCareStream = asyncHandler(async (req, res, next) => {
     fluidsIV,
     medications,
     mdNotification,
+    reassessments,
     createdBy,
   } = req.body;
   const MRN = [
@@ -39,6 +43,7 @@ exports.addCareStream = asyncHandler(async (req, res, next) => {
     fluidsIV,
     medications,
     mdNotification,
+    reassessments,
     createdBy,
   });
   res.status(201).json({
@@ -176,6 +181,7 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     fluidsIV: req.body.data.fluidsIV,
     medications: req.body.data.medications,
     mdNotification: req.body.data.mdNotification,
+    reassessments: req.body.data.reassessments,
     careStreamId: req.body.data.careStreamId,
     assignedBy: req.body.data.staffId,
     assignedTime: Date.now(),
@@ -256,6 +262,26 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     { $push: { careStream } },
     { new: true }
   ).populate('careStream.careStreamId', 'identifier');
+
+  // * Assigning tests
+  // if (req.body.data.investigations) {
+  //   const { investigations } = req.body.data;
+
+  //   const tests = investigations.filter((t) => t.selected === true);
+  //   for (const test of tests) {
+  //     if (test.testType === 'lab') {
+  //       const lab = await LabService.findOne({ name: test.name });
+  //       const data = {
+  //         staffId: req.body.data.staffId,
+  //         edrId: req.body.data.edrId,
+  //         name: lab.name,
+  //         serviceId: lab._id,
+  //         price: lab.price,
+  //       };
+  //       addLab(data);
+  //     }
+  //   }
+  // }
 
   const decisionPending = await EDR.find({
     careStream: { $eq: [] },
