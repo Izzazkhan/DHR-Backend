@@ -52,7 +52,7 @@ const edrSchema = new mongoose.Schema({
       },
       inclusionCriteria: [{ name: String, selected: Boolean }],
       exclusionCriteria: [{ name: String, selected: Boolean }],
-      investigations: [{ name: String, selected: Boolean }],
+      investigations: [{ name: String, selected: Boolean, testType: String }],
       precautions: [{ name: String, selected: Boolean }],
       treatmentOrders: [
         {

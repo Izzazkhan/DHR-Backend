@@ -200,7 +200,7 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
       console.log('Item : ', item);
       const pharmacyRequestNo = generateReqNo('PHR');
 
-      let pharmaObj = {
+      const pharmaObj = {
         pharmacyRequestNo,
         requestedBy: req.body.data.staffId,
         reconciliationNotes: [],
@@ -265,21 +265,30 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
 
   // * Assigning tests
   // if (req.body.data.investigations) {
-  //   const { investigations } = req.body.data;
+  // const { investigations } = req.body.data;
 
-  //   const tests = investigations.filter((t) => t.selected === true);
-  //   for (const test of tests) {
-  //     if (test.testType === 'lab') {
-  //       const lab = await LabService.findOne({ name: test.name });
-  //       const data = {
-  //         staffId: req.body.data.staffId,
-  //         edrId: req.body.data.edrId,
-  //         name: lab.name,
-  //         serviceId: lab._id,
-  //         price: lab.price,
-  //       };
-  //       addLab(data);
-  //     }
+  // const tests = investigations.filter((t) => t.selected === true);
+  // for (const test of tests) {
+  //   if (test.testType === 'lab') {
+  //     const lab = await LabService.findOne({ name: test.name });
+  //     const data = {
+  //       staffId: req.body.data.staffId,
+  //       edrId: req.body.data.edrId,
+  //       name: lab.name,
+  //       serviceId: lab._id,
+  //       price: lab.price,
+  //     };
+  //     addLab(data);
+  //   } else if (test.testType === 'rad') {
+  //     const rad = await radService.findOne({ name: test.name });
+  //     const data = {
+  //       staffId: req.body.data.staffId,
+  //       edrId: req.body.data.edrId,
+  //       name: rad.name,
+  //       serviceId: rad._id,
+  //       price: rad.price,
+  //     };
+  //     addRad(data);
   //   }
   // }
 
