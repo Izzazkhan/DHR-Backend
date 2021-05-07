@@ -683,8 +683,9 @@ exports.completedDoctorNotes = asyncHandler(async (req, res, next) => {
 });
 
 exports.addLabRequest = asyncHandler(async (req, res, next) => {
+  const parsed = JSON.parse(req.body);
   // Sample Collection Task
-  const currentStaff = await Staff.findById(req.body.staffId).select('shift');
+  const currentStaff = await Staff.findById(parsed.staffId).select('shift');
 
   const nurses = await Staff.find({
     staffType: 'Nurses',
@@ -700,33 +701,34 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
 
   const labRequest = {
     requestId,
-    name: req.body.name,
-    serviceId: req.body.serviceId,
-    type: req.body.type,
-    price: req.body.price,
-    status: req.body.status,
+    name: parsed.name,
+    serviceId: parsed.serviceId,
+    type: parsed.type,
+    price: parsed.price,
+    status: parsed.status,
   };
 
   const newLab = await EDR.findOneAndUpdate(
-    { _id: req.body.edrId },
+    { _id: parsed.edrId },
     { $push: { labRequest } },
     { new: true }
   );
 
   const assignedLab = await EDR.findOneAndUpdate(
     {
-      _id: req.body.edrId,
+      _id: parsed.edrId,
       'labRequest._id': newLab.labRequest[newLab.labRequest.length - 1]._id,
     },
     {
       $set: {
-        'labRequest.$.priority': req.body.priority,
-        'labRequest.$.requestedBy': req.body.staffId,
+        'labRequest.$.priority': parsed.priority,
+        'labRequest.$.requestedBy': parsed.staffId,
         'labRequest.$.requestedAt': Date.now(),
         'labRequest.$.assignedTo': nurseTechnician._id,
-        'labRequest.$.labTechnicianId': req.body.labTechnicianId,
-        'labRequest.$.reason': req.body.reason,
-        'labRequest.$.notes': req.body.notes,
+        'labRequest.$.labTechnicianId': parsed.labTechnicianId,
+        'labRequest.$.reason': parsed.reason,
+        'labRequest.$.notes': parsed.notes,
+        'labRequest.$.voiceNotes': req.file ? req.file.path : null,
       },
     },
     { new: true }
@@ -840,7 +842,7 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
 
   if (labPending.length > 5) {
     await Flag.create({
-      edrId: req.body.edrId,
+      edrId: parsed.edrId,
       generatedFrom: 'Sensei',
       card: '5th',
       generatedFor: ['Sensei', 'Lab Supervisor'],
@@ -856,7 +858,7 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
 
   if (labPending.length > 5) {
     await Flag.create({
-      edrId: req.body.edrId,
+      edrId: parsed.edrId,
       generatedFrom: 'Lab Technician',
       card: '2nd',
       generatedFor: ['Sensei', 'Lab Supervisor'],
@@ -872,7 +874,7 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
 
   if (labPending.length > 6) {
     await Flag.create({
-      edrId: req.body.edrId,
+      edrId: parsed.edrId,
       generatedFrom: 'ED Nurse',
       card: '6th',
       generatedFor: ['Sensei', 'Lab Supervisor'],
@@ -907,7 +909,7 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
   ]);
   if (samplePending.length > 6) {
     await Flag.create({
-      edrId: req.body.edrId,
+      edrId: parsed.edrId,
       generatedFrom: 'Lab Technician',
       card: '1st',
       generatedFor: ['Sensei', 'Lab Supervisor'],
@@ -942,7 +944,7 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
 
   if (bloodPending.length > 10) {
     await Flag.create({
-      edrId: req.body.edrId,
+      edrId: parsed.edrId,
       generatedFrom: 'Lab Technician',
       card: '3rd',
       generatedFor: ['Lab Supervisor'],
@@ -977,7 +979,7 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
 
   if (resultsPending.length > 10) {
     await Flag.create({
-      edrId: req.body.edrId,
+      edrId: parsed.edrId,
       generatedFrom: 'Lab Technician',
       card: '4th',
       generatedFor: ['Sensei', 'Lab Supervisor'],
@@ -997,7 +999,7 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
     'Lab Technician',
     'ED Doctor',
     '/dashboard/taskslist',
-    req.body.edrId,
+    parsed.edrId,
     ''
   );
 
@@ -1007,7 +1009,7 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
     'Admin',
     'Lab Requests',
     '/dashboard/taskslist',
-    req.body.edrId,
+    parsed.edrId,
     ''
   );
 
@@ -1018,20 +1020,23 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateLab = asyncHandler(async (req, res, next) => {
-  // console.log(req.body);
-  const lab = await EDR.findOne({ _id: req.body.edrId });
+  const parsed = JSON.parse(req.body);
+  const lab = await EDR.findOne({ _id: parsed.edrId });
   let note;
   for (let i = 0; i < lab.labRequest.length; i++) {
-    if (lab.labRequest[i]._id == req.body.labId) {
+    if (lab.labRequest[i]._id == parsed.labId) {
       note = i;
     }
   }
   const updatedLab = await EDR.findOneAndUpdate(
-    { _id: req.body.edrId },
+    { _id: parsed.edrId },
     {
       $set: {
-        [`labRequest.${note}.notes`]: req.body.notes,
-        [`labRequest.${note}.priority`]: req.body.priority,
+        [`labRequest.${note}.notes`]: parsed.notes,
+        [`labRequest.${note}.priority`]: parsed.priority,
+        [`labRequest.${note}.voiceNotes`]: req.file
+          ? req.file.path
+          : parsed.voiceNotes,
       },
     },
     { new: true }

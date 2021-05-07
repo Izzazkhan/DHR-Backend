@@ -11,7 +11,9 @@ const Flag = require('../models/flag/Flag');
 const searchEdrPatient = require('../components/searchEdr');
 const generateReqNo = require('../components/requestNoGenerator');
 const addLab = require('../components/addLab');
+const addRad = require('../components/addRad');
 const LabService = require('../models/service/lab');
+const RadService = require('../models/service/radiology');
 
 exports.addCareStream = asyncHandler(async (req, res, next) => {
   const {
@@ -264,33 +266,34 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
   ).populate('careStream.careStreamId', 'identifier');
 
   // * Assigning tests
-  // if (req.body.data.investigations) {
-  // const { investigations } = req.body.data;
+  if (req.body.data.investigations) {
+    const { investigations } = req.body.data;
 
-  // const tests = investigations.filter((t) => t.selected === true);
-  // for (const test of tests) {
-  //   if (test.testType === 'lab') {
-  //     const lab = await LabService.findOne({ name: test.name });
-  //     const data = {
-  //       staffId: req.body.data.staffId,
-  //       edrId: req.body.data.edrId,
-  //       name: lab.name,
-  //       serviceId: lab._id,
-  //       price: lab.price,
-  //     };
-  //     addLab(data);
-  //   } else if (test.testType === 'rad') {
-  //     const rad = await radService.findOne({ name: test.name });
-  //     const data = {
-  //       staffId: req.body.data.staffId,
-  //       edrId: req.body.data.edrId,
-  //       name: rad.name,
-  //       serviceId: rad._id,
-  //       price: rad.price,
-  //     };
-  //     addRad(data);
-  //   }
-  // }
+    const tests = investigations.filter((t) => t.selected === true);
+    for (const test of tests) {
+      if (test.testType === 'lab') {
+        const lab = await LabService.findOne({ name: test.name });
+        const data = {
+          staffId: req.body.data.staffId,
+          edrId: req.body.data.edrId,
+          name: lab.name,
+          serviceId: lab._id,
+          price: lab.price,
+        };
+        addLab(data);
+      } else if (test.testType === 'rad') {
+        const rad = await RadService.findOne({ name: test.name });
+        const data = {
+          staffId: req.body.data.staffId,
+          edrId: req.body.data.edrId,
+          name: rad.name,
+          serviceId: rad._id,
+          price: rad.price,
+        };
+        addRad(data);
+      }
+    }
+  }
 
   const decisionPending = await EDR.find({
     careStream: { $eq: [] },

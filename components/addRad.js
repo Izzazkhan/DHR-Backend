@@ -5,37 +5,37 @@ const Flag = require('../models/flag/Flag');
 const generateReqNo = require('./requestNoGenerator');
 const EDR = require('../models/EDR/EDR');
 
-exports.addRadRequest = asyncHandler(async (req, res, next) => {
+const addRadRequest = asyncHandler(async (data) => {
   const requestId = generateReqNo('RR');
 
   const radRequest = {
     requestId,
-    name: req.body.name,
-    serviceId: req.body.serviceId,
-    type: req.body.type,
-    price: req.body.price,
-    status: req.body.status,
+    name: data.name,
+    serviceId: data.serviceId,
+    type: data.type,
+    price: data.price,
+    status: data.status,
   };
 
   const newRad = await EDR.findOneAndUpdate(
-    { _id: req.body.edrId },
+    { _id: data.edrId },
     { $push: { radRequest } },
     { new: true }
   );
 
   const assignedRad = await EDR.findOneAndUpdate(
     {
-      _id: req.body.edrId,
+      _id: data.edrId,
       'radRequest._id': newRad.radRequest[newRad.radRequest.length - 1]._id,
     },
     {
       $set: {
-        'radRequest.$.priority': req.body.priority,
-        'radRequest.$.requestedBy': req.body.staffId,
+        'radRequest.$.priority': data.priority,
+        'radRequest.$.requestedBy': data.staffId,
         'radRequest.$.requestedAt': Date.now(),
-        'radRequest.$.imageTechnicianId': req.body.radTechnicianId,
-        'radRequest.$.reason': req.body.reason,
-        'radRequest.$.notes': req.body.notes,
+        'radRequest.$.imageTechnicianId': data.radTechnicianId,
+        'radRequest.$.reason': data.reason,
+        'radRequest.$.notes': data.notes,
       },
     },
     { new: true }
@@ -154,7 +154,7 @@ exports.addRadRequest = asyncHandler(async (req, res, next) => {
   // Rasing Flag
   if (rads.length > 6) {
     await Flag.create({
-      edrId: req.body.edrId,
+      edrId: data.edrId,
       generatedFrom: 'Imaging Technician',
       card: '1st',
       generatedFor: ['Sensei', 'Head Of Radiology Department'],
@@ -177,7 +177,7 @@ exports.addRadRequest = asyncHandler(async (req, res, next) => {
     'Imaging Technician',
     'ED Doctor',
     '/dashboard/home/radiologyTasks',
-    req.body.edrId,
+    data.edrId,
     ''
   );
 
@@ -187,12 +187,9 @@ exports.addRadRequest = asyncHandler(async (req, res, next) => {
     'Admin',
     'Rad Request',
     '/dashboard/home/radiologyTasks',
-    req.body.edrId,
+    data.edrId,
     ''
   );
-
-  res.status(200).json({
-    success: true,
-    data: assignedRad,
-  });
 });
+
+module.exports = addRadRequest;

@@ -946,13 +946,11 @@ const edrSchema = new mongoose.Schema({
       delayedReason: {
         type: String,
       },
-      voiceNotes: {
-        type: String,
-      },
       completedBy: {
         type: mongoose.Schema.ObjectId,
         ref: 'staff',
       },
+      voiceNotes: String,
       reqFromCareStream: {
         type: Boolean,
         default: false,

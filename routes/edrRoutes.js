@@ -139,9 +139,9 @@ router.put(
 );
 router.get('/getEdrsByPatient/:id', getEdrsByPatient);
 router.get('/getEDRWihtConsultationNote/:id', getEDRwihtConsultationNote);
-router.put('/addLabRequest', addLabRequest);
+router.put('/addLabRequest', upload.single('file'), addLabRequest);
 router.put('/addRadRequest', addRadRequest);
-router.put('/updateLab', updateLab);
+router.put('/updateLab', upload.single('file'), updateLab);
 router.put('/updateRad', updateRad);
 router.put('/updateEdr', updateEdr);
 router.get(
