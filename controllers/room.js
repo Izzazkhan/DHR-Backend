@@ -54,8 +54,9 @@ exports.createRoom = asyncHandler(async (req, res, next) => {
       status: 'not_assigned',
     });
   }
+  const roomId = generateReqNo('RM');
   const createRoom = await Room.create({
-    roomId: 'RM' + day + requestNoFormat(new Date(), 'yyHHMMss'),
+    roomId,
     roomNo: room + 1,
     noOfBeds,
     beds: beds,
