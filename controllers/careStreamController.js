@@ -192,8 +192,10 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
   };
 
   const pharmacyRequest = edrCheck[0].pharmacyRequest;
-
-  if (req.body.data.medications && req.body.data.medications.length > 0) {
+  const filteredMedications = req.body.data.medications.filter(
+    (t) => t.selected === true
+  );
+  if (filteredMedications.length > 0) {
     for (let i = 0; i < req.body.data.medications.length; i++) {
       const item = await Items.findOne({
         name: req.body.data.medications[i].itemName,

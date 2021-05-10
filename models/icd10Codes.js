@@ -1,13 +1,13 @@
 const mongoose = require('mongoose');
 
 const icd10CodesSchema = new mongoose.Schema({
-  procedureCodeCategory: {
+  Code: {
     type: String,
   },
-  icd10PCSCodes: {
+  ShortDesc: {
     type: String,
   },
-  procedureCodeDescriptions: {
+  LongDesc: {
     type: String,
   },
   status: {
@@ -19,7 +19,6 @@ const icd10CodesSchema = new mongoose.Schema({
   },
   updatedAt: {
     type: Date,
-    default: Date.now,
   },
 });
 

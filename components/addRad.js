@@ -6,6 +6,16 @@ const generateReqNo = require('./requestNoGenerator');
 const EDR = require('../models/EDR/EDR');
 
 const addRadRequest = asyncHandler(async (data) => {
+  const currentStaff = await Staff.findById(data.staffId).select('shift');
+
+  const radTechnicians = await Staff.find({
+    staffType: 'Imaging Technician',
+    disabled: false,
+    shift: currentStaff.shift,
+  }).select('identifier name');
+
+  const random = Math.floor(Math.random() * (radTechnicians.length - 1));
+  const radTechnician = radTechnicians[random];
   const requestId = generateReqNo('RR');
 
   const radRequest = {
@@ -33,9 +43,10 @@ const addRadRequest = asyncHandler(async (data) => {
         'radRequest.$.priority': data.priority,
         'radRequest.$.requestedBy': data.staffId,
         'radRequest.$.requestedAt': Date.now(),
-        'radRequest.$.imageTechnicianId': data.radTechnicianId,
+        'radRequest.$.imageTechnicianId': radTechnician._id,
         'radRequest.$.reason': data.reason,
         'radRequest.$.notes': data.notes,
+        'radRequest.$.reqFromCareStream': true,
       },
     },
     { new: true }

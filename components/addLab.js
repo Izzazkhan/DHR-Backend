@@ -19,6 +19,15 @@ const addLabRequest = asyncHandler(async (data) => {
   const random = Math.floor(Math.random() * (nurses.length - 1));
   const nurseTechnician = nurses[random];
 
+  const labTechnicians = await Staff.find({
+    staffType: 'Lab Technician',
+    disabled: false,
+    shift: currentStaff.shift,
+  }).select('identifier name');
+
+  const randomLab = Math.floor(Math.random() * (labTechnicians.length - 1));
+  const labTechnician = labTechnicians[randomLab];
+
   const requestId = generateReqNo('LR');
 
   const labRequest = {
@@ -47,7 +56,7 @@ const addLabRequest = asyncHandler(async (data) => {
         'labRequest.$.requestedBy': data.staffId,
         'labRequest.$.requestedAt': Date.now(),
         'labRequest.$.assignedTo': nurseTechnician._id,
-        'labRequest.$.labTechnicianId': data.labTechnicianId,
+        'labRequest.$.labTechnicianId': labTechnician._id,
         'labRequest.$.reason': data.reason,
         'labRequest.$.notes': data.notes,
         'labRequest.$.reqFromCareStream': true,

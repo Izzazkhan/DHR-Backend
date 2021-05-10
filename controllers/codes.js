@@ -1,13 +1,10 @@
 const asyncHandler = require('../middleware/async');
 const CPT = require('../models/cptCodes');
 const ICD = require('../models/icd10Codes');
-const ICDCM = require('../models/icd10-cm');
+const CDT = require('../models/cdtCodes');
 
 exports.getCPT = asyncHandler(async (req, res) => {
-  const cpt = await CPT.find().select({
-    procedureCodeCategory: 1,
-    cptCodes: 1,
-  });
+  const cpt = await CPT.find().limit(50);
   res.status(200).json({ success: true, data: cpt });
 });
 
@@ -40,10 +37,7 @@ exports.getCPTById = asyncHandler(async (req, res) => {
 });
 
 exports.getICD = asyncHandler(async (req, res) => {
-  const icd = await ICD.find().select({
-    procedureCodeCategory: 1,
-    icd10PCSCodes: 1,
-  });
+  const icd = await ICD.find().limit(50);
   res.status(200).json({ success: true, data: icd });
 });
 
@@ -75,10 +69,11 @@ exports.getICDById = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: icd });
 });
 
-exports.getICD10CM = asyncHandler(async (req, res, next) => {
-  const icd = await ICDCM.find().limit(50);
+exports.getCDT = asyncHandler(async (req, res, next) => {
+  const cdt = await CDT.find().limit(50);
+
   res.status(200).json({
     status: 'Success',
-    data: icd,
+    data: cdt,
   });
 });

@@ -1,13 +1,13 @@
 const mongoose = require('mongoose');
 
-const icd10CMSchema = new mongoose.Schema({
+const cdtCodesSchema = new mongoose.Schema({
   Code: {
     type: String,
   },
-  ShortDesc: {
+  Nomenclature: {
     type: String,
   },
-  LongDesc: {
+  Description: {
     type: String,
   },
   status: {
@@ -22,4 +22,4 @@ const icd10CMSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model('icd10CMCodes', icd10CMSchema);
+module.exports = mongoose.model('cdtcodes', cdtCodesSchema);
