@@ -153,7 +153,18 @@ exports.getEdrsByPatient = asyncHandler(async (req, res, next) => {
 exports.getEDRs = asyncHandler(async (req, res, next) => {
   const Edrs = await EDR.find({ patientInHospital: true })
     .populate('patientId')
-    .populate('chiefComplaint.chiefComplaintId', 'name')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+          },
+        ],
+      },
+    ])
     .populate('room.roomId')
     .select(
       'patientId dcdFormStatus status labRequest careStream room requestNo radRequest'
@@ -288,7 +299,20 @@ exports.getPendingEdrByKeyword = asyncHandler(async (req, res, next) => {
   const patients = await EDR.find({
     status: 'pending',
     patientInHospital: true,
-  }).populate('patientId');
+  })
+    .populate('patientId')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+          },
+        ],
+      },
+    ]);
 
   const arr = searchPatient(req, patients);
 
