@@ -514,6 +514,28 @@ const edrSchema = new mongoose.Schema({
       },
     },
   ],
+  // productionArea: [
+  //   {
+  //     productionAreaId: {
+  //       type: mongoose.Schema.ObjectId,
+  //       ref: 'productionArea',
+  //     },
+  //     assignedBy: {
+  //       type: mongoose.Schema.ObjectId,
+  //       ref: 'staff',
+  //     },
+  //     assignedTime: {
+  //       type: Date,
+  //     },
+  //     reason: String,
+  //     comments: {
+  //       type: String,
+  //     },
+  //     voiceNotes: {
+  //       type: String,
+  //     },
+  //   },
+  // ],
   customerCare: [
     {
       customerCareId: {
