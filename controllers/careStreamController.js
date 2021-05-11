@@ -196,9 +196,9 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     (t) => t.selected === true
   );
   if (filteredMedications.length > 0) {
-    for (let i = 0; i < req.body.data.medications.length; i++) {
+    for (let i = 0; i < filteredMedications.length; i++) {
       const item = await Items.findOne({
-        name: req.body.data.medications[i].itemName,
+        name: filteredMedications[i].itemName,
       });
 
       console.log('Item : ', item);
