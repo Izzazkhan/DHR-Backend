@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const ChatModel = require('../models/chatRoom/chatRoom');
 const Notification = require('../models/notification/notification');
 const Flag = require('../models/flag/Flag');
