@@ -448,6 +448,12 @@ const edrSchema = new mongoose.Schema({
                       selected: Boolean, // to mark it as selected
                     },
                   ],
+                  dropdownSelectedValue: [
+                    {
+                      name: String,
+                      code: String,
+                    },
+                  ],
                 },
               ],
             },
