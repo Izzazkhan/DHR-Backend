@@ -1,6 +1,3 @@
-const requestNoFormat = require('dateformat');
-const moment = require('moment');
-// const ChiefComplaint = require('../models/chiefComplaint/chiefComplaint');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const Staff = require('../models/staffFhir/staff');
@@ -14,7 +11,7 @@ const generateReqNo = require('../components/requestNoGenerator');
 exports.addChiefComplaint = asyncHandler(async (req, res, next) => {
   const { name } = req.body;
 
-  const chiefComplaintId = generateReqNo('CC');
+  const chiefComplaintId = generateReqNo('DPT');
   const chiefComplaint = await CC.create({
     name,
     chiefComplaintId,
@@ -168,7 +165,6 @@ exports.getNursesWithCC = asyncHandler(async (req, res, next) => {
 });
 
 exports.assignCC = asyncHandler(async (req, res, next) => {
-  // console.log(req.body);
   const staff = await Staff.findOne({ _id: req.body.staffId });
   if (!staff || staff.disabled === true) {
     return next(
