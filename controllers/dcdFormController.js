@@ -37,7 +37,7 @@ exports.addTriageAssessment = asyncHandler(async (req, res, next) => {
     { _id: req.body.data.edrId },
     { $push: { [`dcdForm.${latestForm}.triageAssessment`]: triage } },
     { new: true }
-  );
+  ).populate('patientId', 'identifier');
 
   const patientTriagePending = await EDR.find({
     'dcdForm.$.triageAssessment': { $eq: [] },
@@ -173,7 +173,7 @@ exports.addPastHistory = asyncHandler(async (req, res, next) => {
       },
     },
     { new: true }
-  );
+  ).populate('patientId', 'identifier');
 
   const staff = await Staff.findById(req.body.staffId).select('name');
 
@@ -215,7 +215,7 @@ exports.addROS = asyncHandler(async (req, res, next) => {
       },
     },
     { new: true }
-  );
+  ).populate('patientId', 'identifier');
   res.status(200).json({
     success: true,
     data: edrPatient,
@@ -265,7 +265,7 @@ exports.addPhysicalExam = asyncHandler(async (req, res, next) => {
       },
     },
     { new: true }
-  );
+  ).populate('patientId', 'identifier');
   res.status(200).json({
     success: true,
     data: edrPatient,
@@ -326,7 +326,7 @@ exports.addInvestigation = asyncHandler(async (req, res, next) => {
       },
     },
     { new: true }
-  );
+  ).populate('patientId', 'identifier');
   res.status(200).json({
     success: true,
     data: edrPatient,
@@ -355,7 +355,7 @@ exports.addActionPlan = asyncHandler(async (req, res, next) => {
       },
     },
     { new: true }
-  );
+  ).populate('patientId', 'identifier');
   res.status(200).json({
     success: true,
     data: edrPatient,
@@ -384,7 +384,7 @@ exports.addCourseOfVisit = asyncHandler(async (req, res, next) => {
       },
     },
     { new: true }
-  );
+  ).populate('patientId', 'identifier');
   res.status(200).json({
     success: true,
     data: edrPatient,
