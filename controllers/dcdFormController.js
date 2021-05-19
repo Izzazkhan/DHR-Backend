@@ -143,7 +143,7 @@ exports.addPatientDetails = asyncHandler(async (req, res, next) => {
       $push: { [`dcdForm.${latestForm}.patientDetails`]: patientDetails },
     },
     { new: true }
-  );
+  ).populate('patientId', 'identifier');
 
   res.status(200).json({
     success: true,
