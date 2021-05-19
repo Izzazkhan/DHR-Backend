@@ -395,7 +395,22 @@ exports.getAnesthesiologist = asyncHandler(async (req, res, next) => {
     subType: 'Anesthesiologist',
     disabled: false,
     // availability: true,
-  }).populate('shift');
+  })
+    .populate('shift')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+    ]);
 
   res.status(200).json({
     success: true,

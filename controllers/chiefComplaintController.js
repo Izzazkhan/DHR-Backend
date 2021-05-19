@@ -252,7 +252,6 @@ exports.getCCNurseByKeyword = asyncHandler(async (req, res, next) => {
 });
 
 exports.assignProductionAreaToCC = asyncHandler(async (req, res, next) => {
-  // console.log(req.body);
   const chiefComplaint = await CC.findOne({
     _id: req.body.chiefComplaintId,
   });
