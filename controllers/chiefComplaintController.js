@@ -253,17 +253,17 @@ exports.assignProductionAreaToCC = asyncHandler(async (req, res, next) => {
     _id: req.body.chiefComplaintId,
   });
   // console.log(chiefComplaint);
-  if (
-    chiefComplaint.productionArea &&
-    chiefComplaint.productionArea.length > 0
-  ) {
-    return next(
-      new ErrorResponse(
-        'Production area has already been assigned to this chief complaint',
-        400
-      )
-    );
-  }
+  // if (
+  //   chiefComplaint.productionArea &&
+  //   chiefComplaint.productionArea.length > 0
+  // ) {
+  //   return next(
+  //     new ErrorResponse(
+  //       'Production area has already been assigned to this chief complaint',
+  //       400
+  //     )
+  //   );
+  // }
   if (!chiefComplaint || chiefComplaint.disabled === true) {
     return next(
       new ErrorResponse(
