@@ -524,7 +524,7 @@ const edrSchema = new mongoose.Schema({
     {
       newChiefComplaintId: {
         type: mongoose.Schema.ObjectId,
-        ref: 'productionArea',
+        ref: 'NewChiefComplaint',
       },
       assignedBy: {
         type: mongoose.Schema.ObjectId,

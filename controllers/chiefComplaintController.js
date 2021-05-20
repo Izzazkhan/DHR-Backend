@@ -382,7 +382,21 @@ exports.assignCCtoPatient = asyncHandler(async (req, res, next) => {
     {
       new: true,
     }
-  );
+  )
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+    ])
+    .populate('newChiefComplaint.newChiefComplaintId');
 
   // Checking For Flags
   const patients = await EDR.find({

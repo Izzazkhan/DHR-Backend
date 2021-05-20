@@ -83,28 +83,30 @@ exports.getCCPatients = asyncHandler(async (req, res, next) => {
     status: 'pending',
     chiefComplaint: { $ne: [] },
     patientInHospital: true,
-  }).populate([
-    {
-      path: 'chiefComplaint.chiefComplaintId',
-      model: 'chiefComplaint',
-      populate: [
-        {
-          path: 'productionArea.productionAreaId',
-          model: 'productionArea',
-          populate: [
-            {
-              path: 'rooms.roomId',
-              model: 'room',
-            },
-          ],
-        },
-      ],
-    },
-    {
-      path: 'patientId',
-      model: 'patientfhir',
-    },
-  ]);
+  })
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            populate: [
+              {
+                path: 'rooms.roomId',
+                model: 'room',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+      },
+    ])
+    .populate('newChiefComplaint.newChiefComplaintId');
 
   const newArray = [];
   for (let i = 0; i < patients.length; i++) {
