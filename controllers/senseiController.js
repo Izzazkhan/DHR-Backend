@@ -212,15 +212,15 @@ exports.getPatientByRoom = asyncHandler(async (req, res, next) => {
 });
 
 exports.patientsByCC = asyncHandler(async (req, res, next) => {
-  const chiefComplaint = await CC.find({ productionArea: { $ne: [] } }).select(
-    'name chiefComplaintId'
-  );
+  const chiefComplaint = await CC.find({ productionArea: { $ne: [] } })
+    .select('name chiefComplaintId newChiefComplaint')
+    .populate('newChiefComplaint.newChiefComplaintId');
   const edrCC = await EDR.find({
     chiefComplaint: { $ne: [] },
     status: 'pending',
     currentLocation: 'ED',
     patientInHospital: true,
-  }).select('chiefComplaint.chiefComplaintId');
+  }).select('chiefComplaint.chiefComplaintId newChiefComplaint');
   let count = 0;
   const newArray = [];
 
