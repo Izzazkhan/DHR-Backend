@@ -204,7 +204,8 @@ exports.getPendingEDRs = asyncHandler(async (req, res, next) => {
         model: 'room',
         select: 'roomNo',
       },
-    ]);
+    ])
+    .populate('newChiefComplaint.newChiefComplaintId');
   res.status(201).json({
     success: true,
     count: Edrs.length,
