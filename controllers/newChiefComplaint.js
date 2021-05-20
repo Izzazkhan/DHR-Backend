@@ -146,7 +146,7 @@ exports.assignCCtoPatient = asyncHandler(async (req, res, next) => {
 
   // Assigning Chief Complaint
   const assignedCC = await EDR.findOneAndUpdate(
-    { _id: parsed.patientid },
+    { _id: parsed.edrId },
     { $push: { newChiefComplaint: chiefComplaint } },
     {
       new: true,
