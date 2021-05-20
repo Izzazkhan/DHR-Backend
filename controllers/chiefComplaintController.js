@@ -345,9 +345,13 @@ exports.getAvailablePAwithCC = asyncHandler(async (req, res, next) => {
 
 exports.assignCCtoPatient = asyncHandler(async (req, res, next) => {
   const parsed = JSON.parse(req.body.data);
+  const chiefComplaintId = await CC.findOne({
+    'productionArea.productionAreaId': parsed.productionAreaId,
+  });
+
   const chiefComplaint = {
     assignedBy: parsed.assignedBy,
-    chiefComplaintId: parsed.chiefComplaint,
+    chiefComplaintId: chiefComplaintId._id,
     assignedTime: Date.now(),
     reason: parsed.reason,
     voiceNotes: req.file ? req.file.path : null,
@@ -355,7 +359,7 @@ exports.assignCCtoPatient = asyncHandler(async (req, res, next) => {
   };
 
   // Checking For Available Rooms for The Production Area
-  const paId = await CC.findById(parsed.chiefComplaint).select(
+  const paId = await CC.findById(chiefComplaintId._id).select(
     'productionArea.productionAreaId'
   );
 
@@ -373,7 +377,7 @@ exports.assignCCtoPatient = asyncHandler(async (req, res, next) => {
 
   // Assigning Chief Complaint
   const assignedCC = await EDR.findOneAndUpdate(
-    { _id: parsed.patientid },
+    { _id: parsed.edrId },
     { $push: { chiefComplaint } },
     {
       new: true,

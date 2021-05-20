@@ -1,9 +1,9 @@
-const requestNoFormat = require('dateformat');
 const PA = require('../models/productionArea');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const Room = require('../models/room');
 const generateReqNo = require('../components/requestNoGenerator');
+const CC = require('../models/chiefComplaint/chiefComplaint');
 
 exports.getPAs = asyncHandler(async (req, res) => {
   const getPAs = await PA.find({ disabled: false }).populate('rooms.roomId');
@@ -36,6 +36,24 @@ exports.createPA = asyncHandler(async (req, res) => {
         { $set: { assingedToPA: true } },
         { new: true }
       )
+  );
+
+  const chiefComplaint = await CC.create({
+    paName,
+    chiefComplaintId: requestNo,
+  });
+
+  const productionArea = {
+    assignedBy: req.body.staffId,
+    productionAreaId: createPAs._id,
+    assignedTime: Date.now(),
+  };
+  await CC.findOneAndUpdate(
+    { _id: chiefComplaint._id },
+    { $push: { productionArea } },
+    {
+      new: true,
+    }
   );
 
   res.status(200).json({ success: true, data: createPAs });
