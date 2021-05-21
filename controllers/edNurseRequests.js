@@ -238,7 +238,9 @@ exports.getPharmacy = asyncHandler(async (req, res, next) => {
         path: 'doctorNotes.addedBy',
         model: 'staff',
       },
-    ]);
+    ])
+    .populate('newChiefComplaint.newChiefComplaintId');
+
   res.status(200).json({
     success: true,
     data: pharmacyRequest,

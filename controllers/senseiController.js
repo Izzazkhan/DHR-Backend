@@ -12,71 +12,57 @@ const searchEdrPatient = require('../components/searchEdr');
 
 exports.updateStaffShift = asyncHandler(async (req, res, next) => {
   const staff = await Staff.findOne({ _id: req.body.staffId });
-  if (staff.availability === false) {
-    res
-      .status(200)
-      .json({ success: false, data: 'Staff already assigned to Visit' });
-  } else if (staff.disabled === true) {
-    res.status(200).json({ success: false, data: 'Staff disabled' });
-  } else {
-    // console.log(req.body);
-    const chiefComplaint = {
-      assignedBy: req.body.assignedBy,
-      chiefComplaintId: req.body.chiefComplaint,
-      assignedTime: Date.now(),
-    };
-
-    const updatedStaff = await Staff.findOneAndUpdate(
-      { _id: staff.id },
-      { $push: { chiefComplaint } },
-      {
-        new: true,
-      }
-    );
-    const productionArea = {
-      assignedBy: req.body.assignedBy,
-      productionAreaId: req.body.productionAreaName,
-      assignedTime: Date.now(),
-    };
-    await Staff.findOneAndUpdate(
-      { _id: staff.id },
-      { $push: { productionArea } },
-      {
-        new: true,
-      }
-    );
-    await Staff.findOneAndUpdate(
-      { _id: staff.id },
-      {
-        $set: {
-          shift: req.body.shift,
-        },
-      },
-      {
-        new: true,
-      }
-    );
-    const updateRecord = {
-      updatedAt: Date.now(),
-      updatedBy: req.body.assignedBy,
-      reason: req.body.reason,
-    };
-
-    await Staff.findOneAndUpdate(
-      { _id: staff.id },
-      {
-        $push: { updateRecord },
-      },
-      {
-        new: true,
-      }
-    );
-
-    res.status(200).json({
-      success: true,
-      data: updatedStaff,
-    });
+  if (!staff || staff.disabled === true) {
+    return res.status(200).json({ success: false, data: 'Staff disabled' });
   }
+  const chiefComplaintId = await CC.findOne({
+    'productionArea.productionAreaId': req.body.productionAreaId,
+  });
+
+  const chiefComplaint = {
+    assignedBy: req.body.assignedBy,
+    chiefComplaintId: chiefComplaintId._id,
+    assignedTime: Date.now(),
+  };
+  let updatedStaff;
+  updatedStaff = await Staff.findOneAndUpdate(
+    { _id: staff.id },
+    { $push: { chiefComplaint } },
+    {
+      new: true,
+    }
+  );
+  updatedStaff = await Staff.findOneAndUpdate(
+    { _id: staff.id },
+    {
+      $set: {
+        shift: req.body.shift,
+      },
+    },
+    {
+      new: true,
+    }
+  );
+  const updateRecord = {
+    updatedAt: Date.now(),
+    updatedBy: req.body.assignedBy,
+    reason: req.body.reason,
+  };
+
+  updatedStaff = await Staff.findOneAndUpdate(
+    { _id: staff.id },
+    {
+      $push: { updateRecord },
+    },
+    {
+      new: true,
+    }
+  );
+
+  res.status(200).json({
+    success: true,
+    data: updatedStaff,
+  });
 });
 
 exports.getCCPatients = asyncHandler(async (req, res, next) => {
@@ -128,7 +114,6 @@ exports.getCCPatients = asyncHandler(async (req, res, next) => {
 
     obj.count = count;
     newArray.push(obj);
-    // console.log('count', patients[i]);
   }
 
   res.status(200).json({
@@ -192,7 +177,6 @@ exports.getPatientsByPA = asyncHandler(async (req, res, next) => {
 });
 
 exports.getPatientByRoom = asyncHandler(async (req, res, next) => {
-  // console.log(req.params);
   const rooms = await EDR.findOne({
     'room.roomId': req.params.roomId,
     room: { $ne: [] },
@@ -228,12 +212,10 @@ exports.patientsByCC = asyncHandler(async (req, res, next) => {
 
   for (let i = 0; i < chiefComplaint.length; i++) {
     const obj = JSON.parse(JSON.stringify(chiefComplaint[i]));
-    // console.log(chiefComplaint[i]._id);
     count = 0;
     for (let j = 0; j < edrCC.length; j++) {
       const latestCC =
         edrCC[j].newChiefComplaint[edrCC[j].newChiefComplaint.length - 1];
-      // console.log(latestCC);
       if (
         chiefComplaint[i]._id.toString() ===
         latestCC.newChiefComplaintId.toString()
@@ -244,7 +226,6 @@ exports.patientsByCC = asyncHandler(async (req, res, next) => {
     obj.count = count;
     newArray.push(obj);
   }
-  // console.log(newArray);
 
   res.status(200).json({
     success: true,
@@ -255,68 +236,71 @@ exports.patientsByCC = asyncHandler(async (req, res, next) => {
 exports.getCR = asyncHandler(async (req, res, next) => {
   const cr = await EDR.find({
     consultationNote: { $ne: [] },
-  }).populate([
-    {
-      path: 'patientId',
-      model: 'patientfhir',
-    },
-    {
-      path: 'consultationNote.addedBy',
-      model: 'staff',
-    },
-    {
-      path: 'consultationNote.consultant',
-      model: 'staff',
-    },
-    {
-      path: 'radRequest.serviceId',
-      model: 'RadiologyService',
-    },
-    {
-      path: 'radRequest.requestedBy',
-      model: 'staff',
-    },
-    {
-      path: 'labRequest.serviceId',
-      model: 'LaboratoryService',
-    },
-    {
-      path: 'labRequest.requestedBy',
-      model: 'staff',
-    },
-    {
-      path: 'pharmacyRequest.requestedBy',
-      model: 'staff',
-    },
-    {
-      path: 'pharmacyRequest.item.itemId',
-      model: 'Item',
-    },
-    {
-      path: 'doctorNotes.addedBy',
-      model: 'staff',
-    },
-    {
-      path: 'edNurseRequest.addedBy',
-      model: 'staff',
-    },
-    {
-      path: 'eouNurseRequest.addedBy',
-      model: 'staff',
-    },
-    {
-      path: 'nurseTechnicianRequest.addedBy',
-      model: 'staff',
-    },
-    {
-      path: 'anesthesiologistNote.addedBy',
-      model: 'staff',
-    },
-    {
-      path: 'pharmacyRequest.reconciliationNotes.addedBy',
-      model: 'staff',
-    },
-  ]);
+  })
+    .populate([
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+      },
+      {
+        path: 'consultationNote.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'consultationNote.consultant',
+        model: 'staff',
+      },
+      {
+        path: 'radRequest.serviceId',
+        model: 'RadiologyService',
+      },
+      {
+        path: 'radRequest.requestedBy',
+        model: 'staff',
+      },
+      {
+        path: 'labRequest.serviceId',
+        model: 'LaboratoryService',
+      },
+      {
+        path: 'labRequest.requestedBy',
+        model: 'staff',
+      },
+      {
+        path: 'pharmacyRequest.requestedBy',
+        model: 'staff',
+      },
+      {
+        path: 'pharmacyRequest.item.itemId',
+        model: 'Item',
+      },
+      {
+        path: 'doctorNotes.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'edNurseRequest.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'eouNurseRequest.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'nurseTechnicianRequest.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'anesthesiologistNote.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'pharmacyRequest.reconciliationNotes.addedBy',
+        model: 'staff',
+      },
+    ])
+    .populate('newChiefComplaint.newChiefComplaintId');
+
   res.status(200).json({
     success: true,
     data: cr,

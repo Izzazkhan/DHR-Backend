@@ -168,13 +168,13 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
   const staff = await Staff.findOne({ _id: req.body.staffId });
   if (!staff || staff.disabled === true) {
     return next(
-      new ErrorResponse('Could not assign Chief Complaint to this staff', 400)
+      new ErrorResponse('Could not assign Production Area to this staff', 400)
     );
   }
   const chiefComplaintId = await CC.findOne({
     'productionArea.productionAreaId': req.body.productionAreaId,
   });
-  // console.log(chiefComplaintId._id);
+
   const chiefComplaint = {
     assignedBy: req.body.assignedBy,
     chiefComplaintId: chiefComplaintId._id,
