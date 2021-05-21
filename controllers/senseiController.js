@@ -900,10 +900,10 @@ exports.getEDCCPatients = asyncHandler(async (req, res, next) => {
   const patients = await EDR.find({
     status: 'pending',
     currentLocation: 'ED',
-    chiefComplaint: { $ne: [] },
+    newChiefComplaint: { $ne: [] },
     patientInHospital: true,
   })
-    .select('patientId chiefComplaint')
+    .select('patientId newChiefComplaint')
     .populate([
       {
         path: 'chiefComplaint.chiefComplaintId',
@@ -914,16 +914,16 @@ exports.getEDCCPatients = asyncHandler(async (req, res, next) => {
     .populate('newChiefComplaint.newChiefComplaintId');
 
   const newArray = [];
-  const cc = await CC.find();
+  const cc = await NewCC.find();
   for (let i = 0; i < cc.length; i++) {
     let count = 0;
     const obj = JSON.parse(JSON.stringify(cc[i]));
     for (let j = 0; j < patients.length; j++) {
       if (
         cc[i]._id.toString() ===
-        patients[j].chiefComplaint[
-          patients[j].chiefComplaint.length - 1
-        ].chiefComplaintId._id.toString()
+        patients[j].newChiefComplaint[
+          patients[j].newChiefComplaint.length - 1
+        ].newChiefComplaintId._id.toString()
       ) {
         count++;
       }
