@@ -3,6 +3,7 @@ const asyncHandler = require('../middleware/async');
 const EDR = require('../models/EDR/EDR');
 const PA = require('../models/productionArea');
 const CC = require('../models/chiefComplaint/chiefComplaint');
+const NewCC = require('../models/newChiefComplaint');
 const CS = require('../models/CareStreams/CareStreams');
 const ErrorResponse = require('../utils/errorResponse');
 const EouTransfer = require('../models/patientTransferEDEOU/patientTransferEDEOU');
@@ -212,28 +213,30 @@ exports.getPatientByRoom = asyncHandler(async (req, res, next) => {
 });
 
 exports.patientsByCC = asyncHandler(async (req, res, next) => {
-  const chiefComplaint = await CC.find({ productionArea: { $ne: [] } })
-    .select('name chiefComplaintId newChiefComplaint')
-    .populate('newChiefComplaint.newChiefComplaintId');
+  const chiefComplaint = await NewCC.find({
+    productionArea: { $ne: [] },
+  }).select('name');
+
   const edrCC = await EDR.find({
-    chiefComplaint: { $ne: [] },
+    newChiefComplaint: { $ne: [] },
     status: 'pending',
     currentLocation: 'ED',
     patientInHospital: true,
-  }).select('chiefComplaint.chiefComplaintId newChiefComplaint');
+  }).select('newChiefComplaint.newChiefComplaintId');
   let count = 0;
   const newArray = [];
 
   for (let i = 0; i < chiefComplaint.length; i++) {
     const obj = JSON.parse(JSON.stringify(chiefComplaint[i]));
+    // console.log(chiefComplaint[i]._id);
     count = 0;
     for (let j = 0; j < edrCC.length; j++) {
       const latestCC =
-        edrCC[j].chiefComplaint[edrCC[j].chiefComplaint.length - 1];
+        edrCC[j].newChiefComplaint[edrCC[j].newChiefComplaint.length - 1];
       // console.log(latestCC);
       if (
         chiefComplaint[i]._id.toString() ===
-        latestCC.chiefComplaintId.toString()
+        latestCC.newChiefComplaintId.toString()
       ) {
         count++;
       }

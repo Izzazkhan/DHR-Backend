@@ -165,9 +165,10 @@ exports.getEDRs = asyncHandler(async (req, res, next) => {
         ],
       },
     ])
+    .populate('newChiefComplaint.newChiefComplaintId')
     .populate('room.roomId')
     .select(
-      'patientId dcdFormStatus status labRequest careStream room requestNo radRequest'
+      'patientId dcdFormStatus status labRequest careStream room requestNo radRequest newChiefComplaint'
     );
   res.status(201).json({
     success: true,
