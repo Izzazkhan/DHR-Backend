@@ -206,7 +206,7 @@ exports.patientsByCC = asyncHandler(async (req, res, next) => {
     status: 'pending',
     currentLocation: 'ED',
     patientInHospital: true,
-  }).select('newChiefComplaint.newChiefComplaintId');
+  }).select('chiefComplaintId newChiefComplaint.newChiefComplaintId');
   let count = 0;
   const newArray = [];
 
@@ -910,7 +910,8 @@ exports.getEDCCPatients = asyncHandler(async (req, res, next) => {
         model: 'chiefComplaint',
         select: 'chiefComplaintId name',
       },
-    ]);
+    ])
+    .populate('newChiefComplaint.newChiefComplaintId');
 
   const newArray = [];
   const cc = await CC.find();

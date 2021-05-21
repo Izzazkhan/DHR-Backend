@@ -1,11 +1,7 @@
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
-const Staff = require('../models/staffFhir/staff');
-const PA = require('../models/productionArea');
 const EDR = require('../models/EDR/EDR');
 const NewCC = require('../models/newChiefComplaint');
-const Flag = require('../models/flag/Flag');
-const searchStaff = require('../components/searchStaff');
 const generateReqNo = require('../components/requestNoGenerator');
 
 exports.addChiefComplaint = asyncHandler(async (req, res, next) => {
@@ -102,35 +98,6 @@ exports.enableChiefComplaint = asyncHandler(async (req, res) => {
       .status(200)
       .json({ success: false, data: 'ChiefComplaint already enabled' });
   }
-});
-
-exports.assignCC = asyncHandler(async (req, res, next) => {
-  const staff = await Staff.findOne({ _id: req.body.staffId });
-  if (!staff || staff.disabled === true) {
-    return next(
-      new ErrorResponse('Could not assign Chief Complaint to this staff', 400)
-    );
-  }
-  const chiefComplaintId = await NewCC.findOne({
-    'productionArea.productionAreaId': req.body.productionAreaId,
-  });
-  // console.log(chiefComplaintId._id);
-  const chiefComplaint = {
-    assignedBy: req.body.assignedBy,
-    chiefComplaintId: chiefComplaintId._id,
-    assignedTime: Date.now(),
-  };
-  const assignedCC = await Staff.findOneAndUpdate(
-    { _id: staff.id },
-    { $push: { chiefComplaint } },
-    {
-      new: true,
-    }
-  );
-  res.status(200).json({
-    success: true,
-    data: assignedCC,
-  });
 });
 
 exports.assignCCtoPatient = asyncHandler(async (req, res, next) => {
