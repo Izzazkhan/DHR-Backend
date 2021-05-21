@@ -205,6 +205,27 @@ exports.getPendingEDRs = asyncHandler(async (req, res, next) => {
         model: 'room',
         select: 'roomNo',
       },
+      {
+        path: 'careStream.careStreamId',
+        model: 'careStream',
+      },
+
+      {
+        path: 'pharmacyRequest.requestedBy',
+        model: 'staff',
+      },
+      {
+        path: 'pharmacyRequest.item.itemId',
+        model: 'Item',
+      },
+      {
+        path: 'doctorNotes.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'pharmacyRequest.reconciliationNotes.addedBy',
+        model: 'staff',
+      },
     ])
     .populate('newChiefComplaint.newChiefComplaintId');
   res.status(201).json({
