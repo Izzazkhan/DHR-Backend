@@ -3,6 +3,7 @@ const asyncHandler = require('../middleware/async');
 const EDR = require('../models/EDR/EDR');
 const PA = require('../models/productionArea');
 const CC = require('../models/chiefComplaint/chiefComplaint');
+const NewCC = require('../models/newChiefComplaint');
 const CS = require('../models/CareStreams/CareStreams');
 const ErrorResponse = require('../utils/errorResponse');
 const EouTransfer = require('../models/patientTransferEDEOU/patientTransferEDEOU');
@@ -11,100 +12,88 @@ const searchEdrPatient = require('../components/searchEdr');
 
 exports.updateStaffShift = asyncHandler(async (req, res, next) => {
   const staff = await Staff.findOne({ _id: req.body.staffId });
-  if (staff.availability === false) {
-    res
-      .status(200)
-      .json({ success: false, data: 'Staff already assigned to Visit' });
-  } else if (staff.disabled === true) {
-    res.status(200).json({ success: false, data: 'Staff disabled' });
-  } else {
-    // console.log(req.body);
-    const chiefComplaint = {
-      assignedBy: req.body.assignedBy,
-      chiefComplaintId: req.body.chiefComplaint,
-      assignedTime: Date.now(),
-    };
-
-    const updatedStaff = await Staff.findOneAndUpdate(
-      { _id: staff.id },
-      { $push: { chiefComplaint } },
-      {
-        new: true,
-      }
-    );
-    const productionArea = {
-      assignedBy: req.body.assignedBy,
-      productionAreaId: req.body.productionAreaName,
-      assignedTime: Date.now(),
-    };
-    await Staff.findOneAndUpdate(
-      { _id: staff.id },
-      { $push: { productionArea } },
-      {
-        new: true,
-      }
-    );
-    await Staff.findOneAndUpdate(
-      { _id: staff.id },
-      {
-        $set: {
-          shift: req.body.shift,
-        },
-      },
-      {
-        new: true,
-      }
-    );
-    const updateRecord = {
-      updatedAt: Date.now(),
-      updatedBy: req.body.assignedBy,
-      reason: req.body.reason,
-    };
-
-    await Staff.findOneAndUpdate(
-      { _id: staff.id },
-      {
-        $push: { updateRecord },
-      },
-      {
-        new: true,
-      }
-    );
-
-    res.status(200).json({
-      success: true,
-      data: updatedStaff,
-    });
+  if (!staff || staff.disabled === true) {
+    return res.status(200).json({ success: false, data: 'Staff disabled' });
   }
+  const chiefComplaintId = await CC.findOne({
+    'productionArea.productionAreaId': req.body.productionAreaId,
+  });
+
+  const chiefComplaint = {
+    assignedBy: req.body.assignedBy,
+    chiefComplaintId: chiefComplaintId._id,
+    assignedTime: Date.now(),
+  };
+  let updatedStaff;
+  updatedStaff = await Staff.findOneAndUpdate(
+    { _id: staff.id },
+    { $push: { chiefComplaint } },
+    {
+      new: true,
+    }
+  );
+  updatedStaff = await Staff.findOneAndUpdate(
+    { _id: staff.id },
+    {
+      $set: {
+        shift: req.body.shift,
+      },
+    },
+    {
+      new: true,
+    }
+  );
+  const updateRecord = {
+    updatedAt: Date.now(),
+    updatedBy: req.body.assignedBy,
+    reason: req.body.reason,
+  };
+
+  updatedStaff = await Staff.findOneAndUpdate(
+    { _id: staff.id },
+    {
+      $push: { updateRecord },
+    },
+    {
+      new: true,
+    }
+  );
+
+  res.status(200).json({
+    success: true,
+    data: updatedStaff,
+  });
 });
 
 exports.getCCPatients = asyncHandler(async (req, res, next) => {
   const patients = await EDR.find({
     status: 'pending',
-    chiefComplaint: { $ne: [] },
+    newChiefComplaint: { $ne: [] },
     patientInHospital: true,
-  }).populate([
-    {
-      path: 'chiefComplaint.chiefComplaintId',
-      model: 'chiefComplaint',
-      populate: [
-        {
-          path: 'productionArea.productionAreaId',
-          model: 'productionArea',
-          populate: [
-            {
-              path: 'rooms.roomId',
-              model: 'room',
-            },
-          ],
-        },
-      ],
-    },
-    {
-      path: 'patientId',
-      model: 'patientfhir',
-    },
-  ]);
+  })
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            populate: [
+              {
+                path: 'rooms.roomId',
+                model: 'room',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+      },
+    ])
+    .populate('newChiefComplaint.newChiefComplaintId');
 
   const newArray = [];
   for (let i = 0; i < patients.length; i++) {
@@ -112,12 +101,12 @@ exports.getCCPatients = asyncHandler(async (req, res, next) => {
 
     const obj = JSON.parse(JSON.stringify(patients[i]));
     const x =
-      patients[i].chiefComplaint[patients[i].chiefComplaint.length - 1]
-        .chiefComplaintId._id;
+      patients[i].newChiefComplaint[patients[i].newChiefComplaint.length - 1]
+        .newChiefComplaintId._id;
     for (let j = 0; j < patients.length; j++) {
       const y =
-        patients[j].chiefComplaint[patients[j].chiefComplaint.length - 1]
-          .chiefComplaintId._id;
+        patients[j].newChiefComplaint[patients[j].newChiefComplaint.length - 1]
+          .newChiefComplaintId._id;
       if (x === y && patients[i]._id !== patients[j]._id) {
         count++;
       }
@@ -125,7 +114,6 @@ exports.getCCPatients = asyncHandler(async (req, res, next) => {
 
     obj.count = count;
     newArray.push(obj);
-    // console.log('count', patients[i]);
   }
 
   res.status(200).json({
@@ -189,7 +177,6 @@ exports.getPatientsByPA = asyncHandler(async (req, res, next) => {
 });
 
 exports.getPatientByRoom = asyncHandler(async (req, res, next) => {
-  // console.log(req.params);
   const rooms = await EDR.findOne({
     'room.roomId': req.params.roomId,
     room: { $ne: [] },
@@ -210,15 +197,16 @@ exports.getPatientByRoom = asyncHandler(async (req, res, next) => {
 });
 
 exports.patientsByCC = asyncHandler(async (req, res, next) => {
-  const chiefComplaint = await CC.find({ productionArea: { $ne: [] } }).select(
-    'name chiefComplaintId'
-  );
+  const chiefComplaint = await NewCC.find({
+    productionArea: { $ne: [] },
+  });
+
   const edrCC = await EDR.find({
-    chiefComplaint: { $ne: [] },
+    newChiefComplaint: { $ne: [] },
     status: 'pending',
     currentLocation: 'ED',
     patientInHospital: true,
-  }).select('chiefComplaint.chiefComplaintId');
+  }).select('newChiefComplaint.newChiefComplaintId');
   let count = 0;
   const newArray = [];
 
@@ -227,11 +215,10 @@ exports.patientsByCC = asyncHandler(async (req, res, next) => {
     count = 0;
     for (let j = 0; j < edrCC.length; j++) {
       const latestCC =
-        edrCC[j].chiefComplaint[edrCC[j].chiefComplaint.length - 1];
-      // console.log(latestCC);
+        edrCC[j].newChiefComplaint[edrCC[j].newChiefComplaint.length - 1];
       if (
         chiefComplaint[i]._id.toString() ===
-        latestCC.chiefComplaintId.toString()
+        latestCC.newChiefComplaintId.toString()
       ) {
         count++;
       }
@@ -239,7 +226,6 @@ exports.patientsByCC = asyncHandler(async (req, res, next) => {
     obj.count = count;
     newArray.push(obj);
   }
-  // console.log(newArray);
 
   res.status(200).json({
     success: true,
@@ -250,68 +236,71 @@ exports.patientsByCC = asyncHandler(async (req, res, next) => {
 exports.getCR = asyncHandler(async (req, res, next) => {
   const cr = await EDR.find({
     consultationNote: { $ne: [] },
-  }).populate([
-    {
-      path: 'patientId',
-      model: 'patientfhir',
-    },
-    {
-      path: 'consultationNote.addedBy',
-      model: 'staff',
-    },
-    {
-      path: 'consultationNote.consultant',
-      model: 'staff',
-    },
-    {
-      path: 'radRequest.serviceId',
-      model: 'RadiologyService',
-    },
-    {
-      path: 'radRequest.requestedBy',
-      model: 'staff',
-    },
-    {
-      path: 'labRequest.serviceId',
-      model: 'LaboratoryService',
-    },
-    {
-      path: 'labRequest.requestedBy',
-      model: 'staff',
-    },
-    {
-      path: 'pharmacyRequest.requestedBy',
-      model: 'staff',
-    },
-    {
-      path: 'pharmacyRequest.item.itemId',
-      model: 'Item',
-    },
-    {
-      path: 'doctorNotes.addedBy',
-      model: 'staff',
-    },
-    {
-      path: 'edNurseRequest.addedBy',
-      model: 'staff',
-    },
-    {
-      path: 'eouNurseRequest.addedBy',
-      model: 'staff',
-    },
-    {
-      path: 'nurseTechnicianRequest.addedBy',
-      model: 'staff',
-    },
-    {
-      path: 'anesthesiologistNote.addedBy',
-      model: 'staff',
-    },
-    {
-      path: 'pharmacyRequest.reconciliationNotes.addedBy',
-      model: 'staff',
-    },
-  ]);
+  })
+    .populate([
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+      },
+      {
+        path: 'consultationNote.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'consultationNote.consultant',
+        model: 'staff',
+      },
+      {
+        path: 'radRequest.serviceId',
+        model: 'RadiologyService',
+      },
+      {
+        path: 'radRequest.requestedBy',
+        model: 'staff',
+      },
+      {
+        path: 'labRequest.serviceId',
+        model: 'LaboratoryService',
+      },
+      {
+        path: 'labRequest.requestedBy',
+        model: 'staff',
+      },
+      {
+        path: 'pharmacyRequest.requestedBy',
+        model: 'staff',
+      },
+      {
+        path: 'pharmacyRequest.item.itemId',
+        model: 'Item',
+      },
+      {
+        path: 'doctorNotes.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'edNurseRequest.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'eouNurseRequest.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'nurseTechnicianRequest.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'anesthesiologistNote.addedBy',
+        model: 'staff',
+      },
+      {
+        path: 'pharmacyRequest.reconciliationNotes.addedBy',
+        model: 'staff',
+      },
+    ])
+    .populate('newChiefComplaint.newChiefComplaintId');
+
   res.status(200).json({
     success: true,
     data: cr,
@@ -911,29 +900,30 @@ exports.getEDCCPatients = asyncHandler(async (req, res, next) => {
   const patients = await EDR.find({
     status: 'pending',
     currentLocation: 'ED',
-    chiefComplaint: { $ne: [] },
+    newChiefComplaint: { $ne: [] },
     patientInHospital: true,
   })
-    .select('patientId chiefComplaint')
+    .select('patientId newChiefComplaint')
     .populate([
       {
         path: 'chiefComplaint.chiefComplaintId',
         model: 'chiefComplaint',
         select: 'chiefComplaintId name',
       },
-    ]);
+    ])
+    .populate('newChiefComplaint.newChiefComplaintId');
 
   const newArray = [];
-  const cc = await CC.find();
+  const cc = await NewCC.find();
   for (let i = 0; i < cc.length; i++) {
     let count = 0;
     const obj = JSON.parse(JSON.stringify(cc[i]));
     for (let j = 0; j < patients.length; j++) {
       if (
         cc[i]._id.toString() ===
-        patients[j].chiefComplaint[
-          patients[j].chiefComplaint.length - 1
-        ].chiefComplaintId._id.toString()
+        patients[j].newChiefComplaint[
+          patients[j].newChiefComplaint.length - 1
+        ].newChiefComplaintId._id.toString()
       ) {
         count++;
       }

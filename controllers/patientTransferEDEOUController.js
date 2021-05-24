@@ -92,7 +92,7 @@ exports.getAllTransferReqForRequester = asyncHandler(async (req, res, next) => {
 });
 
 exports.patientsInDept = asyncHandler(async (req, res, next) => {
-  let patients = await EDR.find({
+  const patients = await EDR.find({
     currentLocation: req.params.currentdept,
     status: 'pending',
     patientInHospital: true,
@@ -100,7 +100,8 @@ exports.patientsInDept = asyncHandler(async (req, res, next) => {
   })
     .populate('patientId')
     .populate('chiefComplaint.chiefComplaintId')
-    .populate('room.roomId');
+    .populate('room.roomId')
+    .populate('newChiefComplaint.newChiefComplaintId');
 
   // let response = [];
   // for (let i = 0; i < patients.length; i++) {

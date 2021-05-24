@@ -527,6 +527,28 @@ const edrSchema = new mongoose.Schema({
       },
     },
   ],
+  newChiefComplaint: [
+    {
+      newChiefComplaintId: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'NewChiefComplaint',
+      },
+      assignedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      assignedTime: {
+        type: Date,
+      },
+      reason: String,
+      comments: {
+        type: String,
+      },
+      voiceNotes: {
+        type: String,
+      },
+    },
+  ],
   customerCare: [
     {
       customerCareId: {

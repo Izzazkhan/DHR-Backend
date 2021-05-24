@@ -1,6 +1,3 @@
-const requestNoFormat = require('dateformat');
-const moment = require('moment');
-// const ChiefComplaint = require('../models/chiefComplaint/chiefComplaint');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const Staff = require('../models/staffFhir/staff');
@@ -14,7 +11,7 @@ const generateReqNo = require('../components/requestNoGenerator');
 exports.addChiefComplaint = asyncHandler(async (req, res, next) => {
   const { name } = req.body;
 
-  const chiefComplaintId = generateReqNo('CC');
+  const chiefComplaintId = generateReqNo('DPT');
   const chiefComplaint = await CC.create({
     name,
     chiefComplaintId,
@@ -168,17 +165,16 @@ exports.getNursesWithCC = asyncHandler(async (req, res, next) => {
 });
 
 exports.assignCC = asyncHandler(async (req, res, next) => {
-  // console.log(req.body);
   const staff = await Staff.findOne({ _id: req.body.staffId });
   if (!staff || staff.disabled === true) {
     return next(
-      new ErrorResponse('Could not assign Chief Complaint to this staff', 400)
+      new ErrorResponse('Could not assign Production Area to this staff', 400)
     );
   }
   const chiefComplaintId = await CC.findOne({
     'productionArea.productionAreaId': req.body.productionAreaId,
   });
-  // console.log(chiefComplaintId._id);
+
   const chiefComplaint = {
     assignedBy: req.body.assignedBy,
     chiefComplaintId: chiefComplaintId._id,
@@ -256,17 +252,17 @@ exports.assignProductionAreaToCC = asyncHandler(async (req, res, next) => {
     _id: req.body.chiefComplaintId,
   });
   // console.log(chiefComplaint);
-  if (
-    chiefComplaint.productionArea &&
-    chiefComplaint.productionArea.length > 0
-  ) {
-    return next(
-      new ErrorResponse(
-        'Production area has already been assigned to this chief complaint',
-        400
-      )
-    );
-  }
+  // if (
+  //   chiefComplaint.productionArea &&
+  //   chiefComplaint.productionArea.length > 0
+  // ) {
+  //   return next(
+  //     new ErrorResponse(
+  //       'Production area has already been assigned to this chief complaint',
+  //       400
+  //     )
+  //   );
+  // }
   if (!chiefComplaint || chiefComplaint.disabled === true) {
     return next(
       new ErrorResponse(
@@ -348,9 +344,13 @@ exports.getAvailablePAwithCC = asyncHandler(async (req, res, next) => {
 
 exports.assignCCtoPatient = asyncHandler(async (req, res, next) => {
   const parsed = JSON.parse(req.body.data);
+  const chiefComplaintId = await CC.findOne({
+    'productionArea.productionAreaId': parsed.productionAreaId,
+  });
+
   const chiefComplaint = {
     assignedBy: parsed.assignedBy,
-    chiefComplaintId: parsed.chiefComplaint,
+    chiefComplaintId: chiefComplaintId._id,
     assignedTime: Date.now(),
     reason: parsed.reason,
     voiceNotes: req.file ? req.file.path : null,
@@ -358,7 +358,7 @@ exports.assignCCtoPatient = asyncHandler(async (req, res, next) => {
   };
 
   // Checking For Available Rooms for The Production Area
-  const paId = await CC.findById(parsed.chiefComplaint).select(
+  const paId = await CC.findById(chiefComplaintId._id).select(
     'productionArea.productionAreaId'
   );
 
@@ -376,12 +376,26 @@ exports.assignCCtoPatient = asyncHandler(async (req, res, next) => {
 
   // Assigning Chief Complaint
   const assignedCC = await EDR.findOneAndUpdate(
-    { _id: parsed.patientid },
+    { _id: parsed.edrId },
     { $push: { chiefComplaint } },
     {
       new: true,
     }
-  );
+  )
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+    ])
+    .populate('newChiefComplaint.newChiefComplaintId');
 
   // Checking For Flags
   const patients = await EDR.find({

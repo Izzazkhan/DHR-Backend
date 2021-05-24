@@ -10,7 +10,6 @@ const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const EDR = require('../models/EDR/EDR');
 const generateReqNo = require('../components/requestNoGenerator');
-const { response } = require('express');
 
 exports.registerPatient = asyncHandler(async (req, res) => {
   let newPatient;
