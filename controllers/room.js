@@ -138,7 +138,9 @@ exports.assignRoom = asyncHandler(async (req, res, next) => {
     { _id: req.body.edrId },
     { $push: { room } },
     { new: true }
-  );
+  )
+    .select('patientId')
+    .populate('patientId', 'identifier');
 
   if (!patient) {
     return next(new ErrorResponse('patient not found with this id', 400));
@@ -242,7 +244,10 @@ exports.assignRoom = asyncHandler(async (req, res, next) => {
   // }
   res.status(200).json({
     success: true,
-    data: assignedRoom,
+    data: {
+      assignedRoom,
+      patient,
+    },
   });
 });
 
