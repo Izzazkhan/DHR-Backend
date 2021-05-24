@@ -68,7 +68,7 @@ exports.updateStaffShift = asyncHandler(async (req, res, next) => {
 exports.getCCPatients = asyncHandler(async (req, res, next) => {
   const patients = await EDR.find({
     status: 'pending',
-    chiefComplaint: { $ne: [] },
+    newChiefComplaint: { $ne: [] },
     patientInHospital: true,
   })
     .populate([
@@ -101,12 +101,12 @@ exports.getCCPatients = asyncHandler(async (req, res, next) => {
 
     const obj = JSON.parse(JSON.stringify(patients[i]));
     const x =
-      patients[i].chiefComplaint[patients[i].chiefComplaint.length - 1]
-        .chiefComplaintId._id;
+      patients[i].newChiefComplaint[patients[i].newChiefComplaint.length - 1]
+        .newChiefComplaintId._id;
     for (let j = 0; j < patients.length; j++) {
       const y =
-        patients[j].chiefComplaint[patients[j].chiefComplaint.length - 1]
-          .chiefComplaintId._id;
+        patients[j].newChiefComplaint[patients[j].newChiefComplaint.length - 1]
+          .newChiefComplaintId._id;
       if (x === y && patients[i]._id !== patients[j]._id) {
         count++;
       }
