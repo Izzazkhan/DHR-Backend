@@ -138,17 +138,19 @@ exports.assignRoom = asyncHandler(async (req, res, next) => {
     { _id: req.body.edrId },
     { $push: { room } },
     { new: true }
-  );
+  )
+    .select('patientId')
+    .populate('patientId', 'identifier');
 
   if (!patient) {
     return next(new ErrorResponse('patient not found with this id', 400));
   }
 
-  const assignedRoom = await Room.findOneAndUpdate(
+  await Room.findOneAndUpdate(
     { _id: req.body.roomId },
     { $set: { availability: false } },
     { new: true }
-  ).populate('patientId', 'identifier');
+  );
 
   // Room Flag
   const rooms = await Room.find({
@@ -242,7 +244,7 @@ exports.assignRoom = asyncHandler(async (req, res, next) => {
   // }
   res.status(200).json({
     success: true,
-    data: assignedRoom,
+    data: patient,
   });
 });
 
