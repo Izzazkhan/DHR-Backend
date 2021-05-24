@@ -2,7 +2,7 @@ const moment = require('moment');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const EDR = require('../models/EDR/EDR');
-const ChiefComplaints = require('../models/chiefComplaint/chiefComplaint');
+const newChiefComplaint = require('../models/newChiefComplaint');
 const CareStreams = require('../models/CareStreams/CareStreams');
 const LabServices = require('../models/service/lab');
 const RadServices = require('../models/service/radiology');
@@ -18,17 +18,17 @@ exports.chiefComplaints = asyncHandler(async (req, res) => {
   const assignedCareStreams = await EDR.aggregate([
     {
       $project: {
-        chiefComplaint: 1,
+        newChiefComplaint: 1,
       },
     },
     {
-      $unwind: '$chiefComplaint',
+      $unwind: '$newChiefComplaint',
     },
     {
-      $match: { 'chiefComplaint.assignedTime': { $gte: sixHour } },
+      $match: { 'newChiefComplaint.assignedTime': { $gte: sixHour } },
     },
   ]);
-  const chiefComplaints = await ChiefComplaints.aggregate([
+  const chiefComplaints = await newChiefComplaint.aggregate([
     {
       $match: {
         $and: [{ availability: true }, { disabled: false }],
@@ -46,7 +46,9 @@ exports.chiefComplaints = asyncHandler(async (req, res) => {
       for (let j = 0; j < assignedCareStreams.length; j++) {
         if (
           chiefComplaints[i]._id.toString() ===
-          assignedCareStreams[j].chiefComplaint.chiefComplaintId.toString()
+          assignedCareStreams[
+            j
+          ].newChiefComplaint.newChiefComplaintId.toString()
         ) {
           if (!chiefComplaints[i].selected) {
             chiefComplaints[i].selected = 1;

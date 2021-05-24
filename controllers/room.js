@@ -148,7 +148,7 @@ exports.assignRoom = asyncHandler(async (req, res, next) => {
     { _id: req.body.roomId },
     { $set: { availability: false } },
     { new: true }
-  );
+  ).populate('patientId', 'identifier');
 
   // Room Flag
   const rooms = await Room.find({
