@@ -4,10 +4,12 @@ const Notification = require('../components/notification');
 const Staff = require('../models/staffFhir/staff');
 // const ErrorResponse = require('../utils/errorResponse');
 const Flag = require('../models/flag/Flag');
+const generateReqNo = require('../components/requestNoGenerator');
 
 exports.addTriageAssessment = asyncHandler(async (req, res, next) => {
+  const triageRequestNo = generateReqNo('TA');
   const triage = {
-    triageRequestNo: req.body.data.TAARequestNo,
+    triageRequestNo,
     requester: req.body.data.staffId,
     triageLevel: req.body.data.triageLevel,
     generalAppearance: req.body.data.generalAppearance,
@@ -30,13 +32,12 @@ exports.addTriageAssessment = asyncHandler(async (req, res, next) => {
   const edr = await EDR.findOne({ _id: req.body.data.edrId }).populate(
     'dcdForm'
   );
-  // console.log('EDR', edr);
   const latestForm = edr.dcdForm.length - 1;
   const edrPatient = await EDR.findOneAndUpdate(
     { _id: req.body.data.edrId },
     { $push: { [`dcdForm.${latestForm}.triageAssessment`]: triage } },
     { new: true }
-  );
+  ).populate('patientId', 'identifier');
 
   const patientTriagePending = await EDR.find({
     'dcdForm.$.triageAssessment': { $eq: [] },
@@ -99,7 +100,6 @@ exports.addDcdForm = asyncHandler(async (req, res, next) => {
   const edrCheck = await EDR.find({ _id: req.body.edrId }).populate(
     'patientId'
   );
-  // const latestEdr = edrCheck.length - 1;
   const latestDcd = edrCheck[0].dcdForm.length - 1;
   const updatedVersion = latestDcd + 2;
   const dcdFormVersion = [
@@ -124,12 +124,12 @@ exports.addDcdForm = asyncHandler(async (req, res, next) => {
 });
 
 exports.addPatientDetails = asyncHandler(async (req, res, next) => {
-  // console.log(req.body);
   const edr = await EDR.findOne({ _id: req.body.edrId });
   const latestForm = edr.dcdForm.length - 1;
   const latestDetails = edr.dcdForm[latestForm].patientDetails.length - 1;
-  // console.log(latestDetails,"here")
+  const patientDetailsNo = generateReqNo('PD');
   const patientDetails = {
+    patientDetailsNo,
     version: latestDetails + 2,
     details: req.body.details,
     reason: req.body.reason,
@@ -137,14 +137,13 @@ exports.addPatientDetails = asyncHandler(async (req, res, next) => {
     updatedBy: req.body.staffId,
     date: Date.now(),
   };
-  // console.log(patientDetails,"here1")
   const edrPatient = await EDR.findOneAndUpdate(
     { _id: req.body.edrId },
     {
       $push: { [`dcdForm.${latestForm}.patientDetails`]: patientDetails },
     },
     { new: true }
-  );
+  ).populate('patientId', 'identifier');
 
   res.status(200).json({
     success: true,
@@ -153,11 +152,12 @@ exports.addPatientDetails = asyncHandler(async (req, res, next) => {
 });
 
 exports.addPastHistory = asyncHandler(async (req, res, next) => {
-  // console.log(req.body);
   const edr = await EDR.findOne({ _id: req.body.edrId });
   const latestForm = edr.dcdForm.length - 1;
   const latestHistory = edr.dcdForm[latestForm].pastMedicalHistory.length - 1;
+  const pastHistoryNo = generateReqNo('PMH');
   const pastMedicalHistory = {
+    pastHistoryNo,
     version: latestHistory + 2,
     reason: req.body.reason,
     // status: req.body.status,
@@ -173,7 +173,7 @@ exports.addPastHistory = asyncHandler(async (req, res, next) => {
       },
     },
     { new: true }
-  );
+  ).populate('patientId', 'identifier');
 
   const staff = await Staff.findById(req.body.staffId).select('name');
 
@@ -194,11 +194,12 @@ exports.addPastHistory = asyncHandler(async (req, res, next) => {
 });
 
 exports.addROS = asyncHandler(async (req, res, next) => {
-  // console.log(req.body);
   const edr = await EDR.findOne({ _id: req.body.edrId });
   const latestForm = edr.dcdForm.length - 1;
   const latestROS = edr.dcdForm[latestForm].ROS.length - 1;
+  const rosNo = generateReqNo('ROS');
   const ROS = {
+    rosNo,
     version: latestROS + 2,
     reason: req.body.reason,
     // status: req.body.status,
@@ -214,7 +215,7 @@ exports.addROS = asyncHandler(async (req, res, next) => {
       },
     },
     { new: true }
-  );
+  ).populate('patientId', 'identifier');
   res.status(200).json({
     success: true,
     data: edrPatient,
@@ -222,15 +223,13 @@ exports.addROS = asyncHandler(async (req, res, next) => {
 });
 
 exports.addPhysicalExam = asyncHandler(async (req, res, next) => {
-  // console.log(req.body);
   const parsed = JSON.parse(req.body.data);
-  // console.log(parsed);
-  // console.log(req.files);
   const skin = [];
 
   const edr = await EDR.findOne({ _id: parsed.edrId });
   const latestForm = edr.dcdForm.length - 1;
   const latestPhysicalExam = edr.dcdForm[latestForm].physicalExam.length - 1;
+  const physicalExamNo = generateReqNo('PE');
 
   if (req.files) {
     for (let i = 0; i < parsed.details.length; i++) {
@@ -250,6 +249,7 @@ exports.addPhysicalExam = asyncHandler(async (req, res, next) => {
     }
   }
   const physicalExam = {
+    physicalExamNo,
     version: latestPhysicalExam + 2,
     reason: req.body.reason,
     // status: req.body.status,
@@ -265,7 +265,7 @@ exports.addPhysicalExam = asyncHandler(async (req, res, next) => {
       },
     },
     { new: true }
-  );
+  ).populate('patientId', 'identifier');
   res.status(200).json({
     success: true,
     data: edrPatient,
@@ -277,6 +277,7 @@ exports.addInvestigation = asyncHandler(async (req, res, next) => {
   const edr = await EDR.findOne({ _id: parsed.edrId });
   const latestForm = edr.dcdForm.length - 1;
   const latestInvestigation = edr.dcdForm[latestForm].investigation.length - 1;
+  const InvestigationNo = generateReqNo('INV');
   const ecg = [];
   const xray = [];
 
@@ -309,6 +310,7 @@ exports.addInvestigation = asyncHandler(async (req, res, next) => {
   }
 
   const investigation = {
+    InvestigationNo,
     version: latestInvestigation + 2,
     reason: req.body.reason,
     // status: req.body.status,
@@ -324,7 +326,7 @@ exports.addInvestigation = asyncHandler(async (req, res, next) => {
       },
     },
     { new: true }
-  );
+  ).populate('patientId', 'identifier');
   res.status(200).json({
     success: true,
     data: edrPatient,
@@ -332,11 +334,12 @@ exports.addInvestigation = asyncHandler(async (req, res, next) => {
 });
 
 exports.addActionPlan = asyncHandler(async (req, res, next) => {
-  // console.log(req.body);
   const edr = await EDR.findOne({ _id: req.body.edrId });
   const latestForm = edr.dcdForm.length - 1;
   const latestActionPlan = edr.dcdForm[latestForm].actionPlan.length - 1;
+  const actionPlanNo = generateReqNo('AP');
   const actionPlan = {
+    actionPlanNo,
     version: latestActionPlan + 2,
     reason: req.body.reason,
     // status: req.body.status,
@@ -352,7 +355,7 @@ exports.addActionPlan = asyncHandler(async (req, res, next) => {
       },
     },
     { new: true }
-  );
+  ).populate('patientId', 'identifier');
   res.status(200).json({
     success: true,
     data: edrPatient,
@@ -360,11 +363,12 @@ exports.addActionPlan = asyncHandler(async (req, res, next) => {
 });
 
 exports.addCourseOfVisit = asyncHandler(async (req, res, next) => {
-  // console.log(req.body);
   const edr = await EDR.findOne({ _id: req.body.edrId });
   const latestForm = edr.dcdForm.length - 1;
   const latestCourseOfVisit = edr.dcdForm[latestForm].courseOfVisit.length - 1;
+  const courseOfVisitNo = generateReqNo('COV');
   const courseOfVisit = {
+    courseOfVisitNo,
     version: latestCourseOfVisit + 2,
     reason: req.body.reason,
     // status: req.body.status,
@@ -380,7 +384,7 @@ exports.addCourseOfVisit = asyncHandler(async (req, res, next) => {
       },
     },
     { new: true }
-  );
+  ).populate('patientId', 'identifier');
   res.status(200).json({
     success: true,
     data: edrPatient,

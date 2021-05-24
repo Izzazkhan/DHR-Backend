@@ -209,6 +209,7 @@ const edrSchema = new mongoose.Schema({
       ],
       investigation: [
         {
+          InvestigationNo: String,
           version: String,
           status: String,
           reason: String,
@@ -240,6 +241,7 @@ const edrSchema = new mongoose.Schema({
       ],
       pastMedicalHistory: [
         {
+          pastHistoryNo: String,
           version: String,
           status: String,
           reason: String,
@@ -284,6 +286,7 @@ const edrSchema = new mongoose.Schema({
       ],
       ROS: [
         {
+          rosNo: String,
           version: String,
           status: String,
           reason: String,
@@ -314,6 +317,7 @@ const edrSchema = new mongoose.Schema({
       ],
       actionPlan: [
         {
+          actionPlanNo: String,
           version: String,
           status: String,
           reason: String,
@@ -337,6 +341,7 @@ const edrSchema = new mongoose.Schema({
       ],
       courseOfVisit: [
         {
+          courseOfVisitNo: String,
           version: String,
           status: String,
           reason: String,
@@ -367,6 +372,7 @@ const edrSchema = new mongoose.Schema({
       ],
       patientDetails: [
         {
+          patientDetailsNo: String,
           version: String,
           status: String,
           reason: String,
@@ -405,6 +411,7 @@ const edrSchema = new mongoose.Schema({
       ],
       physicalExam: [
         {
+          physicalExamNo: String,
           version: String,
           status: String,
           reason: String,
