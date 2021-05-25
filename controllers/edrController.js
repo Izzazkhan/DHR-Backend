@@ -2246,6 +2246,7 @@ exports.getEDRFromPatientIdForDischarge = asyncHandler(async (req, res) => {
           ],
         },
       ])
+      .populate('newChiefComplaint.newChiefComplaintId')
       .sort({
         createdAt: 'desc',
       })
