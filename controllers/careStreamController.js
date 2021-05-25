@@ -401,13 +401,13 @@ exports.getInProgressCS = asyncHandler(async (req, res, next) => {
           path: 'productionArea.productionAreaId',
           model: 'productionArea',
           select: 'paName',
-          populate: [
-            {
-              path: 'rooms.roomId',
-              model: 'room',
-              select: 'roomNo',
-            },
-          ],
+          // populate: [
+          //   {
+          //     path: 'rooms.roomId',
+          //     model: 'room',
+          //     select: 'roomNo',
+          //   },
+          // ],
         },
       ],
     },
@@ -415,6 +415,10 @@ exports.getInProgressCS = asyncHandler(async (req, res, next) => {
       path: 'patientId',
       model: 'patientfhir',
       select: 'name identifier',
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
     },
     {
       path: 'consultationNote.addedBy',
