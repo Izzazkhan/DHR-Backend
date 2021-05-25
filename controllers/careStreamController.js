@@ -497,6 +497,7 @@ exports.edInProgressCS = asyncHandler(async (req, res, next) => {
         status: 1,
         chiefComplaint: 1,
         patientId: 1,
+        room: 1,
       },
     },
     {
@@ -515,6 +516,7 @@ exports.edInProgressCS = asyncHandler(async (req, res, next) => {
         'careStream.status': 1,
         chiefComplaint: 1,
         patientId: 1,
+        room: 1,
       },
     },
   ]);
@@ -543,6 +545,7 @@ exports.edInProgressCS = asyncHandler(async (req, res, next) => {
     {
       path: 'room.roomId',
       model: 'room',
+      select: 'roomNo',
     },
   ]);
 
