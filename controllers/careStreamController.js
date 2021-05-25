@@ -540,6 +540,10 @@ exports.edInProgressCS = asyncHandler(async (req, res, next) => {
         },
       ],
     },
+    {
+      path: 'room.roomId',
+      model: 'room',
+    },
   ]);
 
   res.status(200).json({
