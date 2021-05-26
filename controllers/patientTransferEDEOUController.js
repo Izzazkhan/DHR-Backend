@@ -9,7 +9,35 @@ const Notification = require('../components/notification');
 exports.getTransferReqED = asyncHandler(async (req, res, next) => {
   const list = await TransferToEDEOU.find({
     from: 'ED',
-  });
+  }).populate([
+    {
+      path: 'edrId',
+      model: 'EDR',
+      select: 'patientId room chiefComplaint',
+      populate: [
+        {
+          path: 'patientId',
+          model: 'patientfhir',
+          select: 'identifier ',
+        },
+        {
+          path: 'room.roomId',
+          model: 'room',
+          select: 'roomNo ',
+        },
+        {
+          path: 'chiefComplaint.chiefComplaintId',
+          model: 'chiefComplaint',
+          select: 'productionArea.productionAreaId',
+          populate: {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        },
+      ],
+    },
+  ]);
   res.status(200).json({
     success: true,
     data: list,
