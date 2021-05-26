@@ -75,7 +75,7 @@ exports.disableRoom = asyncHandler(async (req, res) => {
   } else if (room.disabled === true) {
     res.status(200).json({ success: false, data: 'Room already disabled' });
   } else {
-    let updateRecord = {
+    const updateRecord = {
       updatedAt: Date.now(),
       updatedBy: req.body.staffId,
       reason: req.body.reason,
@@ -94,7 +94,7 @@ exports.disableRoom = asyncHandler(async (req, res) => {
 exports.enableRoom = asyncHandler(async (req, res) => {
   const room = await Room.findOne({ _id: req.params.id });
   if (room.disabled === true) {
-    let updateRecord = {
+    const updateRecord = {
       updatedAt: Date.now(),
       updatedBy: req.body.staffId,
       reason: req.body.reason,
