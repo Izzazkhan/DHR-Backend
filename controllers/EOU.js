@@ -43,7 +43,7 @@ exports.createBed = asyncHandler(async (req, res, next) => {
 });
 
 exports.getAllBeds = asyncHandler(async (req, res, next) => {
-  const beds = EOUBed.find({ disabled: false });
+  const beds = EOUBed.find();
 
   res.status(200).json({
     success: true,
