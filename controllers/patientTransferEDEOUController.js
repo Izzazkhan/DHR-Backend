@@ -162,13 +162,13 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
     { new: true }
   );
 
-  const customerCare = {
-    assignedBy: req.body.assignedBy,
-    customerCareId: req.body.ccId,
-    assignedTime: Date.now(),
-    reason: req.body.reason,
-  };
-  const updatedRequest = await TransferToEDEOU.findOneAndUpdate(
+  // const customerCare = {
+  //   assignedBy: req.body.assignedBy,
+  //   customerCareId: req.body.ccId,
+  //   assignedTime: Date.now(),
+  //   reason: req.body.reason,
+  // };
+  const assignedCC = await TransferToEDEOU.findOneAndUpdate(
     {
       _id: req.body.transferId,
     },
@@ -176,13 +176,13 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
     { $new: true }
   );
 
-  const assignedCC = await EDR.findOneAndUpdate(
-    { _id: req.body.edrId },
-    { $push: { customerCare } },
-    {
-      new: true,
-    }
-  );
+  // const assignedCC = await EDR.findOneAndUpdate(
+  //   { _id: req.body.edrId },
+  //   { $push: { customerCare } },
+  //   {
+  //     new: true,
+  //   }
+  // );
   if (req.body.to === 'EOU' && req.body.from === 'ED') {
     Notification(
       'ADT_A15',
