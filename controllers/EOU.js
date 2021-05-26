@@ -43,7 +43,7 @@ exports.createBed = asyncHandler(async (req, res, next) => {
 });
 
 exports.getAllBeds = asyncHandler(async (req, res, next) => {
-  const beds = EOUBed.find();
+  const beds = await EOUBed.find();
 
   res.status(200).json({
     success: true,
@@ -52,7 +52,7 @@ exports.getAllBeds = asyncHandler(async (req, res, next) => {
 });
 
 exports.getAvailableBeds = asyncHandler(async (req, res, next) => {
-  const beds = EOUBed.find({ disableBed: false, availability: true });
+  const beds = await EOUBed.find({ disableBed: false, availability: true });
 
   res.status(200).json({
     success: true,
