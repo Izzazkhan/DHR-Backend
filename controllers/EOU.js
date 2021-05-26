@@ -93,7 +93,7 @@ exports.enableBed = asyncHandler(async (req, res) => {
       updatedBy: req.body.staffId,
       reason: req.body.reason,
     };
-    await EOU.findOneAndUpdate(
+    await EOUBed.findOneAndUpdate(
       { _id: req.body.bedId },
       {
         $set: { disabled: false },
