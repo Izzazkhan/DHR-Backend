@@ -35,6 +35,10 @@ exports.getTransferReqED = asyncHandler(async (req, res, next) => {
             select: 'paName',
           },
         },
+        {
+          path: 'newChiefComplaint.newChiefComplaintId',
+          model: 'newChiefComplaint',
+        },
       ],
     },
   ]);
