@@ -18,7 +18,7 @@ exports.getTransferReqED = asyncHandler(async (req, res, next) => {
         {
           path: 'patientId',
           model: 'patientfhir',
-          select: 'identifier ',
+          select: 'identifier name',
         },
         {
           path: 'room.roomId',
