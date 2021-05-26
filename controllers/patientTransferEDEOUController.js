@@ -130,17 +130,6 @@ exports.getAllCustomerCares = asyncHandler(async (req, res, next) => {
 exports.assignCC = asyncHandler(async (req, res, next) => {
   const customerCareStaff = await Staff.findOne({ _id: req.body.staffId });
 
-  const transfer = await TransferToEDEOU.find({
-    edrId: req.body.edrId,
-    $or: [{ status: 'pending' }, { status: 'in_progress' }],
-  });
-
-  if (transfer.length > 0) {
-    return res.status(200).json({
-      success: false,
-      error: 'Transfer request is already in progress for that patient',
-    });
-  }
   if (!customerCareStaff || customerCareStaff.disabled === true) {
     return next(
       new ErrorResponse(
@@ -149,12 +138,6 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
       )
     );
   }
-
-  // await Staff.findOneAndUpdate(
-  //   { _id: customerCareStaff.id },
-  //   { $set: { availability: false } },
-  //   { new: true }
-  // );
 
   // Nurse Technician Request
   const nurseTechnician = await Staff.findOne({
@@ -167,7 +150,6 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse('No Nurse Technician Available this Time'));
   }
 
-  // console.log(nurseTechnician._id);
   const nurseId = {
     nurseTechnicianId: nurseTechnician._id,
     status: 'To Be Observed',
@@ -180,29 +162,19 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
     { new: true }
   );
 
-  // await EDR.findOneAndUpdate(
-  //   { _id: req.body.edrId },
-  //   { $set: { nurseTechnicianStatus: 'pending' } },
-  //   { new: true }
-  // );
-
   const customerCare = {
     assignedBy: req.body.assignedBy,
-    customerCareId: req.body.staffId,
+    customerCareId: req.body.ccId,
     assignedTime: Date.now(),
     reason: req.body.reason,
   };
-
-  const patientTransferReqObj = {
-    edrId: req.body.edrId,
-    to: req.body.to,
-    from: req.body.from,
-    requestedBy: req.body.assignedBy,
-    requestedTo: req.body.staffId,
-    status: 'pending',
-  };
-
-  const tReqObj = await TransferToEDEOU.create(patientTransferReqObj);
+  const updatedRequest = await TransferToEDEOU.findOneAndUpdate(
+    {
+      _id: req.body.transferId,
+    },
+    { $set: { requestedTo: req.body.ccId } },
+    { $new: true }
+  );
 
   const assignedCC = await EDR.findOneAndUpdate(
     { _id: req.body.edrId },
@@ -249,5 +221,34 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: assignedCC,
+  });
+});
+
+exports.addTransferRequest = asyncHandler(async (req, res, next) => {
+  const transfer = await TransferToEDEOU.find({
+    edrId: req.body.edrId,
+    $or: [{ status: 'pending' }, { status: 'in_progress' }],
+  });
+
+  if (transfer.length > 0) {
+    return res.status(200).json({
+      success: false,
+      error: 'Transfer request is already in progress for that patient',
+    });
+  }
+
+  const patientTransferReqObj = {
+    edrId: req.body.edrId,
+    to: req.body.to,
+    from: req.body.from,
+    requestedBy: req.body.staffId,
+    status: 'pending',
+  };
+
+  const transferRequest = await TransferToEDEOU.create(patientTransferReqObj);
+
+  res.status(200).json({
+    success: true,
+    data: transferRequest,
   });
 });
