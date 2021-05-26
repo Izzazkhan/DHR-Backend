@@ -30,8 +30,9 @@ const RoomsSchema = new mongoose.Schema(
     disabled: { type: Boolean },
     status: { type: String },
     assingedToPA: {
-       type: Boolean,
-      default: false },
+      type: Boolean,
+      default: false,
+    },
     updateRecord: [
       {
         updatedAt: {
