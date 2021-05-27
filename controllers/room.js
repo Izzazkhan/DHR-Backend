@@ -6,6 +6,7 @@ const ProductionArea = require('../models/productionArea');
 const Notification = require('../components/notification');
 const Flag = require('../models/flag/Flag');
 const generateReqNo = require('../components/requestNoGenerator');
+const Bed = require('../models/Bed');
 
 exports.getRooms = asyncHandler(async (req, res) => {
   const getRooms = await Room.find();
@@ -37,28 +38,29 @@ exports.getAvailableRoomsAganistPA = asyncHandler(async (req, res) => {
 });
 
 exports.createRoom = asyncHandler(async (req, res, next) => {
-  const { noOfBeds } = req.body;
-  const beds = [];
+  // const { noOfBeds } = req.body;
+  // const beds = [];
   const room = await Room.find().countDocuments();
   if (room > 14) {
     return next(
       new ErrorResponse('You can not create more than 14 ED Beds', 400)
     );
   }
-  const requestNo = generateReqNo('BD');
-  for (let i = 0; i < noOfBeds; i++) {
-    beds.push({
-      bedId: requestNo,
-      availability: true,
-      status: 'not_assigned',
-    });
-  }
+  // const requestNo = generateReqNo('BD');
+  // for (let i = 0; i < noOfBeds; i++) {
+  //   const bed = await Bed.create({ bedId: requestNo, availability: true });
+  //   beds.push({
+  //     bedId: requestNo,
+  //     availability: true,
+  //     status: 'not_assigned',
+  //   });
+  // }
   const roomId = generateReqNo('RM');
   const createRoom = await Room.create({
     roomId,
     roomNo: room + 1,
-    noOfBeds,
-    beds: beds,
+    // noOfBeds,
+    // beds: beds,
     availability: true,
     disabled: false,
     status: 'not_assigned',

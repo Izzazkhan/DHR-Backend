@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const EouBedSchema = new mongoose.Schema({
+const BedSchema = new mongoose.Schema({
   bedId: { type: String },
   bedNo: Number,
   availability: { type: Boolean },
@@ -13,6 +13,7 @@ const EouBedSchema = new mongoose.Schema({
     type: Date,
     default: Date.now(),
   },
+  bedType: String,
   disabled: Boolean,
   updateRecord: [
     {
@@ -30,4 +31,4 @@ const EouBedSchema = new mongoose.Schema({
   ],
 });
 
-module.exports = mongoose.model('EouBed', EouBedSchema);
+module.exports = mongoose.model('Bed', BedSchema);
