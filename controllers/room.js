@@ -53,7 +53,7 @@ exports.createRoom = asyncHandler(async (req, res, next) => {
   const beds = {
     bedIdDB: bed._id,
     bedId: bed.bedId,
-    availability: bed.availability,
+    availability: true,
     bedNo: bed.bedNo,
   };
 
@@ -124,11 +124,21 @@ exports.enableRoom = asyncHandler(async (req, res) => {
 });
 
 exports.assignRoom = asyncHandler(async (req, res, next) => {
-  // console.log(req.body);
+  let bedId = await Room.findById(req.body.roomId).select('beds');
+  bedId = bedId.beds[0].bedIdDB;
+  const bed = await Bed.findOne({ _id: bedId });
 
+  if (bed.disabled === true) {
+    return next(
+      new ErrorResponse(
+        'Bed in this room is disabled,you cannot assign it',
+        400
+      )
+    );
+  }
   const room = {
     roomId: req.body.roomId,
-    // bedId: req.body.bedId,
+    bedId: bed._id,
     edrId: req.body.edrId,
     assignedBy: req.body.staffId,
     assignedTime: Date.now(),
@@ -155,6 +165,11 @@ exports.assignRoom = asyncHandler(async (req, res, next) => {
   if (!patient) {
     return next(new ErrorResponse('patient not found with this id', 400));
   }
+  await Room.findOneAndUpdate(
+    { _id: req.body.roomId },
+    { $set: { 'beds.0.availability': false } },
+    { new: true }
+  );
 
   const assignedRoom = await Room.findOneAndUpdate(
     { _id: req.body.roomId },
