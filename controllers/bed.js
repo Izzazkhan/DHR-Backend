@@ -27,7 +27,7 @@ exports.getAllBeds = asyncHandler(async (req, res, next) => {
 });
 
 exports.getAvailableBeds = asyncHandler(async (req, res, next) => {
-  const beds = await Bed.find({ disableBed: false, availability: true });
+  const beds = await Bed.find({ disabled: false, availability: true });
 
   res.status(200).json({
     success: true,

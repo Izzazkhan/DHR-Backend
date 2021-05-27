@@ -38,33 +38,42 @@ exports.getAvailableRoomsAganistPA = asyncHandler(async (req, res) => {
 });
 
 exports.createRoom = asyncHandler(async (req, res, next) => {
-  // const { noOfBeds } = req.body;
-  // const beds = [];
   const room = await Room.find().countDocuments();
   if (room > 14) {
     return next(
       new ErrorResponse('You can not create more than 14 ED Beds', 400)
     );
   }
-  // const requestNo = generateReqNo('BD');
-  // for (let i = 0; i < noOfBeds; i++) {
-  //   const bed = await Bed.create({ bedId: requestNo, availability: true });
-  //   beds.push({
-  //     bedId: requestNo,
-  //     availability: true,
-  //     status: 'not_assigned',
-  //   });
-  // }
+  const bed = await Bed.findById(req.body.bedId);
+
+  if (!bed || bed.availability === false || bed.disabled === true) {
+    return next(new ErrorResponse('Can not assign this bed to the room'));
+  }
+
+  const beds = {
+    bedIdDB: bed._id,
+    bedId: bed.bedId,
+    availability: bed.availability,
+    bedNo: bed.bedNo,
+  };
+
   const roomId = generateReqNo('RM');
   const createRoom = await Room.create({
     roomId,
     roomNo: room + 1,
-    // noOfBeds,
-    // beds: beds,
+    beds: beds,
     availability: true,
     disabled: false,
     status: 'not_assigned',
+    createdBy: req.body.staffId,
   });
+
+  await Bed.findOneAndUpdate(
+    { _id: req.body.bedId },
+    { $set: { availability: false, bedType: 'ED' } },
+    { new: true }
+  );
+
   res.status(200).json({ success: true, data: createRoom });
 });
 
