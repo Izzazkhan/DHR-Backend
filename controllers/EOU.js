@@ -3,7 +3,7 @@ const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const generateReqNo = require('../components/requestNoGenerator');
 const EOU = require('../models/EOU');
-// const EOUBed = require('../models/EouBed');
+const Bed = require('../models/Bed');
 
 exports.createEOU = asyncHandler(async (req, res, next) => {
   const newEou = await EOU.create(req.body);
@@ -14,42 +14,57 @@ exports.createEOU = asyncHandler(async (req, res, next) => {
   });
 });
 
-// exports.createBed = asyncHandler(async (req, res, next) => {
-//   const { createdBy } = req.body;
+exports.assignBed = asyncHandler(async (req, res, next) => {
+  const { staffId, eouBeds } = req.body;
 
-//   const bedNo = await EOUBed.find().countDocuments();
+  const beds = [];
+  for (let i = 0; i < eouBeds.length; i++) {
+    const eouBed = await Bed.findOne({ _id: eouBeds[i] });
 
-//   const bedId = generateReqNo('BID');
-//   const bed = await EOUBed.create({
-//     bedId,
-//     bedNo: bedNo + 1,
-//     availability: true,
-//     createdBy,
-//     disabled: false,
-//   });
-//   const beds = [];
-//   beds.push({ bedId: bed._id });
+    if (!eouBed || eouBed.availability === false || eouBed.disabled === true) {
+      return next(
+        new ErrorResponse('This bed could not be assigned to EOU', 400)
+      );
+    }
 
-//   await EOU.findOneAndUpdate(
-//     { name: 'EOU' },
-//     { $push: { beds } },
-//     { $new: true }
-//   );
+    const bed = {
+      bedIdDB: eouBed._id,
+      bedId: eouBed.bedId,
+      bedNo: eouBed.bedNo,
+      availability: true,
+      assignedBy: staffId,
+      disabled: false,
+    };
 
-//   res.status(200).json({
-//     success: true,
-//     data: bed,
-//   });
-// });
+    beds.push(bed);
 
-// exports.getAllBeds = asyncHandler(async (req, res, next) => {
-//   const beds = await EOUBed.find();
+    await Bed.findOneAndUpdate(
+      { _id: eouBed._id },
+      { $set: { availability: false, bedType: 'EOU' } },
+      { new: true }
+    );
+  }
 
-//   res.status(200).json({
-//     success: true,
-//     data: beds,
-//   });
-// });
+  const assignedBeds = await EOU.findOneAndUpdate(
+    { name: 'EOU' },
+    { $push: { beds } },
+    { $new: true }
+  );
+
+  res.status(200).json({
+    success: true,
+    data: assignedBeds,
+  });
+});
+
+exports.getAllBeds = asyncHandler(async (req, res, next) => {
+  const beds = await EOU.find().select('beds');
+
+  res.status(200).json({
+    success: true,
+    data: beds,
+  });
+});
 
 // exports.getAvailableBeds = asyncHandler(async (req, res, next) => {
 //   const beds = await EOUBed.find({ disableBed: false, availability: true });

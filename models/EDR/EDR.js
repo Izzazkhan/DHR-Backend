@@ -131,7 +131,23 @@ const edrSchema = new mongoose.Schema({
       },
       bedId: {
         type: mongoose.Schema.ObjectId,
-        ref: 'room',
+        ref: 'Bed',
+      },
+      assignedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      assignedTime: {
+        type: Date,
+      },
+      reason: String,
+    },
+  ],
+  eouBed: [
+    {
+      bedId: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'Bed',
       },
       assignedBy: {
         type: mongoose.Schema.ObjectId,
