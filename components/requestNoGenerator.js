@@ -10,7 +10,7 @@ const generateReqNo = (request) => {
   const oneDay = 1000 * 60 * 60 * 24;
   const day = Math.floor(diff / oneDay);
 
-  return `${request}${day}${requestNoFormat(new Date(), 'yyHHMM')}`;
+  return `${request}${day}${requestNoFormat(new Date(), 'yyHHMMss')}`;
 };
 
 module.exports = generateReqNo;
