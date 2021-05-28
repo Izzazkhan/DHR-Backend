@@ -117,6 +117,11 @@ exports.pendingEdToEouTransfers = asyncHandler(async (req, res, next) => {
             path: 'newChiefComplaint.newChiefComplaintId',
             model: 'NewChiefComplaint',
           },
+          {
+            path: 'eouBed.bedId',
+            model: 'Bed',
+            select: 'bedId bedNo',
+          },
         ],
       },
     ]);
@@ -327,6 +332,11 @@ exports.completedEdToEouTransfers = asyncHandler(async (req, res, next) => {
           {
             path: 'newChiefComplaint.newChiefComplaintId',
             model: 'NewChiefComplaint',
+          },
+          {
+            path: 'eouBed.bedId',
+            model: 'Bed',
+            select: 'bedId bedNo',
           },
         ],
       },
