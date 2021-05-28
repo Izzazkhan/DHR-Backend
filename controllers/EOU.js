@@ -1,9 +1,9 @@
 /* eslint-disable no-await-in-loop */
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
-const generateReqNo = require('../components/requestNoGenerator');
 const EOU = require('../models/EOU');
 const Bed = require('../models/Bed');
+const EDR = require('../models/EDR/EDR');
 
 exports.createEOU = asyncHandler(async (req, res, next) => {
   const newEou = await EOU.create(req.body);

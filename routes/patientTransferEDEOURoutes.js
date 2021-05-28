@@ -10,6 +10,7 @@ const {
   getAllTransferReqForRequester,
   assignCC,
   addTransferRequest,
+  getAllCustomerCares,
 } = require('../controllers/patientTransferEDEOUController');
 
 const router = express.Router();
@@ -36,5 +37,6 @@ router.get(
 
 router.put('/assigncustomercare', assignCC);
 router.put('/addTransferRequest', addTransferRequest);
+router.get('/getAllCustomerCares/:staffId', getAllCustomerCares);
 
 module.exports = router;

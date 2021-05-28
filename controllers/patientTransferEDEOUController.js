@@ -1,10 +1,11 @@
-const requestNoFormat = require('dateformat');
 const EDR = require('../models/EDR/EDR');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const Staff = require('../models/staffFhir/staff');
 const TransferToEDEOU = require('../models/patientTransferEDEOU/patientTransferEDEOU');
 const Notification = require('../components/notification');
+const EOU = require('../models/EOU');
+const Bed = require('../models/Bed');
 
 exports.getTransferReqED = asyncHandler(async (req, res, next) => {
   const list = await TransferToEDEOU.find({
@@ -149,9 +150,12 @@ exports.patientsInDept = asyncHandler(async (req, res, next) => {
 });
 
 exports.getAllCustomerCares = asyncHandler(async (req, res, next) => {
+  const currentStaff = await Staff.findById(req.params.staffId).select('shift');
+
   const customerCares = await Staff.find({
     staffType: 'Customer Care',
     disabled: false,
+    shift: currentStaff.shift,
   });
   res.status(201).json({
     success: true,
@@ -160,7 +164,7 @@ exports.getAllCustomerCares = asyncHandler(async (req, res, next) => {
 });
 
 exports.assignCC = asyncHandler(async (req, res, next) => {
-  const customerCareStaff = await Staff.findOne({ _id: req.body.staffId });
+  const customerCareStaff = await Staff.findOne({ _id: req.body.ccId });
 
   if (!customerCareStaff || customerCareStaff.disabled === true) {
     return next(
@@ -172,12 +176,18 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
   }
 
   // Nurse Technician Request
-  const nurseTechnician = await Staff.findOne({
-    // availability: true,
+  const currentStaff = await Staff.findById(req.body.staffId).select('shift');
+
+  const nurseTechnicians = await Staff.find({
     disabled: false,
     staffType: 'Nurses',
     subType: 'Nurse Technician',
+    shift: currentStaff.shift,
   });
+  const randomNurse = Math.floor(Math.random() * (nurseTechnicians.length - 1));
+
+  const nurseTechnician = nurseTechnicians[randomNurse];
+
   if (!nurseTechnician) {
     return next(new ErrorResponse('No Nurse Technician Available this Time'));
   }
@@ -204,7 +214,32 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
     {
       _id: req.body.transferId,
     },
-    { $set: { requestedTo: req.body.ccId } },
+    { $set: { requestedTo: req.body.ccId, requestedAt: Date.now() } },
+    { $new: true }
+  );
+
+  const bed = await Bed.findOne({ _id: req.body.bedId });
+
+  if (!bed || bed.disabled === true) {
+    return next(
+      new ErrorResponse('The bed you are assigning is not available', 400)
+    );
+  }
+
+  const eouBed = {
+    bedId: req.body.bedId,
+    assignedBy: req.body.staffId,
+    assignedTime: Date.now(),
+  };
+  await EDR.findOneAndUpdate(
+    { _id: req.body.edrId },
+    { $push: { eouBed } },
+    { new: true }
+  );
+
+  await EOU.findOneAndUpdate(
+    { 'beds.bedIdDB': req.body.bedId },
+    { $set: { 'beds.$.availability': false } },
     { $new: true }
   );
 
