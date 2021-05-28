@@ -4,18 +4,18 @@ const router = express.Router();
 
 const {
   createEOU,
-  assignBed,
+  assignBedToEOU,
   // disableBed,
   // enableBed,
-  // getAllBeds,
-  // getAvailableBeds,
+  getAllBeds,
+  getAvailableBeds,
 } = require('../controllers/EOU');
 
 router.post('/createEou', createEOU);
-router.put('/assignBed', assignBed);
+router.put('/assignBedToEOU', assignBedToEOU);
 // router.put('/disableBed', disableBed);
 // router.put('/enableBed', enableBed);
-// router.get('/getAllBeds', getAllBeds);
-// router.get('/getAvailableBeds', getAvailableBeds);
+router.get('/getAllBeds', getAllBeds);
+router.get('/getAvailableBeds', getAvailableBeds);
 
 module.exports = router;

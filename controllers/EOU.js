@@ -14,7 +14,7 @@ exports.createEOU = asyncHandler(async (req, res, next) => {
   });
 });
 
-exports.assignBed = asyncHandler(async (req, res, next) => {
+exports.assignBedToEOU = asyncHandler(async (req, res, next) => {
   const { staffId, eouBeds } = req.body;
 
   const beds = [];
@@ -66,14 +66,28 @@ exports.getAllBeds = asyncHandler(async (req, res, next) => {
   });
 });
 
-// exports.getAvailableBeds = asyncHandler(async (req, res, next) => {
-//   const beds = await EOUBed.find({ disableBed: false, availability: true });
+exports.getAvailableBeds = asyncHandler(async (req, res, next) => {
+  const beds = await EOU.aggregate([
+    {
+      $project: {
+        beds: 1,
+      },
+    },
+    {
+      $unwind: '$beds',
+    },
+    {
+      $match: {
+        'beds.availability': true,
+      },
+    },
+  ]);
 
-//   res.status(200).json({
-//     success: true,
-//     data: beds,
-//   });
-// });
+  res.status(200).json({
+    success: true,
+    data: beds,
+  });
+});
 
 // exports.disableBed = asyncHandler(async (req, res) => {
 //   const bed = await EOUBed.findOne({ _id: req.body.bedId });
