@@ -52,7 +52,39 @@ exports.getTransferReqED = asyncHandler(async (req, res, next) => {
 exports.getTransferReqEOU = asyncHandler(async (req, res, next) => {
   const list = await TransferToEDEOU.find({
     from: 'EOU',
-  });
+  }).populate([
+    {
+      path: 'edrId',
+      model: 'EDR',
+      select: 'patientId room chiefComplaint',
+      populate: [
+        {
+          path: 'patientId',
+          model: 'patientfhir',
+          select: 'identifier name',
+        },
+        {
+          path: 'room.roomId',
+          model: 'room',
+          select: 'roomNo ',
+        },
+        {
+          path: 'chiefComplaint.chiefComplaintId',
+          model: 'chiefComplaint',
+          select: 'productionArea.productionAreaId',
+          populate: {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        },
+        {
+          path: 'newChiefComplaint.newChiefComplaintId',
+          model: 'NewChiefComplaint',
+        },
+      ],
+    },
+  ]);
   res.status(200).json({
     success: true,
     data: list,
