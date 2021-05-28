@@ -91,7 +91,7 @@ exports.pendingEdToEouTransfers = asyncHandler(async (req, res, next) => {
       {
         path: 'edrId',
         model: 'EDR',
-        select: 'patientId room chiefComplaint',
+        select: 'patientId room chiefComplaint newChiefComplaint eouBed',
         populate: [
           {
             path: 'patientId',
@@ -302,7 +302,7 @@ exports.completedEdToEouTransfers = asyncHandler(async (req, res, next) => {
       {
         path: 'edrId',
         model: 'EDR',
-        select: 'patientId room chiefComplaint',
+        select: 'patientId room chiefComplaint newChiefComplaint eouBed',
         populate: [
           {
             path: 'patientId',
@@ -323,6 +323,10 @@ exports.completedEdToEouTransfers = asyncHandler(async (req, res, next) => {
               model: 'productionArea',
               select: 'paName',
             },
+          },
+          {
+            path: 'newChiefComplaint.newChiefComplaintId',
+            model: 'NewChiefComplaint',
           },
         ],
       },
