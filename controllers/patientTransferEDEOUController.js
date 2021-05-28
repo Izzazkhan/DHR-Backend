@@ -251,7 +251,9 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
     { $new: true }
   );
 
-  if (req.body.to === 'ED' && req.body.from === 'EOU') {
+  const transfer = await TransferToEDEOU.findById(req.body.transferId);
+
+  if (transfer.to === 'ED' && transfer.from === 'EOU') {
     const checkRoom = await Room.findOne({ _id: req.body.roomId });
     if (
       !checkRoom ||
@@ -297,7 +299,7 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
     }
   }
 
-  if (req.body.to === 'EOU' && req.body.from === 'ED') {
+  if (transfer.to === 'EOU' && transfer.from === 'ED') {
     const bed = await Bed.findOne({ _id: req.body.bedId });
 
     if (!bed || bed.disabled === true) {
