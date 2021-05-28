@@ -8,6 +8,7 @@ const Transfer = require('../models/patientTransferEDEOU/patientTransferEDEOU');
 const CCRequest = require('../models/customerCareRequest');
 const Notification = require('../components/notification');
 const searchStaff = require('../components/searchStaff');
+const EOU = require('../models/EOU');
 // const Assistance = require('../models/assistance/assistance');
 
 exports.getAllCustomerCares = asyncHandler(async (req, res, next) => {
@@ -220,6 +221,14 @@ exports.completeEOUTransfer = asyncHandler(async (req, res, next) => {
     { new: true }
   );
 
+  const bedId = updatedEDR.eouBed[updatedEDR.eouBed.length - 1].bedId;
+
+  await EOU.findOneAndUpdate(
+    { 'beds.bedIdDB': bedId },
+    { $set: { 'beds.$.availability': false } },
+    { $new: true }
+  );
+
   Notification(
     'ADT_A02',
     'Patient has been transferred to EOU',
@@ -288,6 +297,22 @@ exports.completeEDTransfer = asyncHandler(async (req, res, next) => {
     { $set: { currentLocation: 'ED' } },
     { new: true }
   ).populate('room.roomId');
+
+  const roomId = updatedEDR.room[updatedEDR.room.length - 1].roomId._id;
+
+  await Room.findOneAndUpdate(
+    { _id: roomId },
+    { $set: { availability: false } },
+    { new: true }
+  );
+
+  const bedId = updatedEDR.eouBed[updatedEDR.eouBed.length - 1].bedId;
+
+  await EOU.findOneAndUpdate(
+    { 'beds.bedIdDB': bedId },
+    { $set: { 'beds.$.availability': true } },
+    { $new: true }
+  );
 
   res.status(200).json({
     success: true,
