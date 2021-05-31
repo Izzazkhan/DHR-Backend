@@ -64,7 +64,10 @@ exports.removeBedFromEOU = asyncHandler(async (req, res, next) => {
   const bed = await Bed.findById(bedId);
 
   if (!bed || bed.disabled === true) {
-    return next(new ErrorResponse('This bed is not available', 400));
+    return res.status(200).json({
+      success: false,
+      data: 'This bed is not available',
+    });
   }
 
   const eouBed = await EOU.aggregate([
@@ -79,7 +82,10 @@ exports.removeBedFromEOU = asyncHandler(async (req, res, next) => {
   ]);
 
   if (eouBed[0].beds.availability === false) {
-    return next(new ErrorResponse('This bed is not available to move', 400));
+    return res.status(200).json({
+      success: false,
+      data: 'This bed is not available to move',
+    });
   }
 
   const assignedBeds = await EOU.findOneAndUpdate(
@@ -143,3 +149,5 @@ exports.getAvailableBeds = asyncHandler(async (req, res, next) => {
     data: beds,
   });
 });
+
+exports.assignBedTONurse = asyncHandler(async (req, res, next) => {});

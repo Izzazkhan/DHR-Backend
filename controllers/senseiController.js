@@ -239,9 +239,9 @@ exports.getPatientByRoom = asyncHandler(async (req, res, next) => {
     'room.roomId': req.params.roomId,
     room: { $ne: [] },
   }).select('room');
-  // console.log(rooms.room.length);
+
   const latestRoom = rooms.room.length - 1;
-  // console.log(latestRoom);
+
   const patient = await EDR.findOne({
     [`room.${latestRoom}.roomId`]: req.params.roomId,
   })
