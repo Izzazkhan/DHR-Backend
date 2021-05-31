@@ -113,3 +113,14 @@ exports.enablePA = asyncHandler(async (req, res) => {
       .json({ success: false, data: 'Production Area already enabled' });
   }
 });
+
+exports.getPARooms = asyncHandler(async (req, res, next) => {
+  const paRooms = await PA.findById(req.params.paId)
+    .select('rooms')
+    .populate('rooms.roomId', 'roomNo');
+
+  res.status(200).json({
+    success: true,
+    data: paRooms,
+  });
+});

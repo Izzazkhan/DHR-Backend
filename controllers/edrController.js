@@ -2203,7 +2203,7 @@ exports.getDischargedEDRFromPatient = asyncHandler(async (req, res) => {
     }
     return uniqueArray;
   })(secondArray);
-  let response = uniqueArray.slice(0, 50);
+  const response = uniqueArray.slice(0, 50);
   res.status(200).json({ success: true, data: response });
 });
 
@@ -2246,6 +2246,7 @@ exports.getEDRFromPatientIdForDischarge = asyncHandler(async (req, res) => {
           ],
         },
       ])
+      .populate('newChiefComplaint.newChiefComplaintId')
       .sort({
         createdAt: 'desc',
       })

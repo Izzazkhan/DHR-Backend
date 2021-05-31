@@ -5,6 +5,7 @@ const {
   getCCPatients,
   getPatientsByPA,
   patientsByCC,
+  getCCPatientsED,
   // getNoOfPatientsByCC,
   getPatientByRoom,
   searchCCPatients,
@@ -38,6 +39,7 @@ const {
 const router = express.Router();
 router.put('/assignShifts', updateStaffShift);
 router.get('/getCCPatients', getCCPatients);
+router.get('/getCCPatientsED', getCCPatientsED);
 router.get('/getPatientsByPA/:productionAreaId', getPatientsByPA);
 router.get('/patientsByCC', patientsByCC);
 router.get('/getCR', getCR);

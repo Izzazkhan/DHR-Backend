@@ -129,10 +129,26 @@ const edrSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'room',
       },
-      // bedId: {
-      //   type: mongoose.Schema.ObjectId,
-      //   ref: 'room',
-      // },
+      bedId: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'Bed',
+      },
+      assignedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      assignedTime: {
+        type: Date,
+      },
+      reason: String,
+    },
+  ],
+  eouBed: [
+    {
+      bedId: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'Bed',
+      },
       assignedBy: {
         type: mongoose.Schema.ObjectId,
         ref: 'staff',
@@ -549,22 +565,22 @@ const edrSchema = new mongoose.Schema({
       },
     },
   ],
-  customerCare: [
-    {
-      customerCareId: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'staff',
-      },
-      assignedBy: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'staff',
-      },
-      assignedTime: {
-        type: Date,
-      },
-      reason: String,
-    },
-  ],
+  // customerCare: [
+  //   {
+  //     customerCareId: {
+  //       type: mongoose.Schema.ObjectId,
+  //       ref: 'staff',
+  //     },
+  //     assignedBy: {
+  //       type: mongoose.Schema.ObjectId,
+  //       ref: 'staff',
+  //     },
+  //     assignedTime: {
+  //       type: Date,
+  //     },
+  //     reason: String,
+  //   },
+  // ],
   dcdFormStatus: {
     type: String,
     default: 'pending',

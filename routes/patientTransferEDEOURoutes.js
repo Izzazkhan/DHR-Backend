@@ -1,7 +1,8 @@
 const express = require('express');
 const {
   patientsInDept,
-  getTransferReqED,
+  getPendingTransferReqED,
+  getCompletedTransferReqED,
   getTransferReqEOU,
   getTransferReqEDForCC,
   getTransferReqEOUForCC,
@@ -9,12 +10,15 @@ const {
   getTransferReqEOUForRequester,
   getAllTransferReqForRequester,
   assignCC,
+  addTransferRequest,
+  getAllCustomerCares,
 } = require('../controllers/patientTransferEDEOUController');
 
 const router = express.Router();
 
 router.get('/getPatientsInDept/:currentdept', patientsInDept);
-router.get('/transferRequestED', getTransferReqED);
+router.get('/getPendingTransferReqED', getPendingTransferReqED);
+router.get('/getCompletedTransferReqED', getCompletedTransferReqED);
 router.get('/transferRequestEOU', getTransferReqEOU);
 router.get('/transferRequestEDForCC/:staffId', getTransferReqEDForCC);
 router.get('/transferRequestEOUForCC/:staffId', getTransferReqEOUForCC);
@@ -34,5 +38,7 @@ router.get(
 );
 
 router.put('/assigncustomercare', assignCC);
+router.put('/addTransferRequest', addTransferRequest);
+router.get('/getAllCustomerCares/:staffId', getAllCustomerCares);
 
 module.exports = router;

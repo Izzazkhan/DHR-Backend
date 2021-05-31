@@ -24,6 +24,9 @@ const TransferToEDEOUSchema = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: 'staff',
     },
+    requestedAt: {
+      type: Date,
+    },
 
     status: {
       type: String,

@@ -401,13 +401,13 @@ exports.getInProgressCS = asyncHandler(async (req, res, next) => {
           path: 'productionArea.productionAreaId',
           model: 'productionArea',
           select: 'paName',
-          populate: [
-            {
-              path: 'rooms.roomId',
-              model: 'room',
-              select: 'roomNo',
-            },
-          ],
+          // populate: [
+          //   {
+          //     path: 'rooms.roomId',
+          //     model: 'room',
+          //     select: 'roomNo',
+          //   },
+          // ],
         },
       ],
     },
@@ -415,6 +415,10 @@ exports.getInProgressCS = asyncHandler(async (req, res, next) => {
       path: 'patientId',
       model: 'patientfhir',
       select: 'name identifier',
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
     },
     {
       path: 'consultationNote.addedBy',
@@ -493,6 +497,7 @@ exports.edInProgressCS = asyncHandler(async (req, res, next) => {
         status: 1,
         chiefComplaint: 1,
         patientId: 1,
+        room: 1,
       },
     },
     {
@@ -511,6 +516,7 @@ exports.edInProgressCS = asyncHandler(async (req, res, next) => {
         'careStream.status': 1,
         chiefComplaint: 1,
         patientId: 1,
+        room: 1,
       },
     },
   ]);
@@ -535,6 +541,11 @@ exports.edInProgressCS = asyncHandler(async (req, res, next) => {
           select: 'paName',
         },
       ],
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
+      select: 'roomNo',
     },
   ]);
 
@@ -903,6 +914,11 @@ exports.getEDRswithCS = asyncHandler(async (req, res, next) => {
       {
         path: 'pharmacyRequest.reconciliationNotes.addedBy',
         model: 'staff',
+      },
+      {
+        path: 'eouBed.bedId',
+        model: 'Bed',
+        select: 'bedId bedNo',
       },
     ])
     .populate('newChiefComplaint.newChiefComplaintId');

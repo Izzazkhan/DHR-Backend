@@ -57,6 +57,8 @@ const notification = require('./routes/notification');
 const EDR = require('./models/EDR/EDR');
 const Flag = require('./models/flag/Flag');
 const newCC = require('./routes/newChiefComplaint');
+const EOU = require('./routes/EOU');
+const bed = require('./routes/bed');
 
 const app = express();
 
@@ -119,6 +121,8 @@ app.use('/api/subscriber', subscriber);
 app.use('/api/codeBlue', codeBlue);
 app.use('/api/notifications', notification);
 app.use('/api/newCC', newCC);
+app.use('/api/eou', EOU);
+app.use('/api/bed', bed);
 
 app.use(errorHandler);
 

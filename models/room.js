@@ -7,7 +7,12 @@ const RoomsSchema = new mongoose.Schema(
     noOfBeds: { type: Number },
     beds: [
       {
+        bedIdDB: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'Bed',
+        },
         bedId: { type: String },
+        bedNo: Number,
         availability: { type: Boolean },
         status: { type: String },
         updateRecord: [
@@ -30,8 +35,17 @@ const RoomsSchema = new mongoose.Schema(
     disabled: { type: Boolean },
     status: { type: String },
     assingedToPA: {
-       type: Boolean,
-      default: false },
+      type: Boolean,
+      default: false,
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now(),
+    },
+    createdBy: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'staff',
+    },
     updateRecord: [
       {
         updatedAt: {
