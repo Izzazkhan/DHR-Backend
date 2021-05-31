@@ -8,9 +8,52 @@ const EOU = require('../models/EOU');
 const Bed = require('../models/Bed');
 const Room = require('../models/room');
 
-exports.getTransferReqED = asyncHandler(async (req, res, next) => {
+exports.getPendingTransferReqED = asyncHandler(async (req, res, next) => {
   const list = await TransferToEDEOU.find({
     from: 'ED',
+    $or: [{ status: 'pending' }, { status: 'in_progress' }],
+  }).populate([
+    {
+      path: 'edrId',
+      model: 'EDR',
+      select: 'patientId room chiefComplaint',
+      populate: [
+        {
+          path: 'patientId',
+          model: 'patientfhir',
+          select: 'identifier name',
+        },
+        {
+          path: 'room.roomId',
+          model: 'room',
+          select: 'roomNo ',
+        },
+        {
+          path: 'chiefComplaint.chiefComplaintId',
+          model: 'chiefComplaint',
+          select: 'productionArea.productionAreaId',
+          populate: {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        },
+        {
+          path: 'newChiefComplaint.newChiefComplaintId',
+          model: 'NewChiefComplaint',
+        },
+      ],
+    },
+  ]);
+  res.status(200).json({
+    success: true,
+    data: list,
+  });
+});
+exports.getCompletedTransferReqED = asyncHandler(async (req, res, next) => {
+  const list = await TransferToEDEOU.find({
+    from: 'ED',
+    status: 'completed',
   }).populate([
     {
       path: 'edrId',

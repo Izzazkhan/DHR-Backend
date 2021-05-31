@@ -1,7 +1,8 @@
 const express = require('express');
 const {
   patientsInDept,
-  getTransferReqED,
+  getPendingTransferReqED,
+  getCompletedTransferReqED,
   getTransferReqEOU,
   getTransferReqEDForCC,
   getTransferReqEOUForCC,
@@ -16,7 +17,8 @@ const {
 const router = express.Router();
 
 router.get('/getPatientsInDept/:currentdept', patientsInDept);
-router.get('/transferRequestED', getTransferReqED);
+router.get('/getPendingTransferReqED', getPendingTransferReqED);
+router.get('/getCompletedTransferReqED', getCompletedTransferReqED);
 router.get('/transferRequestEOU', getTransferReqEOU);
 router.get('/transferRequestEDForCC/:staffId', getTransferReqEDForCC);
 router.get('/transferRequestEOUForCC/:staffId', getTransferReqEOUForCC);
