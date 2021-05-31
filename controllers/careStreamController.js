@@ -915,6 +915,11 @@ exports.getEDRswithCS = asyncHandler(async (req, res, next) => {
         path: 'pharmacyRequest.reconciliationNotes.addedBy',
         model: 'staff',
       },
+      {
+        path: 'eouBed.bedId',
+        model: 'Bed',
+        select: 'bedId bedNo',
+      },
     ])
     .populate('newChiefComplaint.newChiefComplaintId');
 
