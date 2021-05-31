@@ -251,107 +251,107 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
     { $new: true }
   );
 
-  const transfer = await TransferToEDEOU.findById(req.body.transferId);
+  // const transfer = await TransferToEDEOU.findById(req.body.transferId);
 
-  if (transfer.to === 'ED' && transfer.from === 'EOU') {
-    const checkRoom = await Room.findOne({ _id: req.body.roomId });
-    if (
-      !checkRoom ||
-      checkRoom.disabled === true ||
-      checkRoom.availability === false
-    ) {
-      return next(
-        new ErrorResponse('The Room you are assigning is not available', 400)
-      );
-    }
+  // if (transfer.to === 'ED' && transfer.from === 'EOU') {
+  //   const checkRoom = await Room.findOne({ _id: req.body.roomId });
+  //   if (
+  // checkRoom! ||
+  //     checkRoom.disabled === true ||
+  //     checkRoom.availability === false
+  //   ) {
+  //     return next(
+  //       new ErrorResponse('The Room you are assigning is not available', 400)
+  //     );
+  //   }
 
-    let bedId = await Room.findById(req.body.roomId).select('beds');
-    bedId = bedId.beds[0].bedIdDB;
-    const bed = await Bed.findOne({ _id: bedId });
+  //   let bedId = await Room.findById(req.body.roomId).select('beds');
+  //   bedId = bedId.beds[0].bedIdDB;
+  //   const bed = await Bed.findOne({ _id: bedId });
 
-    if (bed.disabled === true) {
-      return next(
-        new ErrorResponse(
-          'Bed in this room is disabled,you cannot assign it',
-          400
-        )
-      );
-    }
-    const room = {
-      roomId: req.body.roomId,
-      bedId: bed._id,
-      edrId: req.body.edrId,
-      assignedBy: req.body.staffId,
-      assignedTime: Date.now(),
-      reason: req.body.reason,
-    };
+  //   if (bed.disabled === true) {
+  //     return next(
+  //       new ErrorResponse(
+  //         'Bed in this room is disabled,you cannot assign it',
+  //         400
+  //       )
+  //     );
+  //   }
+  //   const room = {
+  //     roomId: req.body.roomId,
+  //     bedId: bed._id,
+  //     edrId: req.body.edrId,
+  //     assignedBy: req.body.staffId,
+  //     assignedTime: Date.now(),
+  //     reason: req.body.reason,
+  //   };
 
-    const patient = await EDR.findOneAndUpdate(
-      { _id: req.body.edrId },
-      { $push: { room } },
-      { new: true }
-    )
-      .select('patientId')
-      .populate('patientId', 'identifier');
+  //   const patient = await EDR.findOneAndUpdate(
+  //     { _id: req.body.edrId },
+  //     { $push: { room } },
+  //     { new: true }
+  //   )
+  //     .select('patientId')
+  //     .populate('patientId', 'identifier');
 
-    if (!patient) {
-      return next(new ErrorResponse('patient not found with this id', 400));
-    }
-  }
+  //   if (!patient) {
+  //     return next(new ErrorResponse('patient not found with this id', 400));
+  //   }
+  // }
 
-  if (transfer.to === 'EOU' && transfer.from === 'ED') {
-    const bed = await Bed.findOne({ _id: req.body.bedId });
+  // if (transfer.to === 'EOU' && transfer.from === 'ED') {
+  const bed = await Bed.findOne({ _id: req.body.bedId });
 
-    if (!bed || bed.disabled === true) {
-      return next(
-        new ErrorResponse('The bed you are assigning is not available', 400)
-      );
-    }
-
-    const eouBed = {
-      bedId: req.body.bedId,
-      assignedBy: req.body.staffId,
-      assignedTime: Date.now(),
-    };
-    await EDR.findOneAndUpdate(
-      { _id: req.body.edrId },
-      { $push: { eouBed } },
-      { new: true }
-    );
-
-    Notification(
-      'ADT_A15',
-      'Transfer Patient From ED to EOU',
-      'Customer Care',
-      'Transfer To EOU',
-      '/dashboard/home/taskslistforcustomercare',
-      req.body.edrId,
-      '',
-      ''
-    );
-
-    Notification(
-      'ADT_A15',
-      'Patient transfer to EOU',
-      'Nurses',
-      'ED Doctor',
-      '/dashboard/home/notes',
-      req.body.edrId,
-      '',
-      'ED Nurse'
-    );
-
-    Notification(
-      'ADT_A15',
-      'Patient transfer from ED to EOU',
-      'Nurses',
-      'Customer Care',
-      '/dashboard/home/notes',
-      req.body.edrId,
-      '',
-      'EOU Nurse'
+  if (!bed || bed.disabled === true) {
+    return next(
+      new ErrorResponse('The bed you are assigning is not available', 400)
     );
   }
+
+  const eouBed = {
+    bedId: req.body.bedId,
+    assignedBy: req.body.staffId,
+    assignedTime: Date.now(),
+  };
+  await EDR.findOneAndUpdate(
+    { _id: req.body.edrId },
+    { $push: { eouBed } },
+    { new: true }
+  );
+
+  Notification(
+    'ADT_A15',
+    'Transfer Patient From ED to EOU',
+    'Customer Care',
+    'Transfer To EOU',
+    '/dashboard/home/taskslistforcustomercare',
+    req.body.edrId,
+    '',
+    ''
+  );
+
+  Notification(
+    'ADT_A15',
+    'Patient transfer to EOU',
+    'Nurses',
+    'ED Doctor',
+    '/dashboard/home/notes',
+    req.body.edrId,
+    '',
+    'ED Nurse'
+  );
+
+  Notification(
+    'ADT_A15',
+    'Patient transfer from ED to EOU',
+    'Nurses',
+    'Customer Care',
+    '/dashboard/home/notes',
+    req.body.edrId,
+    '',
+    'EOU Nurse'
+  );
+  // }
   // const assignedCC = await EDR.findOneAndUpdate(
   //   { _id: req.body.edrId },
   //   { $push: { customerCare } },
