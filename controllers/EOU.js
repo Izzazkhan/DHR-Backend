@@ -1,4 +1,5 @@
 /* eslint-disable no-await-in-loop */
+const mongoose = require('mongoose');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const EOU = require('../models/EOU');
@@ -49,6 +50,60 @@ exports.assignBedToEOU = asyncHandler(async (req, res, next) => {
     { name: 'EOU' },
     { $push: { beds } },
     { $new: true }
+  );
+
+  res.status(200).json({
+    success: true,
+    data: assignedBeds,
+  });
+});
+
+exports.removeBedFromEOU = asyncHandler(async (req, res, next) => {
+  const { staffId, bedId, reason } = req.body;
+
+  const bed = await Bed.findById(bedId);
+
+  if (!bed || bed.disabled === true) {
+    return next(new ErrorResponse('This bed is not available', 400));
+  }
+
+  const eouBed = await EOU.aggregate([
+    {
+      $unwind: '$beds',
+    },
+    {
+      $match: {
+        'beds.bedIdDB': mongoose.Types.ObjectId(bedId),
+      },
+    },
+  ]);
+
+  if (eouBed[0].beds.availability === false) {
+    return next(new ErrorResponse('This bed is not available to move', 400));
+  }
+
+  const assignedBeds = await EOU.findOneAndUpdate(
+    { name: 'EOU' },
+    { $pull: { beds: { bedIdDB: bedId } } },
+    { $new: true }
+  );
+
+  const updateRecord = {
+    updatedAt: Date.now(),
+    updatedBy: staffId,
+    reason: reason,
+  };
+
+  await EOU.findOneAndUpdate(
+    { name: 'EOU' },
+    { $push: { updateRecord } },
+    { $new: true }
+  );
+
+  await Bed.findOneAndUpdate(
+    { _id: bedId },
+    { $set: { availability: true, bedType: '' } },
+    { new: true }
   );
 
   res.status(200).json({
