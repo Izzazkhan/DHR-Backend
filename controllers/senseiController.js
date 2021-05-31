@@ -122,6 +122,64 @@ exports.getCCPatients = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.getCCPatientsED = asyncHandler(async (req, res, next) => {
+  const patients = await EDR.find({
+    status: 'pending',
+    newChiefComplaint: { $ne: [] },
+    patientInHospital: true,
+    currentLocation: 'ED',
+  })
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            populate: [
+              {
+                path: 'rooms.roomId',
+                model: 'room',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+      },
+    ])
+    .populate('newChiefComplaint.newChiefComplaintId');
+
+  const newArray = [];
+  for (let i = 0; i < patients.length; i++) {
+    let count = 1;
+
+    const obj = JSON.parse(JSON.stringify(patients[i]));
+    const x =
+      patients[i].newChiefComplaint[patients[i].newChiefComplaint.length - 1]
+        .newChiefComplaintId._id;
+    for (let j = 0; j < patients.length; j++) {
+      const y =
+        patients[j].newChiefComplaint[patients[j].newChiefComplaint.length - 1]
+          .newChiefComplaintId._id;
+      if (x === y && patients[i]._id !== patients[j]._id) {
+        count++;
+      }
+    }
+
+    obj.count = count;
+    newArray.push(obj);
+  }
+
+  res.status(200).json({
+    success: true,
+    data: newArray,
+  });
+});
+
 exports.searchCCPatients = asyncHandler(async (req, res, next) => {
   const patients = await EDR.find({
     status: 'pending',
