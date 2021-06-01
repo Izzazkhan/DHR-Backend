@@ -1,4 +1,4 @@
-const moment = require('moment')
+const moment = require('moment');
 const Staff = require('../models/staffFhir/staff');
 const asyncHandler = require('../middleware/async');
 const EDR = require('../models/EDR/EDR');
@@ -1614,39 +1614,39 @@ exports.doctorResponseTime = asyncHandler(async (req, res, next) => {
 });
 
 exports.patientShiftedInEOU = asyncHandler(async (req, res, next) => {
-  const patinets = EouTransfer.find({ to: 'EOU', status: 'completed' });
-  // const patientsTime = await EDR.aggregate([
-  //   {
-  //     $match: {
-  //       $and: [{ status: 'pending' }, { currentLocation: 'ED' }],
-  //     },
-  //   },
-  //   {
-  //     $project: {
-  //       patientId: 1,
-  //       createdTimeStamp: 1,
-  //       dateDifference: {
-  //         $divide: [
-  //           {
-  //             $subtract: [new Date(), '$createdTimeStamp'],
-  //           },
-  //           1000 * 60 * 60 * 24,
-  //         ],
-  //       },
-  //     },
-  //   },
-  // ]);
+  const oneDay = moment().subtract(24, 'hours').utc().toDate();
+  const oneWeek = moment().subtract(7, 'd').utc().toDate();
+  const oneMonth = moment().subtract(30, 'd').utc().toDate();
 
-  // // console.log(patientsTime);
+  const oneDayTransfer = await EouTransfer.find({
+    to: 'EOU',
+    status: 'completed',
+    completedAt: { $gt: oneDay },
+  }).countDocuments();
 
-  // patientsTime.map(
-  //   (day) => (day.days = day.dateDifference.toString().split('.')[0])
-  // );
+  const oneWeekTransfer = await EouTransfer.find({
+    to: 'EOU',
+    status: 'completed',
+    completedAt: { $gt: oneWeek },
+  }).countDocuments();
 
-  // patientsTime.map((patient) => {
-  //   const h = patient.dateDifference;
-  //   const int = Math.trunc(h);
-  //   const float = Number((h - int).toFixed(8));
-  //   patient.hours = Math.trunc(float * 24);
-  // });
+  const oneMonthTransfer = await EouTransfer.find({
+    to: 'EOU',
+    status: 'completed',
+    completedAt: { $gt: oneMonth },
+  }).countDocuments();
+
+  const obj = {
+    oneDay: oneDayTransfer,
+    oneWeek: oneWeekTransfer,
+    oneMonth: oneMonthTransfer,
+  };
+
+  const arr = [];
+  arr.push(obj);
+
+  res.status(200).json({
+    success: true,
+    data: arr,
+  });
 });
