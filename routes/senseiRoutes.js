@@ -33,6 +33,7 @@ const {
   getRadTest,
   chiefComplaintBeds,
   csInProgress,
+  medicationRequestsED,
   // Eou Room Stats
   eouTimeInterval,
   eouTransferRequest,
@@ -72,6 +73,7 @@ router.get('/deathOccurredPerCS', deathOccurredPerCS);
 router.get('/getRadTest', getRadTest);
 router.get('/chiefComplaintBeds', chiefComplaintBeds);
 router.get('/csInProgress', csInProgress);
+router.get('/medicationRequestsED', medicationRequestsED);
 // EOU Room stats
 router.get('/eouTimeInterval', eouTimeInterval);
 router.get('/eouTransferRequest', eouTransferRequest);
