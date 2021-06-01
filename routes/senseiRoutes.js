@@ -31,6 +31,7 @@ const {
   getEDCSPatients,
   deathOccurredPerCS,
   getRadTest,
+  chiefComplaintBeds,
 
   // Eou Room Stats
   eouTimeInterval,
@@ -69,6 +70,7 @@ router.get('/searchEDPatients/:keyword', searchEDPatients);
 router.get('/searchEOUPatients/:keyword', searchEOUPatients);
 router.get('/deathOccurredPerCS', deathOccurredPerCS);
 router.get('/getRadTest', getRadTest);
+router.get('/chiefComplaintBeds', chiefComplaintBeds);
 
 // EOU Room stats
 router.get('/eouTimeInterval', eouTimeInterval);

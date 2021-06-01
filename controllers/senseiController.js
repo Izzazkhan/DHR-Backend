@@ -891,6 +891,7 @@ exports.getDeceased = asyncHandler(async (req, res, next) => {
     data: deceased,
   });
 });
+
 exports.getEDCSPatients = asyncHandler(async (req, res, next) => {
   const patients = await EDR.aggregate([
     {
@@ -1309,6 +1310,44 @@ exports.deathOccurredPerCS = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: newArray,
+  });
+});
+
+exports.chiefComplaintBeds = asyncHandler(async (req, res, next) => {
+  const patients = await EDR.find({
+    currentLocation: 'ED',
+    status: 'pending',
+    newChiefComplaint: { $ne: [] },
+  })
+    .select('patientId newChiefComplaint cheifComplaint')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'name identifier',
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+        select: 'roomId roomNo',
+      },
+    ]);
+
+  res.status(200).json({
+    success: true,
+    data: patients,
   });
 });
 
