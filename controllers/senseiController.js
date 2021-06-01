@@ -839,6 +839,33 @@ exports.getLabTest = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.getRadTest = asyncHandler(async (req, res, next) => {
+  const rads = await EDR.find({
+    status: 'Discharged',
+    radRequest: { $ne: [] },
+    currentLocation: 'ED',
+  })
+    .select('patientId radRequest')
+    .populate([
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'identifier name',
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+        select: 'roomId roomNo',
+      },
+    ]);
+  // labs.map((lab) => (lab.totalTests = lab.labRequest.length));
+
+  res.status(200).json({
+    success: true,
+    data: rads,
+  });
+});
+
 exports.getDeceased = asyncHandler(async (req, res, next) => {
   const deceased = await EDR.find({
     status: 'Discharged',
