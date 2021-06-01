@@ -1343,7 +1343,8 @@ exports.chiefComplaintBeds = asyncHandler(async (req, res, next) => {
         model: 'room',
         select: 'roomId roomNo',
       },
-    ]);
+    ])
+    .populate('newChiefComplaint.newChiefComplaintId');
 
   res.status(200).json({
     success: true,
@@ -1382,6 +1383,44 @@ exports.csInProgress = asyncHandler(async (req, res, next) => {
       select: 'name identifier',
     },
   ]);
+
+  res.status(200).json({
+    success: true,
+    data: patients,
+  });
+});
+
+exports.medicationRequestsED = asyncHandler(async (req, res, next) => {
+  const patients = await EDR.find({
+    currentLocation: 'ED',
+    status: 'pending',
+    pharmacyRequest: { $ne: [] },
+  })
+    .select('patientId newChiefComplaint chiefComplaint')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'name identifier',
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+        select: 'roomId roomNo',
+      },
+    ]);
 
   res.status(200).json({
     success: true,
