@@ -1650,3 +1650,40 @@ exports.patientShiftedInEOU = asyncHandler(async (req, res, next) => {
     data: arr,
   });
 });
+
+exports.currentEOUPatients = asyncHandler(async (req, res, next) => {
+  const eouPatients = await EDR.find({
+    currentLocation: 'EOU',
+    status: 'pending',
+  })
+    .select('patientId chiefComplaint')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'name identifier',
+      },
+      {
+        path: 'eouBed.bedId',
+        model: 'Bed',
+        select: 'bedId bedNo',
+      },
+    ]);
+
+  res.status(200).json({
+    success: true,
+    data: eouPatients,
+  });
+});
