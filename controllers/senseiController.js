@@ -1253,21 +1253,12 @@ exports.getDischargedRequirements = asyncHandler(async (req, res, next) => {
 exports.deathOccurredPerCS = asyncHandler(async (req, res, next) => {
   const patients = await EDR.find({
     status: 'Discharged',
+    currentLocation: 'ED',
     'dischargeRequest.dischargeSummary.edrCompletionReason': 'deceased',
     careStream: { $ne: [] },
-  })
-    .select(
-      'patientId chiefComplaint newChiefComplaint careStream.careStreamId'
-    )
-    .populate([
-      {
-        path: 'chiefComplaint.chiefComplaintId',
-        model: 'chiefComplaint',
-        select: 'chiefComplaintId name',
-      },
-    ])
-    .populate('newChiefComplaint.newChiefComplaintId')
-    .populate('patientId', 'identifier name');
+  }).select('careStream.careStreamId');
+
+  console.log(patients);
 
   const newArray = [];
   const cs = await CS.find().select('name');
