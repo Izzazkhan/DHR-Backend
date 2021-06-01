@@ -1319,7 +1319,7 @@ exports.chiefComplaintBeds = asyncHandler(async (req, res, next) => {
     status: 'pending',
     newChiefComplaint: { $ne: [] },
   })
-    .select('patientId newChiefComplaint cheifComplaint')
+    .select('patientId newChiefComplaint chiefComplaint')
     .populate([
       {
         path: 'chiefComplaint.chiefComplaintId',
@@ -1344,6 +1344,44 @@ exports.chiefComplaintBeds = asyncHandler(async (req, res, next) => {
         select: 'roomId roomNo',
       },
     ]);
+
+  res.status(200).json({
+    success: true,
+    data: patients,
+  });
+});
+
+exports.csInProgress = asyncHandler(async (req, res, next) => {
+  const unwind = await EDR.aggregate([
+    {
+      $project: {
+        patientId: 1,
+        careStream: 1,
+        currentLocation: 1,
+        status: 1,
+      },
+    },
+    {
+      $unwind: '$careStream',
+    },
+    {
+      $match: {
+        $and: [
+          { 'careStream.status': 'in_progress' },
+          { currentLocation: 'ED' },
+          { status: 'pending' },
+        ],
+      },
+    },
+  ]);
+
+  const patients = await EDR.populate(unwind, [
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+      select: 'name identifier',
+    },
+  ]);
 
   res.status(200).json({
     success: true,

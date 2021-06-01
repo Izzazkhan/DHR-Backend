@@ -32,7 +32,7 @@ const {
   deathOccurredPerCS,
   getRadTest,
   chiefComplaintBeds,
-
+  csInProgress,
   // Eou Room Stats
   eouTimeInterval,
   eouTransferRequest,
@@ -71,7 +71,7 @@ router.get('/searchEOUPatients/:keyword', searchEOUPatients);
 router.get('/deathOccurredPerCS', deathOccurredPerCS);
 router.get('/getRadTest', getRadTest);
 router.get('/chiefComplaintBeds', chiefComplaintBeds);
-
+router.get('/csInProgress', csInProgress);
 // EOU Room stats
 router.get('/eouTimeInterval', eouTimeInterval);
 router.get('/eouTransferRequest', eouTransferRequest);
