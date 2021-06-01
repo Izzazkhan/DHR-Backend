@@ -178,7 +178,11 @@ exports.getEDRs = asyncHandler(async (req, res, next) => {
 });
 
 exports.getPendingEDRs = asyncHandler(async (req, res, next) => {
-  const Edrs = await EDR.find({ status: 'pending', patientInHospital: true })
+  const Edrs = await EDR.find({
+    status: 'pending',
+    patientInHospital: true,
+    // currentLocation: 'ED',
+  })
     .select(
       'patientId dcdFormStatus status labRequest radRequest patientInHospital chiefComplaint'
     )

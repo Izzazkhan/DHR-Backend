@@ -150,4 +150,4 @@ exports.getAvailableBeds = asyncHandler(async (req, res, next) => {
   });
 });
 
-exports.assignBedTONurse = asyncHandler(async (req, res, next) => {});
+// exports.assignBedTONurse = asyncHandler(async (req, res, next) => {});

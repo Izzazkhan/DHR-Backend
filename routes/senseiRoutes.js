@@ -29,6 +29,7 @@ const {
   getCriticalLabTest,
   getDischargedRequirements,
   getEDCSPatients,
+  deathOccurredPerCS,
 
   // Eou Room Stats
   eouTimeInterval,
@@ -65,6 +66,7 @@ router.get('/getPatientByRoom/:roomId', getPatientByRoom);
 router.get('/searchCCPatients/:keyword', searchCCPatients);
 router.get('/searchEDPatients/:keyword', searchEDPatients);
 router.get('/searchEOUPatients/:keyword', searchEOUPatients);
+router.get('/deathOccurredPerCS', deathOccurredPerCS);
 
 // EOU Room stats
 router.get('/eouTimeInterval', eouTimeInterval);

@@ -1250,6 +1250,50 @@ exports.getDischargedRequirements = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.deathOccurredPerCS = asyncHandler(async (req, res, next) => {
+  const patients = await EDR.find({
+    status: 'Discharged',
+    'dischargeRequest.dischargeSummary.edrCompletionReason': 'deceased',
+    careStream: { $ne: [] },
+  })
+    .select(
+      'patientId chiefComplaint newChiefComplaint careStream.careStreamId'
+    )
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaintId name',
+      },
+    ])
+    .populate('newChiefComplaint.newChiefComplaintId')
+    .populate('patientId', 'identifier name');
+
+  const newArray = [];
+  const cs = await CS.find().select('name');
+  for (let i = 0; i < cs.length; i++) {
+    let count = 0;
+    const obj = JSON.parse(JSON.stringify(cs[i]));
+    for (let j = 0; j < patients.length; j++) {
+      if (
+        cs[i]._id.toString() ===
+        patients[j].careStream[
+          patients[j].careStream.length - 1
+        ].careStreamId.toString()
+      ) {
+        count++;
+      }
+    }
+    obj.count = count;
+    newArray.push(obj);
+  }
+
+  res.status(200).json({
+    success: true,
+    data: newArray,
+  });
+});
+
 // Eou Stats
 exports.eouTimeInterval = asyncHandler(async (req, res, next) => {
   const patientsTime = await EDR.aggregate([
