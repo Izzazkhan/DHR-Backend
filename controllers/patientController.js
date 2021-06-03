@@ -61,6 +61,7 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       coveredFamilyMember: parsed.coveredFamilyMember,
       coverageDetails: parsed.coverageDetails,
       insuranceDetails: parsed.insuranceDetails,
+      defaultRegistration: parsed.defaultRegistration,
       insuranceCard: req.files.insuranceCard
         ? req.files.insuranceCard[0].path
         : null,
@@ -97,6 +98,7 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       insuranceDetails: parsed.insuranceDetails,
       processTime: parsed.time,
       registrationStatus: parsed.registrationStatus,
+      defaultRegistration: parsed.defaultRegistration,
       // claimed,
       // status,
     });

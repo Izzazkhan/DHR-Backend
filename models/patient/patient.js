@@ -76,6 +76,7 @@ const patientSchema = new mongoose.Schema({
     type: String,
   },
   insuranceCard: { type: String },
+  defaultRegistration: Boolean,
   processTime: [
     {
       processStartTime: {
