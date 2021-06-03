@@ -13,6 +13,10 @@ const defaultPatientSchema = new mongoose.Schema({
       value: { type: String },
     },
   ],
+  patientId: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'patientfhir',
+  },
   name: [name.humanName],
   telecom: [telecom.contactPoint],
   gender: {

@@ -9,6 +9,8 @@ const CCRequest = require('../models/customerCareRequest');
 const Notification = require('../components/notification');
 const searchStaff = require('../components/searchStaff');
 const EOU = require('../models/EOU');
+const generateReqNo = require('../components/requestNoGenerator');
+const HK = require('../models/houseKeepingRequest');
 // const Assistance = require('../models/assistance/assistance');
 
 exports.getAllCustomerCares = asyncHandler(async (req, res, next) => {
@@ -213,13 +215,45 @@ exports.completeEOUTransfer = asyncHandler(async (req, res, next) => {
     { new: true }
   ).populate('room.roomId');
 
-  const roomId = updatedEDR.room[updatedEDR.room.length - 1].roomId._id;
+  // HouseKeeping Request
+  const latestCC = updatedEDR.chiefComplaint.length - 1;
+  const productionAreaId =
+    updatedEDR.chiefComplaint[latestCC].chiefComplaintId.productionArea[0]
+      .productionAreaId._id;
+  const latestRoom = updatedEDR.room.length - 1;
+  const roomId = updatedEDR.room[latestRoom].roomId._id;
+  const currentStaff = await Staff.findById(req.body.staffId).select('shift');
 
-  await Room.findOneAndUpdate(
-    { _id: roomId },
-    { $set: { availability: true } },
-    { new: true }
-  );
+  const houseKeepers = await Staff.find({
+    disabled: false,
+    staffType: 'House Keeping',
+    shift: currentStaff.shift,
+  });
+  const random = Math.floor(Math.random() * (houseKeepers.length - 1));
+  const houseKeeper = houseKeepers[random];
+
+  // Generating Housekeeping Request Id
+  const requestNo = generateReqNo('HKID');
+
+  // Creating Housekeeping Request
+  await HK.create({
+    requestNo,
+    requestedBy: 'Sensei',
+    houseKeeperId: houseKeeper._id,
+    productionAreaId,
+    roomId,
+    // status,
+    task: 'To Be Clean',
+    assignedTime: Date.now(),
+  });
+
+  // const roomId = updatedEDR.room[updatedEDR.room.length - 1].roomId._id;
+
+  // await Room.findOneAndUpdate(
+  //   { _id: roomId },
+  //   { $set: { availability: true } },
+  //   { new: true }
+  // );
 
   const bedId = updatedEDR.eouBed[updatedEDR.eouBed.length - 1].bedId;
 
@@ -298,21 +332,21 @@ exports.completeEDTransfer = asyncHandler(async (req, res, next) => {
     { new: true }
   ).populate('room.roomId');
 
-  const roomId = updatedEDR.room[updatedEDR.room.length - 1].roomId._id;
+  // const roomId = updatedEDR.room[updatedEDR.room.length - 1].roomId._id;
 
-  await Room.findOneAndUpdate(
-    { _id: roomId },
-    { $set: { availability: false } },
-    { new: true }
-  );
+  // await Room.findOneAndUpdate(
+  //   { _id: roomId },
+  //   { $set: { availability: false } },
+  //   { new: true }
+  // );
 
-  const bedId = updatedEDR.eouBed[updatedEDR.eouBed.length - 1].bedId;
+  // const bedId = updatedEDR.eouBed[updatedEDR.eouBed.length - 1].bedId;
 
-  await EOU.findOneAndUpdate(
-    { 'beds.bedIdDB': bedId },
-    { $set: { 'beds.$.availability': true } },
-    { $new: true }
-  );
+  // await EOU.findOneAndUpdate(
+  //   { 'beds.bedIdDB': bedId },
+  //   { $set: { 'beds.$.availability': true } },
+  //   { $new: true }
+  // );
 
   res.status(200).json({
     success: true,

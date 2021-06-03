@@ -10,6 +10,7 @@ const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const EDR = require('../models/EDR/EDR');
 const generateReqNo = require('../components/requestNoGenerator');
+const DefaultPatient = require('../models/patient/defaultPatient');
 
 exports.registerPatient = asyncHandler(async (req, res) => {
   let newPatient;
@@ -868,9 +869,49 @@ exports.getDefaultPatients = asyncHandler(async (req, res, next) => {
   });
 });
 
-// exports.mergeRecordForUpdate = asyncHandler(async (req, res, next) => {
-//   const defaultPatient = await DefaultPatient.create(req.body);
-// });
+exports.mergeRecordForUpdate = asyncHandler(async (req, res, next) => {
+  const patient = await patientFHIR.findOne({ _id: req.body.patientId });
+
+  const string = JSON.stringify(patient);
+  const parser = JSON.parse(string);
+
+  delete parser._id;
+
+  const defaultPatient = await DefaultPatient.create(parser);
+
+  await DefaultPatient.findOneAndUpdate(
+    { _id: defaultPatient._id },
+    { $set: { patientId: req.body.patientId } },
+    { new: true }
+  );
+});
+
+exports.mergeRecordForCreate = asyncHandler(async (req, res, next) => {
+  await EDR.findOneAndUpdate(
+    {
+      patientId: req.body.newPatientId,
+    },
+    { $set: { patientId: req.body.oldPatientId } },
+    { new: true }
+  );
+
+  const patient = await patientFHIR.findOne({ _id: req.body.newPatientId });
+
+  const string = JSON.stringify(patient);
+  const parser = JSON.parse(string);
+
+  delete parser._id;
+
+  const defaultPatient = await DefaultPatient.create(parser);
+
+  await DefaultPatient.findOneAndUpdate(
+    { _id: defaultPatient._id },
+    { $set: { patientId: req.body.oldPatientId } },
+    { new: true }
+  );
+
+  await patientFHIR.findOneAndRemove({ _id: req.body.newPatientId });
+});
 
 // exports.getPatientByKeyword = asyncHandler(async (req, res, next) => {
 //   const patient = await patientFHIR.find({
