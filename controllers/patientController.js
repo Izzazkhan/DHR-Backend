@@ -860,6 +860,18 @@ exports.getPatientByKeyword = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.getDefaultPatients = asyncHandler(async (req, res, next) => {
+  const patients = await patientFHIR.find({ defaultRegistration: true });
+  res.status(200).json({
+    success: true,
+    data: patients,
+  });
+});
+
+// exports.mergeRecordForUpdate = asyncHandler(async (req, res, next) => {
+//   const defaultPatient = await DefaultPatient.create(req.body);
+// });
+
 // exports.getPatientByKeyword = asyncHandler(async (req, res, next) => {
 //   const patient = await patientFHIR.find({
 //     $text: { $search: req.params.keyword, $caseSensitive: false },
