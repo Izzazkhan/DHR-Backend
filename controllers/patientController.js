@@ -868,22 +868,7 @@ exports.getDefaultPatients = asyncHandler(async (req, res, next) => {
   });
 });
 
-exports.mergeRecordForUpdate = asyncHandler(async (req, res, next) => {
-  const patient = await patientFHIR.findOne({ _id: req.body.patientId });
-
-  const string = JSON.stringify(patient);
-  const parser = JSON.parse(string);
-
-  delete parser._id;
-
-  const defaultPatient = await DefaultPatient.create(parser);
-
-  await DefaultPatient.findOneAndUpdate(
-    { _id: defaultPatient._id },
-    { $set: { patientId: req.body.patientId } },
-    { new: true }
-  );
-});
+exports.createMergeRequest = asyncHandler(async (req, res, next) => {});
 
 exports.mergeRecordForCreate = asyncHandler(async (req, res, next) => {
   await EDR.findOneAndUpdate(

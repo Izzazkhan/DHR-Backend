@@ -189,6 +189,6 @@ router.get(
 router.get('/pendingDoctorNotes', pendingDoctorNotes);
 router.get('/inprogressDoctorNotes', inprogressDoctorNotes);
 router.get('/completedDoctorNotes', completedDoctorNotes);
-router.get('/searchEdr/:edrNo', searchEdr);
+router.get('/searchEdr/:keyword', searchEdr);
 
 module.exports = router;
