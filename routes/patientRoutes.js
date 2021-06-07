@@ -50,5 +50,5 @@ router.put('/updatePatient', cpUpload, updatePatient);
 router.get('/pendingPatient/:keyword', getPendingPatientByKeyword);
 router.get('/getInsuredPatients', getInsuredPatients);
 router.get('/getDefaultPatients', getDefaultPatients);
-router.post('/mergeRecord', mergeRecord);
+router.put('/mergeRecord', mergeRecord);
 module.exports = router;
