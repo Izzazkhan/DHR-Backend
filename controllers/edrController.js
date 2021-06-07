@@ -4537,11 +4537,17 @@ exports.searchAllEdrs = asyncHandler(async (req, res, next) => {
 });
 
 exports.searchEdr = asyncHandler(async (req, res, next) => {
-  const edr = await EDR.aggregate([
+  const edrId = await EDR.aggregate([
     {
       $match: {
         requestNo: { $regex: req.params.keyword, $options: 'i' },
       },
+    },
+  ]);
+  const edr = await EDR.populate(edrId, [
+    {
+      path: 'patientId',
+      select: 'name identifier',
     },
   ]);
   res.status(200).json({
