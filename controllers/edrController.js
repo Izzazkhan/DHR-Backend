@@ -4555,3 +4555,15 @@ exports.searchEdr = asyncHandler(async (req, res, next) => {
     data: edr,
   });
 });
+
+exports.getEdrByRequestNo = asyncHandler(async (req, res, next) => {
+  const edr = await EDR.findOne({ requestNo: req.params.requestNo }).populate(
+    'patientId',
+    'name identifier'
+  );
+
+  res.status(200).json({
+    success: true,
+    data: edr,
+  });
+});
