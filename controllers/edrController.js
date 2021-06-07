@@ -4535,3 +4535,11 @@ exports.searchAllEdrs = asyncHandler(async (req, res, next) => {
     data: arr,
   });
 });
+
+exports.searchEdr = asyncHandler(async (req, res, next) => {
+  const edr = await EDR.findOne({ requestNo: req.params.edrNo });
+  res.status(200).json({
+    success: true,
+    data: edr,
+  });
+});

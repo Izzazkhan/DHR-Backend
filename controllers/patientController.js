@@ -1,7 +1,6 @@
 const base64ToImage = require('base64-to-image');
 const moment = require('moment');
 const QRCode = require('qrcode');
-const requestNoFormat = require('dateformat');
 const patientFHIR = require('../models/patient/patient');
 const Room = require('../models/room');
 const Notification = require('../components/notification');
