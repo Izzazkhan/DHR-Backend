@@ -869,7 +869,7 @@ exports.getDefaultPatients = asyncHandler(async (req, res, next) => {
 });
 
 exports.mergeRecord = asyncHandler(async (req, res, next) => {
-  await EDR.findOneAndUpdate(
+ const edr = await EDR.findOneAndUpdate(
     {
       patientId: req.body.newPatientId,
     },
@@ -893,6 +893,11 @@ exports.mergeRecord = asyncHandler(async (req, res, next) => {
   );
 
   await patientFHIR.findOneAndRemove({ _id: req.body.newPatientId });
+
+  res.status(200).json({
+    success: true,
+    data: edr,
+  });
 });
 
 // exports.getPatientByKeyword = asyncHandler(async (req, res, next) => {
