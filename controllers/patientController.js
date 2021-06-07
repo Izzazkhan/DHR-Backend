@@ -868,9 +868,7 @@ exports.getDefaultPatients = asyncHandler(async (req, res, next) => {
   });
 });
 
-exports.createMergeRequest = asyncHandler(async (req, res, next) => {});
-
-exports.mergeRecordForCreate = asyncHandler(async (req, res, next) => {
+exports.mergeRecord = asyncHandler(async (req, res, next) => {
   await EDR.findOneAndUpdate(
     {
       patientId: req.body.newPatientId,

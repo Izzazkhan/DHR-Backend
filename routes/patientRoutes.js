@@ -34,7 +34,7 @@ const {
   getInsuredPatients,
   searchInsuredPatient,
   getDefaultPatients,
-  createMergeRequest,
+  mergeRecord,
 } = require('../controllers/patientController');
 
 const router = express.Router();
@@ -50,5 +50,5 @@ router.put('/updatePatient', cpUpload, updatePatient);
 router.get('/pendingPatient/:keyword', getPendingPatientByKeyword);
 router.get('/getInsuredPatients', getInsuredPatients);
 router.get('/getDefaultPatients', getDefaultPatients);
-router.post('/createMergeRequest', createMergeRequest);
+router.post('/mergeRecord', mergeRecord);
 module.exports = router;
