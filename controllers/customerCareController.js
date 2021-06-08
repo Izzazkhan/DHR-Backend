@@ -213,13 +213,28 @@ exports.completeEOUTransfer = asyncHandler(async (req, res, next) => {
     { _id: completedTransfer.edrId._id },
     { $set: { currentLocation: 'EOU' } },
     { new: true }
-  ).populate('room.roomId');
+  )
+    .populate('room.roomId')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'productionArea.productionAreaId',
+        populate: {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      },
+    ]);
 
   // HouseKeeping Request
   const latestCC = updatedEDR.chiefComplaint.length - 1;
+
   const productionAreaId =
     updatedEDR.chiefComplaint[latestCC].chiefComplaintId.productionArea[0]
       .productionAreaId._id;
+
   const latestRoom = updatedEDR.room.length - 1;
   const roomId = updatedEDR.room[latestRoom].roomId._id;
   const currentStaff = await Staff.findById(req.body.staffId).select('shift');
