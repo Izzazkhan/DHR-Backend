@@ -869,13 +869,13 @@ exports.getDefaultPatients = asyncHandler(async (req, res, next) => {
 });
 
 exports.mergeRecord = asyncHandler(async (req, res, next) => {
- const edr = await EDR.findOneAndUpdate(
+  const edr = await EDR.findOneAndUpdate(
     {
       patientId: req.body.newPatientId,
     },
     { $set: { patientId: req.body.oldPatientId } },
     { new: true }
-  );
+  ).populate('patientId', 'identifier name');
 
   const patient = await patientFHIR.findOne({ _id: req.body.newPatientId });
 
@@ -897,6 +897,20 @@ exports.mergeRecord = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: edr,
+  });
+});
+
+exports.getJohnDoeCount = asyncHandler(async (req, res, next) => {
+  const patients = await patientFHIR
+    .find({ defaultRegistration: { $exists: true } })
+    .countDocuments();
+  const defaultPatients = await DefaultPatient.find().countDocuments();
+
+  const count = patients + defaultPatients;
+
+  res.status(200).json({
+    success: true,
+    data: count,
   });
 });
 

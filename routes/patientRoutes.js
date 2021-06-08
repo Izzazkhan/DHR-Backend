@@ -35,6 +35,7 @@ const {
   searchInsuredPatient,
   getDefaultPatients,
   mergeRecord,
+  getJohnDoeCount,
 } = require('../controllers/patientController');
 
 const router = express.Router();
@@ -51,4 +52,5 @@ router.get('/pendingPatient/:keyword', getPendingPatientByKeyword);
 router.get('/getInsuredPatients', getInsuredPatients);
 router.get('/getDefaultPatients', getDefaultPatients);
 router.put('/mergeRecord', mergeRecord);
+router.get('/getJohnDoeCount', getJohnDoeCount);
 module.exports = router;
