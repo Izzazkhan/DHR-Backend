@@ -1089,7 +1089,8 @@ const edrSchema = new mongoose.Schema({
       },
       reqFromCareStream: {
         type: Boolean,
-        default: false,
+        default: f
+        alse,
       },
       updateRecord: [
         {
@@ -1115,6 +1116,8 @@ const edrSchema = new mongoose.Schema({
       followUpInstruction: {
         type: String,
       },
+      diet:String,
+      specificNeed:String,
       edrCompletionReason: {
         type: String,
       },

@@ -2575,17 +2575,31 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     '',
     'ED Doctor'
   );
+  if (edr.currentLocation === 'ED') {
+    Notification(
+      'ADT_A03  ',
+      'Patient has been Discharged',
+      'Nurses',
+      'ED Doctor',
+      '/dashboard/home/notes',
+      _id,
+      '',
+      'ED Nurse'
+    );
+  }
 
-  Notification(
-    'ADT_A03  ',
-    'Patient has been Discharged',
-    'Nurses',
-    'ED Doctor',
-    '/dashboard/home/notes',
-    _id,
-    '',
-    'ED Nurse'
-  );
+  if (edr.currentLocation === 'EOU') {
+    Notification(
+      'ADT_A03  ',
+      'Patient has been Discharged',
+      'Nurses',
+      'ED Doctor',
+      '/dashboard/home/notes',
+      _id,
+      '',
+      'EOU Nurse'
+    );
+  }
 
   if (req.body.dischargeRequest.dischargeMedication.medicine !== []) {
     Notification(

@@ -373,27 +373,6 @@ exports.assignCC = asyncHandler(async (req, res, next) => {
     ''
   );
 
-  Notification(
-    'ADT_A15',
-    'Patient transfer to EOU',
-    'Nurses',
-    'ED Doctor',
-    '/dashboard/home/notes',
-    req.body.edrId,
-    '',
-    'ED Nurse'
-  );
-
-  Notification(
-    'ADT_A15',
-    'Patient transfer from ED to EOU',
-    'Nurses',
-    'Customer Care',
-    '/dashboard/home/notes',
-    req.body.edrId,
-    '',
-    'EOU Nurse'
-  );
   // }
   // const assignedCC = await EDR.findOneAndUpdate(
   //   { _id: req.body.edrId },
@@ -431,6 +410,28 @@ exports.addTransferRequest = asyncHandler(async (req, res, next) => {
   };
 
   const transferRequest = await TransferToEDEOU.create(patientTransferReqObj);
+
+  Notification(
+    'ADT_A02',
+    'Patient Transfer has been initiated by doctor',
+    'Sensei',
+    'Transfer To EOU',
+    '/dashboard/home/patientmanagement/transferrequests/EOUfromED',
+    req.body.edrId,
+    '',
+    ''
+  );
+
+  Notification(
+    'ADT_A15',
+    'Patient Transfer to EOU',
+    'Nurses',
+    'ED Doctor',
+    '/dashboard/home/notes',
+    req.body.edrId,
+    '',
+    'ED Nurse'
+  );
 
   res.status(200).json({
     success: true,

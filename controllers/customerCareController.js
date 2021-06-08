@@ -246,6 +246,18 @@ exports.completeEOUTransfer = asyncHandler(async (req, res, next) => {
       assignedTime: Date.now(),
     });
 
+    Notification(
+      'ADT_A02',
+      'Clean ED Cell',
+      'House Keeping',
+      'Sensei',
+      '/dashboard/home/housekeepingrequests',
+      '',
+      req.body.edrId,
+      '',
+      ''
+    );
+
     // const roomId = updatedEDR.room[updatedEDR.room.length - 1].roomId._id;
 
     // await Room.findOneAndUpdate(
@@ -271,6 +283,17 @@ exports.completeEOUTransfer = asyncHandler(async (req, res, next) => {
       completedTransfer.edrId._id,
       '',
       ''
+    );
+
+    Notification(
+      'ADT_A15',
+      'Patient transfer from ED to EOU',
+      'Nurses',
+      'Customer Care',
+      '/dashboard/home/notes',
+      req.body.edrId,
+      '',
+      'EOU Nurse'
     );
   }
 
