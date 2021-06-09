@@ -734,7 +734,8 @@ exports.completedDoctorNotes = asyncHandler(async (req, res, next) => {
 });
 
 exports.addLabRequest = asyncHandler(async (req, res, next) => {
-  const parsed = JSON.parse(req.body);
+  const parsed = req.body;
+
   // Sample Collection Task
   const currentStaff = await Staff.findById(parsed.staffId).select('shift');
 
