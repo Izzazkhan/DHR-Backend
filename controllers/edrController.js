@@ -4541,6 +4541,10 @@ exports.searchAllEdrs = asyncHandler(async (req, res, next) => {
       path: 'pharmacyRequest.reconciliationNotes.addedBy',
       model: 'staff',
     },
+    {
+      path: 'newChiefComplaint.newChiefComplaintId',
+      model: 'NewChiefComplaint',
+    },
   ]);
 
   const arr = searchPatient(req, patients);
