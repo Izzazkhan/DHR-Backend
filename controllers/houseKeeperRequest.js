@@ -108,6 +108,7 @@ exports.updateSenseiStatus = asyncHandler(async (req, res, next) => {
     { $set: { availability: true } },
     { $new: true }
   );
+
   res.status(200).json({
     success: true,
     data: updatedStatus,

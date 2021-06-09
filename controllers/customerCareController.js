@@ -9,6 +9,8 @@ const CCRequest = require('../models/customerCareRequest');
 const Notification = require('../components/notification');
 const searchStaff = require('../components/searchStaff');
 const EOU = require('../models/EOU');
+const generateReqNo = require('../components/requestNoGenerator');
+const HK = require('../models/houseKeepingRequest');
 // const Assistance = require('../models/assistance/assistance');
 
 exports.getAllCustomerCares = asyncHandler(async (req, res, next) => {
@@ -190,6 +192,109 @@ exports.completeEOUTransfer = asyncHandler(async (req, res, next) => {
       { $set: { status: req.body.status, completedAt: Date.now() } },
       { new: true }
     );
+
+    const updatedEDR = await EDR.findOneAndUpdate(
+      { _id: completedTransfer.edrId._id },
+      { $set: { currentLocation: 'EOU' } },
+      { new: true }
+    )
+      .populate('room.roomId')
+      .populate([
+        {
+          path: 'chiefComplaint.chiefComplaintId',
+          model: 'chiefComplaint',
+          select: 'productionArea.productionAreaId',
+          populate: {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        },
+      ]);
+
+    // HouseKeeping Request
+    const latestCC = updatedEDR.chiefComplaint.length - 1;
+
+    const productionAreaId =
+      updatedEDR.chiefComplaint[latestCC].chiefComplaintId.productionArea[0]
+        .productionAreaId._id;
+
+    const latestRoom = updatedEDR.room.length - 1;
+    const roomId = updatedEDR.room[latestRoom].roomId._id;
+    const currentStaff = await Staff.findById(req.body.staffId).select('shift');
+
+    const houseKeepers = await Staff.find({
+      disabled: false,
+      staffType: 'House Keeping',
+      shift: currentStaff.shift,
+    });
+    const random = Math.floor(Math.random() * (houseKeepers.length - 1));
+    const houseKeeper = houseKeepers[random];
+
+    // Generating Housekeeping Request Id
+    const requestNo = generateReqNo('HKID');
+
+    // Creating Housekeeping Request
+    await HK.create({
+      requestNo,
+      requestedBy: 'Sensei',
+      houseKeeperId: houseKeeper._id,
+      productionAreaId,
+      roomId,
+      // status,
+      task: 'To Be Clean',
+      assignedTime: Date.now(),
+    });
+
+    Notification(
+      'ADT_A02',
+      'Clean ED Cell',
+      'House Keeping',
+      'Sensei',
+      '/dashboard/home/housekeepingrequests',
+      '',
+      req.body.edrId,
+      '',
+      ''
+    );
+
+    // const roomId = updatedEDR.room[updatedEDR.room.length - 1].roomId._id;
+
+    // await Room.findOneAndUpdate(
+    //   { _id: roomId },
+    //   { $set: { availability: true } },
+    //   { new: true }
+    // );
+
+    const bedId = updatedEDR.eouBed[updatedEDR.eouBed.length - 1].bedId;
+
+    await EOU.findOneAndUpdate(
+      { 'beds.bedIdDB': bedId },
+      { $set: { 'beds.$.availability': false } },
+      { $new: true }
+    );
+
+    Notification(
+      'ADT_A02',
+      'Patient has been transferred to EOU',
+      'Sensei',
+      'Transfer To EOU',
+      '/dashboard/home/patientlog/EOU',
+      completedTransfer.edrId._id,
+      '',
+      ''
+    );
+
+    Notification(
+      'ADT_A15',
+      'Patient transfer from ED to EOU',
+      'Nurses',
+      'Customer Care',
+      '/dashboard/home/notes',
+      req.body.edrId,
+      '',
+      'EOU Nurse'
+    );
   }
 
   completedTransfer = await Transfer.findById(req.params.transferId).populate([
@@ -206,39 +311,6 @@ exports.completeEOUTransfer = asyncHandler(async (req, res, next) => {
       ],
     },
   ]);
-
-  const updatedEDR = await EDR.findOneAndUpdate(
-    { _id: completedTransfer.edrId._id },
-    { $set: { currentLocation: 'EOU' } },
-    { new: true }
-  ).populate('room.roomId');
-
-  const roomId = updatedEDR.room[updatedEDR.room.length - 1].roomId._id;
-
-  await Room.findOneAndUpdate(
-    { _id: roomId },
-    { $set: { availability: true } },
-    { new: true }
-  );
-
-  const bedId = updatedEDR.eouBed[updatedEDR.eouBed.length - 1].bedId;
-
-  await EOU.findOneAndUpdate(
-    { 'beds.bedIdDB': bedId },
-    { $set: { 'beds.$.availability': false } },
-    { $new: true }
-  );
-
-  Notification(
-    'ADT_A02',
-    'Patient has been transferred to EOU',
-    'Sensei',
-    'Transfer To EOU',
-    '/dashboard/home/patientlog/EOU',
-    completedTransfer.edrId._id,
-    '',
-    ''
-  );
 
   res.status(200).json({
     success: true,
@@ -298,21 +370,21 @@ exports.completeEDTransfer = asyncHandler(async (req, res, next) => {
     { new: true }
   ).populate('room.roomId');
 
-  const roomId = updatedEDR.room[updatedEDR.room.length - 1].roomId._id;
+  // const roomId = updatedEDR.room[updatedEDR.room.length - 1].roomId._id;
 
-  await Room.findOneAndUpdate(
-    { _id: roomId },
-    { $set: { availability: false } },
-    { new: true }
-  );
+  // await Room.findOneAndUpdate(
+  //   { _id: roomId },
+  //   { $set: { availability: false } },
+  //   { new: true }
+  // );
 
-  const bedId = updatedEDR.eouBed[updatedEDR.eouBed.length - 1].bedId;
+  // const bedId = updatedEDR.eouBed[updatedEDR.eouBed.length - 1].bedId;
 
-  await EOU.findOneAndUpdate(
-    { 'beds.bedIdDB': bedId },
-    { $set: { 'beds.$.availability': true } },
-    { $new: true }
-  );
+  // await EOU.findOneAndUpdate(
+  //   { 'beds.bedIdDB': bedId },
+  //   { $set: { 'beds.$.availability': true } },
+  //   { $new: true }
+  // );
 
   res.status(200).json({
     success: true,

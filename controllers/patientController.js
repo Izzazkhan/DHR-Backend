@@ -1,7 +1,6 @@
 const base64ToImage = require('base64-to-image');
 const moment = require('moment');
 const QRCode = require('qrcode');
-const requestNoFormat = require('dateformat');
 const patientFHIR = require('../models/patient/patient');
 const Room = require('../models/room');
 const Notification = require('../components/notification');
@@ -10,6 +9,7 @@ const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const EDR = require('../models/EDR/EDR');
 const generateReqNo = require('../components/requestNoGenerator');
+const DefaultPatient = require('../models/patient/defaultPatient');
 
 exports.registerPatient = asyncHandler(async (req, res) => {
   let newPatient;
@@ -61,6 +61,7 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       coveredFamilyMember: parsed.coveredFamilyMember,
       coverageDetails: parsed.coverageDetails,
       insuranceDetails: parsed.insuranceDetails,
+      defaultRegistration: parsed.defaultRegistration,
       insuranceCard: req.files.insuranceCard
         ? req.files.insuranceCard[0].path
         : null,
@@ -97,6 +98,7 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       insuranceDetails: parsed.insuranceDetails,
       processTime: parsed.time,
       registrationStatus: parsed.registrationStatus,
+      defaultRegistration: parsed.defaultRegistration,
       // claimed,
       // status,
     });
@@ -855,6 +857,60 @@ exports.getPatientByKeyword = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: patient,
+  });
+});
+
+exports.getDefaultPatients = asyncHandler(async (req, res, next) => {
+  const patients = await patientFHIR.find({ defaultRegistration: true });
+  res.status(200).json({
+    success: true,
+    data: patients,
+  });
+});
+
+exports.mergeRecord = asyncHandler(async (req, res, next) => {
+  const edr = await EDR.findOneAndUpdate(
+    {
+      patientId: req.body.newPatientId,
+    },
+    { $set: { patientId: req.body.oldPatientId } },
+    { new: true }
+  ).populate('patientId', 'identifier name');
+
+  const patient = await patientFHIR.findOne({ _id: req.body.newPatientId });
+
+  const string = JSON.stringify(patient);
+  const parser = JSON.parse(string);
+
+  delete parser._id;
+
+  const defaultPatient = await DefaultPatient.create(parser);
+
+  await DefaultPatient.findOneAndUpdate(
+    { _id: defaultPatient._id },
+    { $set: { patientId: req.body.oldPatientId } },
+    { new: true }
+  );
+
+  await patientFHIR.findOneAndRemove({ _id: req.body.newPatientId });
+
+  res.status(200).json({
+    success: true,
+    data: edr,
+  });
+});
+
+exports.getJohnDoeCount = asyncHandler(async (req, res, next) => {
+  const patients = await patientFHIR
+    .find({ defaultRegistration: { $exists: true } })
+    .countDocuments();
+  const defaultPatients = await DefaultPatient.find().countDocuments();
+
+  const count = patients + defaultPatients;
+
+  res.status(200).json({
+    success: true,
+    data: count,
   });
 });
 

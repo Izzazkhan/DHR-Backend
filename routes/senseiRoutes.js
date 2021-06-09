@@ -29,11 +29,17 @@ const {
   getCriticalLabTest,
   getDischargedRequirements,
   getEDCSPatients,
-
+  deathOccurredPerCS,
+  getRadTest,
+  chiefComplaintBeds,
+  csInProgress,
+  medicationRequestsED,
+  patientShiftedInEOU,
   // Eou Room Stats
   eouTimeInterval,
   eouTransferRequest,
   doctorResponseTime,
+  currentEOUPatients,
 } = require('../controllers/senseiController');
 
 const router = express.Router();
@@ -65,9 +71,16 @@ router.get('/getPatientByRoom/:roomId', getPatientByRoom);
 router.get('/searchCCPatients/:keyword', searchCCPatients);
 router.get('/searchEDPatients/:keyword', searchEDPatients);
 router.get('/searchEOUPatients/:keyword', searchEOUPatients);
-
+router.get('/deathOccurredPerCS', deathOccurredPerCS);
+router.get('/getRadTest', getRadTest);
+router.get('/chiefComplaintBeds', chiefComplaintBeds);
+router.get('/csInProgress', csInProgress);
+router.get('/medicationRequestsED', medicationRequestsED);
+router.get('/patientShiftedInEOU', patientShiftedInEOU);
 // EOU Room stats
 router.get('/eouTimeInterval', eouTimeInterval);
 router.get('/eouTransferRequest', eouTransferRequest);
 router.get('/doctorResponseTime', doctorResponseTime);
+router.get('/currentEOUPatients', currentEOUPatients);
+
 module.exports = router;

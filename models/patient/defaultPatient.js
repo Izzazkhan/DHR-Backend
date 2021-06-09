@@ -7,12 +7,16 @@ const contact = require('./contact');
 const photo = require('./attachment');
 const payment = require('./paymentNotice');
 
-const patientSchema = new mongoose.Schema({
+const defaultPatientSchema = new mongoose.Schema({
   identifier: [
     {
       value: { type: String },
     },
   ],
+  patientId: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'patientfhir',
+  },
   name: [name.humanName],
   telecom: [telecom.contactPoint],
   gender: {
@@ -116,13 +120,6 @@ const patientSchema = new mongoose.Schema({
     },
   ],
 });
-patientSchema.index({
-  'identifier.value': 'text',
-  'name.given': 'text',
-  // 'name.family': 'text',
-  'telecom.value': 'text',
-  nationalID: 'text',
-});
 
-patientSchema.plugin(mongoosePaginate);
-module.exports = mongoose.model('patientfhir', patientSchema);
+defaultPatientSchema.plugin(mongoosePaginate);
+module.exports = mongoose.model('DefaultPatient', defaultPatientSchema);

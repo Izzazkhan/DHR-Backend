@@ -178,7 +178,11 @@ exports.getEDRs = asyncHandler(async (req, res, next) => {
 });
 
 exports.getPendingEDRs = asyncHandler(async (req, res, next) => {
-  const Edrs = await EDR.find({ status: 'pending', patientInHospital: true })
+  const Edrs = await EDR.find({
+    status: 'pending',
+    patientInHospital: true,
+    // currentLocation: 'ED',
+  })
     .select(
       'patientId dcdFormStatus status labRequest radRequest patientInHospital chiefComplaint'
     )
@@ -730,7 +734,8 @@ exports.completedDoctorNotes = asyncHandler(async (req, res, next) => {
 });
 
 exports.addLabRequest = asyncHandler(async (req, res, next) => {
-  const parsed = JSON.parse(req.body);
+  const parsed = req.body;
+
   // Sample Collection Task
   const currentStaff = await Staff.findById(parsed.staffId).select('shift');
 
@@ -2571,17 +2576,31 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     '',
     'ED Doctor'
   );
+  if (edr.currentLocation === 'ED') {
+    Notification(
+      'ADT_A03  ',
+      'Patient has been Discharged',
+      'Nurses',
+      'ED Doctor',
+      '/dashboard/home/notes',
+      _id,
+      '',
+      'ED Nurse'
+    );
+  }
 
-  Notification(
-    'ADT_A03  ',
-    'Patient has been Discharged',
-    'Nurses',
-    'ED Doctor',
-    '/dashboard/home/notes',
-    _id,
-    '',
-    'ED Nurse'
-  );
+  if (edr.currentLocation === 'EOU') {
+    Notification(
+      'ADT_A03  ',
+      'Patient has been Discharged',
+      'Nurses',
+      'ED Doctor',
+      '/dashboard/home/notes',
+      _id,
+      '',
+      'EOU Nurse'
+    );
+  }
 
   if (req.body.dischargeRequest.dischargeMedication.medicine !== []) {
     Notification(
@@ -4523,11 +4542,47 @@ exports.searchAllEdrs = asyncHandler(async (req, res, next) => {
       path: 'pharmacyRequest.reconciliationNotes.addedBy',
       model: 'staff',
     },
+    {
+      path: 'newChiefComplaint.newChiefComplaintId',
+      model: 'NewChiefComplaint',
+    },
   ]);
 
   const arr = searchPatient(req, patients);
   res.status(200).json({
     success: true,
     data: arr,
+  });
+});
+
+exports.searchEdr = asyncHandler(async (req, res, next) => {
+  const edrId = await EDR.aggregate([
+    {
+      $match: {
+        requestNo: { $regex: req.params.keyword, $options: 'i' },
+      },
+    },
+  ]);
+  const edr = await EDR.populate(edrId, [
+    {
+      path: 'patientId',
+      select: 'name identifier',
+    },
+  ]);
+  res.status(200).json({
+    success: true,
+    data: edr,
+  });
+});
+
+exports.getEdrByRequestNo = asyncHandler(async (req, res, next) => {
+  const edr = await EDR.findOne({ requestNo: req.params.requestNo }).populate(
+    'patientId',
+    'name identifier'
+  );
+
+  res.status(200).json({
+    success: true,
+    data: edr,
   });
 });

@@ -42,20 +42,21 @@ exports.getICD = asyncHandler(async (req, res) => {
 });
 
 exports.getICDCategories = asyncHandler(async (req, res) => {
-  const icd = await ICD.find().select({ procedureCodeCategory: 1 });
-  var uniqueArray = (function (icd) {
-    var m = {},
-      uniqueArray = [];
-    for (var i = 0; i < icd.length; i++) {
-      var v = icd[i].procedureCodeCategory;
-      if (!m[v]) {
-        uniqueArray.push(v);
-        m[v] = true;
-      }
-    }
-    return uniqueArray;
-  })(icd);
-  res.status(200).json({ success: true, data: uniqueArray });
+  const icd = await ICD.find();
+
+  // var uniqueArray = (function (icd) {
+  //   var m = {},
+  //     uniqueArray = [];
+  //   for (var i = 0; i < icd.length; i++) {
+  //     var v = icd[i].procedureCodeCategory;
+  //     if (!m[v]) {
+  //       uniqueArray.push(v);
+  //       m[v] = true;
+  //     }
+  //   }
+  //   return uniqueArray;
+  // })(icd);
+  res.status(200).json({ success: true, data: icd });
 });
 exports.getICDByCategories = asyncHandler(async (req, res) => {
   const icd = await ICD.find({

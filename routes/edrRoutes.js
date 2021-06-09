@@ -75,6 +75,8 @@ const {
   updatedDcdFormStatus,
 
   searchAllEdrs,
+  searchEdr,
+  getEdrByRequestNo,
 } = require('../controllers/edrController');
 
 const router = express.Router();
@@ -188,5 +190,7 @@ router.get(
 router.get('/pendingDoctorNotes', pendingDoctorNotes);
 router.get('/inprogressDoctorNotes', inprogressDoctorNotes);
 router.get('/completedDoctorNotes', completedDoctorNotes);
+router.get('/searchEdr/:keyword', searchEdr);
+router.get('/getEdrByRequestNo/:requestNo', getEdrByRequestNo);
 
 module.exports = router;

@@ -1,3 +1,4 @@
+const moment = require('moment');
 const Staff = require('../models/staffFhir/staff');
 const asyncHandler = require('../middleware/async');
 const EDR = require('../models/EDR/EDR');
@@ -239,9 +240,9 @@ exports.getPatientByRoom = asyncHandler(async (req, res, next) => {
     'room.roomId': req.params.roomId,
     room: { $ne: [] },
   }).select('room');
-  // console.log(rooms.room.length);
+
   const latestRoom = rooms.room.length - 1;
-  // console.log(latestRoom);
+
   const patient = await EDR.findOne({
     [`room.${latestRoom}.roomId`]: req.params.roomId,
   })
@@ -839,6 +840,33 @@ exports.getLabTest = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.getRadTest = asyncHandler(async (req, res, next) => {
+  const rads = await EDR.find({
+    status: 'Discharged',
+    radRequest: { $ne: [] },
+    currentLocation: 'ED',
+  })
+    .select('patientId radRequest')
+    .populate([
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'identifier name',
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+        select: 'roomId roomNo',
+      },
+    ]);
+  // labs.map((lab) => (lab.totalTests = lab.labRequest.length));
+
+  res.status(200).json({
+    success: true,
+    data: rads,
+  });
+});
+
 exports.getDeceased = asyncHandler(async (req, res, next) => {
   const deceased = await EDR.find({
     status: 'Discharged',
@@ -864,6 +892,7 @@ exports.getDeceased = asyncHandler(async (req, res, next) => {
     data: deceased,
   });
 });
+
 exports.getEDCSPatients = asyncHandler(async (req, res, next) => {
   const patients = await EDR.aggregate([
     {
@@ -1250,6 +1279,156 @@ exports.getDischargedRequirements = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.deathOccurredPerCS = asyncHandler(async (req, res, next) => {
+  const patients = await EDR.find({
+    status: 'Discharged',
+    currentLocation: 'ED',
+    'dischargeRequest.dischargeSummary.edrCompletionReason': 'deceased',
+    careStream: { $ne: [] },
+  }).select('careStream.careStreamId');
+
+  console.log(patients);
+
+  const newArray = [];
+  const cs = await CS.find().select('name');
+  for (let i = 0; i < cs.length; i++) {
+    let count = 0;
+    const obj = JSON.parse(JSON.stringify(cs[i]));
+    for (let j = 0; j < patients.length; j++) {
+      if (
+        cs[i]._id.toString() ===
+        patients[j].careStream[
+          patients[j].careStream.length - 1
+        ].careStreamId.toString()
+      ) {
+        count++;
+      }
+    }
+    obj.count = count;
+    newArray.push(obj);
+  }
+
+  res.status(200).json({
+    success: true,
+    data: newArray,
+  });
+});
+
+exports.chiefComplaintBeds = asyncHandler(async (req, res, next) => {
+  const patients = await EDR.find({
+    currentLocation: 'ED',
+    status: 'pending',
+    newChiefComplaint: { $ne: [] },
+  })
+    .select('patientId newChiefComplaint chiefComplaint')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'name identifier',
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+        select: 'roomId roomNo',
+      },
+    ])
+    .populate('newChiefComplaint.newChiefComplaintId');
+
+  res.status(200).json({
+    success: true,
+    data: patients,
+  });
+});
+
+exports.csInProgress = asyncHandler(async (req, res, next) => {
+  const unwind = await EDR.aggregate([
+    {
+      $project: {
+        patientId: 1,
+        careStream: 1,
+        currentLocation: 1,
+        status: 1,
+      },
+    },
+    {
+      $unwind: '$careStream',
+    },
+    {
+      $match: {
+        $and: [
+          { 'careStream.status': 'in_progress' },
+          { currentLocation: 'ED' },
+          { status: 'pending' },
+        ],
+      },
+    },
+  ]);
+
+  const patients = await EDR.populate(unwind, [
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+      select: 'name identifier',
+    },
+  ]);
+
+  res.status(200).json({
+    success: true,
+    data: patients,
+  });
+});
+
+exports.medicationRequestsED = asyncHandler(async (req, res, next) => {
+  const patients = await EDR.find({
+    currentLocation: 'ED',
+    status: 'pending',
+    pharmacyRequest: { $ne: [] },
+  })
+    .select('patientId newChiefComplaint chiefComplaint')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'name identifier',
+      },
+      {
+        path: 'room.roomId',
+        model: 'room',
+        select: 'roomId roomNo',
+      },
+    ]);
+
+  res.status(200).json({
+    success: true,
+    data: patients,
+  });
+});
+
 // Eou Stats
 exports.eouTimeInterval = asyncHandler(async (req, res, next) => {
   const patientsTime = await EDR.aggregate([
@@ -1431,5 +1610,80 @@ exports.doctorResponseTime = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: responseTime,
+  });
+});
+
+exports.patientShiftedInEOU = asyncHandler(async (req, res, next) => {
+  const oneDay = moment().subtract(24, 'hours').utc().toDate();
+  const oneWeek = moment().subtract(7, 'd').utc().toDate();
+  const oneMonth = moment().subtract(30, 'd').utc().toDate();
+
+  const oneDayTransfer = await EouTransfer.find({
+    to: 'EOU',
+    status: 'completed',
+    completedAt: { $gt: oneDay },
+  }).countDocuments();
+
+  const oneWeekTransfer = await EouTransfer.find({
+    to: 'EOU',
+    status: 'completed',
+    completedAt: { $gt: oneWeek },
+  }).countDocuments();
+
+  const oneMonthTransfer = await EouTransfer.find({
+    to: 'EOU',
+    status: 'completed',
+    completedAt: { $gt: oneMonth },
+  }).countDocuments();
+
+  const obj = {
+    oneDay: oneDayTransfer,
+    oneWeek: oneWeekTransfer,
+    oneMonth: oneMonthTransfer,
+  };
+
+  const arr = [];
+  arr.push(obj);
+
+  res.status(200).json({
+    success: true,
+    data: arr,
+  });
+});
+
+exports.currentEOUPatients = asyncHandler(async (req, res, next) => {
+  const eouPatients = await EDR.find({
+    currentLocation: 'EOU',
+    status: 'pending',
+  })
+    .select('patientId chiefComplaint')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'name identifier',
+      },
+      {
+        path: 'eouBed.bedId',
+        model: 'Bed',
+        select: 'bedId bedNo',
+      },
+    ]);
+
+  res.status(200).json({
+    success: true,
+    data: eouPatients,
   });
 });

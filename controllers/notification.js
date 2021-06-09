@@ -90,6 +90,11 @@ exports.readNotifications = asyncHandler(async (req, res, next) => {
           model: 'room',
           select: 'roomNo',
         },
+        {
+          path: 'eouBed.bedId',
+          model: 'Bed',
+          select: 'bedId bedNo',
+        },
       ],
     },
     {
@@ -158,6 +163,11 @@ exports.unReadNotifications = asyncHandler(async (req, res, next) => {
           path: 'room.roomId',
           model: 'room',
           select: 'roomNo',
+        },
+        {
+          path: 'eouBed.bedId',
+          model: 'Bed',
+          select: 'bedId bedNo',
         },
       ],
     },
