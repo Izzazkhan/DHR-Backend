@@ -287,6 +287,13 @@ const edrSchema = new mongoose.Schema({
                       name: String, // for rows such as 'Medications' & 'Allergies' which has 'See list' Option
                     },
                   ],
+                  dropdownSelectedValue: [
+                    {
+                      name: String,
+                      code: String,
+                      detail: String,
+                    },
+                  ],
                 },
               ],
               Texts: [
@@ -475,6 +482,7 @@ const edrSchema = new mongoose.Schema({
                     {
                       name: String,
                       code: String,
+                      detail: String,
                     },
                   ],
                 },
