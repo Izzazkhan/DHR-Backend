@@ -612,6 +612,21 @@ const edrSchema = new mongoose.Schema({
       assignedTime: Date,
       code: [{ type: String }],
       section: String,
+
+      updateRecord: [
+        {
+          updatedAt: {
+            type: Date,
+          },
+          updatedBy: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
+          },
+          reason: {
+            type: String,
+          },
+        },
+      ],
     },
   ],
 
