@@ -821,10 +821,31 @@ exports.getPatientsWithCSByKeyword = asyncHandler(async (req, res, next) => {
 });
 
 exports.getEDRswithCS = asyncHandler(async (req, res, next) => {
+  const doctorPA = await Staff.findById(req.params.staffId)
+    .select('chiefComplaint.chiefComplaintId')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+    ]);
+  const latestCC = doctorPA.chiefComplaint.length - 1;
+
+  const chiefComplaintId =
+    doctorPA.chiefComplaint[latestCC].chiefComplaintId._id;
+
   const patients = await EDR.find({
     status: 'pending',
     // careStream: { $ne: [] },
     room: { $ne: [] },
+    'chiefComplaint.chiefComplaintId': chiefComplaintId,
   })
     .populate([
       {
