@@ -515,7 +515,8 @@ exports.addDoctorNotes = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateDoctorNotes = asyncHandler(async (req, res, next) => {
-  const parsed = JSON.parse(req.body.data);
+  //   const parsed = JSON.parse(req.body.data);
+  const parsed = req.body;
   // const parsed = req.body;
   //   const edrNotes = await EDR.findOne({ _id: parsed.edrId });
 
@@ -526,6 +527,22 @@ exports.updateDoctorNotes = asyncHandler(async (req, res, next) => {
   //       note = i;
   //     }
   //   }
+  const updateRecord = {
+    updatedAt: Date.now(),
+    reason: parsed.reason,
+    updatedBy: parsed.addedBy,
+  };
+
+  await EDR.findOneAndUpdate(
+    { _id: parsed.edrId, 'doctorNotes._id': parsed.noteId },
+    {
+      $push: {
+        'doctorNotes.$.updateRecord': updateRecord,
+      },
+    },
+
+    { new: true }
+  );
   const updatedNote = await EDR.findOneAndUpdate(
     { _id: parsed.edrId, 'doctorNotes._id': parsed.noteId },
     {
@@ -630,22 +647,6 @@ exports.updateDoctorNotes = asyncHandler(async (req, res, next) => {
     },
   ]);
 
-  const updateRecord = {
-    updatedAt: Date.now(),
-    reason: parsed.reason,
-    updatedBy: parsed.addedBy,
-  };
-
-  await EDR.findOneAndUpdate(
-    { _id: parsed.edrId, 'doctorNotes._id': parsed.noteId },
-    {
-      $push: {
-        'doctorNotes.$.updateRecord': updateRecord,
-      },
-    },
-
-    { new: true }
-  );
   res.status(200).json({
     success: true,
     data: updatedNote,
