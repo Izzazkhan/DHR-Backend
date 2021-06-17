@@ -515,18 +515,8 @@ exports.addDoctorNotes = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateDoctorNotes = asyncHandler(async (req, res, next) => {
-  //   const parsed = JSON.parse(req.body.data);
-  const parsed = req.body;
-  // const parsed = req.body;
-  //   const edrNotes = await EDR.findOne({ _id: parsed.edrId });
+  const parsed = JSON.parse(req.body.data);
 
-  //   let note;
-  //   for (let i = 0; i < edrNotes.doctorNotes.length; i++) {
-  //     if (edrNotes.doctorNotes[i]._id == parsed.noteId) {
-  //       // console.log(i);
-  //       note = i;
-  //     }
-  //   }
   const updateRecord = {
     updatedAt: Date.now(),
     reason: parsed.reason,
