@@ -4330,7 +4330,7 @@ exports.addPharmacyRequest = asyncHandler(async (req, res, next) => {
 exports.updatePharmcayRequest = asyncHandler(async (req, res, next) => {
   const updateRecord = {
     updatedAt: Date.now(),
-    updatedBy: req.body.addedBy,
+    updatedBy: req.body.requestedBy,
     reason: req.body.reason,
   };
 
