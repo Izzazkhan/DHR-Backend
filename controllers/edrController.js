@@ -1079,7 +1079,7 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateLab = asyncHandler(async (req, res, next) => {
-  const parsed = JSON.parse(req.body);
+  const parsed = req.body;
   const lab = await EDR.findOne({ _id: parsed.edrId });
   let note;
   for (let i = 0; i < lab.labRequest.length; i++) {
