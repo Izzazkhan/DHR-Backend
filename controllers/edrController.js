@@ -632,8 +632,8 @@ exports.updateDoctorNotes = asyncHandler(async (req, res, next) => {
 
   const updateRecord = {
     updatedAt: Date.now(),
-    updatedBy: parsed.staffId,
     reason: parsed.reason,
+    updatedBy: parsed.staffId,
   };
 
   await EDR.findOneAndUpdate(
