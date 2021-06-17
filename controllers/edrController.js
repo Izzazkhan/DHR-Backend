@@ -517,23 +517,23 @@ exports.addDoctorNotes = asyncHandler(async (req, res, next) => {
 exports.updateDoctorNotes = asyncHandler(async (req, res, next) => {
   const parsed = JSON.parse(req.body.data);
   // const parsed = req.body;
-  const edrNotes = await EDR.findOne({ _id: parsed.edrId });
+  //   const edrNotes = await EDR.findOne({ _id: parsed.edrId });
 
-  let note;
-  for (let i = 0; i < edrNotes.doctorNotes.length; i++) {
-    if (edrNotes.doctorNotes[i]._id == parsed.noteId) {
-      // console.log(i);
-      note = i;
-    }
-  }
+  //   let note;
+  //   for (let i = 0; i < edrNotes.doctorNotes.length; i++) {
+  //     if (edrNotes.doctorNotes[i]._id == parsed.noteId) {
+  //       // console.log(i);
+  //       note = i;
+  //     }
+  //   }
   const updatedNote = await EDR.findOneAndUpdate(
-    { _id: parsed.edrId },
+    { _id: parsed.edrId, 'doctorNotes._id': parsed.noteId },
     {
       $set: {
-        [`doctorNotes.${note}.notes`]: parsed.notes,
-        [`doctorNotes.${note}.code`]: parsed.code,
-        [`doctorNotes.${note}.section`]: parsed.section,
-        [`doctorNotes.${note}.voiceNotes`]: req.file
+        'doctorNotes.$.notes': parsed.notes,
+        'doctorNotes.$.code': parsed.code,
+        'doctorNotes.$.section': parsed.section,
+        'doctorNotes.$.voiceNotes': req.file
           ? req.file.path
           : parsed.voiceNotes,
       },
@@ -633,14 +633,14 @@ exports.updateDoctorNotes = asyncHandler(async (req, res, next) => {
   const updateRecord = {
     updatedAt: Date.now(),
     reason: parsed.reason,
-    updatedBy: parsed.staffId,
+    updatedBy: parsed.addedBy,
   };
 
   await EDR.findOneAndUpdate(
-    { _id: parsed.edrId },
+    { _id: parsed.edrId, 'doctorNotes._id': parsed.noteId },
     {
       $push: {
-        [`doctorNotes.${note}.updateRecord`]: updateRecord,
+        'doctorNotes.$.updateRecord': updateRecord,
       },
     },
 
