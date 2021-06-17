@@ -729,6 +729,20 @@ const edrSchema = new mongoose.Schema({
         type: String,
       },
       completedAt: Date,
+      updateRecord: [
+        {
+          updatedAt: {
+            type: Date,
+          },
+          updatedBy: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
+          },
+          reason: {
+            type: String,
+          },
+        },
+      ],
     },
   ],
   eouNurseRequest: [
@@ -756,6 +770,20 @@ const edrSchema = new mongoose.Schema({
       speciality: {
         type: String,
       },
+      updateRecord: [
+        {
+          updatedAt: {
+            type: Date,
+          },
+          updatedBy: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
+          },
+          reason: {
+            type: String,
+          },
+        },
+      ],
     },
   ],
 
