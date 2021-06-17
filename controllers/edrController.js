@@ -3307,6 +3307,23 @@ exports.updateEDNurseRequest = asyncHandler(async (req, res, next) => {
     }
   }
 
+  const updateRecord = {
+    updatedAt: Date.now(),
+    reason: parsed.reason,
+    updatedBy: parsed.addedBy,
+  };
+
+  await EDR.findOneAndUpdate(
+    { _id: parsed.edrId, 'edNurseRequest._id': parsed.noteId },
+    {
+      $push: {
+        'edNurseRequest.$.updateRecord': updateRecord,
+      },
+    },
+
+    { new: true }
+  );
+
   const updatedRequest = await EDR.findOneAndUpdate(
     { _id: parsed.edrId },
     {
