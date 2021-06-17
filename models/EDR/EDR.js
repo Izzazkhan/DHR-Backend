@@ -715,6 +715,20 @@ const edrSchema = new mongoose.Schema({
       delayTime: {
         type: Date,
       },
+      updateRecord: [
+        {
+          updatedAt: {
+            type: Date,
+          },
+          updatedBy: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
+          },
+          reason: {
+            type: String,
+          },
+        },
+      ],
     },
   ],
   edNurseRequest: [
@@ -1010,6 +1024,20 @@ const edrSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
       },
+      updateRecord: [
+        {
+          updatedAt: {
+            type: Date,
+          },
+          updatedBy: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
+          },
+          reason: {
+            type: String,
+          },
+        },
+      ],
     },
   ],
 
