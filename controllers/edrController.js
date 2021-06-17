@@ -3033,8 +3033,8 @@ exports.addAnesthesiologistNote = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateAnesthesiologistNote = asyncHandler(async (req, res, next) => {
-  //   const parsed = JSON.parse(req.body.data);
-  const parsed = req.body;
+  const parsed = JSON.parse(req.body.data);
+  //   const parsed = req.body;
   const edrNotes = await EDR.findOne({ _id: parsed.edrId });
 
   let note;
