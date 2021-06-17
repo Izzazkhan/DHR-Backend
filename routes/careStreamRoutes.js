@@ -31,7 +31,7 @@ router.put('/asignCareStream', asignCareStream);
 router.get('/getAllCareStreams', getAllCareStreams);
 router.get('/getAllEnableDisableCareStreams', getAllEnableDisableCareStreams);
 router.get('/getMedicationsCareStreams', getMedicationsCareStreams);
-router.get('/getCSPatients', getCSPatients);
+router.get('/getCSPatients/:staffId', getCSPatients);
 router.get('/getMedicationsByIdCareStreams/:id', getMedicationsByIdCareStreams);
 router.get('/searchCSPatient/:keyword', getPatientWithoutCSByKeyword);
 router.get('/searchEdrwithCS/:keyword/:staffId', getPatientsWithCSByKeyword);
