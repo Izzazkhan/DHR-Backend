@@ -1090,7 +1090,7 @@ exports.updateLab = asyncHandler(async (req, res, next) => {
 
   const updateRecord = {
     updatedAt: Date.now(),
-    updatedBy: parsed.staffId,
+    updatedBy: parsed.addedBy,
     reason: parsed.reason,
   };
 
@@ -2030,7 +2030,7 @@ exports.updateRad = asyncHandler(async (req, res, next) => {
   }
   const updateRecord = {
     updatedAt: Date.now(),
-    updatedBy: req.body.staffId,
+    updatedBy: req.body.addedBy,
     reason: req.body.reason,
   };
 
