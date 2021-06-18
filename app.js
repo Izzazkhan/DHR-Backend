@@ -59,6 +59,7 @@ const Flag = require('./models/flag/Flag');
 const newCC = require('./routes/newChiefComplaint');
 const EOU = require('./routes/EOU');
 const bed = require('./routes/bed');
+const transferOfCare = require('./routes/transferOfCare');
 
 const app = express();
 
@@ -123,7 +124,7 @@ app.use('/api/notifications', notification);
 app.use('/api/newCC', newCC);
 app.use('/api/eou', EOU);
 app.use('/api/bed', bed);
-
+app.use('/api/transferOfCare', transferOfCare);
 app.use(errorHandler);
 
 const DB = process.env.MONGO_URI;
