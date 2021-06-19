@@ -2,6 +2,7 @@ const Staff = require('../models/staffFhir/staff');
 const EDR = require('../models/EDR/EDR');
 const asyncHandler = require('../middleware/async');
 const Shift = require('../models/shift');
+const TOS = require('../models/TransferOfCare');
 
 exports.getCurrentShiftDocs = asyncHandler(async (req, res, next) => {
   const doctorPA = await Staff.findById(req.params.staffId)
@@ -100,5 +101,40 @@ exports.getNextShiftDocs = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: staff,
+  });
+});
+
+exports.submitTransfer = asyncHandler(async (req, res, next) => {
+  const { edrId, transferredBy, transferredTo } = req.body;
+  const newTOS = await TOS.create({
+    edrId,
+    transferredBy,
+    transferredTo,
+    transferredAt: Date.now(),
+  });
+
+  await EDR.findOneAndUpdate(
+    { _id: req.body.edrId },
+    {
+      $set: {
+        'doctorNotes.$[].currentOwner': transferredTo,
+        'edNurseRequest.$[].currentOwner': transferredTo,
+        'eouNurseRequest.$[].currentOwner': transferredTo,
+        'nurseTechnicianRequest.$[].currentOwner': transferredTo,
+        'consultationNote.$[].currentOwner': transferredTo,
+        'anesthesiologistNote.$[].currentOwner': transferredTo,
+        'pharmacyRequest.$[].currentOwner': transferredTo,
+        'labRequest.$[].currentOwner': transferredTo,
+        'radRequest.$[].currentOwner': transferredTo,
+      },
+    },
+    {
+      new: true,
+    }
+  );
+
+  res.status(200).json({
+    success: true,
+    data: newTOS,
   });
 });
