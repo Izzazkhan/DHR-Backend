@@ -46,6 +46,10 @@ const TransferToEDEOUSchema = new mongoose.Schema(
     completedAt: {
       type: Date,
     },
+    eouNurseAssigned: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

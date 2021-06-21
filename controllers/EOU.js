@@ -6,6 +6,7 @@ const EOU = require('../models/EOU');
 const Bed = require('../models/Bed');
 const EDR = require('../models/EDR/EDR');
 const EOUNurse = require('../models/EOUNurse');
+const TransferToEOU = require('../models/patientTransferEDEOU/patientTransferEDEOU');
 
 exports.createEOU = asyncHandler(async (req, res, next) => {
   const newEou = await EOU.create(req.body);
@@ -151,8 +152,20 @@ exports.getAvailableBeds = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.pendingNurseAssign = asyncHandler(async (req, res, next) => {
+  const edrs = await TransferToEOU.find({
+    status: 'completed',
+    eouNurseAssigned: false,
+  });
+
+  res.status(200).json({
+    success: true,
+    data: edrs,
+  });
+});
+
 exports.assignBedTONurse = asyncHandler(async (req, res, next) => {
-  const { nurseId, bedNo, bedId, edrId, assignedBy } = req.body;
+  const { nurseId, bedNo, bedId, edrId, assignedBy, transferId } = req.body;
   const assignedBed = await EOUNurse.create({
     nurseId,
     bedNo,
@@ -162,8 +175,26 @@ exports.assignBedTONurse = asyncHandler(async (req, res, next) => {
     assignedAt: Date.now(),
   });
 
+  await TransferToEOU.findOneAndUpdate(
+    { _id: transferId },
+    { $set: { eouNurseAssigned: true } },
+    { new: true }
+  );
+
   res.status(200).json({
     success: true,
     data: assignedBed,
+  });
+});
+
+exports.completedNurseAssign = asyncHandler(async (req, res, next) => {
+  const edrs = await TransferToEOU.find({
+    status: 'completed',
+    eouNurseAssigned: true,
+  });
+
+  res.status(200).json({
+    success: true,
+    data: edrs,
   });
 });

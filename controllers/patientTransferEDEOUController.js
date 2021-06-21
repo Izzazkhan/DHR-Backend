@@ -42,6 +42,11 @@ exports.getPendingTransferReqED = asyncHandler(async (req, res, next) => {
           path: 'newChiefComplaint.newChiefComplaintId',
           model: 'NewChiefComplaint',
         },
+        {
+          path: 'eouBed.bedId',
+          model: 'Bed',
+          select: 'bedId bedNo',
+        },
       ],
     },
   ]);
@@ -83,6 +88,11 @@ exports.getCompletedTransferReqED = asyncHandler(async (req, res, next) => {
         {
           path: 'newChiefComplaint.newChiefComplaintId',
           model: 'NewChiefComplaint',
+        },
+        {
+          path: 'eouBed.bedId',
+          model: 'Bed',
+          select: 'bedId bedNo',
         },
       ],
     },
