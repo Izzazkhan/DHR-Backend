@@ -3,7 +3,7 @@ const EDR = require('../models/EDR/EDR');
 const asyncHandler = require('../middleware/async');
 const Shift = require('../models/shift');
 const TOC = require('../models/TransferOfCare');
-const Notification = require('./notification');
+const Notification = require('../components/notification');
 
 exports.getCurrentShiftDocs = asyncHandler(async (req, res, next) => {
   const doctorPA = await Staff.findById(req.params.staffId)
