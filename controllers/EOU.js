@@ -156,7 +156,44 @@ exports.pendingNurseAssign = asyncHandler(async (req, res, next) => {
   const edrs = await TransferToEOU.find({
     status: 'completed',
     eouNurseAssigned: false,
-  });
+  }).populate([
+    {
+      path: 'edrId',
+      model: 'EDR',
+      select: 'patientId room chiefComplaint',
+      populate: [
+        {
+          path: 'patientId',
+          model: 'patientfhir',
+          select: 'identifier name',
+        },
+        {
+          path: 'room.roomId',
+          model: 'room',
+          select: 'roomNo ',
+        },
+        {
+          path: 'chiefComplaint.chiefComplaintId',
+          model: 'chiefComplaint',
+          select: 'productionArea.productionAreaId',
+          populate: {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        },
+        {
+          path: 'newChiefComplaint.newChiefComplaintId',
+          model: 'NewChiefComplaint',
+        },
+        {
+          path: 'eouBed.bedId',
+          model: 'Bed',
+          select: 'bedId bedNo',
+        },
+      ],
+    },
+  ]);
 
   res.status(200).json({
     success: true,
@@ -191,7 +228,44 @@ exports.completedNurseAssign = asyncHandler(async (req, res, next) => {
   const edrs = await TransferToEOU.find({
     status: 'completed',
     eouNurseAssigned: true,
-  });
+  }).populate([
+    {
+      path: 'edrId',
+      model: 'EDR',
+      select: 'patientId room chiefComplaint',
+      populate: [
+        {
+          path: 'patientId',
+          model: 'patientfhir',
+          select: 'identifier name',
+        },
+        {
+          path: 'room.roomId',
+          model: 'room',
+          select: 'roomNo ',
+        },
+        {
+          path: 'chiefComplaint.chiefComplaintId',
+          model: 'chiefComplaint',
+          select: 'productionArea.productionAreaId',
+          populate: {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        },
+        {
+          path: 'newChiefComplaint.newChiefComplaintId',
+          model: 'NewChiefComplaint',
+        },
+        {
+          path: 'eouBed.bedId',
+          model: 'Bed',
+          select: 'bedId bedNo',
+        },
+      ],
+    },
+  ]);
 
   res.status(200).json({
     success: true,
