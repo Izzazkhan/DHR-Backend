@@ -5,6 +5,7 @@ const ErrorResponse = require('../utils/errorResponse');
 const EOU = require('../models/EOU');
 const Bed = require('../models/Bed');
 const EDR = require('../models/EDR/EDR');
+const EOUNurse = require('../models/EOUNurse');
 
 exports.createEOU = asyncHandler(async (req, res, next) => {
   const newEou = await EOU.create(req.body);
@@ -150,4 +151,19 @@ exports.getAvailableBeds = asyncHandler(async (req, res, next) => {
   });
 });
 
-// exports.assignBedTONurse = asyncHandler(async (req, res, next) => {});
+exports.assignBedTONurse = asyncHandler(async (req, res, next) => {
+  const { nurseId, bedNo, bedId, edrId, assignedBy } = req.body;
+  const assignedBed = await EOUNurse.create({
+    nurseId,
+    bedNo,
+    bedId,
+    edrId,
+    assignedBy,
+    assignedAt: Date.now(),
+  });
+
+  res.status(200).json({
+    success: true,
+    data: assignedBed,
+  });
+});

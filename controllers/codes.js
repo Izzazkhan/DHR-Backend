@@ -42,7 +42,7 @@ exports.getICD = asyncHandler(async (req, res) => {
 });
 
 exports.getICDCategories = asyncHandler(async (req, res) => {
-  const icd = await ICD.find();
+  const icd = await ICD.find().select('ShortDesc');
 
   // var uniqueArray = (function (icd) {
   //   var m = {},
@@ -57,6 +57,30 @@ exports.getICDCategories = asyncHandler(async (req, res) => {
   //   return uniqueArray;
   // })(icd);
   res.status(200).json({ success: true, data: icd });
+});
+exports.searchIcd = asyncHandler(async (req, res, next) => {
+  const icd = await ICD.aggregate([
+    {
+      $project: {
+        Code: 1,
+        ShortDesc: 1,
+      },
+    },
+    {
+      $match: {
+        $or: [
+          { Code: { $regex: req.params.keyword, $options: 'i' } },
+
+          { ShortDesc: { $regex: req.params.keyword, $options: 'i' } },
+        ],
+      },
+    },
+  ]);
+
+  res.status(200).json({
+    success: true,
+    data: icd,
+  });
 });
 exports.getICDByCategories = asyncHandler(async (req, res) => {
   const icd = await ICD.find({

@@ -612,6 +612,21 @@ const edrSchema = new mongoose.Schema({
       assignedTime: Date,
       code: [{ type: String }],
       section: String,
+
+      updateRecord: [
+        {
+          updatedAt: {
+            type: Date,
+          },
+          updatedBy: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
+          },
+          reason: {
+            type: String,
+          },
+        },
+      ],
     },
   ],
 
@@ -650,6 +665,20 @@ const edrSchema = new mongoose.Schema({
       consultantVoiceNotes: {
         type: String,
       },
+      updateRecord: [
+        {
+          updatedAt: {
+            type: Date,
+          },
+          updatedBy: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
+          },
+          reason: {
+            type: String,
+          },
+        },
+      ],
     },
   ],
   anesthesiologistNote: [
@@ -686,6 +715,20 @@ const edrSchema = new mongoose.Schema({
       delayTime: {
         type: Date,
       },
+      updateRecord: [
+        {
+          updatedAt: {
+            type: Date,
+          },
+          updatedBy: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
+          },
+          reason: {
+            type: String,
+          },
+        },
+      ],
     },
   ],
   edNurseRequest: [
@@ -714,6 +757,20 @@ const edrSchema = new mongoose.Schema({
         type: String,
       },
       completedAt: Date,
+      updateRecord: [
+        {
+          updatedAt: {
+            type: Date,
+          },
+          updatedBy: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
+          },
+          reason: {
+            type: String,
+          },
+        },
+      ],
     },
   ],
   eouNurseRequest: [
@@ -741,6 +798,20 @@ const edrSchema = new mongoose.Schema({
       speciality: {
         type: String,
       },
+      updateRecord: [
+        {
+          updatedAt: {
+            type: Date,
+          },
+          updatedBy: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
+          },
+          reason: {
+            type: String,
+          },
+        },
+      ],
     },
   ],
 
@@ -769,6 +840,20 @@ const edrSchema = new mongoose.Schema({
       speciality: {
         type: String,
       },
+      updateRecord: [
+        {
+          updatedAt: {
+            type: Date,
+          },
+          updatedBy: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
+          },
+          reason: {
+            type: String,
+          },
+        },
+      ],
     },
   ],
   residentNotes: [
@@ -939,6 +1024,20 @@ const edrSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
       },
+      updateRecord: [
+        {
+          updatedAt: {
+            type: Date,
+          },
+          updatedBy: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
+          },
+          reason: {
+            type: String,
+          },
+        },
+      ],
     },
   ],
 

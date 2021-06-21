@@ -516,24 +516,31 @@ exports.addDoctorNotes = asyncHandler(async (req, res, next) => {
 
 exports.updateDoctorNotes = asyncHandler(async (req, res, next) => {
   const parsed = JSON.parse(req.body.data);
-  // const parsed = req.body;
-  const edrNotes = await EDR.findOne({ _id: parsed.edrId });
 
-  let note;
-  for (let i = 0; i < edrNotes.doctorNotes.length; i++) {
-    if (edrNotes.doctorNotes[i]._id == parsed.noteId) {
-      // console.log(i);
-      note = i;
-    }
-  }
+  const updateRecord = {
+    updatedAt: Date.now(),
+    reason: parsed.reason,
+    updatedBy: parsed.addedBy,
+  };
+
+  await EDR.findOneAndUpdate(
+    { _id: parsed.edrId, 'doctorNotes._id': parsed.noteId },
+    {
+      $push: {
+        'doctorNotes.$.updateRecord': updateRecord,
+      },
+    },
+
+    { new: true }
+  );
   const updatedNote = await EDR.findOneAndUpdate(
-    { _id: parsed.edrId },
+    { _id: parsed.edrId, 'doctorNotes._id': parsed.noteId },
     {
       $set: {
-        [`doctorNotes.${note}.notes`]: parsed.notes,
-        [`doctorNotes.${note}.code`]: parsed.code,
-        [`doctorNotes.${note}.section`]: parsed.section,
-        [`doctorNotes.${note}.voiceNotes`]: req.file
+        'doctorNotes.$.notes': parsed.notes,
+        'doctorNotes.$.code': parsed.code,
+        'doctorNotes.$.section': parsed.section,
+        'doctorNotes.$.voiceNotes': req.file
           ? req.file.path
           : parsed.voiceNotes,
       },
@@ -629,7 +636,7 @@ exports.updateDoctorNotes = asyncHandler(async (req, res, next) => {
       model: 'staff',
     },
   ]);
-  // console.log(updatedNote);
+
   res.status(200).json({
     success: true,
     data: updatedNote,
@@ -1072,7 +1079,7 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateLab = asyncHandler(async (req, res, next) => {
-  const parsed = JSON.parse(req.body);
+  const parsed = req.body;
   const lab = await EDR.findOne({ _id: parsed.edrId });
   let note;
   for (let i = 0; i < lab.labRequest.length; i++) {
@@ -1080,6 +1087,23 @@ exports.updateLab = asyncHandler(async (req, res, next) => {
       note = i;
     }
   }
+
+  const updateRecord = {
+    updatedAt: Date.now(),
+    updatedBy: parsed.addedBy,
+    reason: parsed.reason,
+  };
+
+  await EDR.findOneAndUpdate(
+    { _id: parsed.edrId },
+    {
+      $push: {
+        [`labRequest.${note}.updateRecord`]: updateRecord,
+      },
+    },
+    { new: true }
+  );
+
   const updatedLab = await EDR.findOneAndUpdate(
     { _id: parsed.edrId },
     {
@@ -1483,7 +1507,22 @@ exports.updateConsultationNote = asyncHandler(async (req, res, next) => {
       note = i;
     }
   }
-  // console.log(note);
+  const updateRecord = {
+    updatedAt: Date.now(),
+    reason: parsed.reason,
+    updatedBy: parsed.addedBy,
+  };
+
+  await EDR.findOneAndUpdate(
+    { _id: parsed.edrId, 'consultationNote._id': parsed.noteId },
+    {
+      $push: {
+        'consultationNote.$.updateRecord': updateRecord,
+      },
+    },
+
+    { new: true }
+  );
   const updatedNote = await EDR.findOneAndUpdate(
     { _id: parsed.edrId },
     {
@@ -1989,6 +2028,21 @@ exports.updateRad = asyncHandler(async (req, res, next) => {
       note = i;
     }
   }
+  const updateRecord = {
+    updatedAt: Date.now(),
+    updatedBy: req.body.addedBy,
+    reason: req.body.reason,
+  };
+
+  await EDR.findOneAndUpdate(
+    { _id: req.body.edrId },
+    {
+      $push: {
+        [`radRequest.${note}.updateRecord`]: updateRecord,
+      },
+    },
+    { new: true }
+  );
   // console.log('note', note);
   const updatedrad = await EDR.findOneAndUpdate(
     { _id: req.body.edrId },
@@ -2980,6 +3034,7 @@ exports.addAnesthesiologistNote = asyncHandler(async (req, res, next) => {
 
 exports.updateAnesthesiologistNote = asyncHandler(async (req, res, next) => {
   const parsed = JSON.parse(req.body.data);
+  //   const parsed = req.body;
   const edrNotes = await EDR.findOne({ _id: parsed.edrId });
 
   let note;
@@ -2988,7 +3043,21 @@ exports.updateAnesthesiologistNote = asyncHandler(async (req, res, next) => {
       note = i;
     }
   }
-  // console.log(note);
+  const updateRecord = {
+    updatedAt: Date.now(),
+    updatedBy: req.body.addedBy,
+    reason: req.body.reason,
+  };
+
+  await EDR.findOneAndUpdate(
+    { _id: req.body.edrId },
+    {
+      $push: {
+        [`anesthesiologistNote.${note}.updateRecord`]: updateRecord,
+      },
+    },
+    { new: true }
+  );
   const updatedNote = await EDR.findOneAndUpdate(
     { _id: parsed.edrId },
     {
@@ -3267,6 +3336,23 @@ exports.updateEDNurseRequest = asyncHandler(async (req, res, next) => {
     }
   }
 
+  const updateRecord = {
+    updatedAt: Date.now(),
+    reason: parsed.reason,
+    updatedBy: parsed.addedBy,
+  };
+
+  await EDR.findOneAndUpdate(
+    { _id: parsed.edrId, 'edNurseRequest._id': parsed.noteId },
+    {
+      $push: {
+        'edNurseRequest.$.updateRecord': updateRecord,
+      },
+    },
+
+    { new: true }
+  );
+
   const updatedRequest = await EDR.findOneAndUpdate(
     { _id: parsed.edrId },
     {
@@ -3507,6 +3593,23 @@ exports.updateEOUNurseRequest = asyncHandler(async (req, res, next) => {
       note = i;
     }
   }
+
+  const updateRecord = {
+    updatedAt: Date.now(),
+    reason: parsed.reason,
+    updatedBy: parsed.addedBy,
+  };
+
+  await EDR.findOneAndUpdate(
+    { _id: parsed.edrId, 'eouNurseRequest._id': parsed.noteId },
+    {
+      $push: {
+        'eouNurseRequest.$.updateRecord': updateRecord,
+      },
+    },
+
+    { new: true }
+  );
 
   const updatedRequest = await EDR.findOneAndUpdate(
     { _id: parsed.edrId },
@@ -3770,6 +3873,23 @@ exports.updateNurseTechnicianRequest = asyncHandler(async (req, res, next) => {
       note = i;
     }
   }
+
+  const updateRecord = {
+    updatedAt: Date.now(),
+    reason: parsed.reason,
+    updatedBy: parsed.addedBy,
+  };
+
+  await EDR.findOneAndUpdate(
+    { _id: parsed.edrId, 'nurseTechnicianRequest._id': parsed.noteId },
+    {
+      $push: {
+        'nurseTechnicianRequest.$.updateRecord': updateRecord,
+      },
+    },
+
+    { new: true }
+  );
 
   const updatedRequest = await EDR.findOneAndUpdate(
     { _id: parsed.edrId },
@@ -4208,6 +4328,21 @@ exports.addPharmacyRequest = asyncHandler(async (req, res, next) => {
 });
 
 exports.updatePharmcayRequest = asyncHandler(async (req, res, next) => {
+  const updateRecord = {
+    updatedAt: Date.now(),
+    updatedBy: req.body.requestedBy,
+    reason: req.body.reason,
+  };
+
+  await EDR.findOneAndUpdate(
+    { _id: req.body.edrId, 'pharmacyRequest._id': req.body._id },
+    {
+      $push: {
+        'pharmacyRequest.$.updateRecord': updateRecord,
+      },
+    },
+    { new: true }
+  );
   const addedNote = await EDR.findOneAndUpdate(
     { _id: req.body.edrId, 'pharmacyRequest._id': req.body._id },
     {
