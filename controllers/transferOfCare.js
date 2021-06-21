@@ -114,35 +114,37 @@ exports.submitTransfer = asyncHandler(async (req, res, next) => {
     transferredAt: Date.now(),
   });
 
-  //   Notification(
-  //     'Transfer Of Care',
-  //     'Transfer Of Care',
-  //     'Lab Technician',
-  //     'ED Doctor',
-  //     '/dashboard/taskslist',
-  //     data.edrId,
-  //     ''
-  //   );
-
-  await EDR.findOneAndUpdate(
-    { _id: req.body.edrId },
-    {
-      $set: {
-        'doctorNotes.$[].currentOwner': transferredTo,
-        'edNurseRequest.$[].currentOwner': transferredTo,
-        'eouNurseRequest.$[].currentOwner': transferredTo,
-        'nurseTechnicianRequest.$[].currentOwner': transferredTo,
-        'consultationNote.$[].currentOwner': transferredTo,
-        'anesthesiologistNote.$[].currentOwner': transferredTo,
-        'pharmacyRequest.$[].currentOwner': transferredTo,
-        'labRequest.$[].currentOwner': transferredTo,
-        'radRequest.$[].currentOwner': transferredTo,
-      },
-    },
-    {
-      new: true,
-    }
+  Notification(
+    'Transfer Of Care',
+    'Transfer Of Care',
+    '',
+    'ED Doctor',
+    '/dashboard/taskslist',
+    edrId,
+    '',
+    '',
+    'transferredTo'
   );
+
+  //   await EDR.findOneAndUpdate(
+  //     { _id: req.body.edrId },
+  //     {
+  //       $set: {
+  //         'doctorNotes.$[].currentOwner': transferredTo,
+  //         'edNurseRequest.$[].currentOwner': transferredTo,
+  //         'eouNurseRequest.$[].currentOwner': transferredTo,
+  //         'nurseTechnicianRequest.$[].currentOwner': transferredTo,
+  //         'consultationNote.$[].currentOwner': transferredTo,
+  //         'anesthesiologistNote.$[].currentOwner': transferredTo,
+  //         'pharmacyRequest.$[].currentOwner': transferredTo,
+  //         'labRequest.$[].currentOwner': transferredTo,
+  //         'radRequest.$[].currentOwner': transferredTo,
+  //       },
+  //     },
+  //     {
+  //       new: true,
+  //     }
+  //   );
 
   res.status(200).json({
     success: true,
