@@ -118,7 +118,7 @@ exports.submitTransfer = asyncHandler(async (req, res, next) => {
     'Transfer Of Care',
     'Transfer Of Care',
     '',
-    'ED Doctor',
+    'Transfer Of Care',
     '/dashboard/home/patientlist',
     edrId,
     '',
