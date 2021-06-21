@@ -3,6 +3,7 @@ const EDR = require('../models/EDR/EDR');
 const asyncHandler = require('../middleware/async');
 const Shift = require('../models/shift');
 const TOS = require('../models/TransferOfCare');
+const Notification = require('./notification');
 
 exports.getCurrentShiftDocs = asyncHandler(async (req, res, next) => {
   const doctorPA = await Staff.findById(req.params.staffId)
@@ -112,6 +113,16 @@ exports.submitTransfer = asyncHandler(async (req, res, next) => {
     transferredTo,
     transferredAt: Date.now(),
   });
+
+  Notification(
+    'Transfer Of Care',
+    'Transfer Of Care',
+    'Lab Technician',
+    'ED Doctor',
+    '/dashboard/taskslist',
+    data.edrId,
+    ''
+  );
 
   //   await EDR.findOneAndUpdate(
   //     { _id: req.body.edrId },
