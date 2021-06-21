@@ -25,6 +25,7 @@
     "no-plusplus": "off",
     "no-var": "off",
     "vars-on-top": "off",
-    "no-loop-func": "off"
+    "no-loop-func": "off",
+    "no-nested-ternary": "off"
   }
 }

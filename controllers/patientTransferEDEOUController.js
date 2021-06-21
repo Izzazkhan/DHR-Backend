@@ -42,6 +42,11 @@ exports.getPendingTransferReqED = asyncHandler(async (req, res, next) => {
           path: 'newChiefComplaint.newChiefComplaintId',
           model: 'NewChiefComplaint',
         },
+        {
+          path: 'eouBed.bedId',
+          model: 'Bed',
+          select: 'bedId bedNo',
+        },
       ],
     },
   ]);
@@ -83,6 +88,11 @@ exports.getCompletedTransferReqED = asyncHandler(async (req, res, next) => {
         {
           path: 'newChiefComplaint.newChiefComplaintId',
           model: 'NewChiefComplaint',
+        },
+        {
+          path: 'eouBed.bedId',
+          model: 'Bed',
+          select: 'bedId bedNo',
         },
       ],
     },
@@ -201,11 +211,31 @@ exports.getAllTransferReqForRequester = asyncHandler(async (req, res, next) => {
 });
 
 exports.patientsInDept = asyncHandler(async (req, res, next) => {
+  const doctorPA = await Staff.findById(req.params.staffId)
+    .select('chiefComplaint.chiefComplaintId')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+    ]);
+  const latestCC = doctorPA.chiefComplaint.length - 1;
+
+  const chiefComplaintId =
+    doctorPA.chiefComplaint[latestCC].chiefComplaintId._id;
   const patients = await EDR.find({
     currentLocation: req.params.currentdept,
     status: 'pending',
     patientInHospital: true,
     room: { $ne: [] },
+    'chiefComplaint.chiefComplaintId': chiefComplaintId,
   })
     .populate('patientId')
     .populate('chiefComplaint.chiefComplaintId')

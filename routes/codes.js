@@ -9,6 +9,7 @@ const {
   getICDByCategories,
   getICDById,
   getCDT,
+  searchIcd,
 } = require('../controllers/codes');
 
 const router = express.Router();
@@ -21,4 +22,5 @@ router.get('/geticdcat', getICDCategories);
 router.get('/geticdcat/:code', getICDByCategories);
 router.get('/geticd/:id', getICDById);
 router.get('/getCDT', getCDT);
+router.get('/searchIcd/:keyword', searchIcd);
 module.exports = router;
