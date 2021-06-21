@@ -16,7 +16,7 @@ const {
 
 const router = express.Router();
 
-router.get('/getPatientsInDept/:currentdept', patientsInDept);
+router.get('/getPatientsInDept/:currentdept/:staffId', patientsInDept);
 router.get('/getPendingTransferReqED', getPendingTransferReqED);
 router.get('/getCompletedTransferReqED', getCompletedTransferReqED);
 router.get('/transferRequestEOU', getTransferReqEOU);

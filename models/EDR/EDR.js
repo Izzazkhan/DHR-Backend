@@ -608,6 +608,10 @@ const edrSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'staff',
       },
+      currentOwner: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
       voiceNotes: String,
       assignedTime: Date,
       code: [{ type: String }],
@@ -637,6 +641,10 @@ const edrSchema = new mongoose.Schema({
       },
       notes: String,
       addedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      currentOwner: {
         type: mongoose.Schema.ObjectId,
         ref: 'staff',
       },
@@ -691,6 +699,10 @@ const edrSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'staff',
       },
+      currentOwner: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
       voiceNotes: String,
       anesthesiologist: {
         type: mongoose.Schema.ObjectId,
@@ -741,6 +753,10 @@ const edrSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'staff',
       },
+      currentOwner: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
       voiceNotes: String,
       edNurseId: {
         type: mongoose.Schema.ObjectId,
@@ -783,6 +799,10 @@ const edrSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'staff',
       },
+      currentOwner: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
       voiceNotes: String,
       eouNurseId: {
         type: mongoose.Schema.ObjectId,
@@ -822,6 +842,10 @@ const edrSchema = new mongoose.Schema({
       },
       notes: String,
       addedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      currentOwner: {
         type: mongoose.Schema.ObjectId,
         ref: 'staff',
       },
@@ -899,6 +923,10 @@ const edrSchema = new mongoose.Schema({
       },
 
       requestedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      currentOwner: {
         type: mongoose.Schema.ObjectId,
         ref: 'staff',
       },
@@ -1086,6 +1114,10 @@ const edrSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'staff',
       },
+      currentOwner: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
       notes: {
         type: String,
       },
@@ -1165,6 +1197,10 @@ const edrSchema = new mongoose.Schema({
         type: Date,
       },
       requestedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      currentOwner: {
         type: mongoose.Schema.ObjectId,
         ref: 'staff',
       },
