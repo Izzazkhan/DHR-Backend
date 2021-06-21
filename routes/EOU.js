@@ -11,15 +11,19 @@ const {
   getAvailableBeds,
   removeBedFromEOU,
   assignBedTONurse,
+  pendingNurseAssign,
+  completedNurseAssign,
 } = require('../controllers/EOU');
 
 router.post('/createEou', createEOU);
 router.put('/assignBedToEOU', assignBedToEOU);
 router.put('/removeBedFromEOU', removeBedFromEOU);
-router.post('/assignBedTONurse', assignBedTONurse);
+router.put('/assignBedTONurse', assignBedTONurse);
 // router.put('/disableBed', disableBed);
 // router.put('/enableBed', enableBed);
 router.get('/getAllBeds', getAllBeds);
 router.get('/getAvailableBeds', getAvailableBeds);
+router.get('/pendingNurseAssign', pendingNurseAssign);
+router.get('/completedNurseAssign', completedNurseAssign);
 
 module.exports = router;

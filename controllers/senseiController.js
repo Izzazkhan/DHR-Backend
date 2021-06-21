@@ -259,13 +259,44 @@ exports.patientsByCC = asyncHandler(async (req, res, next) => {
   const chiefComplaint = await NewCC.find({
     productionArea: { $ne: [] },
   });
+  const oneMonth = moment().subtract(30, 'd').utc().toDate();
 
-  const edrCC = await EDR.find({
-    newChiefComplaint: { $ne: [] },
-    status: 'pending',
-    currentLocation: 'ED',
-    patientInHospital: true,
-  }).select('newChiefComplaint.newChiefComplaintId');
+  //   const edrCC = await EDR.find({
+  //     newChiefComplaint: { $elemMatch: { assignedTime: { $gte: oneMonth } } },
+  //     status: 'pending',
+  //     currentLocation: 'ED',
+  //     patientInHospital: true,
+  //   }).select('newChiefComplaint.newChiefComplaintId');
+
+  const edrCC = await EDR.aggregate([
+    {
+      $match: {
+        newChiefComplaint: { $ne: [] },
+      },
+    },
+    {
+      $project: {
+        latestCC: { $slice: ['$newChiefComplaint', -1] },
+        status: 1,
+        currentLocation: 1,
+        patientInHospital: 1,
+      },
+    },
+    {
+      $unwind: '$latestCC',
+    },
+    {
+      $match: {
+        $and: [
+          { 'latestCC.assignedTime': { $gte: oneMonth } },
+          { status: 'pending' },
+          { currentLocation: 'ED' },
+          { patientInHospital: true },
+        ],
+      },
+    },
+  ]);
+
   let count = 0;
   const newArray = [];
 
@@ -273,12 +304,9 @@ exports.patientsByCC = asyncHandler(async (req, res, next) => {
     const obj = JSON.parse(JSON.stringify(chiefComplaint[i]));
     count = 0;
     for (let j = 0; j < edrCC.length; j++) {
-      const latestCC =
-        edrCC[j].newChiefComplaint[edrCC[j].newChiefComplaint.length - 1];
-      if (
-        chiefComplaint[i]._id.toString() ===
-        latestCC.newChiefComplaintId.toString()
-      ) {
+      const latestCC = edrCC[j].latestCC.newChiefComplaintId;
+
+      if (chiefComplaint[i]._id.toString() === latestCC.toString()) {
         count++;
       }
     }
