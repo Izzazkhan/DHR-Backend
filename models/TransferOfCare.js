@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const TOSSchema = new mongoose.Schema({
+const TOCSchema = new mongoose.Schema({
   edrId: {
     type: mongoose.Schema.ObjectId,
     ref: 'EDR',
@@ -18,4 +18,4 @@ const TOSSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model('TOS', TOSSchema);
+module.exports = mongoose.model('TOC', TOCSchema);
