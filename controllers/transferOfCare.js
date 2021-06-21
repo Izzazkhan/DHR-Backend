@@ -64,7 +64,7 @@ exports.getNextShiftDocs = asyncHandler(async (req, res, next) => {
   // Finding Next Shift Staff
   let staff;
   const currentShift = await Shift.findById(doctorPA.shift);
-  console.log(currentShift);
+  //   console.log(currentShift);
   if (currentShift.name === 'Morning') {
     const nextShift = await Shift.findOne({ name: 'Evening' });
     staff = await Staff.find({
@@ -119,11 +119,11 @@ exports.submitTransfer = asyncHandler(async (req, res, next) => {
     'Transfer Of Care',
     '',
     'ED Doctor',
-    '/dashboard/taskslist',
+    '/dashboard/home/patientlist',
     edrId,
     '',
     '',
-    'transferredTo'
+    transferredTo
   );
 
   //   await EDR.findOneAndUpdate(
