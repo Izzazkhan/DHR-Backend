@@ -1578,6 +1578,67 @@ exports.transferOfCare = asyncHandler(async (req, res, next) => {
 });
 
 // Eou Stats
+exports.getCSMedicationsEOU = asyncHandler(async (req, res, next) => {
+  const oneMonth = moment().subtract(30, 'd').utc().toDate();
+  const csPatients = await EDR.aggregate([
+    {
+      $project: {
+        // pharmacyRequest: 1,
+        status: 1,
+        dischargeTimestamp: 1,
+        currentLocation: 1,
+        careStream: 1,
+        chiefComplaint: 1,
+        patientId: 1,
+        room: 1,
+      },
+    },
+    // {
+    //   $unwind: '$careStream',
+    // },
+    {
+      $match: {
+        $and: [
+          { status: 'Discharged' },
+          { currentLocation: 'EOU' },
+          { dischargeTimestamp: { $gt: oneMonth } },
+          { careStream: { $ne: [] } },
+        ],
+      },
+    },
+  ]);
+
+  const CSMedications = await EDR.populate(csPatients, [
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      select: 'chiefComplaint.chiefComplaintId',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      ],
+    },
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+      select: 'name identifier',
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
+      select: 'roomId roomNo',
+    },
+  ]);
+
+  res.status(200).json({
+    success: true,
+    data: CSMedications,
+  });
+});
+
 exports.eouTimeInterval = asyncHandler(async (req, res, next) => {
   const patientsTime = await EDR.aggregate([
     {

@@ -42,6 +42,7 @@ const {
   currentEOUPatients,
   getCSMedications,
   transferOfCare,
+  getCSMedicationsEOU,
 } = require('../controllers/senseiController');
 
 const router = express.Router();
@@ -86,5 +87,6 @@ router.get('/eouTransferRequest', eouTransferRequest);
 router.get('/doctorResponseTime', doctorResponseTime);
 router.get('/currentEOUPatients', currentEOUPatients);
 router.get('/transferOfCare', transferOfCare);
+router.get('/getCSMedicationsEOU', getCSMedicationsEOU);
 
 module.exports = router;
