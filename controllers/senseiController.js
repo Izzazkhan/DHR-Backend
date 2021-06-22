@@ -11,6 +11,7 @@ const EouTransfer = require('../models/patientTransferEDEOU/patientTransferEDEOU
 const Room = require('../models/room');
 const searchEdrPatient = require('../components/searchEdr');
 const TOC = require('../models/TransferOfCare');
+const TransferToEDEOU = require('../models/patientTransferEDEOU/patientTransferEDEOU');
 
 exports.updateStaffShift = asyncHandler(async (req, res, next) => {
   const staff = await Staff.findOne({ _id: req.body.staffId });
@@ -1631,11 +1632,64 @@ exports.getCSMedicationsEOU = asyncHandler(async (req, res, next) => {
       model: 'room',
       select: 'roomId roomNo',
     },
+    {
+      path: 'eouBed.bedId',
+      model: 'Bed',
+      select: 'bedId bedNo',
+    },
   ]);
 
   res.status(200).json({
     success: true,
     data: CSMedications,
+  });
+});
+
+exports.careStreamStatus = asyncHandler(async (req, res, next) => {
+  const list = await TransferToEDEOU.find({
+    from: 'ED',
+    status: 'completed',
+  }).populate([
+    {
+      path: 'edrId',
+      model: 'EDR',
+      select: 'patientId room chiefComplaint',
+      populate: [
+        {
+          path: 'patientId',
+          model: 'patientfhir',
+          select: 'identifier name',
+        },
+        {
+          path: 'room.roomId',
+          model: 'room',
+          select: 'roomNo ',
+        },
+        {
+          path: 'chiefComplaint.chiefComplaintId',
+          model: 'chiefComplaint',
+          select: 'productionArea.productionAreaId',
+          populate: {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        },
+        {
+          path: 'newChiefComplaint.newChiefComplaintId',
+          model: 'NewChiefComplaint',
+        },
+        {
+          path: 'eouBed.bedId',
+          model: 'Bed',
+          select: 'bedId bedNo',
+        },
+      ],
+    },
+  ]);
+  res.status(200).json({
+    success: true,
+    data: list,
   });
 });
 
