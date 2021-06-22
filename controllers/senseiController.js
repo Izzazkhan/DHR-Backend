@@ -10,6 +10,7 @@ const ErrorResponse = require('../utils/errorResponse');
 const EouTransfer = require('../models/patientTransferEDEOU/patientTransferEDEOU');
 const Room = require('../models/room');
 const searchEdrPatient = require('../components/searchEdr');
+const TOC = require('../models/TransferOfCare');
 
 exports.updateStaffShift = asyncHandler(async (req, res, next) => {
   const staff = await Staff.findOne({ _id: req.body.staffId });
@@ -1527,6 +1528,48 @@ exports.medicationRequestsED = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: patients,
+  });
+});
+
+exports.transferOfCare = asyncHandler(async (req, res, next) => {
+  const oneMonth = moment().subtract(30, 'd').utc().toDate();
+  const tocs = await TOC.find({ transferredAt: { $gte: oneMonth } }).populate([
+    {
+      path: 'edrId',
+      select: 'patientId chiefComplaint',
+      populate: [
+        {
+          path: 'patientId',
+          select: 'identifier name',
+        },
+        {
+          path: 'chiefComplaint.chiefComplaintId',
+          model: 'chiefComplaint',
+          select: 'chiefComplaint.chiefComplaintId',
+          populate: [
+            {
+              path: 'productionArea.productionAreaId',
+              model: 'productionArea',
+              select: 'paName',
+            },
+          ],
+        },
+        {
+          path: 'room.roomId',
+          model: 'room',
+          select: 'roomId roomNo',
+        },
+      ],
+    },
+    {
+      path: 'transferredTo',
+      select: 'identifier name',
+    },
+  ]);
+
+  res.status(200).json({
+    success: true,
+    data: tocs,
   });
 });
 
