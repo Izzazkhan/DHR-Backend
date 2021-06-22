@@ -1498,7 +1498,7 @@ exports.medicationRequestsED = asyncHandler(async (req, res, next) => {
     status: 'pending',
     pharmacyRequest: { $ne: [] },
   })
-    .select('patientId newChiefComplaint chiefComplaint')
+    .select('patientId newChiefComplaint pharmacyRequest chiefComplaint')
     .populate([
       {
         path: 'chiefComplaint.chiefComplaintId',
