@@ -1592,6 +1592,7 @@ exports.getCSMedicationsEOU = asyncHandler(async (req, res, next) => {
         chiefComplaint: 1,
         patientId: 1,
         room: 1,
+        eouBed: 1,
       },
     },
     // {
