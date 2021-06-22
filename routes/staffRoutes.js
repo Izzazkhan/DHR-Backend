@@ -94,7 +94,7 @@ router.get('/getEDNurses', getEDNurses);
 router.get('/getExternal', getExternal);
 router.get('/getAllNurses', getAllNurses);
 router.get('/radTestStats', radTestStats);
-router.get('/getAllEOUNurses', getAllEOUNurses);
+router.get('/getAllEOUNurses/:staffId', getAllEOUNurses);
 router.get('/externalCC', externalCC);
 router.get('/searchExternalCC/:keyword', searchExternalCC);
 router.get('/searchAnesthesiologist/:keyword', searchAnesthesiologist);
