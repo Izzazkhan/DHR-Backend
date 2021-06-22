@@ -1565,6 +1565,10 @@ exports.transferOfCare = asyncHandler(async (req, res, next) => {
       path: 'transferredTo',
       select: 'identifier name',
     },
+    {
+      path: 'transferredBy',
+      select: 'identifier name',
+    },
   ]);
 
   res.status(200).json({
