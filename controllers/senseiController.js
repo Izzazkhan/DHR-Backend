@@ -710,10 +710,15 @@ exports.searchEOUPatients = asyncHandler(async (req, res, next) => {
 // Stats for ED Room History
 
 exports.timeInterval = asyncHandler(async (req, res, next) => {
+  const oneMonth = moment().subtract(30, 'd').utc().toDate();
   const patientsTime = await EDR.aggregate([
     {
       $match: {
-        $and: [{ status: 'Discharged' }, { currentLocation: 'ED' }],
+        $and: [
+          { status: 'Discharged' },
+          { currentLocation: 'ED' },
+          { dischargeTimestamp: { $gte: oneMonth } },
+        ],
       },
     },
     {
@@ -810,9 +815,11 @@ exports.transferToEOU = asyncHandler(async (req, res, next) => {
 });
 
 exports.getDischarged = asyncHandler(async (req, res, next) => {
+  const oneMonth = moment().subtract(30, 'd').utc().toDate();
   const discharged = await EDR.find({
     status: 'Discharged',
     currentLocation: 'ED',
+    dischargeTimestamp: { $gte: oneMonth },
   })
     .select('status patientId room careStream.name dischargeTimestamp')
     .populate([
@@ -825,6 +832,18 @@ exports.getDischarged = asyncHandler(async (req, res, next) => {
         path: 'room.roomId',
         model: 'room',
         select: 'roomNo roomId',
+      },
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
       },
     ]);
 
