@@ -104,5 +104,5 @@ router.get('/searchExternalConsultant/:keyword', searchExternalConsultant);
 router.get('/searchEouNurses/:keyword', searchEouNurses);
 router.get('/searchRadTestsStats/:keyword', searchRadTestsStats);
 router.get('/getAdditionalRoles', getAdditionalRoles);
-router.get('/getStaffById/:staffId', getStaffById/:staffId);
+router.get('/getStaffById/:staffId', getStaffById);
 module.exports = router;
