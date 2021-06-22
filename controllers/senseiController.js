@@ -1023,6 +1023,9 @@ exports.getCSMedications = asyncHandler(async (req, res, next) => {
         dischargeTimestamp: 1,
         currentLocation: 1,
         careStream: 1,
+        chiefComplaint: 1,
+        patientId: 1,
+        room: 1,
       },
     },
     // {
