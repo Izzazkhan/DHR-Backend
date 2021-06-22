@@ -40,6 +40,7 @@ const {
   eouTransferRequest,
   doctorResponseTime,
   currentEOUPatients,
+  getCSMedications,
 } = require('../controllers/senseiController');
 
 const router = express.Router();
@@ -77,6 +78,7 @@ router.get('/chiefComplaintBeds', chiefComplaintBeds);
 router.get('/csInProgress', csInProgress);
 router.get('/medicationRequestsED', medicationRequestsED);
 router.get('/patientShiftedInEOU', patientShiftedInEOU);
+router.get('/getCSMedications', getCSMedications);
 // EOU Room stats
 router.get('/eouTimeInterval', eouTimeInterval);
 router.get('/eouTransferRequest', eouTransferRequest);
