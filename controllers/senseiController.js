@@ -261,13 +261,6 @@ exports.patientsByCC = asyncHandler(async (req, res, next) => {
   });
   const oneMonth = moment().subtract(30, 'd').utc().toDate();
 
-  //   const edrCC = await EDR.find({
-  //     newChiefComplaint: { $elemMatch: { assignedTime: { $gte: oneMonth } } },
-  //     status: 'pending',
-  //     currentLocation: 'ED',
-  //     patientInHospital: true,
-  //   }).select('newChiefComplaint.newChiefComplaintId');
-
   const edrCC = await EDR.aggregate([
     {
       $match: {
@@ -289,7 +282,7 @@ exports.patientsByCC = asyncHandler(async (req, res, next) => {
       $match: {
         $and: [
           { 'latestCC.assignedTime': { $gte: oneMonth } },
-          { status: 'pending' },
+          { status: 'Discharged' },
           { currentLocation: 'ED' },
           { patientInHospital: true },
         ],

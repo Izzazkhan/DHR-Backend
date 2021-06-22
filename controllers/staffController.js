@@ -146,6 +146,15 @@ exports.getAllStaff = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.getStaffById = asyncHandler(async (req, res, next) => {
+  const staff = await Staff.findById(req.params.staffId);
+
+  res.status(200).json({
+    success: true,
+    data: staff,
+  });
+});
+
 exports.getEDDoctors = asyncHandler(async (req, res, next) => {
   const staff = await Staff.find({ staffType: 'Doctor' })
     .populate('addedBy shift')
