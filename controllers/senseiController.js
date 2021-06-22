@@ -1646,14 +1646,15 @@ exports.getCSMedicationsEOU = asyncHandler(async (req, res, next) => {
 });
 
 exports.careStreamStatus = asyncHandler(async (req, res, next) => {
+  const oneMonth = moment().subtract(30, 'd').utc().toDate();
   const list = await TransferToEDEOU.find({
     from: 'ED',
-    status: 'completed',
+    createdAt: { $gte: oneMonth },
   }).populate([
     {
       path: 'edrId',
       model: 'EDR',
-      select: 'patientId room chiefComplaint',
+      select: 'patientId room chiefComplaint careStream',
       populate: [
         {
           path: 'patientId',
