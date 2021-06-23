@@ -138,6 +138,18 @@ exports.submitTransfer = asyncHandler(async (req, res, next) => {
     ''
   );
 
+  Notification(
+    'Transfer Of Care',
+    'Transfer Of Care',
+    'Admin',
+    'Transfer Of Care',
+    '/dashboard/home/patientlog/ED',
+    edrId,
+    '',
+    '',
+    ''
+  );
+
   //   await EDR.findOneAndUpdate(
   //     { _id: req.body.edrId },
   //     {

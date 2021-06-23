@@ -295,7 +295,21 @@ exports.completeEOUTransfer = asyncHandler(async (req, res, next) => {
       '',
       'EOU Nurse'
     );
+
+	Notification(
+	'ADT_A15',
+	'Bed Assigned To Patient',
+	'Admin',
+	'Customer Care',
+	'/dashboard/home/notes',
+	req.body.edrId,
+	'',
+	''
+  );
+  
   }
+
+  
 
   completedTransfer = await Transfer.findById(req.params.transferId).populate([
     {
