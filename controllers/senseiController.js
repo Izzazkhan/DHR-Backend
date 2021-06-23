@@ -10,6 +10,8 @@ const ErrorResponse = require('../utils/errorResponse');
 const EouTransfer = require('../models/patientTransferEDEOU/patientTransferEDEOU');
 const Room = require('../models/room');
 const searchEdrPatient = require('../components/searchEdr');
+const TOC = require('../models/TransferOfCare');
+const TransferToEDEOU = require('../models/patientTransferEDEOU/patientTransferEDEOU');
 
 exports.updateStaffShift = asyncHandler(async (req, res, next) => {
   const staff = await Staff.findOne({ _id: req.body.staffId });
@@ -261,13 +263,6 @@ exports.patientsByCC = asyncHandler(async (req, res, next) => {
   });
   const oneMonth = moment().subtract(30, 'd').utc().toDate();
 
-  //   const edrCC = await EDR.find({
-  //     newChiefComplaint: { $elemMatch: { assignedTime: { $gte: oneMonth } } },
-  //     status: 'pending',
-  //     currentLocation: 'ED',
-  //     patientInHospital: true,
-  //   }).select('newChiefComplaint.newChiefComplaintId');
-
   const edrCC = await EDR.aggregate([
     {
       $match: {
@@ -289,7 +284,7 @@ exports.patientsByCC = asyncHandler(async (req, res, next) => {
       $match: {
         $and: [
           { 'latestCC.assignedTime': { $gte: oneMonth } },
-          { status: 'pending' },
+          { status: 'Discharged' },
           { currentLocation: 'ED' },
           { patientInHospital: true },
         ],
@@ -717,10 +712,15 @@ exports.searchEOUPatients = asyncHandler(async (req, res, next) => {
 // Stats for ED Room History
 
 exports.timeInterval = asyncHandler(async (req, res, next) => {
+  const oneMonth = moment().subtract(30, 'd').utc().toDate();
   const patientsTime = await EDR.aggregate([
     {
       $match: {
-        $and: [{ status: 'Discharged' }, { currentLocation: 'ED' }],
+        $and: [
+          { status: 'Discharged' },
+          { currentLocation: 'ED' },
+          { dischargeTimestamp: { $gte: oneMonth } },
+        ],
       },
     },
     {
@@ -817,9 +817,11 @@ exports.transferToEOU = asyncHandler(async (req, res, next) => {
 });
 
 exports.getDischarged = asyncHandler(async (req, res, next) => {
+  const oneMonth = moment().subtract(30, 'd').utc().toDate();
   const discharged = await EDR.find({
     status: 'Discharged',
     currentLocation: 'ED',
+    dischargeTimestamp: { $gte: oneMonth },
   })
     .select('status patientId room careStream.name dischargeTimestamp')
     .populate([
@@ -832,6 +834,18 @@ exports.getDischarged = asyncHandler(async (req, res, next) => {
         path: 'room.roomId',
         model: 'room',
         select: 'roomNo roomId',
+      },
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
       },
     ]);
 
@@ -998,6 +1012,67 @@ exports.getEDCSPatients = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: newArray,
+  });
+});
+
+exports.getCSMedications = asyncHandler(async (req, res, next) => {
+  const oneMonth = moment().subtract(30, 'd').utc().toDate();
+  const csPatients = await EDR.aggregate([
+    {
+      $project: {
+        // pharmacyRequest: 1,
+        status: 1,
+        dischargeTimestamp: 1,
+        currentLocation: 1,
+        careStream: 1,
+        chiefComplaint: 1,
+        patientId: 1,
+        room: 1,
+      },
+    },
+    // {
+    //   $unwind: '$careStream',
+    // },
+    {
+      $match: {
+        $and: [
+          { status: 'Discharged' },
+          { currentLocation: 'ED' },
+          { dischargeTimestamp: { $gt: oneMonth } },
+          { careStream: { $ne: [] } },
+        ],
+      },
+    },
+  ]);
+
+  const CSMedications = await EDR.populate(csPatients, [
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      select: 'chiefComplaint.chiefComplaintId',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      ],
+    },
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+      select: 'name identifier',
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
+      select: 'roomId roomNo',
+    },
+  ]);
+
+  res.status(200).json({
+    success: true,
+    data: CSMedications,
   });
 });
 
@@ -1425,7 +1500,7 @@ exports.medicationRequestsED = asyncHandler(async (req, res, next) => {
     status: 'pending',
     pharmacyRequest: { $ne: [] },
   })
-    .select('patientId newChiefComplaint chiefComplaint')
+    .select('patientId newChiefComplaint pharmacyRequest chiefComplaint')
     .populate([
       {
         path: 'chiefComplaint.chiefComplaintId',
@@ -1457,7 +1532,169 @@ exports.medicationRequestsED = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.transferOfCare = asyncHandler(async (req, res, next) => {
+  const oneMonth = moment().subtract(30, 'd').utc().toDate();
+  const tocs = await TOC.find({ transferredAt: { $gte: oneMonth } }).populate([
+    {
+      path: 'edrId',
+      select: 'patientId chiefComplaint',
+      populate: [
+        {
+          path: 'patientId',
+          select: 'identifier name',
+        },
+        {
+          path: 'chiefComplaint.chiefComplaintId',
+          model: 'chiefComplaint',
+          select: 'chiefComplaint.chiefComplaintId',
+          populate: [
+            {
+              path: 'productionArea.productionAreaId',
+              model: 'productionArea',
+              select: 'paName',
+            },
+          ],
+        },
+        {
+          path: 'room.roomId',
+          model: 'room',
+          select: 'roomId roomNo',
+        },
+      ],
+    },
+    {
+      path: 'transferredTo',
+      select: 'identifier name',
+    },
+    {
+      path: 'transferredBy',
+      select: 'identifier name',
+    },
+  ]);
+
+  res.status(200).json({
+    success: true,
+    data: tocs,
+  });
+});
+
 // Eou Stats
+exports.getCSMedicationsEOU = asyncHandler(async (req, res, next) => {
+  const oneMonth = moment().subtract(30, 'd').utc().toDate();
+  const csPatients = await EDR.aggregate([
+    {
+      $project: {
+        // pharmacyRequest: 1,
+        status: 1,
+        dischargeTimestamp: 1,
+        currentLocation: 1,
+        careStream: 1,
+        chiefComplaint: 1,
+        patientId: 1,
+        room: 1,
+        eouBed: 1,
+      },
+    },
+    // {
+    //   $unwind: '$careStream',
+    // },
+    {
+      $match: {
+        $and: [
+          { status: 'Discharged' },
+          { currentLocation: 'EOU' },
+          { dischargeTimestamp: { $gt: oneMonth } },
+          { careStream: { $ne: [] } },
+        ],
+      },
+    },
+  ]);
+
+  const CSMedications = await EDR.populate(csPatients, [
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      select: 'chiefComplaint.chiefComplaintId',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      ],
+    },
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+      select: 'name identifier',
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
+      select: 'roomId roomNo',
+    },
+    {
+      path: 'eouBed.bedId',
+      model: 'Bed',
+      select: 'bedId bedNo',
+    },
+  ]);
+
+  res.status(200).json({
+    success: true,
+    data: CSMedications,
+  });
+});
+
+exports.careStreamStatus = asyncHandler(async (req, res, next) => {
+  const oneMonth = moment().subtract(30, 'd').utc().toDate();
+  const list = await TransferToEDEOU.find({
+    from: 'ED',
+    createdAt: { $gte: oneMonth },
+  }).populate([
+    {
+      path: 'edrId',
+      model: 'EDR',
+      select: 'patientId room chiefComplaint careStream',
+      populate: [
+        {
+          path: 'patientId',
+          model: 'patientfhir',
+          select: 'identifier name',
+        },
+        {
+          path: 'room.roomId',
+          model: 'room',
+          select: 'roomNo ',
+        },
+        {
+          path: 'chiefComplaint.chiefComplaintId',
+          model: 'chiefComplaint',
+          select: 'productionArea.productionAreaId',
+          populate: {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        },
+        {
+          path: 'newChiefComplaint.newChiefComplaintId',
+          model: 'NewChiefComplaint',
+        },
+        {
+          path: 'eouBed.bedId',
+          model: 'Bed',
+          select: 'bedId bedNo',
+        },
+      ],
+    },
+  ]);
+  res.status(200).json({
+    success: true,
+    data: list,
+  });
+});
+
 exports.eouTimeInterval = asyncHandler(async (req, res, next) => {
   const patientsTime = await EDR.aggregate([
     {
