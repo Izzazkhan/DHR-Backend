@@ -298,15 +298,15 @@ exports.completeEOUTransfer = asyncHandler(async (req, res, next) => {
 
 	Notification(
 	'ADT_A15',
-	'Bed Assigned To Patient',
+	'Bed allocated in EOUs',
 	'Admin',
-	'Customer Care',
+	'Bed allocated in EOU',
 	'/dashboard/home/notes',
 	req.body.edrId,
 	'',
 	''
   );
-  
+
   }
 
   
