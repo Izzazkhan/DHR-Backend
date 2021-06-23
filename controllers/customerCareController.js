@@ -298,7 +298,7 @@ exports.completeEOUTransfer = asyncHandler(async (req, res, next) => {
 
 	Notification(
 	'ADT_A15',
-	'Bed allocated in EOUs',
+	'Bed allocated in EOU',
 	'Admin',
 	'Bed allocated in EOU',
 	'/dashboard/home/notes',
