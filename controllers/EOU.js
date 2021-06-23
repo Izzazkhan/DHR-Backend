@@ -263,12 +263,13 @@ exports.completedNurseAssign = asyncHandler(async (req, res, next) => {
           model: 'Bed',
           select: 'bedId bedNo',
         },
-		 {
+		
+      ],
+    },
+	 {
           path: 'eouNurseId',
           select: 'identifier name',
         },
-      ],
-    },
   ]);
 
   res.status(200).json({
