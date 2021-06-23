@@ -214,7 +214,7 @@ exports.assignBedTONurse = asyncHandler(async (req, res, next) => {
 
   await TransferToEOU.findOneAndUpdate(
     { _id: transferId },
-    { $set: { eouNurseAssigned: true } },
+    { $set: { eouNurseAssigned: true, eouNurseId: nurseId } },
     { new: true }
   );
 
@@ -262,6 +262,10 @@ exports.completedNurseAssign = asyncHandler(async (req, res, next) => {
           path: 'eouBed.bedId',
           model: 'Bed',
           select: 'bedId bedNo',
+        },
+		 {
+          path: 'eouNurseId',
+          select: 'identifier name',
         },
       ],
     },
