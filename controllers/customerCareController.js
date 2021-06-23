@@ -302,7 +302,8 @@ exports.completeEOUTransfer = asyncHandler(async (req, res, next) => {
 	'Admin',
 	'Bed allocated in EOU',
 	'/dashboard/home/notes',
-	req.body.edrId,
+	completedTransfer.edrId._id,
+	'',
 	'',
 	''
   );
