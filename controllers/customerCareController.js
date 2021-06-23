@@ -191,10 +191,10 @@ exports.completeEOUTransfer = asyncHandler(async (req, res, next) => {
       { _id: req.params.transferId },
       { $set: { status: req.body.status, completedAt: Date.now() } },
       { new: true }
-    );
+    )
 
     const updatedEDR = await EDR.findOneAndUpdate(
-      { _id: completedTransfer.edrId._id },
+      { _id: completedTransfer.edrId },
       { $set: { currentLocation: 'EOU' } },
       { new: true }
     )
@@ -253,7 +253,7 @@ exports.completeEOUTransfer = asyncHandler(async (req, res, next) => {
       'Sensei',
       '/dashboard/home/housekeepingrequests',
       '',
-      req.body.edrId,
+      completedTransfer.edrId,
       '',
       ''
     );
@@ -280,7 +280,7 @@ exports.completeEOUTransfer = asyncHandler(async (req, res, next) => {
       'Sensei',
       'Transfer To EOU',
       '/dashboard/home/patientlog/EOU',
-      completedTransfer.edrId._id,
+     completedTransfer.edrId,
       '',
       ''
     );
@@ -291,11 +291,26 @@ exports.completeEOUTransfer = asyncHandler(async (req, res, next) => {
       'Nurses',
       'Customer Care',
       '/dashboard/home/notes',
-      req.body.edrId,
+      completedTransfer.edrId,
       '',
       'EOU Nurse'
     );
+
+	Notification(
+	'ADT_A15',
+	'Bed allocated in EOU',
+	'Admin',
+	'Bed allocated in EOU',
+	'/dashboard/home/notes',
+	completedTransfer.edrId,
+	'',
+	'',
+	''
+  );
+
   }
+
+  
 
   completedTransfer = await Transfer.findById(req.params.transferId).populate([
     {

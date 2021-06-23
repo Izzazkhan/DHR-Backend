@@ -65,7 +65,7 @@ exports.readNotifications = asyncHandler(async (req, res, next) => {
       path: 'patient',
       model: 'EDR',
       select:
-        'chiefComplaint.chiefComplaintId patientId room.roomId careStream.name ',
+        'chiefComplaint.chiefComplaintId patientId room.roomId careStream.name eouBed',
 
       populate: [
         {
@@ -139,7 +139,7 @@ exports.unReadNotifications = asyncHandler(async (req, res, next) => {
       path: 'patient',
       model: 'EDR',
       select:
-        'chiefComplaint.chiefComplaintId patientId room.roomId careStream.name ',
+        'chiefComplaint.chiefComplaintId patientId room.roomId careStream.name eouBed ',
 
       populate: [
         {
