@@ -50,6 +50,10 @@ const TransferToEDEOUSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+	eouNurseId:{
+	  type: mongoose.Schema.ObjectId,
+      ref: 'staff',
+	}
   },
   {
     timestamps: true,
