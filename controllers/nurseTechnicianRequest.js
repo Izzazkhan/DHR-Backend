@@ -198,7 +198,7 @@ exports.completeLab = asyncHandler(async (req, res, next) => {
     'Lab Test Sample Received',
     'Nurses',
     'Lab Technicians',
-    '/dashboard/home/patientmanagement/viewrequests/lab/viewlab',
+     '/dashboard/home/notes',
     req.body.edrId,
     '',
     'ED Nurse'
