@@ -82,7 +82,7 @@ var notification = async function (
         sendTo: array,
         sendFrom: sendFrom,
       })
-        .then((newNot) => console.log('notification created', newNot))
+        .then((newNot) => {})
         .catch((error) => {
           console.log('Catch notify create err : ', error);
         });
@@ -137,7 +137,7 @@ var notification = async function (
                           },
                         },
                       ]).then((count) => {
-                        console.log(count);
+                        // console.log(count);
                         globalVariable.io.emit('count', {
                           count: count.length,
                           user: user[i]._id,
