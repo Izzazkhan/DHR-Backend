@@ -7,6 +7,7 @@ const Bed = require('../models/Bed');
 const EDR = require('../models/EDR/EDR');
 const EOUNurse = require('../models/EOUNurse');
 const TransferToEOU = require('../models/patientTransferEDEOU/patientTransferEDEOU');
+const Notification = require('../components/notification');
 
 exports.createEOU = asyncHandler(async (req, res, next) => {
   const newEou = await EOU.create(req.body);
@@ -218,6 +219,18 @@ exports.assignBedTONurse = asyncHandler(async (req, res, next) => {
     { new: true }
   );
 
+  Notification(
+    'ADT_A04',
+    'Bed Allocation from Sensei',
+    '',
+    'Transfer To EOU',
+    '/dashboard/home/notes',
+    req.body.edrId,
+    '',
+    '',
+    nurseId
+  );
+
   res.status(200).json({
     success: true,
     data: assignedBed,
@@ -263,13 +276,12 @@ exports.completedNurseAssign = asyncHandler(async (req, res, next) => {
           model: 'Bed',
           select: 'bedId bedNo',
         },
-		
       ],
     },
-	 {
-          path: 'eouNurseId',
-          select: 'identifier name',
-        },
+    {
+      path: 'eouNurseId',
+      select: 'identifier name',
+    },
   ]);
 
   res.status(200).json({
