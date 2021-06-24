@@ -92,6 +92,7 @@ exports.assignCodeBlueTeam = asyncHandler(async (req, res, next) => {
     'staffType subType'
   );
 
+  //   Sending Notifications To Code Blue Team
   if (staff.staffType === 'Sensei') {
     const team = await CodeBlue.findById(req.body.teamId);
     const allMembers = [];
@@ -113,7 +114,7 @@ exports.assignCodeBlueTeam = asyncHandler(async (req, res, next) => {
         'Sensei Called Code Blue Team',
         'Sensei Called Code Blue Team',
         '',
-        'Sensei Called Code Blue Team',
+        'Code Blue Team',
         '/dashboard/home/patientlist',
         req.body.edrId,
         '',
@@ -151,7 +152,7 @@ exports.assignCodeBlueTeam = asyncHandler(async (req, res, next) => {
       'Code Blue Team Call',
       'Ed Doctor required Code Blue Team',
       'Admin',
-      'Critical Function Calls',
+      'Code Blue Team',
       '/dashboard/home/codeblue',
       req.body.edrId,
       '',
@@ -175,7 +176,7 @@ exports.assignCodeBlueTeam = asyncHandler(async (req, res, next) => {
       'Code Blue Team Call',
       'Ed Nurse required Code Blue Team',
       'Doctor',
-      'Code Blue Calls',
+      'Code Blue Team',
       '/dashboard/home/codeblue',
       req.body.edrId,
       '',
@@ -186,7 +187,7 @@ exports.assignCodeBlueTeam = asyncHandler(async (req, res, next) => {
       'Code Blue Team Call',
       'Ed Nurse required Code Blue Team',
       'Admin',
-      'Critical Function Calls',
+      'Code Blue Team',
       '/dashboard/home/codeblue',
       req.body.edrId,
       '',

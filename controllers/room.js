@@ -7,6 +7,7 @@ const Notification = require('../components/notification');
 const Flag = require('../models/flag/Flag');
 const generateReqNo = require('../components/requestNoGenerator');
 const Bed = require('../models/Bed');
+const Staff = require('../models/staffFhir/staff');
 
 exports.getRooms = asyncHandler(async (req, res) => {
   const getRooms = await Room.find();
@@ -215,6 +216,62 @@ exports.assignRoom = asyncHandler(async (req, res, next) => {
     'ADT_A04',
     'Patient Registration and Bed Allocation from Sensei',
     'Admin',
+    'New Patient Entry and Allocation',
+    '/dashboard/home/notes',
+    req.body.edrId,
+    '',
+    ''
+  );
+
+  //   Sending Notification TO ED Nurse
+  const patientPA = await EDR.findById(req.body.edrId)
+    .select('chiefComplaint.chiefComplaintId')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+    ]);
+  const latestCC = patientPA.chiefComplaint.length - 1;
+
+  const chiefComplaintId =
+    patientPA.chiefComplaint[latestCC].chiefComplaintId._id;
+
+  // Current Staff Shift
+  const currentStaff = await Staff.findById(req.body.staffId).select('shift');
+
+  const EDNurses = await Staff.find({
+    staffType: 'Nurses',
+    subType: 'ED Nurse',
+    shift: currentStaff.shift,
+    'chiefComplaint.chiefComplaintId': chiefComplaintId,
+  });
+
+  EDNurses.forEach((nurse) => {
+    Notification(
+      'ADT_A04',
+      'Patient Registration and Bed Allocation from Sensei',
+      '',
+      'Bed Allocation for New Patient',
+      '/dashboard/home/notes',
+      req.body.edrId,
+      '',
+      '',
+      nurse._id
+    );
+  });
+
+  Notification(
+    'ADT_A04',
+    'Patient Registration and Bed Allocation from Sensei',
+    '',
     'New Patient Entry and Allocation',
     '/dashboard/home/notes',
     req.body.edrId,
