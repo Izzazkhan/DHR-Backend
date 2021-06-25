@@ -724,6 +724,7 @@ exports.CSByEDCells = asyncHandler(async (req, res, next) => {
   }).select('careStream.name room');
 
   const allRooms = [];
+
   for (let i = 0; i < rooms.length; i++) {
     let obj = {};
     const room = [];
@@ -754,6 +755,59 @@ exports.CSByEDCells = asyncHandler(async (req, res, next) => {
       obj2 = JSON.parse(JSON.stringify(data[i][j]));
       totalCS += data[i][j].careStream.length;
       obj2.totalCS = totalCS;
+    }
+    totalData.push(obj2);
+  }
+
+  res.status(200).json({
+    success: true,
+    data: totalData,
+  });
+});
+
+exports.codeBlueCalls = asyncHandler(async (req, res, next) => {
+  const rooms = await Room.find().select('_id roomNo roomId');
+  const oneMonth = moment().subtract(30, 'd').utc().toDate();
+
+  const patients = await EDR.find({
+    status: 'Discharged',
+    currentLocation: 'ED',
+    dischargeTimestamp: { $gte: oneMonth },
+    codeBlueTeam: { $ne: [] },
+  }).select('codeBlueTeam room');
+
+  const allRooms = [];
+
+  for (let i = 0; i < rooms.length; i++) {
+    let obj = {};
+    const room = [];
+    for (let j = 0; j < patients.length; j++) {
+      const latestRoom = patients[j].room[patients[j].room.length - 1].roomId;
+
+      obj = JSON.parse(JSON.stringify(patients[j]));
+
+      if (rooms[i]._id.toString() === latestRoom.toString()) {
+        obj.roomDBId = rooms[i]._id;
+        obj.roomId = rooms[i].roomId;
+        obj.roomNo = rooms[i].roomNo;
+        delete obj.room;
+        room.push(obj);
+      }
+    }
+
+    allRooms.push(room);
+  }
+
+  const data = allRooms.filter(String);
+
+  const totalData = [];
+  let obj2 = {};
+  for (let i = 0; i < data.length; i++) {
+    let totalCB = 0;
+    for (let j = 0; j < data[i].length; j++) {
+      obj2 = JSON.parse(JSON.stringify(data[i][j]));
+      totalCB += data[i][j].codeBlueTeam.length;
+      obj2.totalCB = totalCB;
     }
     totalData.push(obj2);
   }
