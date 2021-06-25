@@ -377,7 +377,7 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     'Nurses',
     'CareStream',
     '/dashboard/home/notes',
-    req.body.edrId,
+   req.body.data.edrId,
     '',
     'ED Nurse'
   );
@@ -388,7 +388,7 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     'Doctor',
     'CareStream Assigned',
     '/dashboard/home/notes',
-    req.body.edrId,
+    req.body.data.edrId,
     '',
     'Rad Doctor'
   );
@@ -882,128 +882,237 @@ exports.getPatientsWithCSByKeyword = asyncHandler(async (req, res, next) => {
 });
 
 exports.getEDRswithCS = asyncHandler(async (req, res, next) => {
-  const doctorPA = await Staff.findById(req.params.staffId)
-    .select('chiefComplaint.chiefComplaintId')
-    .populate([
-      {
-        path: 'chiefComplaint.chiefComplaintId',
-        model: 'chiefComplaint',
-        populate: [
-          {
-            path: 'productionArea.productionAreaId',
-            model: 'productionArea',
-            select: 'paName',
-          },
-        ],
-      },
-    ]);
-  const latestCC = doctorPA.chiefComplaint.length - 1;
+	let patients;
+	if(req.params.staffId){
 
-  const chiefComplaintId =
-    doctorPA.chiefComplaint[latestCC].chiefComplaintId._id;
-
-  const patients = await EDR.find({
-    status: 'pending',
-    // careStream: { $ne: [] },
-    room: { $ne: [] },
-    'chiefComplaint.chiefComplaintId': chiefComplaintId,
-  })
-    .populate([
-      {
-        path: 'chiefComplaint.chiefComplaintId',
-        model: 'chiefComplaint',
-        populate: [
-          {
-            path: 'productionArea.productionAreaId',
-            model: 'productionArea',
-            populate: [
-              {
-                path: 'rooms.roomId',
-                model: 'room',
-              },
-            ],
-          },
-        ],
-      },
-      {
-        path: 'room.roomId',
-        model: 'room',
-      },
-      {
-        path: 'patientId',
-        model: 'patientfhir',
-      },
-      {
-        path: 'careStream.careStreamId',
-        model: 'careStream',
-      },
-      {
-        path: 'consultationNote.addedBy',
-        model: 'staff',
-      },
-      {
-        path: 'consultationNote.consultant',
-        model: 'staff',
-      },
-      {
-        path: 'room.roomId',
-        model: 'room',
-      },
-      {
-        path: 'radRequest.serviceId',
-        model: 'RadiologyService',
-      },
-      {
-        path: 'radRequest.requestedBy',
-        model: 'staff',
-      },
-      {
-        path: 'labRequest.serviceId',
-        model: 'LaboratoryService',
-      },
-      {
-        path: 'labRequest.requestedBy',
-        model: 'staff',
-      },
-      {
-        path: 'pharmacyRequest.requestedBy',
-        model: 'staff',
-      },
-      {
-        path: 'pharmacyRequest.item.itemId',
-        model: 'Item',
-      },
-      {
-        path: 'doctorNotes.addedBy',
-        model: 'staff',
-      },
-      {
-        path: 'edNurseRequest.addedBy',
-        model: 'staff',
-      },
-      {
-        path: 'eouNurseRequest.addedBy',
-        model: 'staff',
-      },
-      {
-        path: 'nurseTechnicianRequest.addedBy',
-        model: 'staff',
-      },
-      {
-        path: 'anesthesiologistNote.addedBy',
-        model: 'staff',
-      },
-      {
-        path: 'pharmacyRequest.reconciliationNotes.addedBy',
-        model: 'staff',
-      },
-      {
-        path: 'eouBed.bedId',
-        model: 'Bed',
-        select: 'bedId bedNo',
-      },
-    ])
-    .populate('newChiefComplaint.newChiefComplaintId');
+		const doctorPA = await Staff.findById(req.params.staffId)
+		  .select('chiefComplaint.chiefComplaintId')
+		  .populate([
+			{
+			  path: 'chiefComplaint.chiefComplaintId',
+			  model: 'chiefComplaint',
+			  populate: [
+				{
+				  path: 'productionArea.productionAreaId',
+				  model: 'productionArea',
+				  select: 'paName',
+				},
+			  ],
+			},
+		  ]);
+		const latestCC = doctorPA.chiefComplaint.length - 1;
+	  
+		const chiefComplaintId =
+		  doctorPA.chiefComplaint[latestCC].chiefComplaintId._id;
+	  
+		 patients = await EDR.find({
+		  status: 'pending',
+		  // careStream: { $ne: [] },
+		  room: { $ne: [] },
+		  'chiefComplaint.chiefComplaintId': chiefComplaintId,
+		})
+		  .populate([
+			{
+			  path: 'chiefComplaint.chiefComplaintId',
+			  model: 'chiefComplaint',
+			  populate: [
+				{
+				  path: 'productionArea.productionAreaId',
+				  model: 'productionArea',
+				  populate: [
+					{
+					  path: 'rooms.roomId',
+					  model: 'room',
+					},
+				  ],
+				},
+			  ],
+			},
+			{
+			  path: 'room.roomId',
+			  model: 'room',
+			},
+			{
+			  path: 'patientId',
+			  model: 'patientfhir',
+			},
+			{
+			  path: 'careStream.careStreamId',
+			  model: 'careStream',
+			},
+			{
+			  path: 'consultationNote.addedBy',
+			  model: 'staff',
+			},
+			{
+			  path: 'consultationNote.consultant',
+			  model: 'staff',
+			},
+			{
+			  path: 'room.roomId',
+			  model: 'room',
+			},
+			{
+			  path: 'radRequest.serviceId',
+			  model: 'RadiologyService',
+			},
+			{
+			  path: 'radRequest.requestedBy',
+			  model: 'staff',
+			},
+			{
+			  path: 'labRequest.serviceId',
+			  model: 'LaboratoryService',
+			},
+			{
+			  path: 'labRequest.requestedBy',
+			  model: 'staff',
+			},
+			{
+			  path: 'pharmacyRequest.requestedBy',
+			  model: 'staff',
+			},
+			{
+			  path: 'pharmacyRequest.item.itemId',
+			  model: 'Item',
+			},
+			{
+			  path: 'doctorNotes.addedBy',
+			  model: 'staff',
+			},
+			{
+			  path: 'edNurseRequest.addedBy',
+			  model: 'staff',
+			},
+			{
+			  path: 'eouNurseRequest.addedBy',
+			  model: 'staff',
+			},
+			{
+			  path: 'nurseTechnicianRequest.addedBy',
+			  model: 'staff',
+			},
+			{
+			  path: 'anesthesiologistNote.addedBy',
+			  model: 'staff',
+			},
+			{
+			  path: 'pharmacyRequest.reconciliationNotes.addedBy',
+			  model: 'staff',
+			},
+			{
+			  path: 'eouBed.bedId',
+			  model: 'Bed',
+			  select: 'bedId bedNo',
+			},
+		  ])
+		  .populate('newChiefComplaint.newChiefComplaintId');
+	}else {
+		
+		patients = await EDR.find({
+		 status: 'pending',
+		 // careStream: { $ne: [] },
+		 room: { $ne: [] },
+		
+	   })
+		 .populate([
+		   {
+			 path: 'chiefComplaint.chiefComplaintId',
+			 model: 'chiefComplaint',
+			 populate: [
+			   {
+				 path: 'productionArea.productionAreaId',
+				 model: 'productionArea',
+				 populate: [
+				   {
+					 path: 'rooms.roomId',
+					 model: 'room',
+				   },
+				 ],
+			   },
+			 ],
+		   },
+		   {
+			 path: 'room.roomId',
+			 model: 'room',
+		   },
+		   {
+			 path: 'patientId',
+			 model: 'patientfhir',
+		   },
+		   {
+			 path: 'careStream.careStreamId',
+			 model: 'careStream',
+		   },
+		   {
+			 path: 'consultationNote.addedBy',
+			 model: 'staff',
+		   },
+		   {
+			 path: 'consultationNote.consultant',
+			 model: 'staff',
+		   },
+		   {
+			 path: 'room.roomId',
+			 model: 'room',
+		   },
+		   {
+			 path: 'radRequest.serviceId',
+			 model: 'RadiologyService',
+		   },
+		   {
+			 path: 'radRequest.requestedBy',
+			 model: 'staff',
+		   },
+		   {
+			 path: 'labRequest.serviceId',
+			 model: 'LaboratoryService',
+		   },
+		   {
+			 path: 'labRequest.requestedBy',
+			 model: 'staff',
+		   },
+		   {
+			 path: 'pharmacyRequest.requestedBy',
+			 model: 'staff',
+		   },
+		   {
+			 path: 'pharmacyRequest.item.itemId',
+			 model: 'Item',
+		   },
+		   {
+			 path: 'doctorNotes.addedBy',
+			 model: 'staff',
+		   },
+		   {
+			 path: 'edNurseRequest.addedBy',
+			 model: 'staff',
+		   },
+		   {
+			 path: 'eouNurseRequest.addedBy',
+			 model: 'staff',
+		   },
+		   {
+			 path: 'nurseTechnicianRequest.addedBy',
+			 model: 'staff',
+		   },
+		   {
+			 path: 'anesthesiologistNote.addedBy',
+			 model: 'staff',
+		   },
+		   {
+			 path: 'pharmacyRequest.reconciliationNotes.addedBy',
+			 model: 'staff',
+		   },
+		   {
+			 path: 'eouBed.bedId',
+			 model: 'Bed',
+			 select: 'bedId bedNo',
+		   },
+		 ])
+		 .populate('newChiefComplaint.newChiefComplaintId');
+	}
+	
 
   res.status(200).json({
     success: true,

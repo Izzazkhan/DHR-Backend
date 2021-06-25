@@ -95,6 +95,16 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
       '',
       ''
     );
+	    Notification(
+      'ADT_A04',
+      'New patient from Paramedics',
+      'Admin',
+      'Paramedics',
+      '/dashboard/home/patientregistration',
+      newEDR._id,
+      '',
+      ''
+    );
   }
 
   if (newEDR.generatedFrom === 'Sensei') {
@@ -3015,6 +3025,18 @@ exports.addAnesthesiologistNote = asyncHandler(async (req, res, next) => {
     '',
     ''
   );
+
+  Notification(
+    'anesthesiologist request',
+    'Ed Doctor has requested an anesthesiologist',
+    'Admin',
+    'ED Doctor',
+    '/dashboard/home/notes',
+    parsed.edrId,
+    '',
+    ''
+  );
+
 
   Notification(
     'anesthesiologist request',

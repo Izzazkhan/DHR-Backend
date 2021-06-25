@@ -146,6 +146,15 @@ exports.getAllStaff = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.getStaffById = asyncHandler(async (req, res, next) => {
+  const staff = await Staff.findById(req.params.staffId);
+
+  res.status(200).json({
+    success: true,
+    data: staff,
+  });
+});
+
 exports.getEDDoctors = asyncHandler(async (req, res, next) => {
   const staff = await Staff.find({ staffType: 'Doctor' })
     .populate('addedBy shift')
@@ -468,10 +477,12 @@ exports.getEOUNurse = asyncHandler(async (req, res, next) => {
 });
 
 exports.getAllEOUNurses = asyncHandler(async (req, res, next) => {
+  const currentStaff = await Staff.findById(req.params.staffId).select('shift');
   const nurses = await Staff.find({
     staffType: 'Nurses',
     subType: 'EOU Nurse',
     disabled: false,
+    shift: currentStaff.shift,
     // availability: true,
   })
     .select('identifier name specialty chiefComplaint')

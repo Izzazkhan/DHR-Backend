@@ -35,7 +35,7 @@ router.get('/getCSPatients/:staffId', getCSPatients);
 router.get('/getMedicationsByIdCareStreams/:id', getMedicationsByIdCareStreams);
 router.get('/searchCSPatient/:keyword/:staffId', getPatientWithoutCSByKeyword);
 router.get('/searchEdrwithCS/:keyword/:staffId', getPatientsWithCSByKeyword);
-router.get('/getEDRswithCS/:staffId', getEDRswithCS);
+router.get('/getEDRswithCS/:staffId?', getEDRswithCS);
 router.get('/getInProgressCS', getInProgressCS);
 router.get('/searchInProgressCS/:keyword', searchInProgressCS);
 router.put('/completeCS', completeCareStream);
