@@ -723,29 +723,44 @@ exports.CSByEDCells = asyncHandler(async (req, res, next) => {
     room: { $ne: [] },
   }).select('careStream.name room');
 
-  const CSRooms = [];
+  const allRooms = [];
   for (let i = 0; i < rooms.length; i++) {
     let obj = {};
+    const room = [];
     for (let j = 0; j < patients.length; j++) {
       const latestRoom = patients[j].room[patients[j].room.length - 1].roomId;
+
       obj = JSON.parse(JSON.stringify(patients[j]));
+
       if (rooms[i]._id.toString() === latestRoom.toString()) {
         obj.roomDBId = rooms[i]._id;
         obj.roomId = rooms[i].roomId;
         obj.roomNo = rooms[i].roomNo;
         delete obj.room;
-        CSRooms.push(obj);
+        room.push(obj);
       }
     }
+
+    allRooms.push(room);
   }
 
-  CSRooms.map((room) => {
-    room.totalCS = room.careStream.length;
-  });
+  const data = allRooms.filter(String);
+
+  const totalData = [];
+  let obj2 = {};
+  for (let i = 0; i < data.length; i++) {
+    let totalCS = 0;
+    for (let j = 0; j < data[i].length; j++) {
+      obj2 = JSON.parse(JSON.stringify(data[i][j]));
+      totalCS += data[i][j].careStream.length;
+      obj2.totalCS = totalCS;
+    }
+    totalData.push(obj2);
+  }
 
   res.status(200).json({
     success: true,
-    data: CSRooms,
+    data: totalData,
   });
 });
 
