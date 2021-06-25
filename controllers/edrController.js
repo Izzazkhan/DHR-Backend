@@ -124,7 +124,7 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
     'ADT_A01',
     'New Patient Arrived',
     'Doctor',
-    'Paramedics',
+    'Sensei',
     '/dashboard/home/patientmanagement/careStreamPatients',
     newEDR._id,
     '',

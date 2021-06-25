@@ -711,6 +711,44 @@ exports.searchEOUPatients = asyncHandler(async (req, res, next) => {
 
 // Stats for ED Room History
 
+exports.CSByEDCells = asyncHandler(async (req, res, next) => {
+  const rooms = await Room.find().select('_id roomNo roomId');
+  const oneMonth = moment().subtract(30, 'd').utc().toDate();
+
+  const patients = await EDR.find({
+    status: 'Discharged',
+    currentLocation: 'ED',
+    dischargeTimestamp: { $gte: oneMonth },
+    careStream: { $ne: [] },
+    room: { $ne: [] },
+  }).select('careStream.name room');
+
+  const CSRooms = [];
+  for (let i = 0; i < rooms.length; i++) {
+    let obj = {};
+    for (let j = 0; j < patients.length; j++) {
+      const latestRoom = patients[j].room[patients[j].room.length - 1].roomId;
+      obj = JSON.parse(JSON.stringify(patients[j]));
+      if (rooms[i]._id.toString() === latestRoom.toString()) {
+        obj.roomDBId = rooms[i]._id;
+        obj.roomId = rooms[i].roomId;
+        obj.roomNo = rooms[i].roomNo;
+        delete obj.room;
+        CSRooms.push(obj);
+      }
+    }
+  }
+
+  CSRooms.map((room) => {
+    room.totalCS = room.careStream.length;
+  });
+
+  res.status(200).json({
+    success: true,
+    data: CSRooms,
+  });
+});
+
 exports.timeInterval = asyncHandler(async (req, res, next) => {
   const oneMonth = moment().subtract(30, 'd').utc().toDate();
   const patientsTime = await EDR.aggregate([
