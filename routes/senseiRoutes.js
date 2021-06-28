@@ -44,6 +44,8 @@ const {
   transferOfCare,
   getCSMedicationsEOU,
   careStreamStatus,
+  CSByEDCells,
+  codeBlueCalls,
 } = require('../controllers/senseiController');
 
 const router = express.Router();
@@ -82,6 +84,8 @@ router.get('/csInProgress', csInProgress);
 router.get('/medicationRequestsED', medicationRequestsED);
 router.get('/patientShiftedInEOU', patientShiftedInEOU);
 router.get('/getCSMedications', getCSMedications);
+router.get('/CSByEDCells', CSByEDCells);
+router.get('/codeBlueCalls', codeBlueCalls);
 // EOU Room stats
 router.get('/eouTimeInterval', eouTimeInterval);
 router.get('/eouTransferRequest', eouTransferRequest);

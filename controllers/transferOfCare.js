@@ -114,6 +114,48 @@ exports.submitTransfer = asyncHandler(async (req, res, next) => {
     transferredAt: Date.now(),
   });
 
+  const doctorPA = await Staff.findById(transferredTo)
+    .select('chiefComplaint.chiefComplaintId shift')
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+    ]);
+  const latestCC = doctorPA.chiefComplaint.length - 1;
+
+  const chiefComplaintId =
+    doctorPA.chiefComplaint[latestCC].chiefComplaintId._id;
+
+  const EDNurses = await Staff.find({
+    _id: { $ne: req.params.staffId },
+    staffType: 'Nurses',
+    subType: 'ED Nurse',
+    shift: doctorPA.shift,
+    'chiefComplaint.chiefComplaintId': chiefComplaintId,
+  });
+
+  EDNurses.forEach((nurse) => {
+    Notification(
+      'Transfer Of Care',
+      'Transfer Of Care',
+      '',
+      'Transfer Of Care',
+      '/dashboard/home/notes',
+      edrId,
+      '',
+      '',
+      nurse._id
+    );
+  });
+
   Notification(
     'Transfer Of Care',
     'Transfer Of Care',

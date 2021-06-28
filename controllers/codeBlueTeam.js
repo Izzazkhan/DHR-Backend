@@ -92,6 +92,38 @@ exports.assignCodeBlueTeam = asyncHandler(async (req, res, next) => {
     'staffType subType'
   );
 
+  //   Sending Notifications To Code Blue Team
+  if (staff.staffType === 'Sensei') {
+    const team = await CodeBlue.findById(req.body.teamId);
+    const allMembers = [];
+
+    const codeBlueDoctors = team.doctors;
+
+    codeBlueDoctors.forEach((doctor) => allMembers.push(doctor._id));
+
+    const codeBlueNurses = team.nurses;
+    codeBlueNurses.forEach((nurse) => allMembers.push(nurse._id));
+
+    const codeBlueAnesthesiologists = team.anesthesiologists;
+    codeBlueAnesthesiologists.forEach((anesthesiologist) =>
+      allMembers.push(anesthesiologist._id)
+    );
+
+    allMembers.forEach((member) => {
+      Notification(
+        'Sensei Called Code Blue Team',
+        'Sensei Called Code Blue Team',
+        '',
+        'Code Blue Team',
+        '/dashboard/home/patientlist',
+        req.body.edrId,
+        '',
+        '',
+        member
+      );
+    });
+  }
+
   if (staff.staffType === 'Admin' || staff.staffType === 'Sensei') {
     Notification(
       'Code Blue Team Call',
@@ -120,7 +152,7 @@ exports.assignCodeBlueTeam = asyncHandler(async (req, res, next) => {
       'Code Blue Team Call',
       'Ed Doctor required Code Blue Team',
       'Admin',
-      'Critical Function Calls',
+      'Code Blue Team',
       '/dashboard/home/codeblue',
       req.body.edrId,
       '',
@@ -144,7 +176,7 @@ exports.assignCodeBlueTeam = asyncHandler(async (req, res, next) => {
       'Code Blue Team Call',
       'Ed Nurse required Code Blue Team',
       'Doctor',
-      'Code Blue Calls',
+      'Code Blue Team',
       '/dashboard/home/codeblue',
       req.body.edrId,
       '',
@@ -155,7 +187,7 @@ exports.assignCodeBlueTeam = asyncHandler(async (req, res, next) => {
       'Code Blue Team Call',
       'Ed Nurse required Code Blue Team',
       'Admin',
-      'Critical Function Calls',
+      'Code Blue Team',
       '/dashboard/home/codeblue',
       req.body.edrId,
       '',
@@ -180,3 +212,34 @@ exports.assignCodeBlueTeam = asyncHandler(async (req, res, next) => {
     data: assignedTeam,
   });
 });
+
+// exports.sendNotification = asyncHandler(async (req, res, next) => {
+//   const team = await CodeBlue.findById(req.params.teamId);
+//   const allMembers = [];
+
+//   const codeBlueDoctors = team.doctors;
+
+//   codeBlueDoctors.forEach((doctor) => allMembers.push(doctor._id));
+
+//   const codeBlueNurses = team.nurses;
+//   codeBlueNurses.forEach((nurse) => allMembers.push(nurse._id));
+
+//   const codeBlueAnesthesiologists = team.anesthesiologists;
+//   codeBlueAnesthesiologists.forEach((anesthesiologist) =>
+//     allMembers.push(anesthesiologist._id)
+//   );
+
+//   allMembers.forEach((member) => {
+//     Notification(
+//       'Transfer Of Care',
+//       'Transfer Of Care',
+//       '',
+//       'Transfer Of Care',
+//       '/dashboard/home/patientlist',
+//       req.params.edrId,
+//       '',
+//       '',
+//       member
+//     );
+//   });
+// });
