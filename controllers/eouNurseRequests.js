@@ -14,7 +14,7 @@ exports.getEOUNursePatients = asyncHandler(async (req, res, next) => {
     {
       path: 'edrId',
       model: 'EDR',
-      select: 'patientId chiefComplaint',
+      //   select: 'patientId chiefComplaint',s
       populate: [
         {
           path: 'patientId',
