@@ -14,7 +14,7 @@ exports.getEOUNursePatients = asyncHandler(async (req, res, next) => {
     {
       path: 'edrId',
       model: 'EDR',
-      select: 'patientId chiefComplaint',
+      //   select: 'patientId chiefComplaint',s
       populate: [
         {
           path: 'patientId',
@@ -34,6 +34,83 @@ exports.getEOUNursePatients = asyncHandler(async (req, res, next) => {
         {
           path: 'newChiefComplaint.newChiefComplaintId',
           model: 'NewChiefComplaint',
+        },
+        {
+          path: 'room.roomId',
+          model: 'room',
+        },
+        {
+          path: 'patientId',
+          model: 'patientfhir',
+        },
+        {
+          path: 'careStream.careStreamId',
+          model: 'careStream',
+        },
+        {
+          path: 'consultationNote.addedBy',
+          model: 'staff',
+        },
+        {
+          path: 'consultationNote.consultant',
+          model: 'staff',
+        },
+        {
+          path: 'room.roomId',
+          model: 'room',
+        },
+        {
+          path: 'radRequest.serviceId',
+          model: 'RadiologyService',
+        },
+        {
+          path: 'radRequest.requestedBy',
+          model: 'staff',
+        },
+        {
+          path: 'labRequest.serviceId',
+          model: 'LaboratoryService',
+        },
+        {
+          path: 'labRequest.requestedBy',
+          model: 'staff',
+        },
+        {
+          path: 'pharmacyRequest.requestedBy',
+          model: 'staff',
+        },
+        {
+          path: 'pharmacyRequest.item.itemId',
+          model: 'Item',
+        },
+        {
+          path: 'doctorNotes.addedBy',
+          model: 'staff',
+        },
+        {
+          path: 'edNurseRequest.addedBy',
+          model: 'staff',
+        },
+        {
+          path: 'eouNurseRequest.addedBy',
+          model: 'staff',
+        },
+        {
+          path: 'nurseTechnicianRequest.addedBy',
+          model: 'staff',
+        },
+        {
+          path: 'anesthesiologistNote.addedBy',
+          model: 'staff',
+        },
+        {
+          path: 'pharmacyRequest.reconciliationNotes.addedBy',
+          model: 'staff',
+        },
+        {
+          path: 'eouBed.bedId',
+          model: 'Bed',
+          select: 'bedId bedNo',
         },
       ],
     },
