@@ -1186,6 +1186,42 @@ exports.getCSMedications = asyncHandler(async (req, res, next) => {
 });
 
 // Stats For Current ED Room
+exports.criticalFunctionCalling = asyncHandler(async (req, res, next) => {
+  const edrs = await EDR.find({
+    status: 'pending',
+    codeBlueTeam: { $ne: [] },
+    room: { $ne: [] },
+    currentLocation: 'ED',
+    patientInHospital: true,
+  })
+    .populate([
+      {
+        path: 'chiefComplaint.chiefComplaintId',
+        model: 'chiefComplaint',
+        select: 'chiefComplaint.chiefComplaintId',
+        populate: [
+          {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        ],
+      },
+      {
+        path: 'patientId',
+        model: 'patientfhir',
+        select: 'name identifier',
+      },
+    ])
+    .populate('codeBlueTeam.teamId', 'teamName')
+    .select('patientId codeBlueTeam chiefComplaint');
+
+  res.status(200).json({
+    success: true,
+    data: edrs,
+  });
+});
+
 exports.availableEdBeds = asyncHandler(async (req, res, next) => {
   const beds = await Room.find({ availability: true }).select('roomId roomNo');
 
@@ -1239,7 +1275,7 @@ exports.getEDCCPatients = asyncHandler(async (req, res, next) => {
 
 exports.getPatientTreatment = asyncHandler(async (req, res, next) => {
   const patients = await EDR.find({ status: 'pending', currentLocation: 'ED' })
-    .select('patientId chiefComlaint ')
+    .select('patientId chiefComplaint ')
     .populate([
       {
         path: 'chiefComplaint.chiefComplaintId',

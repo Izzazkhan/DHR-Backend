@@ -363,7 +363,7 @@ exports.dashboard = asyncHandler(async (req, res) => {
       $match: { 'chiefComplaint.assignedTime': { $gte: sixHour } },
     },
   ]);
-  const chiefComplaints = await ChiefComplaints.aggregate([
+  const chiefComplaints = await newChiefComplaint.aggregate([
     {
       $match: {
         $and: [{ availability: true }, { disabled: false }],
@@ -813,7 +813,7 @@ exports.dashboard = asyncHandler(async (req, res) => {
       },
     },
   ]);
-
+  
   res.status(200).json({
     success: true,
     data: {
