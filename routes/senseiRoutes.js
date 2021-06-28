@@ -35,6 +35,7 @@ const {
   csInProgress,
   medicationRequestsED,
   patientShiftedInEOU,
+  criticalFunctionCalling,
   // Eou Room Stats
   eouTimeInterval,
   eouTransferRequest,
@@ -86,6 +87,7 @@ router.get('/patientShiftedInEOU', patientShiftedInEOU);
 router.get('/getCSMedications', getCSMedications);
 router.get('/CSByEDCells', CSByEDCells);
 router.get('/codeBlueCalls', codeBlueCalls);
+router.get('/criticalFunctionCalling', criticalFunctionCalling);
 // EOU Room stats
 router.get('/eouTimeInterval', eouTimeInterval);
 router.get('/eouTransferRequest', eouTransferRequest);
