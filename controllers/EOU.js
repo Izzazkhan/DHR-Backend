@@ -8,6 +8,7 @@ const EDR = require('../models/EDR/EDR');
 const EOUNurse = require('../models/EOUNurse');
 const TransferToEOU = require('../models/patientTransferEDEOU/patientTransferEDEOU');
 const Notification = require('../components/notification');
+const Staff = require('../models/staffFhir/staff');
 
 exports.createEOU = asyncHandler(async (req, res, next) => {
   const newEou = await EOU.create(req.body);
@@ -287,5 +288,34 @@ exports.completedNurseAssign = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: edrs,
+  });
+});
+
+exports.sendNotification = asyncHandler(async (req, res, next) => {
+  const edr = await EDR.findById(req.body.edrId).select('chiefComplaint');
+  const latestCC = edr.chiefComplaint.length - 1;
+  const chiefComplaintId = edr.chiefComplaint[latestCC].chiefComplaintId._id;
+
+  const nurseShift = await Staff.find(req.body.staffId).select('shift');
+
+  const doctors = await Staff.find({
+    staffType: 'Doctor',
+    subType: 'ED Doctor',
+    shift: nurseShift.shift,
+    'chiefComplaint.chiefComplaintId': chiefComplaintId,
+  });
+
+  doctors.forEach((doctor) => {
+    Notification(
+      'EOU Nurse Call',
+      'EOU Nurse Call',
+      '',
+      'EOU Nurse Call',
+      '/dashboard/home/notes',
+      req.body.edrId,
+      '',
+      '',
+      doctor._id
+    );
   });
 });

@@ -6,7 +6,8 @@ const {
   pendingEOUNurseEdrRequest,
   completeRequest,
   completedEOUNurseEdrRequest,
-  dashboardData
+  dashboardData,
+  getEOUNursePatients,
 } = require('../controllers/eouNurseRequests');
 
 router.get('/pendingEOUNurseEdrRequest/:nurseId', pendingEOUNurseEdrRequest);
@@ -16,5 +17,6 @@ router.get(
   completedEOUNurseEdrRequest
 );
 router.get('/getDashboardData/:nurseId', dashboardData);
+router.get('/getEOUNursePatients/:nurseId', getEOUNursePatients);
 
 module.exports = router;

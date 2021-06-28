@@ -4,6 +4,45 @@ const EDR = require('../models/EDR/EDR');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const Room = require('../models/room');
+const EouPatients = require('../models/EOUNurse');
+
+// EOU Nurse Assigned Patients
+exports.getEOUNursePatients = asyncHandler(async (req, res, next) => {
+  const patients = await EouPatients.find({
+    nurseId: req.params.nurseId,
+  }).populate([
+    {
+      path: 'edrId',
+      model: 'EDR',
+      select: 'patientId chiefComplaint',
+      populate: [
+        {
+          path: 'patientId',
+          model: 'patientfhir',
+          select: 'identifier name',
+        },
+        {
+          path: 'chiefComplaint.chiefComplaintId',
+          model: 'chiefComplaint',
+          select: 'productionArea.productionAreaId',
+          populate: {
+            path: 'productionArea.productionAreaId',
+            model: 'productionArea',
+            select: 'paName',
+          },
+        },
+        {
+          path: 'newChiefComplaint.newChiefComplaintId',
+          model: 'NewChiefComplaint',
+        },
+      ],
+    },
+  ]);
+  res.status(200).json({
+    success: true,
+    data: patients,
+  });
+});
 
 exports.pendingEOUNurseEdrRequest = asyncHandler(async (req, res, next) => {
   const unwindEdr = await EDR.aggregate([
@@ -146,7 +185,6 @@ exports.completedEOUNurseEdrRequest = asyncHandler(async (req, res, next) => {
 });
 
 exports.dashboardData = asyncHandler(async (req, res, next) => {
-
   // ***** Configuration *********
   const currentTime = moment().utc().toDate();
   const lastHour = moment().subtract(1, 'hours').utc().toDate();
@@ -210,13 +248,17 @@ exports.dashboardData = asyncHandler(async (req, res, next) => {
   const patientWithRegToTriage = await EDR.find({
     currentLocation: 'EOU',
     createdTimeStamp: { $gte: sixHour },
-    'dcdForm.$.triageAssessment': { $ne: [] }
+    'dcdForm.$.triageAssessment': { $ne: [] },
   });
 
   let totalTimeBetweenRegAndTriage = 0;
   patientWithRegToTriage.forEach((t) => {
     t.createdTimeStamp = new Date(t.createdTimeStamp);
-    t.triageTime = new Date(t.dcdForm[t.dcdForm.length - 1].triageAssessment[t.dcdForm[t.dcdForm.length - 1].triageAssessment.length - 1].triageTime);
+    t.triageTime = new Date(
+      t.dcdForm[t.dcdForm.length - 1].triageAssessment[
+        t.dcdForm[t.dcdForm.length - 1].triageAssessment.length - 1
+      ].triageTime
+    );
 
     t.time = Math.round(
       (t.triageTime.getTime() - t.createdTimeStamp.getTime()) / (1000 * 60)
@@ -233,8 +275,8 @@ exports.dashboardData = asyncHandler(async (req, res, next) => {
     {
       $project: {
         currentLocation: 1,
-        pharmacyRequest: 1
-      }
+        pharmacyRequest: 1,
+      },
     },
     {
       $unwind: '$pharmacyRequest',
@@ -242,12 +284,12 @@ exports.dashboardData = asyncHandler(async (req, res, next) => {
     {
       $match: {
         $and: [
-          { 'currentLocation': 'EOU' },
+          { currentLocation: 'EOU' },
           { 'pharmacyRequest.createdAt': { $gte: sixHour } },
-          { 'pharmacyRequest.status': { $ne: 'closed' } }
-        ]
-      }
-    }
+          { 'pharmacyRequest.status': { $ne: 'closed' } },
+        ],
+      },
+    },
   ]);
 
   patientTreatmentsPending.map((p) => {
@@ -262,8 +304,8 @@ exports.dashboardData = asyncHandler(async (req, res, next) => {
       $project: {
         currentLocation: 1,
         doctorNotes: 1,
-        pharmacyRequest: 1
-      }
+        pharmacyRequest: 1,
+      },
     },
     {
       $unwind: '$doctorNotes',
@@ -274,12 +316,12 @@ exports.dashboardData = asyncHandler(async (req, res, next) => {
     {
       $match: {
         $and: [
-          { 'currentLocation': 'EOU' },
+          { currentLocation: 'EOU' },
           { 'pharmacyRequest.status': { $eq: 'closed' } },
-          { 'doctorNotes.assignedTime': { $gte: sixHour } }
-        ]
-      }
-    }
+          { 'doctorNotes.assignedTime': { $gte: sixHour } },
+        ],
+      },
+    },
   ]);
 
   let totalTimeBetweenDiagnosisToMed = 0;
@@ -301,7 +343,7 @@ exports.dashboardData = asyncHandler(async (req, res, next) => {
     {
       $project: {
         _id: 1,
-        eouNurseRequest: 1
+        eouNurseRequest: 1,
       },
     },
     {
@@ -311,7 +353,11 @@ exports.dashboardData = asyncHandler(async (req, res, next) => {
       $match: {
         $and: [
           { 'eouNurseRequest.status': 'pending' },
-          { 'eouNurseRequest.eouNurseId': mongoose.Types.ObjectId(req.params.nurseId) },
+          {
+            'eouNurseRequest.eouNurseId': mongoose.Types.ObjectId(
+              req.params.nurseId
+            ),
+          },
           { 'eouNurseRequest.requestedAt': { $gte: sixHour } },
           { 'eouNurseRequest.requestedAt': { $lte: currentTime } },
         ],
@@ -339,7 +385,11 @@ exports.dashboardData = asyncHandler(async (req, res, next) => {
       $match: {
         $and: [
           { 'eouNurseRequest.status': 'completed' },
-          { 'eouNurseRequest.eouNurseId': mongoose.Types.ObjectId(req.params.nurseId) },
+          {
+            'eouNurseRequest.eouNurseId': mongoose.Types.ObjectId(
+              req.params.nurseId
+            ),
+          },
           { 'eouNurseRequest.completedAt': { $gte: sixHour } },
           { 'eouNurseRequest.completedAt': { $lte: currentTime } },
         ],
@@ -379,7 +429,7 @@ exports.dashboardData = asyncHandler(async (req, res, next) => {
     {
       $match: {
         $and: [
-          { 'currentLocation': 'EOU' },
+          { currentLocation: 'EOU' },
           { 'radRequest.status': 'pending approval' },
           { 'radRequest.pendingApprovalTime': { $gte: sixHour } },
           { 'radRequest.pendingApprovalTime': { $lte: currentTime } },
@@ -415,7 +465,7 @@ exports.dashboardData = asyncHandler(async (req, res, next) => {
     {
       $match: {
         $and: [
-          { 'currentLocation': 'EOU' },
+          { currentLocation: 'EOU' },
           { 'radRequest.status': 'completed' },
           { 'radRequest.completeTime': { $gte: sixHour } },
           { 'radRequest.completeTime': { $lte: currentTime } },
@@ -450,7 +500,7 @@ exports.dashboardData = asyncHandler(async (req, res, next) => {
     {
       $match: {
         $and: [
-          { 'currentLocation': 'EOU' },
+          { currentLocation: 'EOU' },
           { 'pharmacyRequest.status': { $ne: 'closed' } },
           { 'pharmacyRequest.createdAt': { $gte: sixHour } },
           { 'pharmacyRequest.createdAt': { $lte: currentTime } },
@@ -479,7 +529,7 @@ exports.dashboardData = asyncHandler(async (req, res, next) => {
     {
       $match: {
         $and: [
-          { 'currentLocation': 'EOU' },
+          { currentLocation: 'EOU' },
           { 'pharmacyRequest.status': 'delivered' },
           { 'pharmacyRequest.deliveredTime': { $gte: sixHour } },
           { 'pharmacyRequest.deliveredTime': { $lte: currentTime } },
@@ -514,7 +564,7 @@ exports.dashboardData = asyncHandler(async (req, res, next) => {
     {
       $match: {
         $and: [
-          { 'currentLocation': 'EOU' },
+          { currentLocation: 'EOU' },
           { 'labRequest.status': { $ne: 'completed' } },
           { 'labRequest.requestedAt': { $gte: sixHour } },
         ],
@@ -543,7 +593,7 @@ exports.dashboardData = asyncHandler(async (req, res, next) => {
     {
       $match: {
         $and: [
-          { 'currentLocation': 'EOU' },
+          { currentLocation: 'EOU' },
           { 'labRequest.status': 'completed' },
           { 'labRequest.completeTime': { $gte: sixHour } },
         ],
@@ -564,7 +614,9 @@ exports.dashboardData = asyncHandler(async (req, res, next) => {
   const completedLabTAT = labTime / labCompleted.length;
 
   // Cumulative Total Patients
-  const cumulativePatients = await EDR.find({currentLocation: 'EOU'}).countDocuments();
+  const cumulativePatients = await EDR.find({
+    currentLocation: 'EOU',
+  }).countDocuments();
 
   // Available ED Beds
   const EdBeds = await Room.find({
@@ -613,6 +665,6 @@ exports.dashboardData = asyncHandler(async (req, res, next) => {
       perHour: fifthCardArr,
     },
     cumulativePatients,
-    PatientsPerHour
+    PatientsPerHour,
   });
 });
