@@ -774,7 +774,9 @@ exports.codeBlueCalls = asyncHandler(async (req, res, next) => {
     currentLocation: 'ED',
     dischargeTimestamp: { $gte: oneMonth },
     codeBlueTeam: { $ne: [] },
-  }).select('codeBlueTeam room');
+  })
+    .select('codeBlueTeam room')
+    .populate('codeBlueTeam.teamId', 'teamName');
 
   const allRooms = [];
 
