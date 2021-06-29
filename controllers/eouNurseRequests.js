@@ -5,120 +5,138 @@ const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const Room = require('../models/room');
 const EouPatients = require('../models/EOUNurse');
+const Staff = require('../models/staffFhir/staff');
 
 // EOU Nurse Assigned Patients
 exports.getEOUNursePatients = asyncHandler(async (req, res, next) => {
-  const patients = await EouPatients.find({
-    nurseId: req.params.nurseId,
-  }).populate([
+  const edr = await EouPatients.aggregate([
     {
-      path: 'edrId',
-      model: 'EDR',
-      //   select: 'patientId chiefComplaint',s
-      populate: [
-        {
-          path: 'patientId',
-          model: 'patientfhir',
-          select: 'identifier name',
-        },
-        {
-          path: 'chiefComplaint.chiefComplaintId',
-          model: 'chiefComplaint',
-          select: 'productionArea.productionAreaId',
-          populate: {
-            path: 'productionArea.productionAreaId',
-            model: 'productionArea',
-            select: 'paName',
-          },
-        },
-        {
-          path: 'newChiefComplaint.newChiefComplaintId',
-          model: 'NewChiefComplaint',
-        },
-        {
-          path: 'room.roomId',
-          model: 'room',
-        },
-        {
-          path: 'patientId',
-          model: 'patientfhir',
-        },
-        {
-          path: 'careStream.careStreamId',
-          model: 'careStream',
-        },
-        {
-          path: 'consultationNote.addedBy',
-          model: 'staff',
-        },
-        {
-          path: 'consultationNote.consultant',
-          model: 'staff',
-        },
-        {
-          path: 'room.roomId',
-          model: 'room',
-        },
-        {
-          path: 'radRequest.serviceId',
-          model: 'RadiologyService',
-        },
-        {
-          path: 'radRequest.requestedBy',
-          model: 'staff',
-        },
-        {
-          path: 'labRequest.serviceId',
-          model: 'LaboratoryService',
-        },
-        {
-          path: 'labRequest.requestedBy',
-          model: 'staff',
-        },
-        {
-          path: 'pharmacyRequest.requestedBy',
-          model: 'staff',
-        },
-        {
-          path: 'pharmacyRequest.item.itemId',
-          model: 'Item',
-        },
-        {
-          path: 'doctorNotes.addedBy',
-          model: 'staff',
-        },
-        {
-          path: 'edNurseRequest.addedBy',
-          model: 'staff',
-        },
-        {
-          path: 'eouNurseRequest.addedBy',
-          model: 'staff',
-        },
-        {
-          path: 'nurseTechnicianRequest.addedBy',
-          model: 'staff',
-        },
-        {
-          path: 'anesthesiologistNote.addedBy',
-          model: 'staff',
-        },
-        {
-          path: 'pharmacyRequest.reconciliationNotes.addedBy',
-          model: 'staff',
-        },
-        {
-          path: 'eouBed.bedId',
-          model: 'Bed',
-          select: 'bedId bedNo',
-        },
-      ],
+      $project: {
+        latestNurse: { $slice: ['nurse', -1] },
+      },
+    },
+    {
+      $match: {
+        'nurse.nurseId': mongoose.Types.ObjectId(req.params.nurseId),
+      },
     },
   ]);
+
   res.status(200).json({
     success: true,
-    data: patients,
+    data: edr,
   });
+  //   const patients = await EouPatients.find({
+  //     nurse: ,
+  //   }).populate([
+  //     {
+  //       path: 'edrId',
+  //       model: 'EDR',
+  //       //   select: 'patientId chiefComplaint',s
+  //       populate: [
+  //         {
+  //           path: 'patientId',
+  //           model: 'patientfhir',
+  //           select: 'identifier name',
+  //         },
+  //         {
+  //           path: 'chiefComplaint.chiefComplaintId',
+  //           model: 'chiefComplaint',
+  //           select: 'productionArea.productionAreaId',
+  //           populate: {
+  //             path: 'productionArea.productionAreaId',
+  //             model: 'productionArea',
+  //             select: 'paName',
+  //           },
+  //         },
+  //         {
+  //           path: 'newChiefComplaint.newChiefComplaintId',
+  //           model: 'NewChiefComplaint',
+  //         },
+  //         {
+  //           path: 'room.roomId',
+  //           model: 'room',
+  //         },
+  //         {
+  //           path: 'patientId',
+  //           model: 'patientfhir',
+  //         },
+  //         {
+  //           path: 'careStream.careStreamId',
+  //           model: 'careStream',
+  //         },
+  //         {
+  //           path: 'consultationNote.addedBy',
+  //           model: 'staff',
+  //         },
+  //         {
+  //           path: 'consultationNote.consultant',
+  //           model: 'staff',
+  //         },
+  //         {
+  //           path: 'room.roomId',
+  //           model: 'room',
+  //         },
+  //         {
+  //           path: 'radRequest.serviceId',
+  //           model: 'RadiologyService',
+  //         },
+  //         {
+  //           path: 'radRequest.requestedBy',
+  //           model: 'staff',
+  //         },
+  //         {
+  //           path: 'labRequest.serviceId',
+  //           model: 'LaboratoryService',
+  //         },
+  //         {
+  //           path: 'labRequest.requestedBy',
+  //           model: 'staff',
+  //         },
+  //         {
+  //           path: 'pharmacyRequest.requestedBy',
+  //           model: 'staff',
+  //         },
+  //         {
+  //           path: 'pharmacyRequest.item.itemId',
+  //           model: 'Item',
+  //         },
+  //         {
+  //           path: 'doctorNotes.addedBy',
+  //           model: 'staff',
+  //         },
+  //         {
+  //           path: 'edNurseRequest.addedBy',
+  //           model: 'staff',
+  //         },
+  //         {
+  //           path: 'eouNurseRequest.addedBy',
+  //           model: 'staff',
+  //         },
+  //         {
+  //           path: 'nurseTechnicianRequest.addedBy',
+  //           model: 'staff',
+  //         },
+  //         {
+  //           path: 'anesthesiologistNote.addedBy',
+  //           model: 'staff',
+  //         },
+  //         {
+  //           path: 'pharmacyRequest.reconciliationNotes.addedBy',
+  //           model: 'staff',
+  //         },
+  //         {
+  //           path: 'eouBed.bedId',
+  //           model: 'Bed',
+  //           select: 'bedId bedNo',
+  //         },
+  //       ],
+  //     },
+  //   ]);
+  //   res.status(200).json({
+  //     success: true,
+  //     data: patients,
+  //   });
 });
 
 exports.pendingEOUNurseEdrRequest = asyncHandler(async (req, res, next) => {

@@ -205,14 +205,29 @@ exports.pendingNurseAssign = asyncHandler(async (req, res, next) => {
 
 exports.assignBedTONurse = asyncHandler(async (req, res, next) => {
   const { nurseId, bedNo, bedId, edrId, assignedBy, transferId } = req.body;
-  const assignedBed = await EOUNurse.create({
+
+  //   Check if this edr assigned to another Nurse
+  const existingEDR = await EOUNurse.findOne({ edrId: edrId });
+  let assignedBed;
+  const nurse = {
     nurseId,
-    bedNo,
-    bedId,
-    edrId,
     assignedBy,
     assignedAt: Date.now(),
-  });
+  };
+  if (existingEDR) {
+    assignedBed = await EOUNurse.findOneAndUpdate(
+      { edrId: edrId },
+      { $push: { nurse: nurse } },
+      { new: true }
+    );
+  } else {
+    assignedBed = await EOUNurse.create({
+      nurse,
+      bedNo,
+      bedId,
+      edrId,
+    });
+  }
 
   await TransferToEOU.findOneAndUpdate(
     { _id: transferId },
