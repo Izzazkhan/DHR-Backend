@@ -141,16 +141,16 @@ mongoose
 
 // Cron Job For Flags
 
-cron.schedule('* * * * *', () => {
+cron.schedule('* * * * *', async () => {
   console.log('running a task every minute');
   const time = Date.now();
   //   console.log(time);
-  const flags = CronFlag.find({
+  const flags = await CronFlag.find({
     taskFlagTime: { $lte: time },
     status: { $ne: 'completed' },
   });
 
-  console.log(flags);
+  //   console.log(flags);
 });
 
 const PORT = process.env.PORT || 8080;
