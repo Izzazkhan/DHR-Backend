@@ -62,6 +62,7 @@ const EOU = require('./routes/EOU');
 const bed = require('./routes/bed');
 const transferOfCare = require('./routes/transferOfCare');
 const CronFlag = require('./models/CronFlag');
+const cronFlagRouter = require('./routes/CronFlag');
 
 const app = express();
 
@@ -127,6 +128,8 @@ app.use('/api/newCC', newCC);
 app.use('/api/eou', EOU);
 app.use('/api/bed', bed);
 app.use('/api/transferOfCare', transferOfCare);
+app.use('/api/cronFlag', cronFlagRouter);
+
 app.use(errorHandler);
 
 const DB = process.env.MONGO_URI;
@@ -143,14 +146,37 @@ mongoose
 
 cron.schedule('* * * * *', async () => {
   console.log('running a task every minute');
-  const time = Date.now();
-  //   console.log(time);
+
+  const time = new Date();
   const flags = await CronFlag.find({
     taskFlagTime: { $lte: time },
-    status: { $ne: 'completed' },
+    status: 'pending',
   });
 
-  //   console.log(flags);
+  console.log(flags);
+
+  flags.forEach(async (flag) => {
+    await Flag.create({
+      edrId: flag.edrId,
+      generatedFrom: flag.generatedFrom,
+      card: flag.card,
+      generatedFor: flag.generatedFor,
+      reason: flag.reason,
+      staffId: flag.staffId,
+      createdAt: Date.now(),
+    });
+    const allFlags = await Flag.find({
+      generatedFrom: flag.generatedFrom,
+      status: 'pending',
+    });
+    globalVariable.io.emit(flag.emittedFor, allFlags);
+
+    await CronFlag.findOneAndUpdate(
+      { _id: flag._id },
+      { $set: { status: 'raised' } },
+      { new: true }
+    );
+  });
 });
 
 const PORT = process.env.PORT || 8080;

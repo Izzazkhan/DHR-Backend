@@ -9,6 +9,8 @@ const PA = require('../models/productionArea');
 const Flag = require('../models/flag/Flag');
 const searchEdrPatient = require('../components/searchEdr');
 const generateReqNo = require('../components/requestNoGenerator');
+const CronFlag = require('../models/CronFlag');
+s;
 
 exports.getPendingRadEdr = asyncHandler(async (req, res, next) => {
   const unwindEdr = await EDR.aggregate([
@@ -245,6 +247,11 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
     ).populate('radRequest.serviceId');
 
     if (parsed.status === 'pending approval') {
+      await CronFlag.findOneAndUpdate(
+        { staffId: parsed.imageTechnicianId },
+        { $set: { status: 'completed' } },
+        { new: true }
+      );
       // Finding Pending Rads for Flag
       const rads = await EDR.aggregate([
         {

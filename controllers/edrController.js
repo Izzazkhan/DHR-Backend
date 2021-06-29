@@ -11,6 +11,7 @@ const Notification = require('../components/notification');
 const Flag = require('../models/flag/Flag');
 const searchPatient = require('../components/searchEdr');
 const generateReqNo = require('../components/requestNoGenerator');
+const addFlag = require('../components/addFlag.js');
 
 exports.generateEDR = asyncHandler(async (req, res, next) => {
   let newEDR;
@@ -95,7 +96,7 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
       '',
       ''
     );
-	    Notification(
+    Notification(
       'ADT_A04',
       'New patient from Paramedics',
       'Admin',
@@ -1962,6 +1963,22 @@ exports.addRadRequest = asyncHandler(async (req, res, next) => {
   ]);
 
   // Finding Pending Rads for Flag
+  const data = {
+    taskName: 'Rad Test Delay',
+    minutes: 5,
+    collectionName: 'Radiology',
+    staffId: req.body.radTechnicianId,
+    edrId: req.body.edrId,
+    patientId: '',
+    generatedFrom: 'Imaging Technician',
+    generatedFor: ['Sensei', 'Head Of Radiology Department'],
+    card: '1st',
+    reason: 'Too Many Rad Tests Pending',
+    emittedFor: 'pendingRad',
+  };
+
+  addFlag(data, res);
+
   const rads = await EDR.aggregate([
     {
       $project: {
@@ -3036,7 +3053,6 @@ exports.addAnesthesiologistNote = asyncHandler(async (req, res, next) => {
     '',
     ''
   );
-
 
   Notification(
     'anesthesiologist request',
