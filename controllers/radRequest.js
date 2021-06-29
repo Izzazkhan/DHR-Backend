@@ -248,7 +248,7 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
 
     if (parsed.status === 'pending approval') {
       await CronFlag.findOneAndUpdate(
-        { staffId: parsed.imageTechnicianId },
+        { requestId: parsed.radId },
         { $set: { status: 'completed' } },
         { new: true }
       );

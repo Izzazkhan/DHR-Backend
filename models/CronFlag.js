@@ -26,6 +26,7 @@ const cronFlagSchema = new mongoose.Schema({
     type: String,
   },
   emittedFor: String,
+  requestId: String,
 });
 
 module.exports = mongoose.model('CronFlag', cronFlagSchema);

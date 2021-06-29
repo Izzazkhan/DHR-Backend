@@ -1975,6 +1975,7 @@ exports.addRadRequest = asyncHandler(async (req, res, next) => {
     card: '1st',
     reason: 'Too Many Rad Tests Pending',
     emittedFor: 'pendingRad',
+    requestId: newRad.radRequest[newRad.radRequest.length - 1]._id,
   };
 
   addFlag(data, res);

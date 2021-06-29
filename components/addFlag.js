@@ -21,6 +21,7 @@ const addFlag = asyncHandler(async (data, res) => {
     card: data.card,
     reason: data.reason,
     emittedFor: data.emittedFor,
+    requestId: data.requestId,
   });
 
   res.status(200).json({
