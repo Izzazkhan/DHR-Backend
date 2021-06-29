@@ -333,4 +333,9 @@ exports.sendNotification = asyncHandler(async (req, res, next) => {
       doctor._id
     );
   });
+
+  res.status(200).json({
+    success: true,
+    data: 'Notification Sent',
+  });
 });
