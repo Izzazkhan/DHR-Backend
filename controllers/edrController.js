@@ -1969,7 +1969,7 @@ exports.addRadRequest = asyncHandler(async (req, res, next) => {
     collectionName: 'Radiology',
     staffId: req.body.radTechnicianId,
     edrId: req.body.edrId,
-    patientId: '',
+    // patientId: '',
     generatedFrom: 'Imaging Technician',
     generatedFor: ['Sensei', 'Head Of Radiology Department'],
     card: '1st',
@@ -1977,6 +1977,8 @@ exports.addRadRequest = asyncHandler(async (req, res, next) => {
     emittedFor: 'pendingRad',
     requestId: newRad.radRequest[newRad.radRequest.length - 1]._id,
   };
+
+  console.log(data)
 
   addFlag(data, res);
 

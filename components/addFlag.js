@@ -7,7 +7,7 @@ const addFlag = asyncHandler(async (data, res) => {
   time.setMinutes(time.getMinutes() + data.minutes);
   const milliseconds = time.getTime();
   console.log(milliseconds);
-  const flag = await CronFlag.create({
+  await CronFlag.create({
     taskName: data.taskName,
     taskAssignTime: Date.now(),
     taskFlagTime: milliseconds,
@@ -15,7 +15,7 @@ const addFlag = asyncHandler(async (data, res) => {
     collectionName: data.collection,
     staffId: data.staffId,
     edrId: data.edrId,
-    patientId: data.patientId,
+    // patientId: data.patientId,
     generatedFrom: data.generatedFrom,
     generatedFor: data.generatedFor,
     card: data.card,
@@ -24,10 +24,10 @@ const addFlag = asyncHandler(async (data, res) => {
     requestId: data.requestId,
   });
 
-  res.status(200).json({
-    success: true,
-    data: flag,
-  });
+  //   res.status(200).json({
+  //     success: true,
+  //     data: flag,
+  //   });
 });
 
 module.exports = addFlag;
