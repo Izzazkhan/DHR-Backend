@@ -10,6 +10,10 @@ const FlagSchema = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: 'patientfhir',
     },
+    staffId: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'staff',
+    },
     // Other Staff
     generatedFrom: {
       type: String,
@@ -20,6 +24,7 @@ const FlagSchema = new mongoose.Schema(
     reason: {
       type: String,
     },
+    emittedFor: String,
     createdAt: {
       type: Date,
     },

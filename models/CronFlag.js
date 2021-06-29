@@ -7,6 +7,26 @@ const cronFlagSchema = new mongoose.Schema({
   status: String,
   collectionName: String,
   staffId: String,
+  edrId: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'EDR',
+  },
+  patientId: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'patientfhir',
+  },
+  // Other Staff
+  generatedFrom: {
+    type: String,
+  },
+  // Sensei
+  generatedFor: [{ type: String }],
+  card: String,
+  reason: {
+    type: String,
+  },
+  emittedFor: String,
+  requestId: String,
 });
 
 module.exports = mongoose.model('CronFlag', cronFlagSchema);
