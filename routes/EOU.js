@@ -13,6 +13,7 @@ const {
   assignBedTONurse,
   pendingNurseAssign,
   completedNurseAssign,
+  sendNotification,
 } = require('../controllers/EOU');
 
 router.post('/createEou', createEOU);
@@ -25,5 +26,6 @@ router.get('/getAllBeds', getAllBeds);
 router.get('/getAvailableBeds', getAvailableBeds);
 router.get('/pendingNurseAssign', pendingNurseAssign);
 router.get('/completedNurseAssign', completedNurseAssign);
+router.put('/sendNotification', sendNotification);
 
 module.exports = router;
