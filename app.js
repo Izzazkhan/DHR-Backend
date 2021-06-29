@@ -5,6 +5,7 @@ const http = require('http');
 const socketIO = require('socket.io');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const cron = require('node-cron');
 const errorHandler = require('./middleware/error');
 const webRTCSocket = require('./lib/socket');
 
@@ -60,6 +61,7 @@ const newCC = require('./routes/newChiefComplaint');
 const EOU = require('./routes/EOU');
 const bed = require('./routes/bed');
 const transferOfCare = require('./routes/transferOfCare');
+const CronFlag = require('./models/CronFlag');
 
 const app = express();
 
@@ -137,31 +139,19 @@ mongoose
   })
   .then(() => console.log('DataBase connected Successfully'));
 
-// const PORT = process.env.PORT || 8080;
-// const portChat = 4001;
+// Cron Job For Flags
 
-// const server = app.listen(PORT, () =>
-//   console.log(
-//     `Server is running on PORT: ${PORT} in ${process.env.NODE_ENV} mode`
-//   )
-// );
+cron.schedule('* * * * *', () => {
+  console.log('running a task every minute');
+  const time = Date.now();
+  //   console.log(time);
+  const flags = CronFlag.find({
+    taskFlagTime: { $lte: time },
+    status: { $ne: 'completed' },
+  });
 
-// const socketServer = http.createServer(app);
-// const io = socketIO(socketServer);
-// io.origins('*:*');
-
-// io.on('connection', (socket) => {
-//   console.log('chat user connected');
-//   socket.on('disconnect', () => {
-//     console.log('chat user disconnected');
-//   });
-// });
-
-// global.globalVariable = { io: io };
-
-// socketServer.listen(portChat, () =>
-//   console.log(`Socket for chat is listening on : ${portChat}`)
-// );
+  console.log(flags);
+});
 
 const PORT = process.env.PORT || 8080;
 const portChat = 4001;
@@ -177,167 +167,6 @@ const io1 = socketIO(serverSocket1);
 const serverSocket2 = http.createServer(app);
 
 require('./components/socket')(io1);
-
-// let connectedUsers = [];
-
-// io1.origins('*:*');
-// io1.on('connection', (socket) => {
-//   socket.on('connected', (userId) => {
-//     const arr = connectedUsers.filter((i) => i !== userId);
-//     arr.push(userId);
-//     connectedUsers = arr;
-//     // console.log('chat user connected', connectedUsers);
-//     io1.emit('getConnectedUsers', connectedUsers);
-//   });
-
-//   socket.on('disconnected', (userId) => {
-//     const arr = connectedUsers.filter((i) => i !== userId);
-//     connectedUsers = arr;
-//     // console.log('chat user disconnected', connectedUsers);
-//     io1.emit('getConnectedUsers', connectedUsers);
-//   });
-
-//   socket.on('chat_sent', function (msg) {
-//     ChatModel.findOneAndUpdate(
-//       { _id: msg.obj2.chatId },
-//       {
-//         $push: { chat: msg.obj1 },
-//       }
-//     ).then(() => {
-//       io1.emit('chat_receive', { message: msg.obj1 });
-//     });
-//   });
-
-//   socket.on('get_count', async (userId) => {
-//     const count = await Notification.aggregate([
-//       {
-//         $unwind: '$sendTo',
-//       },
-//       {
-//         $match: {
-//           $and: [
-//             { 'sendTo.userId': mongoose.Types.ObjectId(userId) },
-//             { 'sendTo.read': false },
-//           ],
-//         },
-//       },
-//     ]);
-
-//     io1.emit('count', { count: count.length, user: userId });
-//   });
-
-//   socket.on('rad_flags', async () => {
-//     const flags = await Flag.find({
-//       generatedFrom: 'Imaging Technician',
-//       status: 'pending',
-//     });
-//     io1.emit('pendingRad', flags);
-//   });
-
-//   socket.on('ro_flags', async () => {
-//     const flags = await Flag.find({
-//       generatedFrom: 'Registration Officer',
-//       status: 'pending',
-//     });
-//     io1.emit('pendingRO', flags);
-//   });
-
-//   socket.on('sensei_flags', async () => {
-//     const flags = await Flag.find({
-//       generatedFrom: 'Sensei',
-//       status: 'pending',
-//     });
-//     io1.emit('pendingSensei', flags);
-//   });
-
-//   socket.on('edDoctor_flags', async () => {
-//     const flags = await Flag.find({
-//       generatedFrom: 'ED Doctor',
-//       status: 'pending',
-//     });
-//     io1.emit('pendingDoctor', flags);
-//   });
-
-//   socket.on('hk_flags', async () => {
-//     const flags = await Flag.find({
-//       generatedFrom: 'House Keeping',
-//       status: 'pending',
-//     });
-//     io1.emit('hkPending', flags);
-//   });
-
-//   socket.on('cc_flags', async () => {
-//     const flags = await Flag.find({
-//       generatedFrom: 'Customer Care',
-//       status: 'pending',
-//     });
-//     io1.emit('ccPending', flags);
-//   });
-
-//   socket.on('edNurse_flags', async () => {
-//     const flags = await Flag.find({
-//       generatedFrom: 'ED Nurse',
-//       status: 'pending',
-//     });
-//     io1.emit('edNursePending', flags);
-//   });
-
-//   socket.on('eouNurse_flags', async () => {
-//     const flags = await Flag.find({
-//       generatedFrom: 'EOU Nurse',
-//       status: 'pending',
-//     });
-//     io1.emit('eouNursePending', flags);
-//   });
-
-//   socket.on('anesthesia_flags', async () => {
-//     const flags = await Flag.find({
-//       generatedFrom: 'Anesthesiologist',
-//       status: 'pending',
-//     });
-//     io1.emit('anesthesiaPending', flags);
-//   });
-
-//   socket.on('external_flags', async () => {
-//     const flags = await Flag.find({
-//       generatedFrom: 'External',
-//       status: 'pending',
-//     });
-//     io1.emit('externalPending', flags);
-//   });
-
-//   socket.on('internal_flags', async () => {
-//     const flags = await Flag.find({
-//       generatedFrom: 'Internal',
-//       status: 'pending',
-//     });
-//     io1.emit('internalPending', flags);
-//   });
-
-//   socket.on('radDoctor_flags', async () => {
-//     const flags = await Flag.find({
-//       generatedFrom: 'Rad Doctor',
-//       status: 'pending',
-//     });
-//     io1.emit('radDoctorPending', flags);
-//   });
-
-//   socket.on('labTechnician_flags', async () => {
-//     const flags = await Flag.find({
-//       generatedFrom: 'Rad Doctor',
-//       status: 'pending',
-//     });
-//     io1.emit('ltPending', flags);
-//   });
-
-//   socket.on('clinicalPharm_flags', async () => {
-//     const flags = await Flag.find({
-//       generatedFrom: 'Clinical Pharmacist',
-//       status: 'pending',
-//     });
-//     io1.emit('cpPending', flags);
-//   });
-// });
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err, promise) => {
