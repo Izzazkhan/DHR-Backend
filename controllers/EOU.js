@@ -311,7 +311,7 @@ exports.sendNotification = asyncHandler(async (req, res, next) => {
   const latestCC = edr.chiefComplaint.length - 1;
   const chiefComplaintId = edr.chiefComplaint[latestCC].chiefComplaintId._id;
 
-  const nurseShift = await Staff.find(req.body.staffId).select('shift');
+  const nurseShift = await Staff.findById(req.body.staffId).select('shift');
 
   const doctors = await Staff.find({
     staffType: 'Doctor',

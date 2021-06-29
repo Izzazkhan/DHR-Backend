@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const cronFlagSchema = new mongoose.Schema({
   taskName: String,
   taskAssignTime: Date,
-  taskFlagTime: Date,
+  taskFlagTime: Number,
   status: String,
   collectionName: String,
   staffId: String,
