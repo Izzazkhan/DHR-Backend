@@ -1965,11 +1965,10 @@ exports.addRadRequest = asyncHandler(async (req, res, next) => {
   // Finding Pending Rads for Flag
   const data = {
     taskName: 'Rad Test Delay',
-    minutes: 5,
+    minutes: 31,
     collectionName: 'Radiology',
     staffId: req.body.radTechnicianId,
     edrId: req.body.edrId,
-    patientId: '',
     generatedFrom: 'Imaging Technician',
     generatedFor: ['Sensei', 'Head Of Radiology Department'],
     card: '1st',
@@ -1978,7 +1977,25 @@ exports.addRadRequest = asyncHandler(async (req, res, next) => {
     requestId: newRad.radRequest[newRad.radRequest.length - 1]._id,
   };
 
-  addFlag(data, res);
+  //   console.log(data);
+
+  addFlag(data);
+
+  const data2 = {
+    taskName: 'Rad Result Delay',
+    minutes: 60,
+    collectionName: 'Radiology',
+    staffId: req.body.radTechnicianId,
+    edrId: req.body.edrId,
+    generatedFrom: 'Imaging Technician',
+    generatedFor: ['Sensei', 'Head Of Radiology Department'],
+    card: '1st',
+    reason: 'Too Many Rad Results Pending',
+    emittedFor: 'pendingRad',
+    requestId: newRad.radRequest[newRad.radRequest.length - 1]._id,
+  };
+
+  addFlag(data2);
 
   const rads = await EDR.aggregate([
     {
