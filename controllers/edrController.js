@@ -2633,7 +2633,28 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       requestedAt: Date.now(),
       costomerCareId: customerCare._id,
     });
+    if (
+      req.body.dischargeRequest.dischargeSummary.edrCompletionReason ===
+      'admitted'
+    ) {
+      //   Cron Flag for Customer Care
+      const data3 = {
+        taskName: 'Discharge To IP Pending',
+        minutes: 61,
+        collectionName: 'CustomerCare',
+        staffId: customerCare._id,
+        patientId: _id,
+        onModel: 'EDR',
+        generatedFrom: 'Customer Care',
+        card: '4th',
+        generatedFor: ['Customer Care Director'],
+        reason: 'Patient Transfer from ED to IP Pending',
+        emittedFor: 'ccPending',
+        requestId: dischargeCC._id,
+      };
 
+      addFlag(data3);
+    }
     //   Cron Flag for Customer Care
     const data2 = {
       taskName: 'Discharge Pending',
