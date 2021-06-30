@@ -571,7 +571,7 @@ exports.completeDischarge = asyncHandler(async (req, res, next) => {
 
   // Preventing from raising flag if task is completed
   await CronFlag.findOneAndUpdate(
-    { requestId: req.params.dischargeId, taskName: 'Discharge Pending' },
+    { requestId: req.params.dischargeId },
     { $set: { status: 'completed' } },
     { new: true }
   );
