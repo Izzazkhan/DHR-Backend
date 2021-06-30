@@ -7,13 +7,16 @@ const cronFlagSchema = new mongoose.Schema({
   status: String,
   collectionName: String,
   staffId: String,
-  edrId: {
-    type: mongoose.Schema.ObjectId,
-    ref: 'EDR',
-  },
+  //   edrId: {
+  //     type: mongoose.Schema.ObjectId,
+  //     ref: 'EDR',
+  //   },
   patientId: {
     type: mongoose.Schema.ObjectId,
-    ref: 'patientfhir',
+    refPath: 'onModel',
+  },
+  onModel: {
+    type: String,
   },
   // Other Staff
   generatedFrom: {
