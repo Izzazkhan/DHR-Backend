@@ -147,6 +147,65 @@ exports.getCompletedRadEdr = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.getPendingApprovalRadEdr = asyncHandler(async (req, res, next) => {
+  const unwindEdr = await EDR.aggregate([
+    {
+      $project: {
+        _id: 1,
+        radRequest: 1,
+        room: 1,
+        patientId: 1,
+        chiefComplaint: 1,
+      },
+    },
+    {
+      $unwind: '$radRequest',
+    },
+
+    {
+      $match: {
+        // $or: [
+        //   { 'radRequest.status': 'completed' },
+        'radRequest.status': 'pending approval',
+        // ],
+      },
+    },
+  ]);
+
+  const edrs = await EDR.populate(unwindEdr, [
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      select: 'chiefComplaintId',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      ],
+    },
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+      //   select: 'identifier name',
+    },
+    {
+      path: 'radRequest.serviceId',
+      model: 'RadiologyService',
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
+      select: 'roomNo',
+    },
+  ]);
+  res.status(200).json({
+    success: true,
+    data: edrs,
+  });
+});
+
 exports.updateRadRequest = asyncHandler(async (req, res, next) => {
   // console.log(req.files);
   const parsed = JSON.parse(req.body.data);

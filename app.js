@@ -148,14 +148,14 @@ cron.schedule('* * * * *', async () => {
   console.log('running a task every minute');
 
   const time = new Date();
-  const flags = await CronFlag.find({
+  const allFlags = await CronFlag.find({
     taskFlagTime: { $lte: time },
     status: 'pending',
   });
 
-  console.log(flags);
+  console.log(allFlags);
 
-  flags.forEach(async (flag) => {
+  allFlags.forEach(async (flag) => {
     await Flag.create({
       edrId: flag.edrId,
       generatedFrom: flag.generatedFrom,
@@ -165,11 +165,11 @@ cron.schedule('* * * * *', async () => {
       staffId: flag.staffId,
       createdAt: Date.now(),
     });
-    const allFlags = await Flag.find({
+    const flags = await Flag.find({
       generatedFrom: flag.generatedFrom,
       status: 'pending',
     });
-    globalVariable.io.emit(flag.emittedFor, allFlags);
+    globalVariable.io.emit(flag.emittedFor, flags);
 
     await CronFlag.findOneAndUpdate(
       { _id: flag._id },

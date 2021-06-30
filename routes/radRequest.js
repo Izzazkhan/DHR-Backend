@@ -25,6 +25,7 @@ const {
   getPendingRadEdrForED,
   getCompletedRadEdrForED,
   searchCompletedRadEdr,
+  getPendingApprovalRadEdr,
 } = require('../controllers/radRequest');
 
 const router = express.Router();
@@ -41,5 +42,6 @@ router.get(
   getCompletedRadEdrForED
 );
 router.get('/searchCompletedRadEdr/:radId', searchCompletedRadEdr);
+router.get('/getPendingApprovalRadEdr', getPendingApprovalRadEdr);
 
 module.exports = router;
