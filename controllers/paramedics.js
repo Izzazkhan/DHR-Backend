@@ -9,6 +9,7 @@ const Flag = require('../models/flag/Flag');
 const searchStaff = require('../components/searchStaff');
 const searchEdrPatient = require('../components/searchEdr');
 const generateReqNo = require('../components/requestNoGenerator');
+const addFlag = require('../components/addFlag.js');
 
 exports.paramedicsEdr = asyncHandler(async (req, res, next) => {
   const paramedicsEdr = await EDR.find({
@@ -70,6 +71,24 @@ exports.edrTransfer = asyncHandler(async (req, res, next) => {
     requestedAt: Date.now(),
     costomerCareId: customerCare._id,
   });
+
+  //   Cron Flag for Customer Care
+  const data = {
+    taskName: 'Transfer Pending',
+    minutes: 4,
+    collectionName: 'CustomerCare',
+    staffId: customerCare._id,
+    patientId: req.body.edrId,
+    onModel: 'EDR',
+    generatedFrom: 'Customer Care',
+    card: '2nd',
+    generatedFor: ['Customer Care Director'],
+    reason: 'Patient Transfer from Ambulance to Bed Pending',
+    emittedFor: 'ccPending',
+    requestId: cc._id,
+  };
+
+  addFlag(data);
 
   const requests = await CCRequest.find({
     requestedFor: 'Transfer',
