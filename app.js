@@ -157,7 +157,8 @@ cron.schedule('* * * * *', async () => {
 
   allFlags.forEach(async (flag) => {
     await Flag.create({
-      edrId: flag.edrId,
+      edrId: flag.onModel === 'EDR' ? flag.patientId : null,
+      patientId: flag.onModel === 'patientfhir' ? flag.patientId : null,
       generatedFrom: flag.generatedFrom,
       card: flag.card,
       generatedFor: flag.generatedFor,
