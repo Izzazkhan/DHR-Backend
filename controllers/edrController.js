@@ -1977,8 +1977,6 @@ exports.addRadRequest = asyncHandler(async (req, res, next) => {
     requestId: newRad.radRequest[newRad.radRequest.length - 1]._id,
   };
 
-  //   console.log(data);
-
   addFlag(data);
 
   const data2 = {
@@ -1989,7 +1987,7 @@ exports.addRadRequest = asyncHandler(async (req, res, next) => {
     edrId: req.body.edrId,
     generatedFrom: 'Imaging Technician',
     generatedFor: ['Sensei', 'Head Of Radiology Department'],
-    card: '1st',
+    card: '2nd',
     reason: 'Too Many Rad Results Pending',
     emittedFor: 'pendingRad',
     requestId: newRad.radRequest[newRad.radRequest.length - 1]._id,
