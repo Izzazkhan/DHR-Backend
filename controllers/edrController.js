@@ -2611,7 +2611,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     'withCare'
   ) {
     // Customer Care Request
-    const CCRequestNo = 'DDID' + day + requestNoFormat(new Date(), 'yyHHMMss');
+    const CCRequestNo = generateReqNo('DDID');
     const customerCares = await Staff.find({
       staffType: 'Customer Care',
       disabled: false,
