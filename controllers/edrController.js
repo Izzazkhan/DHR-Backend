@@ -82,6 +82,24 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
     }
   );
   newEDR = await EDR.findOne({ _id: newEDR._id }).populate('patientId');
+
+  //   Cron Flag for Customer Care
+  const data = {
+    taskName: 'PA Assignment Pending',
+    minutes: 4,
+    collectionName: 'EDR',
+    staffId: generatedBy,
+    patientId: newEDR._id,
+    onModel: 'EDR',
+    generatedFrom: 'Sensei',
+    card: '1st',
+    generatedFor: ['Sensei'],
+    reason: 'Patients pending for production area',
+    emittedFor: 'pendingSensei',
+    requestId: newEDR._id,
+  };
+
+  addFlag(data);
   // * Sending Notifications
 
   // Notification from Paramedics
