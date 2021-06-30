@@ -243,6 +243,12 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
       { new: true }
     ).populate('radRequest.serviceId');
 
+    // Preventing from raising flag if task is completed
+    await CronFlag.findOneAndUpdate(
+      { requestId: parsed.radId, taskName: 'Rad Result Delay' },
+      { $set: { status: 'completed' } },
+      { new: true }
+    );
     const pendingRad = await EDR.aggregate([
       {
         $project: {
@@ -304,12 +310,14 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
       { new: true }
     ).populate('radRequest.serviceId');
 
+    // Preventing from raising flag if task is completed
     if (parsed.status === 'pending approval') {
       await CronFlag.findOneAndUpdate(
         { requestId: parsed.radId },
         { $set: { status: 'completed' } },
         { new: true }
       );
+
       // Finding Pending Rads for Flag
       const rads = await EDR.aggregate([
         {
