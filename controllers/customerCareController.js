@@ -569,6 +569,13 @@ exports.completeDischarge = asyncHandler(async (req, res, next) => {
       },
     ]);
 
+  // Preventing from raising flag if task is completed
+  await CronFlag.findOneAndUpdate(
+    { requestId: req.params.dischargeId, taskName: 'Discharge Pending' },
+    { $set: { status: 'completed' } },
+    { new: true }
+  );
+
   res.status(200).json({
     success: true,
     data: completedDischarge,
@@ -782,6 +789,13 @@ exports.updateMedicationStatus = asyncHandler(async (req, res, next) => {
   )
     .select('patientId pharmacyRequest')
     .populate('patientId', 'Identifier');
+
+  // Preventing from raising flag if task is completed
+  await CronFlag.findOneAndUpdate(
+    { requestId: req.body.requestId, taskName: 'Medication Pending' },
+    { $set: { status: 'completed' } },
+    { new: true }
+  );
 
   res.status(200).json({
     success: true,

@@ -2622,7 +2622,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     const randomCC = Math.floor(Math.random() * (customerCares.length - 1));
     const customerCare = customerCares[randomCC];
 
-    await CCRequest.create({
+    const dischargeCC = await CCRequest.create({
       requestNo: CCRequestNo,
       edrId: _id,
       status: 'pending',
@@ -2633,6 +2633,24 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       requestedAt: Date.now(),
       costomerCareId: customerCare._id,
     });
+
+    //   Cron Flag for Customer Care
+    const data2 = {
+      taskName: 'Discharge Pending',
+      minutes: 11,
+      collectionName: 'CustomerCare',
+      staffId: customerCare._id,
+      patientId: _id,
+      onModel: 'EDR',
+      generatedFrom: 'Customer Care',
+      card: '5th',
+      generatedFor: ['Customer Care Director'],
+      reason: 'Patient Discharge Transfer Pending',
+      emittedFor: 'ccPending',
+      requestId: dischargeCC._id,
+    };
+
+    addFlag(data2);
   }
 
   const transferRequest = await CCRequest.find({
@@ -4515,6 +4533,24 @@ exports.deliverPharmcayRequest = asyncHandler(async (req, res, next) => {
     req.body.edrId,
     ''
   );
+
+  //   Cron Flag for Customer Care
+  const data = {
+    taskName: 'Medication Pending',
+    minutes: 9,
+    collectionName: 'CustomerCare',
+    staffId: customerCare._id,
+    patientId: req.body.edrId,
+    onModel: 'EDR',
+    generatedFrom: 'Customer Care',
+    card: '3rd',
+    generatedFor: ['Customer Care Director'],
+    reason: 'Pharma Transfer to ED/EOU Pending',
+    emittedFor: 'ccPending',
+    requestId: req.body._id,
+  };
+
+  addFlag(data);
 
   const pharmacyRequest = await EDR.aggregate([
     {
