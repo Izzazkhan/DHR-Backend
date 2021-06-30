@@ -2461,6 +2461,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       'House keeping supervisor',
     ],
     reason: 'Cells/Beds Cleaning Pending',
+    emittedFor: 'hkPending',
     requestId: HKRequest._id,
   };
 
