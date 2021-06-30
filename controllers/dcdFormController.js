@@ -5,6 +5,7 @@ const Staff = require('../models/staffFhir/staff');
 // const ErrorResponse = require('../utils/errorResponse');
 const Flag = require('../models/flag/Flag');
 const generateReqNo = require('../components/requestNoGenerator');
+const CronFlag = require('../models/CronFlag');
 
 exports.addTriageAssessment = asyncHandler(async (req, res, next) => {
   const triageRequestNo = generateReqNo('TA');
@@ -38,6 +39,12 @@ exports.addTriageAssessment = asyncHandler(async (req, res, next) => {
     { $push: { [`dcdForm.${latestForm}.triageAssessment`]: triage } },
     { new: true }
   ).populate('patientId', 'identifier');
+
+  await CronFlag.findOneAndUpdate(
+    { requestId: req.body.data.edrId, taskName: 'Triage Pending' },
+    { $set: { status: 'completed' } },
+    { new: true }
+  );
 
   const patientTriagePending = await EDR.find({
     'dcdForm.$.triageAssessment': { $eq: [] },

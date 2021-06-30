@@ -8,6 +8,7 @@ const Flag = require('../models/flag/Flag');
 const searchStaff = require('../components/searchStaff');
 const generateReqNo = require('../components/requestNoGenerator');
 const CronFlag = require('../models/CronFlag');
+const addFlag = require('../components/addFlag.js');
 
 exports.addChiefComplaint = asyncHandler(async (req, res, next) => {
   const { name } = req.body;
@@ -404,6 +405,25 @@ exports.assignCCtoPatient = asyncHandler(async (req, res, next) => {
     { $set: { status: 'completed' } },
     { new: true }
   );
+
+  //   Cron Flag for Sensei
+  const data = {
+    taskName: 'Triage Pending',
+    minutes: 5,
+    collectionName: 'CC',
+    staffId: null,
+    patientId: parsed.edrId,
+    onModel: 'EDR',
+    generatedFrom: 'Sensei',
+    card: '2nd',
+    generatedFor: ['Sensei'],
+    reason: 'Patients pending for TriageAssessment From Nurse',
+    createdAt: Date.now(),
+    emittedFor: 'pendingSensei',
+    requestId: parsed.edrId,
+  };
+
+  addFlag(data);
 
   // Checking For Flags
   const patients = await EDR.find({
