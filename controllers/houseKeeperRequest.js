@@ -2,6 +2,7 @@
 const HK = require('../models/houseKeepingRequest');
 const asyncHandler = require('../middleware/async');
 const Room = require('../models/room');
+const CronFlag = require('../models/CronFlag');
 
 // Imaging Technician Request
 exports.pendingRadHouseKeeperRequests = asyncHandler(async (req, res, next) => {
@@ -107,6 +108,13 @@ exports.updateSenseiStatus = asyncHandler(async (req, res, next) => {
     { _id: req.body.roomId },
     { $set: { availability: true } },
     { $new: true }
+  );
+
+  // Preventing from raising flag if task is completed
+  await CronFlag.findOneAndUpdate(
+    { requestId: req.body.requestId, taskName: 'To Be Clean' },
+    { $set: { status: 'completed' } },
+    { new: true }
   );
 
   res.status(200).json({

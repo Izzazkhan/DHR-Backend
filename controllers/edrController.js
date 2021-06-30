@@ -2434,7 +2434,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
   const requestNo = generateReqNo('HKID');
 
   // Creating Housekeeping Request
-  await HK.create({
+  const HKRequest = await HK.create({
     requestNo,
     requestedBy: 'Sensei',
     houseKeeperId: houseKeeper._id,
@@ -2444,6 +2444,27 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     task: 'To Be Clean',
     assignedTime: Date.now(),
   });
+
+  //   HouseKeeping Cron Flag
+  const data = {
+    taskName: 'To Be Clean',
+    minutes: 6,
+    collectionName: 'HouseKeeping',
+    staffId: houseKeeper._id,
+    patientId: _id,
+    onModel: 'EDR',
+    generatedFrom: 'House Keeping',
+    card: '1st',
+    generatedFor: [
+      'Sensei',
+      'Head of patient services',
+      'House keeping supervisor',
+    ],
+    reason: 'Cells/Beds Cleaning Pending',
+    requestId: HKRequest._id,
+  };
+
+  addFlag(data);
 
   const roomPending = await HK.find({
     status: 'pending',
@@ -2748,6 +2769,8 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     '',
     ''
   );
+
+  //   Ro Discharge Flag
   const dischargePending = await EDR.find({
     status: 'Discharged',
     socialWorkerStatus: 'pending',
