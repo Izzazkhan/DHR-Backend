@@ -83,7 +83,7 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
   );
   newEDR = await EDR.findOne({ _id: newEDR._id }).populate('patientId');
 
-  //   Cron Flag for Customer Care
+  //   Cron Flag for Sensei
   const data = {
     taskName: 'PA Assignment Pending',
     minutes: 4,
