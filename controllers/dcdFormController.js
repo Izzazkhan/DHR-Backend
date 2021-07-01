@@ -41,7 +41,7 @@ exports.addTriageAssessment = asyncHandler(async (req, res, next) => {
   ).populate('patientId', 'identifier');
 
   await CronFlag.findOneAndUpdate(
-    { requestId: req.body.data.edrId, taskName: 'Triage Pending' },
+    { requestId: req.body.data.edrId, taskName: 'Sensei Triage Pending' },
     { $set: { status: 'completed' } },
     { new: true }
   );

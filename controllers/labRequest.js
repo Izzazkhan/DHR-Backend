@@ -4,6 +4,7 @@ const EDR = require('../models/EDR/EDR');
 const asyncHandler = require('../middleware/async');
 const Notification = require('../components/notification');
 const searchEdrPatient = require('../components/searchEdr');
+const CronFlag = require('../models/CronFlag');
 // const ErrorResponse = require('../utils/errorResponse');
 
 exports.getPendingLabEdr = asyncHandler(async (req, res, next) => {
@@ -262,6 +263,11 @@ exports.updateLabRequest = asyncHandler(async (req, res, next) => {
   }
 
   if (parsed.status === 'completed') {
+    await CronFlag.findOneAndUpdate(
+      { requestId: parsed.labId, taskName: 'Sensei Lab Pending' },
+      { $set: { status: 'completed' } },
+      { new: true }
+    );
     Notification(
       'Report Uploaded' + parsed.labId,
       'Lab Test Report Generated',

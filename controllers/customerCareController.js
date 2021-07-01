@@ -12,6 +12,7 @@ const EOU = require('../models/EOU');
 const generateReqNo = require('../components/requestNoGenerator');
 const HK = require('../models/houseKeepingRequest');
 const CronFlag = require('../models/CronFlag');
+const addFlag = require('../components/addFlag.js');
 // const Assistance = require('../models/assistance/assistance');
 
 exports.getAllCustomerCares = asyncHandler(async (req, res, next) => {
@@ -796,6 +797,24 @@ exports.updateMedicationStatus = asyncHandler(async (req, res, next) => {
     { $set: { status: 'completed' } },
     { new: true }
   );
+
+  //   Cron Flag for Sensei 6th Card
+  const data = {
+    taskName: 'Sensei Medications Pending',
+    minutes: 11,
+    collectionName: 'Pharmacy',
+    staffId: null,
+    patientId: req.body.edrId,
+    onModel: 'EDR',
+    generatedFrom: 'Sensei',
+    card: '7th',
+    generatedFor: ['Sensei'],
+    reason: 'Patients Medications By Nurse Pending',
+    emittedFor: 'pendingSensei',
+    requestId: req.body.requestId,
+  };
+
+  addFlag(data);
 
   res.status(200).json({
     success: true,

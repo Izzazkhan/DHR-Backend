@@ -4,6 +4,8 @@ const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const Patient = require('../models/patient/patient');
 const generateReqNo = require('../components/requestNoGenerator');
+const CronFlag = require('../models/CronFlag');
+
 // const Staff = require('../models/staffFhir/staff');
 
 exports.addDoctorNotes = asyncHandler(async (req, res, next) => {
@@ -202,18 +204,6 @@ exports.completeConsultationNote = asyncHandler(async (req, res, next) => {
     parsed = req.body;
   }
 
-  // const parsed = req.body;
-  // console.log(parsed);
-  // const edrNotes = await EDR.findOne({ _id: parsed.edrId });
-
-  // let note;
-  // for (let i = 0; i < edrNotes.consultationNote.length; i++) {
-  //   if (edrNotes.consultationNote[i]._id == parsed.noteId) {
-  //     // console.log(i);
-  //     note = i;
-  //   }
-  // }
-  // // console.log(note);
   const updatedNote = await EDR.findOneAndUpdate(
     { _id: parsed.edrId, 'consultationNote._id': parsed._id },
     {
@@ -1019,6 +1009,24 @@ exports.completeAnesthesiaRequest = asyncHandler(async (req, res, next) => {
     {
       new: true,
     }
+  );
+
+  // Preventing from raising flag if task is completed
+  await CronFlag.findOneAndUpdate(
+    { requestId: req.body._id, taskName: 'Total Anesthesia Pending' },
+    { $set: { status: 'completed' } },
+    { new: true }
+  );
+
+  await CronFlag.findOneAndUpdate(
+    { requestId: req.body._id, taskName: 'ED Anesthesia Pending' },
+    { $set: { status: 'completed' } },
+    { new: true }
+  );
+  await CronFlag.findOneAndUpdate(
+    { requestId: req.body._id, taskName: 'EOU Anesthesia Pending' },
+    { $set: { status: 'completed' } },
+    { new: true }
   );
 
   res.status(200).json({

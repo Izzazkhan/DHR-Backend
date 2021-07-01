@@ -406,25 +406,6 @@ exports.assignCCtoPatient = asyncHandler(async (req, res, next) => {
     { new: true }
   );
 
-  //   Cron Flag for Sensei
-  const data = {
-    taskName: 'Triage Pending',
-    minutes: 5,
-    collectionName: 'CC',
-    staffId: null,
-    patientId: parsed.edrId,
-    onModel: 'EDR',
-    generatedFrom: 'Sensei',
-    card: '2nd',
-    generatedFor: ['Sensei'],
-    reason: 'Patients pending for TriageAssessment From Nurse',
-    createdAt: Date.now(),
-    emittedFor: 'pendingSensei',
-    requestId: parsed.edrId,
-  };
-
-  addFlag(data);
-
   // Checking For Flags
   const patients = await EDR.find({
     chiefComplaint: { $eq: [] },
