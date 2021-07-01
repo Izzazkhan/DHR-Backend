@@ -159,7 +159,7 @@ exports.getCompletedLabs = asyncHandler(async (req, res, next) => {
 
 exports.completeLab = asyncHandler(async (req, res, next) => {
   const labTask = await EDR.findOneAndUpdate(
-    { _id: req.body.edrId, 'labRequest._id': req.body.labId },
+    { _id: req.body.edrId, 'labRequest.$._id': req.body.labId },
     {
       $set: {
         ' labRequest.$.nurseTechnicianStatus': 'Collected',

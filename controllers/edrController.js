@@ -958,6 +958,24 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
 
   addFlag(data2);
 
+  //   Cron Flag for Lab Technician 2nd Card
+  const data3 = {
+    taskName: 'Lab Results Pending',
+    minutes: 31,
+    collectionName: 'EDR',
+    staffId: parsed.labTechnicianId,
+    patientId: parsed.edrId,
+    onModel: 'EDR',
+    generatedFrom: 'Sensei',
+    card: '5th',
+    generatedFor: ['Sensei', 'Lab Supervisor'],
+    reason: 'Too Many Lab Results Pending',
+    emittedFor: 'pendingSensei',
+    requestId: newLab.labRequest[newLab.labRequest.length - 1]._id,
+  };
+
+  addFlag(data3);
+
   const labPending = await EDR.aggregate([
     {
       $project: {
