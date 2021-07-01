@@ -3,6 +3,7 @@ const EDR = require('../models/EDR/EDR');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const Patient = require('../models/patient/patient');
+const CronFlag = require('../models/CronFlag');
 // const Staff = require('../models/staffFhir/staff');
 
 exports.getAllPendingConsultationNotes = asyncHandler(async (req, res) => {
@@ -52,17 +53,17 @@ exports.getAllCompletedConsultationNotes = asyncHandler(async (req, res) => {
     // }
     ()
     .select({
-      dcdForm:0
+      dcdForm: 0,
     })
     .populate('patientId')
     .populate('consultationNote.consultant')
-    .populate('consultationNote.addedBy')
-    // .populate({
-    //   path: 'chiefComplaint',
-    //   populate: { path: 'chiefComplaintId' },
-    // })
-    // .populate('room.roomId')
-    // .populate('pharmacyRequest.item.itemId');
+    .populate('consultationNote.addedBy');
+  // .populate({
+  //   path: 'chiefComplaint',
+  //   populate: { path: 'chiefComplaintId' },
+  // })
+  // .populate('room.roomId')
+  // .populate('pharmacyRequest.item.itemId');
 
   let response = [];
   for (let i = 0; i < edr.length; i++) {
@@ -82,7 +83,6 @@ exports.getAllCompletedConsultationNotes = asyncHandler(async (req, res) => {
 
 exports.completeConsultationNotes = asyncHandler(async (req, res, next) => {
   const parsed = JSON.parse(req.body.data);
-  console.log(parsed);
 
   const addedNote = await EDR.findOneAndUpdate(
     { _id: parsed.edrId, 'consultationNote._id': parsed._id },
@@ -101,6 +101,33 @@ exports.completeConsultationNotes = asyncHandler(async (req, res, next) => {
     }
   );
 
+  // Preventing from raising flag if task is completed
+  await CronFlag.findOneAndUpdate(
+    { requestId: parsed._id, taskName: 'Doctor Consultation Pending' },
+    { $set: { status: 'completed' } },
+    { new: true }
+  );
+
+  const edrNote = await EDR.findOne({
+    _id: parsed.edrId,
+    'consultationNote._id': parsed._id,
+  }).select('consultationNote');
+
+  if (edrNote.consultationNote[0].consultationType === 'Internal') {
+    await CronFlag.findOneAndUpdate(
+      { requestId: parsed._id, taskName: 'Internal Consultation Pending' },
+      { $set: { status: 'completed' } },
+      { new: true }
+    );
+  }
+
+  if (edrNote.consultationNote[0].consultationType === 'External') {
+    await CronFlag.findOneAndUpdate(
+      { requestId: parsed._id, taskName: 'External Consultation Pending' },
+      { $set: { status: 'completed' } },
+      { new: true }
+    );
+  }
   res.status(200).json({
     success: true,
     data: addedNote,

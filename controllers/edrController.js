@@ -940,6 +940,24 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
 
   addFlag(data);
 
+  //   Cron Flag for Lab Technician 1st Card
+  const data2 = {
+    taskName: 'Sample Pending',
+    minutes: 6,
+    collectionName: 'EDR',
+    staffId: nurseTechnician._id,
+    patientId: parsed.edrId,
+    onModel: 'EDR',
+    generatedFrom: 'Lab Technician',
+    card: '1st',
+    generatedFor: ['Sensei', 'Lab Supervisor'],
+    reason: 'Sample Collection Pending',
+    emittedFor: 'ltPending',
+    requestId: newLab.labRequest[newLab.labRequest.length - 1]._id,
+  };
+
+  addFlag(data2);
+
   const labPending = await EDR.aggregate([
     {
       $project: {
@@ -1384,6 +1402,23 @@ exports.addConsultationNote = asyncHandler(async (req, res, next) => {
   ]);
 
   // Checking for flag
+  const data = {
+    taskName: 'Doctor Consultation Pending',
+    minutes: 31,
+    collectionName: 'EDR',
+    staffId: parsed.consultant,
+    patientId: parsed.edrId,
+    onModel: 'EDR',
+    generatedFrom: 'ED Doctor',
+    card: '4th',
+    generatedFor: ['Medical Director'],
+    reason: 'Consultant Notes Pending',
+    emittedFor: 'pendingDoctor',
+    requestId:
+      addedNote.consultationNote[addedNote.consultationNote.length - 1]._id,
+  };
+
+  addFlag(data);
   const consultantNotes = await EDR.aggregate([
     {
       $project: {
@@ -1417,6 +1452,24 @@ exports.addConsultationNote = asyncHandler(async (req, res, next) => {
   }
 
   if (parsed.subType === 'Internal') {
+    // Checking for flag
+    const data2 = {
+      taskName: 'Internal Consultation Pending',
+      minutes: 11,
+      collectionName: 'EDR',
+      staffId: parsed.consultant,
+      patientId: parsed.edrId,
+      onModel: 'EDR',
+      generatedFrom: 'Internal',
+      card: '1st',
+      generatedFor: ['ED Doctor', 'Medical Director'],
+      reason: 'Patient Consultations Pending',
+      emittedFor: 'internalPending',
+      requestId:
+        addedNote.consultationNote[addedNote.consultationNote.length - 1]._id,
+    };
+
+    addFlag(data2);
     Notification(
       'Internal Consultant Request',
       'Ed Doctor has requested an Internal Consultant',
@@ -1507,6 +1560,23 @@ exports.addConsultationNote = asyncHandler(async (req, res, next) => {
     );
 
     // Flags
+    const data3 = {
+      taskName: 'External Consultation Pending',
+      minutes: 46,
+      collectionName: 'EDR',
+      staffId: parsed.consultant,
+      patientId: parsed.edrId,
+      onModel: 'EDR',
+      generatedFrom: 'External',
+      card: '1st',
+      generatedFor: ['ED Doctor', 'Medical Director'],
+      reason: 'Patient Consultations Pending',
+      emittedFor: 'externalPending',
+      requestId:
+        addedNote.consultationNote[addedNote.consultationNote.length - 1]._id,
+    };
+
+    addFlag(data3);
     const pendingConsultation = await EDR.aggregate([
       {
         $project: {
@@ -3136,6 +3206,7 @@ exports.addAnesthesiologistNote = asyncHandler(async (req, res, next) => {
     card: '1st',
     generatedFor: ['ED Doctor', 'Head Of Anesthesia Doctor'],
     reason: 'Too many requests pending',
+    emittedFor: 'anesthesiaPending',
     requestId:
       addedNote.anesthesiologistNote[addedNote.anesthesiologistNote.length - 1]
         ._id,
@@ -3158,6 +3229,7 @@ exports.addAnesthesiologistNote = asyncHandler(async (req, res, next) => {
       card: '2nd',
       generatedFor: ['ED Doctor', 'Head Of Anesthesia Doctor'],
       reason: 'Too many requests pending in ED',
+      emittedFor: 'anesthesiaPending',
       requestId:
         addedNote.anesthesiologistNote[
           addedNote.anesthesiologistNote.length - 1
@@ -3180,6 +3252,7 @@ exports.addAnesthesiologistNote = asyncHandler(async (req, res, next) => {
       card: '3rd',
       generatedFor: ['ED Doctor', 'Head Of Anesthesia Doctor'],
       reason: 'Too many requests pending in EOU',
+      emittedFor: 'anesthesiaPending',
       requestId:
         addedNote.anesthesiologistNote[
           addedNote.anesthesiologistNote.length - 1

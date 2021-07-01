@@ -4,6 +4,7 @@ const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const Staff = require('../models/staffFhir/staff');
 const Notification = require('../components/notification');
+const CronFlag = require('../models/CronFlag');
 
 exports.getPendingTransfers = asyncHandler(async (req, res, next) => {
   // console.log(req.params.staffId);
@@ -157,30 +158,25 @@ exports.getCompletedLabs = asyncHandler(async (req, res, next) => {
 });
 
 exports.completeLab = asyncHandler(async (req, res, next) => {
-  const edr = await EDR.findOne({ _id: req.body.edrId });
-  let labId;
-  for (let i = 0; i < edr.labRequest.length; i++) {
-    if (
-      edr.labRequest[i].assignedTo == req.body.staffId &&
-      edr.labRequest[i].nurseTechnicianStatus === 'Not Collected'
-    ) {
-      labId = i;
-    }
-  }
-
-  // console.log(labId);
   const labTask = await EDR.findOneAndUpdate(
-    { _id: req.body.edrId },
+    { _id: req.body.edrId, 'labRequest._id': req.body.labId },
     {
       $set: {
-        [`labRequest.${labId}.nurseTechnicianStatus`]: 'Collected',
-        [`labRequest.${labId}.collectedTime`]: Date.now(),
+        ' labRequest.$.nurseTechnicianStatus': 'Collected',
+        'labRequest.$.collectedTime': Date.now(),
       },
     },
     { new: true }
   )
     .populate('patientId', 'identifier')
     .select('patientId labRequest');
+
+  // Preventing from raising flag if task is completed
+  await CronFlag.findOneAndUpdate(
+    { requestId: req.body.labId, taskName: 'Sample Pending' },
+    { $set: { status: 'completed' } },
+    { new: true }
+  );
 
   Notification(
     'Sample Collected',
@@ -198,7 +194,7 @@ exports.completeLab = asyncHandler(async (req, res, next) => {
     'Lab Test Sample Received',
     'Nurses',
     'Lab Technicians',
-     '/dashboard/home/notes',
+    '/dashboard/home/notes',
     req.body.edrId,
     '',
     'ED Nurse'
