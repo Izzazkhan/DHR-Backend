@@ -181,7 +181,7 @@ exports.assignRoom = asyncHandler(async (req, res, next) => {
 
   //   Cron Flag for Sensei 2nd Card
   const data = {
-    taskName: 'Triage Pending',
+    taskName: 'Sensei Triage Pending',
     minutes: 5,
     collectionName: 'CC',
     staffId: null,
@@ -199,7 +199,7 @@ exports.assignRoom = asyncHandler(async (req, res, next) => {
 
   //   Cron Flag for Sensei 3rd Card
   const data2 = {
-    taskName: 'Diagnoses Pending',
+    taskName: 'Sensei Diagnoses Pending',
     minutes: 46,
     collectionName: 'CC',
     staffId: null,

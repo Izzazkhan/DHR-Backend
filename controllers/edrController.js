@@ -504,7 +504,7 @@ exports.addDoctorNotes = asyncHandler(async (req, res, next) => {
   //   Checking For Flags
 
   await CronFlag.findOneAndUpdate(
-    { requestId: parsed.edrId, taskName: 'Diagnoses Pending' },
+    { requestId: parsed.edrId, taskName: 'Sensei Diagnoses Pending' },
     { $set: { status: 'completed' } },
     { new: true }
   );
@@ -921,20 +921,21 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
   ]);
 
   // Checking for flags
+
   //   Cron Flag for Sensei 5th Card
   const data = {
     taskName: 'Sensei Lab Pending',
     minutes: 31,
     collectionName: 'EDR',
-    staffId: null,
+    staffId: parsed.labTechnicianId,
     patientId: parsed.edrId,
     onModel: 'EDR',
     generatedFrom: 'Sensei',
-    card: '2nd',
-    generatedFor: ['Sensei'],
-    reason: 'Patients pending for TriageAssessment From Nurse',
+    card: '5th',
+    generatedFor: ['Sensei', 'Lab Supervisor'],
+    reason: 'Too Many Lab Results Pending',
     emittedFor: 'pendingSensei',
-    requestId: parsed.edrId,
+    requestId: newLab.labRequest[newLab.labRequest.length - 1]._id,
   };
 
   addFlag(data);
