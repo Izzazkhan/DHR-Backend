@@ -9,6 +9,7 @@ const PA = require('../models/productionArea');
 const Flag = require('../models/flag/Flag');
 const searchEdrPatient = require('../components/searchEdr');
 const generateReqNo = require('../components/requestNoGenerator');
+const CronFlag = require('../models/CronFlag');
 
 exports.getPendingRadEdr = asyncHandler(async (req, res, next) => {
   const unwindEdr = await EDR.aggregate([
@@ -146,6 +147,121 @@ exports.getCompletedRadEdr = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.getPendingApprovalRadEdr = asyncHandler(async (req, res, next) => {
+  const unwindEdr = await EDR.aggregate([
+    {
+      $project: {
+        _id: 1,
+        radRequest: 1,
+        room: 1,
+        patientId: 1,
+        chiefComplaint: 1,
+      },
+    },
+    {
+      $unwind: '$radRequest',
+    },
+
+    {
+      $match: {
+        // $or: [
+        //   { 'radRequest.status': 'completed' },
+        'radRequest.status': 'pending approval',
+        // ],
+      },
+    },
+  ]);
+
+  const edrs = await EDR.populate(unwindEdr, [
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      select: 'chiefComplaintId',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      ],
+    },
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+      //   select: 'identifier name',
+    },
+    {
+      path: 'radRequest.serviceId',
+      model: 'RadiologyService',
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
+      select: 'roomNo',
+    },
+  ]);
+  res.status(200).json({
+    success: true,
+    data: edrs,
+  });
+});
+
+exports.getDoctorCompletedRad = asyncHandler(async (req, res, next) => {
+  const unwindEdr = await EDR.aggregate([
+    {
+      $project: {
+        _id: 1,
+        radRequest: 1,
+        room: 1,
+        patientId: 1,
+        chiefComplaint: 1,
+      },
+    },
+    {
+      $unwind: '$radRequest',
+    },
+
+    {
+      $match: {
+        'radRequest.status': 'completed',
+      },
+    },
+  ]);
+
+  const edrs = await EDR.populate(unwindEdr, [
+    {
+      path: 'chiefComplaint.chiefComplaintId',
+      model: 'chiefComplaint',
+      select: 'chiefComplaintId',
+      populate: [
+        {
+          path: 'productionArea.productionAreaId',
+          model: 'productionArea',
+          select: 'paName',
+        },
+      ],
+    },
+    {
+      path: 'patientId',
+      model: 'patientfhir',
+      //   select: 'identifier name',
+    },
+    {
+      path: 'radRequest.serviceId',
+      model: 'RadiologyService',
+    },
+    {
+      path: 'room.roomId',
+      model: 'room',
+      select: 'roomNo',
+    },
+  ]);
+  res.status(200).json({
+    success: true,
+    data: edrs,
+  });
+});
+
 exports.updateRadRequest = asyncHandler(async (req, res, next) => {
   // console.log(req.files);
   const parsed = JSON.parse(req.body.data);
@@ -183,6 +299,12 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
       { new: true }
     ).populate('radRequest.serviceId');
 
+    // Preventing from raising flag if task is completed
+    await CronFlag.findOneAndUpdate(
+      { requestId: parsed.radId, taskName: 'Rad Result Delay' },
+      { $set: { status: 'completed' } },
+      { new: true }
+    );
     const pendingRad = await EDR.aggregate([
       {
         $project: {
@@ -244,7 +366,14 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
       { new: true }
     ).populate('radRequest.serviceId');
 
+    // Preventing from raising flag if task is completed
     if (parsed.status === 'pending approval') {
+      await CronFlag.findOneAndUpdate(
+        { requestId: parsed.radId },
+        { $set: { status: 'completed' } },
+        { new: true }
+      );
+
       // Finding Pending Rads for Flag
       const rads = await EDR.aggregate([
         {

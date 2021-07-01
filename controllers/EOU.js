@@ -8,6 +8,7 @@ const EDR = require('../models/EDR/EDR');
 const EOUNurse = require('../models/EOUNurse');
 const TransferToEOU = require('../models/patientTransferEDEOU/patientTransferEDEOU');
 const Notification = require('../components/notification');
+const Staff = require('../models/staffFhir/staff');
 
 exports.createEOU = asyncHandler(async (req, res, next) => {
   const newEou = await EOU.create(req.body);
@@ -204,14 +205,29 @@ exports.pendingNurseAssign = asyncHandler(async (req, res, next) => {
 
 exports.assignBedTONurse = asyncHandler(async (req, res, next) => {
   const { nurseId, bedNo, bedId, edrId, assignedBy, transferId } = req.body;
-  const assignedBed = await EOUNurse.create({
+
+  //   Check if this edr assigned to another Nurse
+  const existingEDR = await EOUNurse.findOne({ edrId: edrId });
+  let assignedBed;
+  const nurse = {
     nurseId,
-    bedNo,
-    bedId,
-    edrId,
     assignedBy,
     assignedAt: Date.now(),
-  });
+  };
+  if (existingEDR) {
+    assignedBed = await EOUNurse.findOneAndUpdate(
+      { edrId: edrId },
+      { $push: { nurse: nurse } },
+      { new: true }
+    );
+  } else {
+    assignedBed = await EOUNurse.create({
+      nurse,
+      bedNo,
+      bedId,
+      edrId,
+    });
+  }
 
   await TransferToEOU.findOneAndUpdate(
     { _id: transferId },
@@ -287,5 +303,39 @@ exports.completedNurseAssign = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: edrs,
+  });
+});
+
+exports.sendNotification = asyncHandler(async (req, res, next) => {
+  const edr = await EDR.findById(req.body.edrId).select('chiefComplaint');
+  const latestCC = edr.chiefComplaint.length - 1;
+  const chiefComplaintId = edr.chiefComplaint[latestCC].chiefComplaintId._id;
+
+  const nurseShift = await Staff.findById(req.body.staffId).select('shift');
+
+  const doctors = await Staff.find({
+    staffType: 'Doctor',
+    subType: 'ED Doctor',
+    shift: nurseShift.shift,
+    'chiefComplaint.chiefComplaintId': chiefComplaintId,
+  });
+
+  doctors.forEach((doctor) => {
+    Notification(
+      'EOU Nurse Call',
+      'EOU Nurse Call',
+      '',
+      'EOU Nurse Call',
+      '/dashboard/home/notes',
+      req.body.edrId,
+      '',
+      '',
+      doctor._id
+    );
+  });
+
+  res.status(200).json({
+    success: true,
+    data: 'Notification Sent',
   });
 });

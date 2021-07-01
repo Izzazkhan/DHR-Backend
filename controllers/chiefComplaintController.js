@@ -7,6 +7,8 @@ const CC = require('../models/chiefComplaint/chiefComplaint');
 const Flag = require('../models/flag/Flag');
 const searchStaff = require('../components/searchStaff');
 const generateReqNo = require('../components/requestNoGenerator');
+const CronFlag = require('../models/CronFlag');
+const addFlag = require('../components/addFlag.js');
 
 exports.addChiefComplaint = asyncHandler(async (req, res, next) => {
   const { name } = req.body;
@@ -396,6 +398,49 @@ exports.assignCCtoPatient = asyncHandler(async (req, res, next) => {
       },
     ])
     .populate('newChiefComplaint.newChiefComplaintId');
+
+  // Preventing from raising flag if task is completed
+  await CronFlag.findOneAndUpdate(
+    { requestId: parsed.edrId, taskName: 'PA Assignment Pending' },
+    { $set: { status: 'completed' } },
+    { new: true }
+  );
+
+  //   Cron Flag for Sensei 2nd Card
+  const data = {
+    taskName: 'Triage Pending',
+    minutes: 5,
+    collectionName: 'CC',
+    staffId: null,
+    patientId: parsed.edrId,
+    onModel: 'EDR',
+    generatedFrom: 'Sensei',
+    card: '2nd',
+    generatedFor: ['Sensei'],
+    reason: 'Patients pending for TriageAssessment From Nurse',
+    emittedFor: 'pendingSensei',
+    requestId: parsed.edrId,
+  };
+
+  addFlag(data);
+
+  //   Cron Flag for Sensei 3rd Card
+  const data2 = {
+    taskName: 'Diagnoses Pending',
+    minutes: 46,
+    collectionName: 'CC',
+    staffId: null,
+    patientId: parsed.edrId,
+    onModel: 'EDR',
+    generatedFrom: 'Sensei',
+    card: '3rd',
+    generatedFor: ['Sensei', 'Medical Director'],
+    reason: 'Patients diagnoses pending from Doctor',
+    emittedFor: 'pendingSensei',
+    requestId: parsed.edrId,
+  };
+
+  addFlag(data2);
 
   // Checking For Flags
   const patients = await EDR.find({

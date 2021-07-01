@@ -11,6 +11,7 @@ const searchStaff = require('../components/searchStaff');
 const EOU = require('../models/EOU');
 const generateReqNo = require('../components/requestNoGenerator');
 const HK = require('../models/houseKeepingRequest');
+const CronFlag = require('../models/CronFlag');
 // const Assistance = require('../models/assistance/assistance');
 
 exports.getAllCustomerCares = asyncHandler(async (req, res, next) => {
@@ -191,7 +192,7 @@ exports.completeEOUTransfer = asyncHandler(async (req, res, next) => {
       { _id: req.params.transferId },
       { $set: { status: req.body.status, completedAt: Date.now() } },
       { new: true }
-    )
+    );
 
     const updatedEDR = await EDR.findOneAndUpdate(
       { _id: completedTransfer.edrId },
@@ -280,7 +281,7 @@ exports.completeEOUTransfer = asyncHandler(async (req, res, next) => {
       'Sensei',
       'Transfer To EOU',
       '/dashboard/home/patientlog/EOU',
-     completedTransfer.edrId,
+      completedTransfer.edrId,
       '',
       ''
     );
@@ -296,21 +297,18 @@ exports.completeEOUTransfer = asyncHandler(async (req, res, next) => {
       'EOU Nurse'
     );
 
-	Notification(
-	'ADT_A15',
-	'Bed allocated in EOU',
-	'Admin',
-	'Bed allocated in EOU',
-	'/dashboard/home/notes',
-	completedTransfer.edrId,
-	'',
-	'',
-	''
-  );
-
+    Notification(
+      'ADT_A15',
+      'Bed allocated in EOU',
+      'Admin',
+      'Bed allocated in EOU',
+      '/dashboard/home/notes',
+      completedTransfer.edrId,
+      '',
+      '',
+      ''
+    );
   }
-
-  
 
   completedTransfer = await Transfer.findById(req.params.transferId).populate([
     {
@@ -571,6 +569,13 @@ exports.completeDischarge = asyncHandler(async (req, res, next) => {
       },
     ]);
 
+  // Preventing from raising flag if task is completed
+  await CronFlag.findOneAndUpdate(
+    { requestId: req.params.dischargeId },
+    { $set: { status: 'completed' } },
+    { new: true }
+  );
+
   res.status(200).json({
     success: true,
     data: completedDischarge,
@@ -785,6 +790,13 @@ exports.updateMedicationStatus = asyncHandler(async (req, res, next) => {
     .select('patientId pharmacyRequest')
     .populate('patientId', 'Identifier');
 
+  // Preventing from raising flag if task is completed
+  await CronFlag.findOneAndUpdate(
+    { requestId: req.body.requestId, taskName: 'Medication Pending' },
+    { $set: { status: 'completed' } },
+    { new: true }
+  );
+
   res.status(200).json({
     success: true,
     data: updatedRequest,
@@ -935,6 +947,13 @@ exports.updateAmbulanceRequest = asyncHandler(async (req, res, next) => {
         ],
       },
     ]);
+
+  // Preventing from raising flag if task is completed
+  await CronFlag.findOneAndUpdate(
+    { requestId: req.body.requestId, taskName: 'Transfer Pending' },
+    { $set: { status: 'completed' } },
+    { new: true }
+  );
 
   Notification(
     'ADT_A01',

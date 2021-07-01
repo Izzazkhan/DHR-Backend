@@ -10,6 +10,8 @@ const ErrorResponse = require('../utils/errorResponse');
 const EDR = require('../models/EDR/EDR');
 const generateReqNo = require('../components/requestNoGenerator');
 const DefaultPatient = require('../models/patient/defaultPatient');
+const addFlag = require('../components/addFlag.js');
+const CronFlag = require('../models/CronFlag');
 
 exports.registerPatient = asyncHandler(async (req, res) => {
   let newPatient;
@@ -103,6 +105,23 @@ exports.registerPatient = asyncHandler(async (req, res) => {
       // status,
     });
   }
+  //   Cron Flag for RO Card 1
+  const data = {
+    taskName: 'Registration Pending',
+    minutes: 6,
+    collectionName: 'patientfhirs',
+    staffId: newPatient.processTime[newPatient.processTime.length - 1].staffId,
+    patientId: newPatient._id,
+    onModel: 'patientfhir',
+    generatedFrom: 'Registration Officer',
+    card: '1st',
+    generatedFor: ['Sensei', 'Registration Officer'],
+    reason: 'Too Many Patients Registrations Pending',
+    emittedFor: 'pendingRO',
+    requestId: newPatient._id,
+  };
+
+  addFlag(data);
 
   // Flag For Pending Registrations
   const patients = await patientFHIR.find({ registrationStatus: 'pending' });
@@ -129,6 +148,24 @@ exports.registerPatient = asyncHandler(async (req, res) => {
     newPatient.processTime[newPatient.processTime.length - 1].processName ===
     'Sensei'
   ) {
+    //   Cron Flag for RO Card 1
+    const data2 = {
+      taskName: 'Registration Pending After Sensei',
+      minutes: 6,
+      collectionName: 'patientfhirs',
+      staffId:
+        newPatient.processTime[newPatient.processTime.length - 1].staffId,
+      patientId: newPatient._id,
+      onModel: 'patientfhir',
+      generatedFrom: 'Registration Officer',
+      card: '2nd',
+      generatedFor: ['Sensei'],
+      reason: 'Too Many Patients Registrations Pending after sensei',
+      emittedFor: 'pendingRO',
+      requestId: newPatient._id,
+    };
+
+    addFlag(data2);
     const pendingSensei = await patientFHIR.aggregate([
       {
         $project: {
@@ -335,6 +372,25 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
 
     if (
       patient.processTime[patient.processTime.length - 1].processName ===
+      'Registration Officer'
+    ) {
+      await CronFlag.findOneAndUpdate(
+        { requestId: parsed._id, taskName: 'Registration Pending' },
+        { $set: { status: 'completed' } },
+        { new: true }
+      );
+
+      await CronFlag.findOneAndUpdate(
+        {
+          requestId: parsed._id,
+          taskName: 'Registration Pending After Sensei',
+        },
+        { $set: { status: 'completed' } },
+        { new: true }
+      );
+    }
+    if (
+      patient.processTime[patient.processTime.length - 1].processName ===
       'Sensei'
     ) {
       const pendingSensei = await patientFHIR.aggregate([
@@ -473,6 +529,25 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
     });
 
     const patients = await patientFHIR.find({ registrationStatus: 'pending' });
+    if (
+      patient.processTime[patient.processTime.length - 1].processName ===
+      'Registration Officer'
+    ) {
+      await CronFlag.findOneAndUpdate(
+        { requestId: parsed._id, taskName: 'Registration Pending' },
+        { $set: { status: 'completed' } },
+        { new: true }
+      );
+
+      await CronFlag.findOneAndUpdate(
+        {
+          requestId: parsed._id,
+          taskName: 'Registration Pending After Sensei',
+        },
+        { $set: { status: 'completed' } },
+        { new: true }
+      );
+    }
 
     // Rasing Flag
     if (patients.length > 5) {

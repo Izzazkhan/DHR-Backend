@@ -11,6 +11,8 @@ const Notification = require('../components/notification');
 const Flag = require('../models/flag/Flag');
 const searchPatient = require('../components/searchEdr');
 const generateReqNo = require('../components/requestNoGenerator');
+const addFlag = require('../components/addFlag.js');
+const CronFlag = require('../models/CronFlag');
 
 exports.generateEDR = asyncHandler(async (req, res, next) => {
   let newEDR;
@@ -81,6 +83,24 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
     }
   );
   newEDR = await EDR.findOne({ _id: newEDR._id }).populate('patientId');
+
+  //   Cron Flag for Sensei
+  const data = {
+    taskName: 'PA Assignment Pending',
+    minutes: 4,
+    collectionName: 'EDR',
+    staffId: generatedBy,
+    patientId: newEDR._id,
+    onModel: 'EDR',
+    generatedFrom: 'Sensei',
+    card: '1st',
+    generatedFor: ['Sensei'],
+    reason: 'Patients pending for production area',
+    emittedFor: 'pendingSensei',
+    requestId: newEDR._id,
+  };
+
+  addFlag(data);
   // * Sending Notifications
 
   // Notification from Paramedics
@@ -95,7 +115,7 @@ exports.generateEDR = asyncHandler(async (req, res, next) => {
       '',
       ''
     );
-	    Notification(
+    Notification(
       'ADT_A04',
       'New patient from Paramedics',
       'Admin',
@@ -480,6 +500,14 @@ exports.addDoctorNotes = asyncHandler(async (req, res, next) => {
       model: 'staff',
     },
   ]);
+
+  //   Checking For Flags
+
+  await CronFlag.findOneAndUpdate(
+    { requestId: parsed.edrId, taskName: 'Diagnoses Pending' },
+    { $set: { status: 'completed' } },
+    { new: true }
+  );
 
   const diagnosePending = await EDR.find({
     status: 'pending',
@@ -1962,6 +1990,40 @@ exports.addRadRequest = asyncHandler(async (req, res, next) => {
   ]);
 
   // Finding Pending Rads for Flag
+  const data = {
+    taskName: 'Rad Test Delay',
+    minutes: 31,
+    collectionName: 'Radiology',
+    staffId: req.body.radTechnicianId,
+    patientId: req.body.edrId,
+    onModel: 'EDR',
+    generatedFrom: 'Imaging Technician',
+    generatedFor: ['Sensei', 'Head Of Radiology Department'],
+    card: '1st',
+    reason: 'Too Many Rad Tests Pending',
+    emittedFor: 'pendingRad',
+    requestId: newRad.radRequest[newRad.radRequest.length - 1]._id,
+  };
+
+  addFlag(data);
+
+  const data2 = {
+    taskName: 'Rad Result Delay',
+    minutes: 60,
+    collectionName: 'Radiology',
+    staffId: req.body.radTechnicianId,
+    patientId: req.body.edrId,
+    onModel: 'EDR',
+    generatedFrom: 'Imaging Technician',
+    generatedFor: ['Sensei', 'Head Of Radiology Department'],
+    card: '2nd',
+    reason: 'Too Many Rad Results Pending',
+    emittedFor: 'pendingRad',
+    requestId: newRad.radRequest[newRad.radRequest.length - 1]._id,
+  };
+
+  addFlag(data2);
+
   const rads = await EDR.aggregate([
     {
       $project: {
@@ -2399,7 +2461,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
   const requestNo = generateReqNo('HKID');
 
   // Creating Housekeeping Request
-  await HK.create({
+  const HKRequest = await HK.create({
     requestNo,
     requestedBy: 'Sensei',
     houseKeeperId: houseKeeper._id,
@@ -2409,6 +2471,28 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     task: 'To Be Clean',
     assignedTime: Date.now(),
   });
+
+  //   HouseKeeping Cron Flag
+  const data = {
+    taskName: 'To Be Clean',
+    minutes: 6,
+    collectionName: 'HouseKeeping',
+    staffId: houseKeeper._id,
+    patientId: _id,
+    onModel: 'EDR',
+    generatedFrom: 'House Keeping',
+    card: '1st',
+    generatedFor: [
+      'Sensei',
+      'Head of patient services',
+      'House keeping supervisor',
+    ],
+    reason: 'Cells/Beds Cleaning Pending',
+    emittedFor: 'hkPending',
+    requestId: HKRequest._id,
+  };
+
+  addFlag(data);
 
   const roomPending = await HK.find({
     status: 'pending',
@@ -2554,7 +2638,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     'withCare'
   ) {
     // Customer Care Request
-    const CCRequestNo = 'DDID' + day + requestNoFormat(new Date(), 'yyHHMMss');
+    const CCRequestNo = generateReqNo('DDID');
     const customerCares = await Staff.find({
       staffType: 'Customer Care',
       disabled: false,
@@ -2565,7 +2649,7 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     const randomCC = Math.floor(Math.random() * (customerCares.length - 1));
     const customerCare = customerCares[randomCC];
 
-    await CCRequest.create({
+    const dischargeCC = await CCRequest.create({
       requestNo: CCRequestNo,
       edrId: _id,
       status: 'pending',
@@ -2576,6 +2660,45 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
       requestedAt: Date.now(),
       costomerCareId: customerCare._id,
     });
+    if (
+      req.body.dischargeRequest.dischargeSummary.edrCompletionReason ===
+      'admitted'
+    ) {
+      //   Cron Flag for Customer Care
+      const data3 = {
+        taskName: 'Discharge To IP Pending',
+        minutes: 61,
+        collectionName: 'CustomerCare',
+        staffId: customerCare._id,
+        patientId: _id,
+        onModel: 'EDR',
+        generatedFrom: 'Customer Care',
+        card: '4th',
+        generatedFor: ['Customer Care Director'],
+        reason: 'Patient Transfer from ED to IP Pending',
+        emittedFor: 'ccPending',
+        requestId: dischargeCC._id,
+      };
+
+      addFlag(data3);
+    }
+    //   Cron Flag for Customer Care
+    const data2 = {
+      taskName: 'Discharge Pending',
+      minutes: 11,
+      collectionName: 'CustomerCare',
+      staffId: customerCare._id,
+      patientId: _id,
+      onModel: 'EDR',
+      generatedFrom: 'Customer Care',
+      card: '5th',
+      generatedFor: ['Customer Care Director'],
+      reason: 'Patient Discharge Transfer Pending',
+      emittedFor: 'ccPending',
+      requestId: dischargeCC._id,
+    };
+
+    addFlag(data2);
   }
 
   const transferRequest = await CCRequest.find({
@@ -2713,6 +2836,8 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     '',
     ''
   );
+
+  //   Ro Discharge Flag
   const dischargePending = await EDR.find({
     status: 'Discharged',
     socialWorkerStatus: 'pending',
@@ -3036,7 +3161,6 @@ exports.addAnesthesiologistNote = asyncHandler(async (req, res, next) => {
     '',
     ''
   );
-
 
   Notification(
     'anesthesiologist request',
@@ -4457,6 +4581,24 @@ exports.deliverPharmcayRequest = asyncHandler(async (req, res, next) => {
     req.body.edrId,
     ''
   );
+
+  //   Cron Flag for Customer Care
+  const data = {
+    taskName: 'Medication Pending',
+    minutes: 9,
+    collectionName: 'CustomerCare',
+    staffId: customerCare._id,
+    patientId: req.body.edrId,
+    onModel: 'EDR',
+    generatedFrom: 'Customer Care',
+    card: '3rd',
+    generatedFor: ['Customer Care Director'],
+    reason: 'Pharma Transfer to ED/EOU Pending',
+    emittedFor: 'ccPending',
+    requestId: req.body._id,
+  };
+
+  addFlag(data);
 
   const pharmacyRequest = await EDR.aggregate([
     {
