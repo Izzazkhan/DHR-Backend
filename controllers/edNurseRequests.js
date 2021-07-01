@@ -8,6 +8,7 @@ const CCRequests = require('../models/customerCareRequest');
 const Flag = require('../models/flag/Flag');
 const searchEdrPatient = require('../components/searchEdr');
 const HK = require('../models/houseKeepingRequest');
+const CronFlag = require('../models/CronFlag');
 
 exports.getLab = asyncHandler(async (req, res, next) => {
   const unwindEdr = await EDR.aggregate([
@@ -505,6 +506,13 @@ exports.updateMedicationStatus = asyncHandler(async (req, res, next) => {
     )
       .select('patientId pharmacyRequest')
       .populate('patientId', 'Identifier');
+
+    // Preventing from raising flag if task is completed
+    await CronFlag.findOneAndUpdate(
+      { requestId: req.body.requestId, taskName: 'Sensei Medications Pending' },
+      { $set: { status: 'completed' } },
+      { new: true }
+    );
 
     const patientTreatmentsPending = await EDR.aggregate([
       {
