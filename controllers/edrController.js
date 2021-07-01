@@ -920,7 +920,25 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
     },
   ]);
 
-  // Checking for flag
+  // Checking for flags
+  //   Cron Flag for Sensei 5th Card
+  const data = {
+    taskName: 'Sensei Lab Pending',
+    minutes: 31,
+    collectionName: 'EDR',
+    staffId: null,
+    patientId: parsed.edrId,
+    onModel: 'EDR',
+    generatedFrom: 'Sensei',
+    card: '2nd',
+    generatedFor: ['Sensei'],
+    reason: 'Patients pending for TriageAssessment From Nurse',
+    emittedFor: 'pendingSensei',
+    requestId: parsed.edrId,
+  };
+
+  addFlag(data);
+
   const labPending = await EDR.aggregate([
     {
       $project: {

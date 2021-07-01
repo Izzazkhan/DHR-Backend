@@ -8,6 +8,7 @@ const Flag = require('../models/flag/Flag');
 const generateReqNo = require('../components/requestNoGenerator');
 const Bed = require('../models/Bed');
 const Staff = require('../models/staffFhir/staff');
+const addFlag = require('../components/addFlag.js');
 
 exports.getRooms = asyncHandler(async (req, res) => {
   const getRooms = await Room.find();
@@ -177,6 +178,42 @@ exports.assignRoom = asyncHandler(async (req, res, next) => {
     { $set: { availability: false } },
     { new: true }
   );
+
+  //   Cron Flag for Sensei 2nd Card
+  const data = {
+    taskName: 'Triage Pending',
+    minutes: 5,
+    collectionName: 'CC',
+    staffId: null,
+    patientId: req.body.edrId,
+    onModel: 'EDR',
+    generatedFrom: 'Sensei',
+    card: '2nd',
+    generatedFor: ['Sensei'],
+    reason: 'Patients pending for TriageAssessment From Nurse',
+    emittedFor: 'pendingSensei',
+    requestId: req.body.edrId,
+  };
+
+  addFlag(data);
+
+  //   Cron Flag for Sensei 3rd Card
+  const data2 = {
+    taskName: 'Diagnoses Pending',
+    minutes: 46,
+    collectionName: 'CC',
+    staffId: null,
+    patientId: req.body.edrId,
+    onModel: 'EDR',
+    generatedFrom: 'Sensei',
+    card: '3rd',
+    generatedFor: ['Sensei', 'Medical Director'],
+    reason: 'Patients diagnoses pending from Doctor',
+    emittedFor: 'pendingSensei',
+    requestId: req.body.edrId,
+  };
+
+  addFlag(data2);
 
   // Room Flag
   const rooms = await Room.find({
