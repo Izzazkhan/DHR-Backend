@@ -12,6 +12,7 @@ const Flag = require('../models/flag/Flag');
 const searchPatient = require('../components/searchEdr');
 const generateReqNo = require('../components/requestNoGenerator');
 const addFlag = require('../components/addFlag.js');
+const CronFlag = require('../models/CronFlag');
 
 exports.generateEDR = asyncHandler(async (req, res, next) => {
   let newEDR;
@@ -499,6 +500,14 @@ exports.addDoctorNotes = asyncHandler(async (req, res, next) => {
       model: 'staff',
     },
   ]);
+
+  //   Checking For Flags
+
+  await CronFlag.findOneAndUpdate(
+    { requestId: parsed.edrId, taskName: 'Diagnoses Pending' },
+    { $set: { status: 'completed' } },
+    { new: true }
+  );
 
   const diagnosePending = await EDR.find({
     status: 'pending',
