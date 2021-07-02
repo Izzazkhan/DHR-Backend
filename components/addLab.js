@@ -60,6 +60,7 @@ const addLabRequest = asyncHandler(async (data) => {
         'labRequest.$.reason': data.reason,
         'labRequest.$.notes': data.notes,
         'labRequest.$.reqFromCareStream': true,
+        'labRequest.$.careStreamId': data.careStreamId,
       },
     },
     { new: true }
