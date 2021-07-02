@@ -57,209 +57,195 @@ const edrSchema = new mongoose.Schema({
         },
       ],
       exclusionCriteria: [{ name: String, selected: Boolean }],
-      investigations: [
-        {
-          data: [
-            {
-              name: String,
-              selected: Boolean,
-              testType: String,
-            },
-          ],
-          status: {
-            type: String,
-            default: 'pending',
+      investigations: {
+        data: [
+          {
+            name: String,
+            selected: Boolean,
+            testType: String,
           },
-          inProgressTime: Date,
-          completedTime: Date,
-          inProgressBy: {
-            type: mongoose.Schema.ObjectId,
-            ref: 'staff',
-          },
-          completedBy: {
-            type: mongoose.Schema.ObjectId,
-            ref: 'staff',
-          },
+        ],
+        status: {
+          type: String,
+          default: 'pending',
         },
-      ],
-      precautions: [
-        {
-          data: [
-            {
-              name: String,
-              selected: Boolean,
-            },
-          ],
-          status: {
-            type: String,
-            default: 'pending',
-          },
-          inProgressTime: Date,
-          completedTime: Date,
-          inProgressBy: {
-            type: mongoose.Schema.ObjectId,
-            ref: 'staff',
-          },
-          completedBy: {
-            type: mongoose.Schema.ObjectId,
-            ref: 'staff',
-          },
+        inProgressTime: Date,
+        completedTime: Date,
+        inProgressBy: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'staff',
         },
-      ],
-      treatmentOrders: [
-        {
-          data: [
-            {
-              name: String,
-              selected: Boolean,
-              subType: [
-                {
-                  name: String,
-                  selected: Boolean,
-                },
-              ],
-            },
-          ],
-          status: {
-            type: String,
-            default: 'pending',
-          },
-          inProgressTime: Date,
-          completedTime: Date,
-          inProgressBy: {
-            type: mongoose.Schema.ObjectId,
-            ref: 'staff',
-          },
-          completedBy: {
-            type: mongoose.Schema.ObjectId,
-            ref: 'staff',
-          },
+        completedBy: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'staff',
         },
-      ],
-      fluidsIV: [
-        {
-          data: [
-            {
-              name: String,
-              selected: Boolean,
-            },
-          ],
-          status: {
-            type: String,
-            default: 'pending',
+      },
+      precautions: {
+        data: [
+          {
+            name: String,
+            selected: Boolean,
           },
-          inProgressTime: Date,
-          completedTime: Date,
-          inProgressBy: {
-            type: mongoose.Schema.ObjectId,
-            ref: 'staff',
-          },
-          completedBy: {
-            type: mongoose.Schema.ObjectId,
-            ref: 'staff',
-          },
+        ],
+        status: {
+          type: String,
+          default: 'pending',
         },
-      ],
-      reassessments: [
-        {
-          data: [
-            {
-              name: String,
-              selected: Boolean,
-            },
-          ],
-          subType: [
-            {
-              name: String,
-              selected: Boolean,
-            },
-          ],
-          status: {
-            type: String,
-            default: 'pending',
-          },
-          inProgressTime: Date,
-          completedTime: Date,
-          inProgressBy: {
-            type: mongoose.Schema.ObjectId,
-            ref: 'staff',
-          },
-          completedBy: {
-            type: mongoose.Schema.ObjectId,
-            ref: 'staff',
-          },
+        inProgressTime: Date,
+        completedTime: Date,
+        inProgressBy: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'staff',
         },
-      ],
-      medications: [
-        {
-          data: [
-            {
-              itemName: {
-                type: String,
+        completedBy: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'staff',
+        },
+      },
+      treatmentOrders: {
+        data: [
+          {
+            name: String,
+            selected: Boolean,
+            subType: [
+              {
+                name: String,
+                selected: Boolean,
               },
-              requestedQty: {
-                type: Number,
-              },
-              dosage: {
-                type: Number,
-              },
-              frequency: {
-                type: Number,
-              },
-              duration: {
-                type: Number,
-              },
-              price: {
-                type: Number,
-              },
-            },
-          ],
-          status: {
-            type: String,
-            default: 'pending',
+            ],
           },
-          inProgressTime: Date,
-          completedTime: Date,
-          inProgressBy: {
-            type: mongoose.Schema.ObjectId,
-            ref: 'staff',
-          },
-          completedBy: {
-            type: mongoose.Schema.ObjectId,
-            ref: 'staff',
-          },
+        ],
+        status: {
+          type: String,
+          default: 'pending',
         },
-      ],
-      mdNotification: [
-        {
-          data: [
-            {
-              name: String,
-              selected: Boolean,
-              subType: [
-                {
-                  name: String,
-                  selected: Boolean,
-                },
-              ],
-            },
-          ],
-          status: {
-            type: String,
-            default: 'pending',
-          },
-          inProgressTime: Date,
-          completedTime: Date,
-          inProgressBy: {
-            type: mongoose.Schema.ObjectId,
-            ref: 'staff',
-          },
-          completedBy: {
-            type: mongoose.Schema.ObjectId,
-            ref: 'staff',
-          },
+        inProgressTime: Date,
+        completedTime: Date,
+        inProgressBy: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'staff',
         },
-      ],
+        completedBy: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'staff',
+        },
+      },
+      fluidsIV: {
+        data: [
+          {
+            name: String,
+            selected: Boolean,
+          },
+        ],
+        status: {
+          type: String,
+          default: 'pending',
+        },
+        inProgressTime: Date,
+        completedTime: Date,
+        inProgressBy: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'staff',
+        },
+        completedBy: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'staff',
+        },
+      },
+      reassessments: {
+        data: [
+          {
+            name: String,
+            selected: Boolean,
+            subType: [
+              {
+                name: String,
+                selected: Boolean,
+              },
+            ],
+          },
+        ],
+        status: {
+          type: String,
+          default: 'pending',
+        },
+        inProgressTime: Date,
+        completedTime: Date,
+        inProgressBy: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'staff',
+        },
+        completedBy: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'staff',
+        },
+      },
+      medications: {
+        data: [
+          {
+            itemName: {
+              type: String,
+            },
+            requestedQty: {
+              type: Number,
+            },
+            dosage: {
+              type: Number,
+            },
+            frequency: {
+              type: Number,
+            },
+            duration: {
+              type: Number,
+            },
+            price: {
+              type: Number,
+            },
+          },
+        ],
+        status: {
+          type: String,
+          default: 'pending',
+        },
+        inProgressTime: Date,
+        completedTime: Date,
+        inProgressBy: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'staff',
+        },
+        completedBy: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'staff',
+        },
+      },
+      mdNotification: {
+        data: [
+          {
+            name: String,
+            selected: Boolean,
+            subType: [
+              {
+                name: String,
+                selected: Boolean,
+              },
+            ],
+          },
+        ],
+        status: {
+          type: String,
+          default: 'pending',
+        },
+        inProgressTime: Date,
+        completedTime: Date,
+        inProgressBy: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'staff',
+        },
+        completedBy: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'staff',
+        },
+      },
       status: {
         type: String,
       },
