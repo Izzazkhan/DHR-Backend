@@ -197,13 +197,13 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     name: req.body.data.name,
     inclusionCriteria: req.body.data.inclusionCriteria,
     exclusionCriteria: req.body.data.exclusionCriteria,
-    investigations: req.body.data.investigations,
-    precautions: req.body.data.precautions,
-    treatmentOrders: req.body.data.treatmentOrders,
-    fluidsIV: req.body.data.fluidsIV,
-    medications: req.body.data.medications,
-    mdNotification: req.body.data.mdNotification,
-    reassessments: req.body.data.reassessments,
+    // investigations: req.body.data.investigations,
+    // precautions: req.body.data.precautions,
+    // treatmentOrders: req.body.data.treatmentOrders,
+    // fluidsIV: req.body.data.fluidsIV,
+    // medications: req.body.data.medications,
+    // mdNotification: req.body.data.mdNotification,
+    // reassessments: req.body.data.reassessments,
     careStreamId: req.body.data.careStreamId,
     assignedBy: req.body.data.staffId,
     assignedTime: Date.now(),
@@ -221,7 +221,7 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
         name: filteredMedications[i].itemName,
       });
 
-      console.log('Item : ', item);
+      //   console.log('Item : ', item);
       const pharmacyRequestNo = generateReqNo('PHR');
 
       const pharmaObj = {
@@ -254,7 +254,7 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
 
     await EDR.findOneAndUpdate(
       { _id: req.body.data.edrId },
-      { $set: { pharmacyRequest: pharmacyRequest } },
+      { $push: { pharmacyRequest: pharmacyRequest } },
       { new: true }
     );
     Notification(
@@ -287,6 +287,26 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     { new: true }
   ).populate('careStream.careStreamId', 'identifier');
 
+  await EDR.findOneAndUpdate(
+    {
+      _id: req.body.data.edrId,
+      'careStream._id':
+        assignedCareStream.careStream[assignedCareStream.careStream.length - 1]
+          ._id,
+    },
+    {
+      $push: {
+        'careStream.$.investigations.data': req.body.data.investigations,
+        'careStream.$.precautions.data': req.body.data.precautions,
+        'careStream.$.treatmentOrders.data': req.body.data.treatmentOrders,
+        'careStream.$.fluidsIV.data': req.body.data.fluidsIV,
+        'careStream.$.medications.data': req.body.data.medications,
+        'careStream.$.mdNotification.data': req.body.data.mdNotification,
+        'careStream.$.reassessments.data': req.body.data.reassessments,
+      },
+    }
+  );
+
   // * Assigning tests
   if (req.body.data.investigations) {
     const { investigations } = req.body.data;
@@ -301,6 +321,8 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
           name: lab.name,
           serviceId: lab._id,
           price: lab.price,
+          type: lab.type,
+          careStreamId: req.body.data.careStreamId,
         };
         addLab(data);
       } else if (test.testType === 'rad') {
@@ -311,6 +333,8 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
           name: rad.name,
           serviceId: rad._id,
           price: rad.price,
+          type: rad.type,
+          careStreamId: req.body.data.careStreamId,
         };
         addRad(data);
       }

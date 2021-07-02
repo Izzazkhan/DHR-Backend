@@ -50,74 +50,202 @@ const edrSchema = new mongoose.Schema({
       name: {
         type: String,
       },
-      inclusionCriteria: [{ name: String, selected: Boolean }],
+      inclusionCriteria: [
+        {
+          name: String,
+          selected: Boolean,
+        },
+      ],
       exclusionCriteria: [{ name: String, selected: Boolean }],
-      investigations: [{ name: String, selected: Boolean, testType: String }],
-      precautions: [{ name: String, selected: Boolean }],
-      treatmentOrders: [
-        {
-          name: String,
-          selected: Boolean,
-          subType: [
-            {
-              name: String,
-              selected: Boolean,
+      investigations: {
+        data: [
+          {
+            name: String,
+            selected: Boolean,
+            testType: String,
+          },
+        ],
+        status: {
+          type: String,
+          default: 'pending',
+        },
+        inProgressTime: Date,
+        completedTime: Date,
+        inProgressBy: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'staff',
+        },
+        completedBy: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'staff',
+        },
+      },
+      precautions: {
+        data: [
+          {
+            name: String,
+            selected: Boolean,
+          },
+        ],
+        status: {
+          type: String,
+          default: 'pending',
+        },
+        inProgressTime: Date,
+        completedTime: Date,
+        inProgressBy: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'staff',
+        },
+        completedBy: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'staff',
+        },
+      },
+      treatmentOrders: {
+        data: [
+          {
+            name: String,
+            selected: Boolean,
+            subType: [
+              {
+                name: String,
+                selected: Boolean,
+              },
+            ],
+          },
+        ],
+        status: {
+          type: String,
+          default: 'pending',
+        },
+        inProgressTime: Date,
+        completedTime: Date,
+        inProgressBy: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'staff',
+        },
+        completedBy: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'staff',
+        },
+      },
+      fluidsIV: {
+        data: [
+          {
+            name: String,
+            selected: Boolean,
+          },
+        ],
+        status: {
+          type: String,
+          default: 'pending',
+        },
+        inProgressTime: Date,
+        completedTime: Date,
+        inProgressBy: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'staff',
+        },
+        completedBy: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'staff',
+        },
+      },
+      reassessments: {
+        data: [
+          {
+            name: String,
+            selected: Boolean,
+            subType: [
+              {
+                name: String,
+                selected: Boolean,
+              },
+            ],
+          },
+        ],
+        status: {
+          type: String,
+          default: 'pending',
+        },
+        inProgressTime: Date,
+        completedTime: Date,
+        inProgressBy: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'staff',
+        },
+        completedBy: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'staff',
+        },
+      },
+      medications: {
+        data: [
+          {
+            itemName: {
+              type: String,
             },
-          ],
-        },
-      ],
-      fluidsIV: [
-        {
-          name: String,
-          selected: Boolean,
-        },
-      ],
-      reassessments: [
-        {
-          name: String,
-          selected: Boolean,
-          subType: [
-            {
-              name: String,
-              selected: Boolean,
+            requestedQty: {
+              type: Number,
             },
-          ],
-        },
-      ],
-      medications: [
-        {
-          itemName: {
-            type: String,
-          },
-          requestedQty: {
-            type: Number,
-          },
-          dosage: {
-            type: Number,
-          },
-          frequency: {
-            type: Number,
-          },
-          duration: {
-            type: Number,
-          },
-          price: {
-            type: Number,
-          },
-        },
-      ],
-      mdNotification: [
-        {
-          name: String,
-          selected: Boolean,
-          subType: [
-            {
-              name: String,
-              selected: Boolean,
+            dosage: {
+              type: Number,
             },
-          ],
+            frequency: {
+              type: Number,
+            },
+            duration: {
+              type: Number,
+            },
+            price: {
+              type: Number,
+            },
+          },
+        ],
+        status: {
+          type: String,
+          default: 'pending',
         },
-      ],
+        inProgressTime: Date,
+        completedTime: Date,
+        inProgressBy: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'staff',
+        },
+        completedBy: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'staff',
+        },
+      },
+      mdNotification: {
+        data: [
+          {
+            name: String,
+            selected: Boolean,
+            subType: [
+              {
+                name: String,
+                selected: Boolean,
+              },
+            ],
+          },
+        ],
+        status: {
+          type: String,
+          default: 'pending',
+        },
+        inProgressTime: Date,
+        completedTime: Date,
+        inProgressBy: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'staff',
+        },
+        completedBy: {
+          type: mongoose.Schema.ObjectId,
+          ref: 'staff',
+        },
+      },
       status: {
         type: String,
       },
@@ -1145,6 +1273,10 @@ const edrSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
       },
+      careStreamId: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'careStream',
+      },
       // pendingApprovalTime: {
       //   type: Date,
       // },
@@ -1233,6 +1365,10 @@ const edrSchema = new mongoose.Schema({
       reqFromCareStream: {
         type: Boolean,
         default: false,
+      },
+      careStreamId: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'careStream',
       },
       updateRecord: [
         {

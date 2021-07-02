@@ -47,6 +47,7 @@ const addRadRequest = asyncHandler(async (data) => {
         'radRequest.$.reason': data.reason,
         'radRequest.$.notes': data.notes,
         'radRequest.$.reqFromCareStream': true,
+        'labRequest.$.careStreamId': data.careStreamId,
       },
     },
     { new: true }

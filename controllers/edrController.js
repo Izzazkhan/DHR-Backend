@@ -504,7 +504,7 @@ exports.addDoctorNotes = asyncHandler(async (req, res, next) => {
   //   Checking For Flags
 
   await CronFlag.findOneAndUpdate(
-    { requestId: parsed.edrId, taskName: 'Diagnoses Pending' },
+    { requestId: parsed.edrId, taskName: 'Sensei Diagnoses Pending' },
     { $set: { status: 'completed' } },
     { new: true }
   );
@@ -920,7 +920,66 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
     },
   ]);
 
-  // Checking for flag
+  // Checking for flags
+
+  //   Cron Flag for Sensei 5th Card
+  const data = {
+    taskName: 'Sensei Lab Pending',
+    minutes: 31,
+    collectionName: 'EDR',
+    staffId: parsed.labTechnicianId,
+    patientId: parsed.edrId,
+    onModel: 'EDR',
+    generatedFrom: 'Sensei',
+    card: '5th',
+    generatedFor: ['Sensei', 'Lab Supervisor'],
+    reason: 'Too Many Lab Results Pending',
+    emittedFor: 'pendingSensei',
+    requestId: newLab.labRequest[newLab.labRequest.length - 1]._id,
+  };
+
+  addFlag(data);
+
+  //   Cron Flag for Lab Technician 1st Card
+  if (parsed.type !== 'Blood') {
+    const data2 = {
+      taskName: 'Sample Pending',
+      minutes: 6,
+      collectionName: 'EDR',
+      staffId: nurseTechnician._id,
+      patientId: parsed.edrId,
+      onModel: 'EDR',
+      generatedFrom: 'Lab Technician',
+      card: '1st',
+      generatedFor: ['Sensei', 'Lab Supervisor'],
+      reason: 'Sample Collection Pending',
+      emittedFor: 'ltPending',
+      requestId: newLab.labRequest[newLab.labRequest.length - 1]._id,
+    };
+
+    addFlag(data2);
+  }
+
+  //   Cron Flag for Lab Technician 1st Card
+  if (parsed.type === 'Blood') {
+    const data3 = {
+      taskName: 'Blood Sample Pending',
+      minutes: 46,
+      collectionName: 'EDR',
+      staffId: nurseTechnician._id,
+      patientId: parsed.edrId,
+      onModel: 'EDR',
+      generatedFrom: 'Lab Technician',
+      card: '3rd',
+      generatedFor: ['Lab Supervisor'],
+      reason: 'Blood Sample Collection Pending',
+      emittedFor: 'ltPending',
+      requestId: newLab.labRequest[newLab.labRequest.length - 1]._id,
+    };
+
+    addFlag(data3);
+  }
+
   const labPending = await EDR.aggregate([
     {
       $project: {
@@ -1365,6 +1424,23 @@ exports.addConsultationNote = asyncHandler(async (req, res, next) => {
   ]);
 
   // Checking for flag
+  const data = {
+    taskName: 'Doctor Consultation Pending',
+    minutes: 31,
+    collectionName: 'EDR',
+    staffId: parsed.consultant,
+    patientId: parsed.edrId,
+    onModel: 'EDR',
+    generatedFrom: 'ED Doctor',
+    card: '4th',
+    generatedFor: ['Medical Director'],
+    reason: 'Consultant Notes Pending',
+    emittedFor: 'pendingDoctor',
+    requestId:
+      addedNote.consultationNote[addedNote.consultationNote.length - 1]._id,
+  };
+
+  addFlag(data);
   const consultantNotes = await EDR.aggregate([
     {
       $project: {
@@ -1398,6 +1474,24 @@ exports.addConsultationNote = asyncHandler(async (req, res, next) => {
   }
 
   if (parsed.subType === 'Internal') {
+    // Checking for flag
+    const data2 = {
+      taskName: 'Internal Consultation Pending',
+      minutes: 11,
+      collectionName: 'EDR',
+      staffId: parsed.consultant,
+      patientId: parsed.edrId,
+      onModel: 'EDR',
+      generatedFrom: 'Internal',
+      card: '1st',
+      generatedFor: ['ED Doctor', 'Medical Director'],
+      reason: 'Patient Consultations Pending',
+      emittedFor: 'internalPending',
+      requestId:
+        addedNote.consultationNote[addedNote.consultationNote.length - 1]._id,
+    };
+
+    addFlag(data2);
     Notification(
       'Internal Consultant Request',
       'Ed Doctor has requested an Internal Consultant',
@@ -1488,6 +1582,23 @@ exports.addConsultationNote = asyncHandler(async (req, res, next) => {
     );
 
     // Flags
+    const data3 = {
+      taskName: 'External Consultation Pending',
+      minutes: 46,
+      collectionName: 'EDR',
+      staffId: parsed.consultant,
+      patientId: parsed.edrId,
+      onModel: 'EDR',
+      generatedFrom: 'External',
+      card: '1st',
+      generatedFor: ['ED Doctor', 'Medical Director'],
+      reason: 'Patient Consultations Pending',
+      emittedFor: 'externalPending',
+      requestId:
+        addedNote.consultationNote[addedNote.consultationNote.length - 1]._id,
+    };
+
+    addFlag(data3);
     const pendingConsultation = await EDR.aggregate([
       {
         $project: {
@@ -2023,6 +2134,23 @@ exports.addRadRequest = asyncHandler(async (req, res, next) => {
   };
 
   addFlag(data2);
+  //   Cron Flag for Sensei 6th Card
+  const data3 = {
+    taskName: 'Sensei Rad Consultation Pending',
+    minutes: 61,
+    collectionName: 'EDR',
+    staffId: req.body.radTechnicianId,
+    patientId: req.body.edrId,
+    onModel: 'EDR',
+    generatedFrom: 'Sensei',
+    card: '6th',
+    generatedFor: ['Sensei', 'Rad Doctor'],
+    reason: 'Patients Rad Consultation Notes Pending',
+    emittedFor: 'pendingSensei',
+    requestId: newRad.radRequest[newRad.radRequest.length - 1]._id,
+  };
+
+  addFlag(data3);
 
   const rads = await EDR.aggregate([
     {
@@ -2837,6 +2965,24 @@ exports.updateEdr = asyncHandler(async (req, res, next) => {
     ''
   );
 
+  //   //   Sensei 9th Card
+  //   const data3 = {
+  //     taskName: 'Sensei Discharge Pending',
+  //     minutes: 21,
+  //     collectionName: 'CustomerCare',
+  //     staffId: null,
+  //     patientId: _id,
+  //     onModel: 'EDR',
+  //     generatedFrom: 'Sensei',
+  //     card: '9th',
+  //     generatedFor: ['Sensei', 'Cashier'],
+  //     reason: 'Patient Discharge Pending',
+  //     emittedFor: 'senseiPending',
+  //     requestId: _id,
+  //   };
+
+  //   addFlag(data3);
+
   //   Ro Discharge Flag
   const dischargePending = await EDR.find({
     status: 'Discharged',
@@ -3070,7 +3216,73 @@ exports.addAnesthesiologistNote = asyncHandler(async (req, res, next) => {
       model: 'staff',
     },
   ]);
+  //   Cron Flag for Anesthesiologist 1st Card
+  const data = {
+    taskName: 'Total Anesthesia Pending',
+    minutes: 11,
+    collectionName: 'EDR',
+    staffId: parsed.anesthesiologist,
+    patientId: parsed.edrId,
+    onModel: 'EDR',
+    generatedFrom: 'Anesthesiologist',
+    card: '1st',
+    generatedFor: ['ED Doctor', 'Head Of Anesthesia Doctor'],
+    reason: 'Too many requests pending',
+    emittedFor: 'anesthesiaPending',
+    requestId:
+      addedNote.anesthesiologistNote[addedNote.anesthesiologistNote.length - 1]
+        ._id,
+  };
 
+  addFlag(data);
+
+  const edr = await EDR.findById(parsed.edrId).select('currentLocation');
+
+  //   Cron Flag for Anesthesiologist 3rd Card
+  if (edr.currentLocation === 'ED') {
+    const data2 = {
+      taskName: 'ED Anesthesia Pending',
+      minutes: 11,
+      collectionName: 'EDR',
+      staffId: parsed.anesthesiologist,
+      patientId: parsed.edrId,
+      onModel: 'EDR',
+      generatedFrom: 'Anesthesiologist',
+      card: '2nd',
+      generatedFor: ['ED Doctor', 'Head Of Anesthesia Doctor'],
+      reason: 'Too many requests pending in ED',
+      emittedFor: 'anesthesiaPending',
+      requestId:
+        addedNote.anesthesiologistNote[
+          addedNote.anesthesiologistNote.length - 1
+        ]._id,
+    };
+
+    addFlag(data2);
+  }
+
+  //   Cron Flag for Anesthesiologist 3rd Card
+  if (edr.currentLocation === 'EOU') {
+    const data3 = {
+      taskName: 'EOU Anesthesia Pending',
+      minutes: 11,
+      collectionName: 'EDR',
+      staffId: parsed.anesthesiologist,
+      patientId: parsed.edrId,
+      onModel: 'EDR',
+      generatedFrom: 'Anesthesiologist',
+      card: '3rd',
+      generatedFor: ['ED Doctor', 'Head Of Anesthesia Doctor'],
+      reason: 'Too many requests pending in EOU',
+      emittedFor: 'anesthesiaPending',
+      requestId:
+        addedNote.anesthesiologistNote[
+          addedNote.anesthesiologistNote.length - 1
+        ]._id,
+    };
+
+    addFlag(data3);
+  }
   const pending = await EDR.aggregate([
     {
       $project: {
@@ -4398,6 +4610,25 @@ exports.addPharmacyRequest = asyncHandler(async (req, res, next) => {
   ]);
 
   // Flags
+  //   Clinical Pharmacist 1st Card Cron Flag
+  const data = {
+    taskName: 'Pharmacist Orders Pending',
+    minutes: 5,
+    collectionName: 'EDR',
+    staffId: req.body.pharmacist,
+    patientId: req.body.edrId,
+    onModel: 'EDR',
+    generatedFrom: 'Clinical Pharmacist',
+    card: '1st',
+    generatedFor: 'Pharmacy Manager',
+    reason: 'Pharmacy Requests Pending',
+    emittedFor: 'cpPending',
+    requestId:
+      addedNote.pharmacyRequest[addedNote.pharmacyRequest.length - 1]._id,
+  };
+
+  addFlag(data);
+
   const pharmacyPending = await EDR.aggregate([
     {
       $project: {
@@ -4580,6 +4811,13 @@ exports.deliverPharmcayRequest = asyncHandler(async (req, res, next) => {
     '/dashboard/home/taskslistforcustomercare',
     req.body.edrId,
     ''
+  );
+
+  // Preventing from raising flag if task is completed
+  await CronFlag.findOneAndUpdate(
+    { requestId: req.body._id, taskName: 'Pharmacist Orders Pending' },
+    { $set: { status: 'completed' } },
+    { new: true }
   );
 
   //   Cron Flag for Customer Care
