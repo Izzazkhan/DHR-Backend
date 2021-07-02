@@ -144,7 +144,7 @@ mongoose
 
 // Cron Job For Flags
 
-cron.schedule('* * * * *', async () => {
+cron.schedule('*/5 * * * *', async () => {
   console.log('running a task every minute');
 
   const time = new Date();

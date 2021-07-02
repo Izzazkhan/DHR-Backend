@@ -5,6 +5,7 @@ const ErrorResponse = require('../utils/errorResponse');
 const Staff = require('../models/staffFhir/staff');
 const Notification = require('../components/notification');
 const CronFlag = require('../models/CronFlag');
+const addFlag = require('../components/addFlag.js');
 
 exports.getPendingTransfers = asyncHandler(async (req, res, next) => {
   // console.log(req.params.staffId);
@@ -162,7 +163,7 @@ exports.completeLab = asyncHandler(async (req, res, next) => {
     { _id: req.body.edrId, 'labRequest._id': req.body.labId },
     {
       $set: {
-        ' labRequest.$.nurseTechnicianStatus': 'Collected',
+        'labRequest.$.nurseTechnicianStatus': 'Collected',
         'labRequest.$.collectedTime': Date.now(),
       },
     },
@@ -171,12 +172,76 @@ exports.completeLab = asyncHandler(async (req, res, next) => {
     .populate('patientId', 'identifier')
     .select('patientId labRequest');
 
+  const test = await EDR.aggregate([
+    {
+      $project: {
+        _id: 1,
+        labRequest: 1,
+      },
+    },
+    {
+      $unwind: '$labRequest',
+    },
+    {
+      $match: {
+        $and: [
+          { _id: mongoose.Types.ObjectId(req.body.edrId) },
+          { 'labRequest._id': mongoose.Types.ObjectId(req.body.labId) },
+        ],
+      },
+    },
+  ]);
+
+  const lab = test[0].labRequest;
   // Preventing from raising flag if task is completed
-  await CronFlag.findOneAndUpdate(
-    { requestId: req.body.labId, taskName: 'Sample Pending' },
-    { $set: { status: 'completed' } },
-    { new: true }
-  );
+  if (lab.type !== 'Blood') {
+    await CronFlag.findOneAndUpdate(
+      { requestId: req.body.labId, taskName: 'Sample Pending' },
+      { $set: { status: 'completed' } },
+      { new: true }
+    );
+    // Cron Flag for Lab Technician 2nd Card
+    const data = {
+      taskName: 'Lab Results Pending',
+      minutes: 11,
+      collectionName: 'EDR',
+      staffId: lab.labTechnicianId,
+      patientId: req.body.edrId,
+      onModel: 'EDR',
+      generatedFrom: 'Lab Technician',
+      card: '2nd',
+      generatedFor: ['Sensei', 'Lab Supervisor'],
+      reason: 'Too Many Lab Results Pending',
+      emittedFor: 'pendingSensei',
+      requestId: req.body.labId,
+    };
+
+    addFlag(data);
+  }
+
+  if (lab.type === 'Blood') {
+    await CronFlag.findOneAndUpdate(
+      { requestId: req.body.labId, taskName: 'Blood Sample Pending' },
+      { $set: { status: 'completed' } },
+      { new: true }
+    );
+    const data = {
+      taskName: 'Lab Blood Results Pending',
+      minutes: 36,
+      collectionName: 'EDR',
+      staffId: lab.labTechnicianId,
+      patientId: req.body.edrId,
+      onModel: 'EDR',
+      generatedFrom: 'Lab Technician',
+      card: '4th',
+      generatedFor: ['Sensei', 'Lab Supervisor'],
+      reason: 'Too Many Lab Results Pending',
+      emittedFor: 'pendingSensei',
+      requestId: req.body.labId,
+    };
+
+    addFlag(data);
+  }
 
   Notification(
     'Sample Collected',

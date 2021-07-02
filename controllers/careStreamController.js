@@ -221,7 +221,7 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
         name: filteredMedications[i].itemName,
       });
 
-      console.log('Item : ', item);
+      //   console.log('Item : ', item);
       const pharmacyRequestNo = generateReqNo('PHR');
 
       const pharmaObj = {
@@ -254,7 +254,7 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
 
     await EDR.findOneAndUpdate(
       { _id: req.body.data.edrId },
-      { $set: { pharmacyRequest: pharmacyRequest } },
+      { $push: { pharmacyRequest: pharmacyRequest } },
       { new: true }
     );
     Notification(
@@ -301,6 +301,8 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
           name: lab.name,
           serviceId: lab._id,
           price: lab.price,
+          type: lab.type,
+          careStreamId: req.body.data.careStreamId,
         };
         addLab(data);
       } else if (test.testType === 'rad') {
@@ -311,6 +313,8 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
           name: rad.name,
           serviceId: rad._id,
           price: rad.price,
+          type: rad.type,
+          careStreamId: req.body.data.careStreamId,
         };
         addRad(data);
       }

@@ -941,22 +941,44 @@ exports.addLabRequest = asyncHandler(async (req, res, next) => {
   addFlag(data);
 
   //   Cron Flag for Lab Technician 1st Card
-  const data2 = {
-    taskName: 'Sample Pending',
-    minutes: 6,
-    collectionName: 'EDR',
-    staffId: nurseTechnician._id,
-    patientId: parsed.edrId,
-    onModel: 'EDR',
-    generatedFrom: 'Lab Technician',
-    card: '1st',
-    generatedFor: ['Sensei', 'Lab Supervisor'],
-    reason: 'Sample Collection Pending',
-    emittedFor: 'ltPending',
-    requestId: newLab.labRequest[newLab.labRequest.length - 1]._id,
-  };
+  if (parsed.type !== 'Blood') {
+    const data2 = {
+      taskName: 'Sample Pending',
+      minutes: 6,
+      collectionName: 'EDR',
+      staffId: nurseTechnician._id,
+      patientId: parsed.edrId,
+      onModel: 'EDR',
+      generatedFrom: 'Lab Technician',
+      card: '1st',
+      generatedFor: ['Sensei', 'Lab Supervisor'],
+      reason: 'Sample Collection Pending',
+      emittedFor: 'ltPending',
+      requestId: newLab.labRequest[newLab.labRequest.length - 1]._id,
+    };
 
-  addFlag(data2);
+    addFlag(data2);
+  }
+
+  //   Cron Flag for Lab Technician 1st Card
+  if (parsed.type === 'Blood') {
+    const data3 = {
+      taskName: 'Blood Sample Pending',
+      minutes: 46,
+      collectionName: 'EDR',
+      staffId: nurseTechnician._id,
+      patientId: parsed.edrId,
+      onModel: 'EDR',
+      generatedFrom: 'Lab Technician',
+      card: '3rd',
+      generatedFor: ['Lab Supervisor'],
+      reason: 'Blood Sample Collection Pending',
+      emittedFor: 'ltPending',
+      requestId: newLab.labRequest[newLab.labRequest.length - 1]._id,
+    };
+
+    addFlag(data3);
+  }
 
   const labPending = await EDR.aggregate([
     {

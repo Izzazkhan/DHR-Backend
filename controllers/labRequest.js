@@ -268,6 +268,19 @@ exports.updateLabRequest = asyncHandler(async (req, res, next) => {
       { $set: { status: 'completed' } },
       { new: true }
     );
+
+    await CronFlag.findOneAndUpdate(
+      { requestId: parsed.labId, taskName: 'Lab Results Pending' },
+      { $set: { status: 'completed' } },
+      { new: true }
+    );
+
+    await CronFlag.findOneAndUpdate(
+      { requestId: parsed.labId, taskName: 'Lab Blood Results Pending' },
+      { $set: { status: 'completed' } },
+      { new: true }
+    );
+
     Notification(
       'Report Uploaded' + parsed.labId,
       'Lab Test Report Generated',
