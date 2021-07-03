@@ -145,7 +145,7 @@ mongoose
 // Cron Job For Flags
 
 cron.schedule('*/5 * * * *', async () => {
-  console.log('running a task every minute');
+  //   console.log('running a task every minute');
 
   const time = new Date();
   const allFlags = await CronFlag.find({
@@ -153,7 +153,7 @@ cron.schedule('*/5 * * * *', async () => {
     status: 'pending',
   });
 
-  console.log(allFlags);
+  //   console.log(allFlags);
 
   allFlags.forEach(async (flag) => {
     await Flag.create({

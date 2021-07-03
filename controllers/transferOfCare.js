@@ -217,3 +217,28 @@ exports.submitTransfer = asyncHandler(async (req, res, next) => {
     data: newTOC,
   });
 });
+
+// Next Shift EOU Nurses
+exports.getCurrentShiftNurses = asyncHandler(async (req, res, next) => {
+  const nursePA = await Staff.findById(req.params.staffId).select(
+    'chiefComplaint shift'
+  );
+
+  const latestCC = nursePA.chiefComplaint.length - 1;
+
+  const chiefComplaintId =
+    nursePA.chiefComplaint[latestCC].chiefComplaintId._id;
+
+  const staff = await Staff.find({
+    _id: { $ne: req.params.staffId },
+    staffType: 'Nurses',
+    subType: 'EOU Nurse',
+    // shift: nursePA.shift,
+    'chiefComplaint.-1.chiefComplaintId': chiefComplaintId,
+  });
+
+  res.status(200).json({
+    success: true,
+    data: staff,
+  });
+});
