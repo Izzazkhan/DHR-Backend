@@ -22,6 +22,7 @@ const {
   searchGetPharmacy,
   pendingHKRequests,
   completedHKRequests,
+  updateStatus,
 } = require('../controllers/edNurseRequests');
 
 router.get('/getLab', getLab);
@@ -43,5 +44,6 @@ router.get('/completedEDNurseEdrRequest/:nurseId', completedEDNurseEdrRequest);
 router.get('/getDashboardData/:nurseId', dashboardData);
 router.get('/pendingHKRequests/:nurseId', pendingHKRequests);
 router.get('/completedHKRequests/:nurseId', completedHKRequests);
+router.put('/updateStatus', updateStatus);
 
 module.exports = router;
