@@ -593,6 +593,48 @@ exports.updateMedicationStatus = asyncHandler(async (req, res, next) => {
       .select('patientId pharmacyRequest')
       .populate('patientId', 'Identifier');
 
+    const latestCC = updatedRequest.careStream.length - 1;
+
+    const test = await EDR.aggregate([
+      {
+        $match: {
+          _id: mongoose.Types.ObjectId(req.body.edrId),
+        },
+      },
+      {
+        $project: {
+          pharmacyRequest: 1,
+        },
+      },
+      {
+        $unwind: '$pharmacyRequest',
+      },
+      {
+        $match: {
+          'pharmacyRequest._id': mongoose.Types.ObjectId(req.body.requestId),
+        },
+      },
+    ]);
+
+    // Completing CareStream PharmacyRequest
+    if (test[0].pharmacyRequest.generatedFrom === 'CareStream Request') {
+      await EDR.findOneAndUpdate(
+        {
+          _id: req.body.edrId,
+          [`careStream.${latestCC}.medications.data._id`]: test[0]
+            .pharmacyRequest.labTestId,
+        },
+        {
+          $set: {
+            [`careStream.${latestCC}.medications.data.$.completed`]: true,
+            [`careStream.${latestCC}.medications.data.$.completedAt`]: Date.now(),
+            [`careStream.${latestCC}.medications.data.$.completedBy`]: req.body
+              .staffId,
+          },
+        }
+      );
+    }
+
     const patientTreatmentsPending = await EDR.aggregate([
       {
         $project: {
@@ -719,7 +761,6 @@ exports.dashboardData = asyncHandler(async (req, res, next) => {
 
   const patientWithRegToTriage = await EDR.find({
     createdTimeStamp: { $gte: sixHour },
-    // 'dcdForm.$.triageAssessment': { $ne: [] },
     dcdForm: {
       $elemMatch: { triageAssessment: { $ne: [] } },
     },

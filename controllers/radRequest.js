@@ -302,6 +302,11 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
 
     const test = await EDR.aggregate([
       {
+        $match: {
+          _id: mongoose.Types.ObjectId(parsed.edrId),
+        },
+      },
+      {
         $project: {
           _id: 1,
           radRequest: 1,
@@ -312,10 +317,7 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
       },
       {
         $match: {
-          $and: [
-            { _id: mongoose.Types.ObjectId(parsed.edrId) },
-            { 'radRequest._id': mongoose.Types.ObjectId(parsed.radId) },
-          ],
+          'radRequest._id': mongoose.Types.ObjectId(parsed.radId),
         },
       },
     ]);
@@ -331,6 +333,8 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
         {
           $set: {
             [`careStream.${latestCC}.investigations.data.$.completed`]: true,
+            [`careStream.${latestCC}.investigations.data.$.completedAt`]: Date.now(),
+            [`careStream.${latestCC}.investigations.data.$.completedBy`]: parsed.completedBy,
           },
         }
       );

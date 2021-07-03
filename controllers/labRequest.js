@@ -283,6 +283,11 @@ exports.updateLabRequest = asyncHandler(async (req, res, next) => {
 
     const test = await EDR.aggregate([
       {
+        $match: {
+          _id: mongoose.Types.ObjectId(req.body.edrId),
+        },
+      },
+      {
         $project: {
           _id: 1,
           labRequest: 1,
@@ -293,15 +298,12 @@ exports.updateLabRequest = asyncHandler(async (req, res, next) => {
       },
       {
         $match: {
-          $and: [
-            { _id: mongoose.Types.ObjectId(parsed.edrId) },
-            { 'labRequest._id': mongoose.Types.ObjectId(parsed.labId) },
-          ],
+          'labRequest._id': mongoose.Types.ObjectId(parsed.labId),
         },
       },
     ]);
 
-    // Completing CareStream LabTest
+    // Completing CareStream Lab Test
     if (test[0].labRequest.reqFromCareStream === true) {
       await EDR.findOneAndUpdate(
         {
@@ -312,6 +314,8 @@ exports.updateLabRequest = asyncHandler(async (req, res, next) => {
         {
           $set: {
             [`careStream.${latestCC}.investigations.data.$.completed`]: true,
+            [`careStream.${latestCC}.investigations.data.$.completedAt`]: Date.now(),
+            [`careStream.${latestCC}.investigations.data.$.completedBy`]: parsed.staffId,
           },
         }
       );
