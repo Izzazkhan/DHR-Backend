@@ -130,7 +130,6 @@ const edrSchema = new mongoose.Schema({
           ref: 'staff',
         },
       },
-
       fluidsIV: {
         data: [
           {
@@ -153,7 +152,6 @@ const edrSchema = new mongoose.Schema({
           ref: 'staff',
         },
       },
-
       reassessments: {
         data: [
           {
@@ -182,7 +180,6 @@ const edrSchema = new mongoose.Schema({
           ref: 'staff',
         },
       },
-
       medications: {
         data: [
           {
@@ -221,7 +218,6 @@ const edrSchema = new mongoose.Schema({
           ref: 'staff',
         },
       },
-
       mdNotification: {
         data: [
           {
@@ -250,7 +246,6 @@ const edrSchema = new mongoose.Schema({
           ref: 'staff',
         },
       },
-
       status: {
         type: String,
       },
