@@ -63,6 +63,15 @@ const edrSchema = new mongoose.Schema({
             name: String,
             selected: Boolean,
             testType: String,
+            completed: {
+              type: Boolean,
+              default: false,
+            },
+            completedAt: Date,
+            completedBy: {
+              type: mongoose.Schema.ObjectId,
+              ref: 'staff',
+            },
           },
         ],
         status: {
@@ -200,6 +209,15 @@ const edrSchema = new mongoose.Schema({
             },
             price: {
               type: Number,
+            },
+            completed: {
+              type: Boolean,
+              default: false,
+            },
+            completedAt: Date,
+            completedBy: {
+              type: mongoose.Schema.ObjectId,
+              ref: 'staff',
             },
           },
         ],
@@ -1049,7 +1067,11 @@ const edrSchema = new mongoose.Schema({
       generatedFrom: {
         type: String,
       },
-
+      pharmacyCSId: String,
+      careStreamId: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'careStream',
+      },
       requestedBy: {
         type: mongoose.Schema.ObjectId,
         ref: 'staff',
@@ -1277,6 +1299,7 @@ const edrSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'careStream',
       },
+      labTestId: String,
       // pendingApprovalTime: {
       //   type: Date,
       // },
@@ -1370,6 +1393,7 @@ const edrSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'careStream',
       },
+      radTestId: String,
       updateRecord: [
         {
           updatedAt: {

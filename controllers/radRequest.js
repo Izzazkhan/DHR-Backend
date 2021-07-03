@@ -265,7 +265,6 @@ exports.getDoctorCompletedRad = asyncHandler(async (req, res, next) => {
 exports.updateRadRequest = asyncHandler(async (req, res, next) => {
   // console.log(req.files);
   const parsed = JSON.parse(req.body.data);
-
   const rad = await EDR.findOne({ _id: parsed.edrId });
   let note;
   for (let i = 0; i < rad.radRequest.length; i++) {
@@ -298,6 +297,48 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
       },
       { new: true }
     ).populate('radRequest.serviceId');
+
+    const latestCC = updatedrad.careStream.length - 1;
+
+    const test = await EDR.aggregate([
+      {
+        $match: {
+          _id: mongoose.Types.ObjectId(parsed.edrId),
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          radRequest: 1,
+        },
+      },
+      {
+        $unwind: '$radRequest',
+      },
+      {
+        $match: {
+          'radRequest._id': mongoose.Types.ObjectId(parsed.radId),
+        },
+      },
+    ]);
+
+    // Completing CareStream Rad Test
+    if (test[0].radRequest.reqFromCareStream === true) {
+      await EDR.findOneAndUpdate(
+        {
+          _id: parsed.edrId,
+          [`careStream.${latestCC}.investigations.data._id`]: test[0].radRequest
+            .radTestId,
+        },
+        {
+          $set: {
+            [`careStream.${latestCC}.investigations.data.$.completed`]: true,
+            [`careStream.${latestCC}.investigations.data.$.completedAt`]: Date.now(),
+            [`careStream.${latestCC}.investigations.data.$.completedBy`]: parsed.completedBy,
+          },
+        }
+      );
+    }
 
     // Preventing from raising flag if task is completed
     await CronFlag.findOneAndUpdate(

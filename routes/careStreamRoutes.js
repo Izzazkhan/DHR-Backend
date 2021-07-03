@@ -4,7 +4,7 @@ const router = express.Router();
 
 const {
   addCareStream,
-  // updateCareStream,
+  updateCareStream,
   enableCareStreamService,
   disableCareStream,
   getAllCareStreams,
@@ -27,7 +27,7 @@ router.post('/addCareStream', addCareStream);
 router.put('/enableCareStream/:id', enableCareStreamService);
 router.put('/disableCareStream/:id', disableCareStream);
 router.put('/asignCareStream', asignCareStream);
-// router.put('/updateCareStream', updateCareStream);
+router.put('/updateCareStream', updateCareStream);
 router.get('/getAllCareStreams', getAllCareStreams);
 router.get('/getAllEnableDisableCareStreams', getAllEnableDisableCareStreams);
 router.get('/getMedicationsCareStreams', getMedicationsCareStreams);
