@@ -197,13 +197,6 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     name: req.body.data.name,
     inclusionCriteria: req.body.data.inclusionCriteria,
     exclusionCriteria: req.body.data.exclusionCriteria,
-    // investigations: req.body.data.investigations,
-    // precautions: req.body.data.precautions,
-    // treatmentOrders: req.body.data.treatmentOrders,
-    // fluidsIV: req.body.data.fluidsIV,
-    // medications: req.body.data.medications,
-    // mdNotification: req.body.data.mdNotification,
-    // reassessments: req.body.data.reassessments,
     careStreamId: req.body.data.careStreamId,
     assignedBy: req.body.data.staffId,
     assignedTime: Date.now(),
@@ -215,6 +208,13 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
   const filteredMedications = req.body.data.medications.filter(
     (t) => t.selected === true
   );
+
+  //   const filteredFluids = req.body.data.fluidsIV.filter(
+  //     (t) => t.selected === true
+  //   );
+
+  //   const filteredItem = [...filteredMedications, ...filteredFluids];
+
   if (filteredMedications.length > 0) {
     for (let i = 0; i < filteredMedications.length; i++) {
       const item = await Items.findOne({
@@ -323,6 +323,7 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
           price: lab.price,
           type: lab.type,
           careStreamId: req.body.data.careStreamId,
+          labTestId: test._id,
         };
         addLab(data);
       } else if (test.testType === 'rad') {
@@ -335,92 +336,221 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
           price: rad.price,
           type: rad.type,
           careStreamId: req.body.data.careStreamId,
+          radTestId: test._id,
         };
         addRad(data);
       }
     }
   }
 
-  const decisionPending = await EDR.find({
-    careStream: { $eq: [] },
-    doctorNotes: { $ne: [] },
-  });
+  //   const decisionPending = await EDR.find({
+  //     careStream: { $eq: [] },
+  //     doctorNotes: { $ne: [] },
+  //   });
 
-  if (decisionPending.length > 5) {
-    await Flag.create({
-      edrId: req.body.data.edrId,
-      generatedFrom: 'Sensei',
-      card: '4th',
-      generatedFor: ['Sensei', 'Medical Director'],
-      reason: 'Patients pending for Doctor Decisions',
-      createdAt: Date.now(),
-    });
-    const flags = await Flag.find({
-      generatedFrom: 'Sensei',
-      status: 'pending',
-    });
-    globalVariable.io.emit('pendingSensei', flags);
-  }
+  //   if (decisionPending.length > 5) {
+  //     await Flag.create({
+  //       edrId: req.body.data.edrId,
+  //       generatedFrom: 'Sensei',
+  //       card: '4th',
+  //       generatedFor: ['Sensei', 'Medical Director'],
+  //       reason: 'Patients pending for Doctor Decisions',
+  //       createdAt: Date.now(),
+  //     });
+  //     const flags = await Flag.find({
+  //       generatedFrom: 'Sensei',
+  //       status: 'pending',
+  //     });
+  //     globalVariable.io.emit('pendingSensei', flags);
+  //   }
 
-  if (decisionPending.length > 6) {
-    await Flag.create({
-      edrId: req.body.data.edrId,
-      generatedFrom: 'ED Doctor',
-      card: '2nd',
-      generatedFor: ['ED Doctor', 'Medical Director'],
-      reason: 'Patients pending for Doctor Decisions',
-      createdAt: Date.now(),
-    });
-    const flags = await Flag.find({
-      generatedFrom: ['ED Doctor', 'Medical Director'],
-      status: 'pending',
-    });
-    globalVariable.io.emit('pendingDoctor', flags);
-  }
+  //   if (decisionPending.length > 6) {
+  //     await Flag.create({
+  //       edrId: req.body.data.edrId,
+  //       generatedFrom: 'ED Doctor',
+  //       card: '2nd',
+  //       generatedFor: ['ED Doctor', 'Medical Director'],
+  //       reason: 'Patients pending for Doctor Decisions',
+  //       createdAt: Date.now(),
+  //     });
+  //     const flags = await Flag.find({
+  //       generatedFrom: ['ED Doctor', 'Medical Director'],
+  //       status: 'pending',
+  //     });
+  //     globalVariable.io.emit('pendingDoctor', flags);
+  //   }
 
-  const currentStaff = await Staff.findById(req.body.data.staffId).select(
-    'staffType'
-  );
+  //   const currentStaff = await Staff.findById(req.body.data.staffId).select(
+  //     'staffType'
+  //   );
 
-  if (currentStaff.staffType === 'Paramedics') {
-    Notification(
-      'Patient Details',
-      'Patient Details',
-      'Sensei',
-      'Paramedics',
-      '/dashboard/home/pendingregistration',
-      req.body.data.edrId,
-      '',
-      ''
-    );
-  }
+  //   if (currentStaff.staffType === 'Paramedics') {
+  //     Notification(
+  //       'Patient Details',
+  //       'Patient Details',
+  //       'Sensei',
+  //       'Paramedics',
+  //       '/dashboard/home/pendingregistration',
+  //       req.body.data.edrId,
+  //       '',
+  //       ''
+  //     );
+  //   }
 
-  Notification(
-    'careStream Assigned',
-    'careStream Assigned',
-    'Nurses',
-    'CareStream',
-    '/dashboard/home/notes',
-    req.body.data.edrId,
-    '',
-    'ED Nurse'
-  );
+  //   Notification(
+  //     'careStream Assigned',
+  //     'careStream Assigned',
+  //     'Nurses',
+  //     'CareStream',
+  //     '/dashboard/home/notes',
+  //     req.body.data.edrId,
+  //     '',
+  //     'ED Nurse'
+  //   );
 
-  Notification(
-    'careStream Assigned',
-    'Doctor assigned CareStream',
-    'Doctor',
-    'CareStream Assigned',
-    '/dashboard/home/notes',
-    req.body.data.edrId,
-    '',
-    'Rad Doctor'
-  );
+  //   Notification(
+  //     'careStream Assigned',
+  //     'Doctor assigned CareStream',
+  //     'Doctor',
+  //     'CareStream Assigned',
+  //     '/dashboard/home/notes',
+  //     req.body.data.edrId,
+  //     '',
+  //     'Rad Doctor'
+  //   );
 
   res.status(200).json({
     success: true,
     data: assignedCareStream,
   });
+});
+
+// Update Care Stream
+exports.updateCareStream = asyncHandler(async (req, res, next) => {
+  const { investigations, medications, fluidsIV } = req.body.data;
+  const CSData = await EDR.findById(req.body.data.edrId).select('careStream');
+  const tests = [];
+
+  const CS = CSData.careStream[0].investigations.data;
+
+  for (let i = 0; i < investigations.data.length; i++) {
+    for (let j = 0; j < CS.length; j++) {
+      if (investigations.data[i]._id === CS[j]._id) {
+        if (
+          investigations.data[i].selected === true &&
+          CS[j].selected === false
+        ) {
+          tests.push(investigations.data[i]);
+        }
+      }
+    }
+  }
+
+  const newMedications = [];
+  const CSMedications = CSData.careStream[0].medications.data;
+  for (let i = 0; i < medications.data.length; i++) {
+    for (let j = 0; j < CSMedications.length; j++) {
+      if (medications.data[i]._id === CSMedications[j]._id) {
+        if (
+          medications.data[i].selected === true &&
+          CSMedications[j].selected === false
+        ) {
+          newMedications.push(investigations.data[i]);
+        }
+      }
+    }
+  }
+
+  //   if (newMedications.length > 0) {
+  //     for (let i = 0; i < newMedications.length; i++) {
+  //       const item = await Items.findOne({
+  //         name: newMedications[i].itemName,
+  //       });
+
+  //       //   console.log('Item : ', item);
+  //       const pharmacyRequestNo = generateReqNo('PHR');
+
+  //       const pharmaObj = {
+  //         pharmacyRequestNo,
+  //         requestedBy: req.body.data.staffId,
+  //         reconciliationNotes: [],
+  //         generatedFrom: 'CareStream Request',
+  //         item: {
+  //           itemId: item._id,
+  //           itemType: item.medClass.toLowerCase(),
+  //           itemName: item.name,
+  //           requestedQty: req.body.data.medications.data[i].requestedQty,
+  //           priority: '',
+  //           schedule: '',
+  //           dosage: req.body.data.medications.data[i].dosage,
+  //           frequency: req.body.data.medications.data[i].frequency,
+  //           duration: req.body.data.medications.data[i].duration,
+  //           form: '',
+  //           size: '',
+  //           make_model: '',
+  //           additionalNotes: '',
+  //         },
+  //         status: 'pending',
+  //         secondStatus: 'pending',
+  //         createdAt: new Date(),
+  //         updatedAt: new Date(),
+  //       };
+  //       pharmacyRequest.push(pharmaObj);
+  //     }
+
+  //     await EDR.findOneAndUpdate(
+  //       { _id: req.body.data.edrId },
+  //       { $push: { pharmacyRequest: pharmacyRequest } },
+  //       { new: true }
+  //     );
+
+  //   }
+
+  await EDR.findOneAndUpdate(
+    {
+      _id: req.body.data.edrId,
+      'careStream._id': req.body.data.careStreamId,
+    },
+    {
+      $set: {
+        'careStream.$.investigations.data': req.body.data.investigations.data,
+        'careStream.$.precautions.data': req.body.data.precautions.data,
+        'careStream.$.treatmentOrders.data': req.body.data.treatmentOrders.data,
+        'careStream.$.fluidsIV.data': req.body.data.fluidsIV.data,
+        'careStream.$.medications.data': req.body.data.medications.data,
+        'careStream.$.mdNotification.data': req.body.data.mdNotification.data,
+        'careStream.$.reassessments.data': req.body.data.reassessments.data,
+      },
+    }
+  );
+
+  //   for (const test of tests) {
+  //     if (test.testType === 'lab') {
+  //       const lab = await LabService.findOne({ name: test.name });
+  //       const data = {
+  //         staffId: req.body.data.staffId,
+  //         edrId: req.body.data.edrId,
+  //         name: lab.name,
+  //         serviceId: lab._id,
+  //         price: lab.price,
+  //         type: lab.type,
+  //         careStreamId: req.body.data.careStreamId,
+  //       };
+  //       addLab(data);
+  //     } else if (test.testType === 'rad') {
+  //       const rad = await RadService.findOne({ name: test.name });
+  //       const data = {
+  //         staffId: req.body.data.staffId,
+  //         edrId: req.body.data.edrId,
+  //         name: rad.name,
+  //         serviceId: rad._id,
+  //         price: rad.price,
+  //         type: rad.type,
+  //         careStreamId: req.body.data.careStreamId,
+  //       };
+  //       addRad(data);
+  //     }
+  //   }
 });
 
 exports.getInProgressCS = asyncHandler(async (req, res, next) => {

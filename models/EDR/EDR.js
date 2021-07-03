@@ -63,6 +63,10 @@ const edrSchema = new mongoose.Schema({
             name: String,
             selected: Boolean,
             testType: String,
+            completed: {
+              type: Boolean,
+              default: false,
+            },
           },
         ],
         status: {
@@ -1277,6 +1281,7 @@ const edrSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'careStream',
       },
+      labTestId: String,
       // pendingApprovalTime: {
       //   type: Date,
       // },
@@ -1370,6 +1375,7 @@ const edrSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'careStream',
       },
+      radTestId: String,
       updateRecord: [
         {
           updatedAt: {

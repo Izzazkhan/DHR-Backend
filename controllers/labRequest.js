@@ -281,6 +281,34 @@ exports.updateLabRequest = asyncHandler(async (req, res, next) => {
       { new: true }
     );
 
+    const test = await EDR.aggregate([
+      {
+        $project: {
+          _id: 1,
+          labRequest: 1,
+        },
+      },
+      {
+        $unwind: '$labRequest',
+      },
+      {
+        $match: {
+          $and: [
+            { _id: mongoose.Types.ObjectId(parsed.edrId) },
+            { 'labRequest._id': mongoose.Types.ObjectId(parsed.labId) },
+          ],
+        },
+      },
+    ]);
+    if (test[0].labRequest.reqFromCareStream === true) {
+      await EDR.findOneAndUpdate(
+        {
+          _id: parsed.edrId,
+          'careStream.investigations.data._id': test[0].labRequest.labTestId,
+        },
+        { $set: { 'careStream.investigations.data.$.completed': true } }
+      );
+    }
     Notification(
       'Report Uploaded' + parsed.labId,
       'Lab Test Report Generated',
