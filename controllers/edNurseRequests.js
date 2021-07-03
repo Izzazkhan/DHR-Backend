@@ -632,6 +632,31 @@ exports.updateMedicationStatus = asyncHandler(async (req, res, next) => {
   });
 });
 
+// Status Update For CareStream Steps
+exports.updateStatus = asyncHandler(async (req, res, next) => {
+  const updatedStatus = await EDR.findOneAndUpdate(
+    {
+      _id: req.body.edrId,
+      'careStream._id': req.body.careStreamId,
+    },
+    {
+      $set: {
+        [`careStream.$.${req.body.stepName}.status`]: req.body.status,
+        [`careStream.$.${req.body.stepName}.${req.body.timeName}`]: Date.now(),
+        [`careStream.$.${req.body.stepName}.${req.body.staff}`]: req.body
+          .staffId,
+      },
+    },
+    {
+      new: true,
+    }
+  );
+  res.status(200).json({
+    success: true,
+    data: updatedStatus,
+  });
+});
+
 exports.dashboardData = asyncHandler(async (req, res, next) => {
   // ***** Configuration *********
   const currentTime = moment().utc().toDate();
