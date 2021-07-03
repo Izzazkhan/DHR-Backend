@@ -197,13 +197,6 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     name: req.body.data.name,
     inclusionCriteria: req.body.data.inclusionCriteria,
     exclusionCriteria: req.body.data.exclusionCriteria,
-    // investigations: req.body.data.investigations,
-    // precautions: req.body.data.precautions,
-    // treatmentOrders: req.body.data.treatmentOrders,
-    // fluidsIV: req.body.data.fluidsIV,
-    // medications: req.body.data.medications,
-    // mdNotification: req.body.data.mdNotification,
-    // reassessments: req.body.data.reassessments,
     careStreamId: req.body.data.careStreamId,
     assignedBy: req.body.data.staffId,
     assignedTime: Date.now(),
@@ -216,11 +209,11 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     (t) => t.selected === true
   );
 
-  const filteredFluids = req.body.data.fluidsIV.filter(
-    (t) => t.selected === true
-  );
+  //   const filteredFluids = req.body.data.fluidsIV.filter(
+  //     (t) => t.selected === true
+  //   );
 
-  const filteredItem = [...filteredMedications, ...filteredFluids];
+  //   const filteredItem = [...filteredMedications, ...filteredFluids];
 
   if (filteredMedications.length > 0) {
     for (let i = 0; i < filteredMedications.length; i++) {
@@ -468,14 +461,10 @@ exports.updateCareStream = asyncHandler(async (req, res, next) => {
     }
   }
 
-  //   const pharmacyRequest = edrCheck[0].pharmacyRequest;
-  //   const filteredMedications = req.body.data.medications.filter(
-  //     (t) => t.selected === true
-  //   );
-  //   if (filteredMedications.length > 0) {
-  //     for (let i = 0; i < filteredMedications.length; i++) {
+  //   if (newMedications.length > 0) {
+  //     for (let i = 0; i < newMedications.length; i++) {
   //       const item = await Items.findOne({
-  //         name: filteredMedications[i].itemName,
+  //         name: newMedications[i].itemName,
   //       });
 
   //       //   console.log('Item : ', item);
@@ -490,12 +479,12 @@ exports.updateCareStream = asyncHandler(async (req, res, next) => {
   //           itemId: item._id,
   //           itemType: item.medClass.toLowerCase(),
   //           itemName: item.name,
-  //           requestedQty: req.body.data.medications[i].requestedQty,
+  //           requestedQty: req.body.data.medications.data[i].requestedQty,
   //           priority: '',
   //           schedule: '',
-  //           dosage: req.body.data.medications[i].dosage,
-  //           frequency: req.body.data.medications[i].frequency,
-  //           duration: req.body.data.medications[i].duration,
+  //           dosage: req.body.data.medications.data[i].dosage,
+  //           frequency: req.body.data.medications.data[i].frequency,
+  //           duration: req.body.data.medications.data[i].duration,
   //           form: '',
   //           size: '',
   //           make_model: '',
@@ -525,13 +514,12 @@ exports.updateCareStream = asyncHandler(async (req, res, next) => {
     {
       $set: {
         'careStream.$.investigations.data': req.body.data.investigations.data,
-        // 'careStream.$.precautions.data': req.body.data.precautions,
-        // 'careStream.$.treatmentOrders.data': req.body.data.treatmentOrders,
-        // 'careStream.$.fluidsIV.data': req.body.data.fluidsIV,
-        // 'careStream.$.medications.data': req.body.data.medications,
-        // 'careStream.$.mdNotification.data': req.body.data.mdNotification,
-        // 'careStream.$.reassessments.data': req.body.data.reassessments,
-        // careStream: careStream,
+        'careStream.$.precautions.data': req.body.data.precautions.data,
+        'careStream.$.treatmentOrders.data': req.body.data.treatmentOrders.data,
+        'careStream.$.fluidsIV.data': req.body.data.fluidsIV.data,
+        'careStream.$.medications.data': req.body.data.medications.data,
+        'careStream.$.mdNotification.data': req.body.data.mdNotification.data,
+        'careStream.$.reassessments.data': req.body.data.reassessments.data,
       },
     }
   );

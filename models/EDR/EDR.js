@@ -63,6 +63,10 @@ const edrSchema = new mongoose.Schema({
             name: String,
             selected: Boolean,
             testType: String,
+            completed: {
+              type: Boolean,
+              default: false,
+            },
           },
         ],
         status: {

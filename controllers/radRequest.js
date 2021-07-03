@@ -299,6 +299,35 @@ exports.updateRadRequest = asyncHandler(async (req, res, next) => {
       { new: true }
     ).populate('radRequest.serviceId');
 
+    const test = await EDR.aggregate([
+      {
+        $project: {
+          _id: 1,
+          radRequest: 1,
+        },
+      },
+      {
+        $unwind: '$radRequest',
+      },
+      {
+        $match: {
+          $and: [
+            { _id: mongoose.Types.ObjectId(parsed.edrId) },
+            { 'radRequest._id': mongoose.Types.ObjectId(parsed.radId) },
+          ],
+        },
+      },
+    ]);
+    if (test[0].radRequest.reqFromCareStream === true) {
+      await EDR.findOneAndUpdate(
+        {
+          _id: parsed.edrId,
+          'careStream.investigations.data._id': test[0].radRequest.radTestId,
+        },
+        { $set: { 'careStream.investigations.data.$.completed': true } }
+      );
+    }
+
     // Preventing from raising flag if task is completed
     await CronFlag.findOneAndUpdate(
       { requestId: parsed.radId, taskName: 'Rad Result Delay' },
