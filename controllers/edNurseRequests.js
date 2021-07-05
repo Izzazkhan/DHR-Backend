@@ -483,23 +483,15 @@ exports.completedEDNurseEdrRequest = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateMedicationStatus = asyncHandler(async (req, res, next) => {
-  const edrMedication = await EDR.findOne({ _id: req.body.edrId });
-
-  let request;
-  for (let i = 0; i < edrMedication.pharmacyRequest.length; i++) {
-    if (edrMedication.pharmacyRequest[i]._id == req.body.requestId) {
-      request = i;
-    }
-  }
-
   let updatedRequest;
   if (req.body.status === 'delivered') {
     updatedRequest = await EDR.findOneAndUpdate(
-      { _id: req.body.edrId },
+      { _id: req.body.edrId, 'pharmacyRequest._id': req.body.requestId },
       {
         $set: {
-          [`pharmacyRequest.${request}.status`]: req.body.status,
-          [`pharmacyRequest.${request}.deliveredTime`]: Date.now(),
+          [`pharmacyRequest.$.status`]: req.body.status,
+          [`pharmacyRequest.$.deliveredTime`]: Date.now(),
+          [`pharmacyRequest.$.markDeliveredBy`]: req.body.nurseId,
         },
       },
       { new: true }
@@ -515,6 +507,9 @@ exports.updateMedicationStatus = asyncHandler(async (req, res, next) => {
     );
 
     const patientTreatmentsPending = await EDR.aggregate([
+      {
+        $match: { status: 'pending' },
+      },
       {
         $project: {
           pharmacyRequest: 1,
@@ -581,16 +576,17 @@ exports.updateMedicationStatus = asyncHandler(async (req, res, next) => {
 
   if (req.body.status === 'closed') {
     updatedRequest = await EDR.findOneAndUpdate(
-      { _id: req.body.edrId },
+      { _id: req.body.edrId, 'pharmacyRequest._id': req.body.requestId },
       {
         $set: {
-          [`pharmacyRequest.${request}.status`]: req.body.status,
-          [`pharmacyRequest.${request}.completedTime`]: Date.now(),
+          [`pharmacyRequest.$.status`]: req.body.status,
+          [`pharmacyRequest.$.completedTime`]: Date.now(),
+          [`pharmacyRequest.$.completedBy`]: req.body.nurseId,
         },
       },
       { new: true }
     )
-      .select('patientId pharmacyRequest')
+      .select('patientId pharmacyRequest careStream')
       .populate('patientId', 'Identifier');
 
     const latestCC = updatedRequest.careStream.length - 1;
@@ -629,13 +625,16 @@ exports.updateMedicationStatus = asyncHandler(async (req, res, next) => {
             [`careStream.${latestCC}.medications.data.$.completed`]: true,
             [`careStream.${latestCC}.medications.data.$.completedAt`]: Date.now(),
             [`careStream.${latestCC}.medications.data.$.completedBy`]: req.body
-              .staffId,
+              .nurseId,
           },
         }
       );
     }
 
     const patientTreatmentsPending = await EDR.aggregate([
+      {
+        $match: { status: 'pending' },
+      },
       {
         $project: {
           pharmacyRequest: 1,

@@ -1193,7 +1193,8 @@ const edrSchema = new mongoose.Schema({
       completedTime: {
         type: Date,
       },
-
+      markDeliveredBy: { type: mongoose.Schema.ObjectId, ref: 'staff' },
+      completedBy: { type: mongoose.Schema.ObjectId, ref: 'staff' },
       createdAt: {
         type: Date,
         default: Date.now,
