@@ -226,7 +226,7 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
         'careStream.$.reassessments.data': req.body.data.reassessments,
       },
     }
-  );
+  ).populate('careStream.careStreamId', 'identifier');
 
   const pharmacyRequest = edrCheck[0].pharmacyRequest;
   const filteredMedications = req.body.data.medications.filter(
