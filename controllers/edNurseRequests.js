@@ -208,6 +208,7 @@ exports.getRad = asyncHandler(async (req, res, next) => {
 
 exports.getPharmacy = asyncHandler(async (req, res, next) => {
   const pharmacyRequest = await EDR.find({
+    status: 'pending',
     pharmacyRequest: { $ne: [] },
   })
     .select('patientId pharmacyRequest chiefComplaint careStream doctorNotes')
@@ -250,6 +251,7 @@ exports.getPharmacy = asyncHandler(async (req, res, next) => {
 
 exports.searchGetPharmacy = asyncHandler(async (req, res, next) => {
   const patients = await EDR.find({
+    status: 'pending',
     pharmacyRequest: { $ne: [] },
   })
     .select('patientId')

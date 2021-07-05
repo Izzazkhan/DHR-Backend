@@ -205,16 +205,9 @@ exports.searchCompletedLabEdr = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateLabRequest = asyncHandler(async (req, res, next) => {
-  //   console.log(req.files);
-  const parsed = JSON.parse(req.body.data);
-  //   const parsed = req.body;
-  const lab = await EDR.findOne({ _id: parsed.edrId });
-  let note;
-  for (let i = 0; i < lab.labRequest.length; i++) {
-    if (lab.labRequest[i]._id == parsed.labId) {
-      note = i;
-    }
-  }
+  //   const parsed = JSON.parse(req.body.data);
+  const parsed = req.body;
+
   const arr = [];
   if (req.files) {
     for (let i = 0; i < req.files.length; i++) {
@@ -228,22 +221,22 @@ exports.updateLabRequest = asyncHandler(async (req, res, next) => {
     reason: parsed.reason,
   };
   await EDR.findOneAndUpdate(
-    { _id: parsed.edrId },
-    { $push: { [`labRequest.${note}.updateRecord`]: updateRecord } },
+    { _id: parsed.edrId, 'labRequest._id': parsed.labId },
+    { $push: { [`labRequest.$.updateRecord`]: updateRecord } },
     { new: true }
   );
 
   const updatedlab = await EDR.findOneAndUpdate(
-    { _id: parsed.edrId },
+    { _id: parsed.edrId, 'labRequest._id': parsed.labId },
     {
       $set: {
-        [`labRequest.${note}.status`]: parsed.status,
-        [`labRequest.${note}.delayedReason`]: parsed.delayedReason,
-        [`labRequest.${note}.completedBy`]: parsed.staffId,
-        [`labRequest.${note}.activeTime`]: parsed.activeTime,
-        [`labRequest.${note}.completeTime`]: parsed.completeTime,
-        [`labRequest.${note}.holdTime`]: parsed.holdTime,
-        [`labRequest.${note}.image`]: arr,
+        [`labRequest.$.status`]: parsed.status,
+        [`labRequest.$.delayedReason`]: parsed.delayedReason,
+        [`labRequest.$.completedBy`]: parsed.staffId,
+        [`labRequest.$.activeTime`]: parsed.activeTime,
+        [`labRequest.$.completeTime`]: parsed.completeTime,
+        [`labRequest.$.holdTime`]: parsed.holdTime,
+        [`labRequest.$.image`]: arr,
       },
     },
     { new: true }
