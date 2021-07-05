@@ -229,6 +229,8 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
         requestedBy: req.body.data.staffId,
         reconciliationNotes: [],
         generatedFrom: 'CareStream Request',
+        careStreamId: req.body.data.careStreamId,
+        pharmacyCSId: filteredMedications[i]._id,
         item: {
           itemId: item._id,
           itemType: item.medClass.toLowerCase(),

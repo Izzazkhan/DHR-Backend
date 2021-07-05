@@ -205,8 +205,9 @@ exports.searchCompletedLabEdr = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateLabRequest = asyncHandler(async (req, res, next) => {
-  console.log(req.files);
+  //   console.log(req.files);
   const parsed = JSON.parse(req.body.data);
+  //   const parsed = req.body;
   const lab = await EDR.findOne({ _id: parsed.edrId });
   let note;
   for (let i = 0; i < lab.labRequest.length; i++) {
@@ -220,8 +221,6 @@ exports.updateLabRequest = asyncHandler(async (req, res, next) => {
       arr.push(req.files[i].path);
     }
   }
-
-  // console.log(arr);
 
   const updateRecord = {
     updatedAt: Date.now(),
@@ -280,8 +279,14 @@ exports.updateLabRequest = asyncHandler(async (req, res, next) => {
       { $set: { status: 'completed' } },
       { new: true }
     );
+    const latestCC = updatedlab.careStream.length - 1;
 
     const test = await EDR.aggregate([
+      {
+        $match: {
+          _id: mongoose.Types.ObjectId(req.body.edrId),
+        },
+      },
       {
         $project: {
           _id: 1,
@@ -293,20 +298,26 @@ exports.updateLabRequest = asyncHandler(async (req, res, next) => {
       },
       {
         $match: {
-          $and: [
-            { _id: mongoose.Types.ObjectId(parsed.edrId) },
-            { 'labRequest._id': mongoose.Types.ObjectId(parsed.labId) },
-          ],
+          'labRequest._id': mongoose.Types.ObjectId(parsed.labId),
         },
       },
     ]);
+
+    // Completing CareStream Lab Test
     if (test[0].labRequest.reqFromCareStream === true) {
       await EDR.findOneAndUpdate(
         {
           _id: parsed.edrId,
-          'careStream.investigations.data._id': test[0].labRequest.labTestId,
+          [`careStream.${latestCC}.investigations.data._id`]: test[0].labRequest
+            .labTestId,
         },
-        { $set: { 'careStream.investigations.data.$.completed': true } }
+        {
+          $set: {
+            [`careStream.${latestCC}.investigations.data.$.completed`]: true,
+            [`careStream.${latestCC}.investigations.data.$.completedAt`]: Date.now(),
+            [`careStream.${latestCC}.investigations.data.$.completedBy`]: parsed.staffId,
+          },
+        }
       );
     }
     Notification(
