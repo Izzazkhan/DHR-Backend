@@ -204,6 +204,32 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     status: 'in_progress',
   };
 
+  const assignedCareStream = await EDR.findOneAndUpdate(
+    { _id: req.body.data.edrId },
+    { $push: { careStream } },
+    { new: true }
+  ).populate('careStream.careStreamId', 'identifier');
+
+  await EDR.findOneAndUpdate(
+    {
+      _id: req.body.data.edrId,
+      'careStream._id':
+        assignedCareStream.careStream[assignedCareStream.careStream.length - 1]
+          ._id,
+    },
+    {
+      $push: {
+        'careStream.$.investigations.data': req.body.data.investigations,
+        'careStream.$.precautions.data': req.body.data.precautions,
+        'careStream.$.treatmentOrders.data': req.body.data.treatmentOrders,
+        'careStream.$.fluidsIV.data': req.body.data.fluidsIV,
+        'careStream.$.medications.data': req.body.data.medications,
+        'careStream.$.mdNotification.data': req.body.data.mdNotification,
+        'careStream.$.reassessments.data': req.body.data.reassessments,
+      },
+    }
+  );
+
   const pharmacyRequest = edrCheck[0].pharmacyRequest;
   const filteredMedications = req.body.data.medications.filter(
     (t) => t.selected === true
@@ -283,32 +309,6 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     );
   }
 
-  const assignedCareStream = await EDR.findOneAndUpdate(
-    { _id: req.body.data.edrId },
-    { $push: { careStream } },
-    { new: true }
-  ).populate('careStream.careStreamId', 'identifier');
-
-  await EDR.findOneAndUpdate(
-    {
-      _id: req.body.data.edrId,
-      'careStream._id':
-        assignedCareStream.careStream[assignedCareStream.careStream.length - 1]
-          ._id,
-    },
-    {
-      $push: {
-        'careStream.$.investigations.data': req.body.data.investigations,
-        'careStream.$.precautions.data': req.body.data.precautions,
-        'careStream.$.treatmentOrders.data': req.body.data.treatmentOrders,
-        'careStream.$.fluidsIV.data': req.body.data.fluidsIV,
-        'careStream.$.medications.data': req.body.data.medications,
-        'careStream.$.mdNotification.data': req.body.data.mdNotification,
-        'careStream.$.reassessments.data': req.body.data.reassessments,
-      },
-    }
-  );
-
   // * Assigning tests
   if (req.body.data.investigations) {
     const { investigations } = req.body.data;
@@ -345,81 +345,81 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     }
   }
 
-  //   const decisionPending = await EDR.find({
-  //     careStream: { $eq: [] },
-  //     doctorNotes: { $ne: [] },
-  //   });
+  const decisionPending = await EDR.find({
+    careStream: { $eq: [] },
+    doctorNotes: { $ne: [] },
+  });
 
-  //   if (decisionPending.length > 5) {
-  //     await Flag.create({
-  //       edrId: req.body.data.edrId,
-  //       generatedFrom: 'Sensei',
-  //       card: '4th',
-  //       generatedFor: ['Sensei', 'Medical Director'],
-  //       reason: 'Patients pending for Doctor Decisions',
-  //       createdAt: Date.now(),
-  //     });
-  //     const flags = await Flag.find({
-  //       generatedFrom: 'Sensei',
-  //       status: 'pending',
-  //     });
-  //     globalVariable.io.emit('pendingSensei', flags);
-  //   }
+  if (decisionPending.length > 5) {
+    await Flag.create({
+      edrId: req.body.data.edrId,
+      generatedFrom: 'Sensei',
+      card: '4th',
+      generatedFor: ['Sensei', 'Medical Director'],
+      reason: 'Patients pending for Doctor Decisions',
+      createdAt: Date.now(),
+    });
+    const flags = await Flag.find({
+      generatedFrom: 'Sensei',
+      status: 'pending',
+    });
+    globalVariable.io.emit('pendingSensei', flags);
+  }
 
-  //   if (decisionPending.length > 6) {
-  //     await Flag.create({
-  //       edrId: req.body.data.edrId,
-  //       generatedFrom: 'ED Doctor',
-  //       card: '2nd',
-  //       generatedFor: ['ED Doctor', 'Medical Director'],
-  //       reason: 'Patients pending for Doctor Decisions',
-  //       createdAt: Date.now(),
-  //     });
-  //     const flags = await Flag.find({
-  //       generatedFrom: ['ED Doctor', 'Medical Director'],
-  //       status: 'pending',
-  //     });
-  //     globalVariable.io.emit('pendingDoctor', flags);
-  //   }
+  if (decisionPending.length > 6) {
+    await Flag.create({
+      edrId: req.body.data.edrId,
+      generatedFrom: 'ED Doctor',
+      card: '2nd',
+      generatedFor: ['ED Doctor', 'Medical Director'],
+      reason: 'Patients pending for Doctor Decisions',
+      createdAt: Date.now(),
+    });
+    const flags = await Flag.find({
+      generatedFrom: ['ED Doctor', 'Medical Director'],
+      status: 'pending',
+    });
+    globalVariable.io.emit('pendingDoctor', flags);
+  }
 
-  //   const currentStaff = await Staff.findById(req.body.data.staffId).select(
-  //     'staffType'
-  //   );
+  const currentStaff = await Staff.findById(req.body.data.staffId).select(
+    'staffType'
+  );
 
-  //   if (currentStaff.staffType === 'Paramedics') {
-  //     Notification(
-  //       'Patient Details',
-  //       'Patient Details',
-  //       'Sensei',
-  //       'Paramedics',
-  //       '/dashboard/home/pendingregistration',
-  //       req.body.data.edrId,
-  //       '',
-  //       ''
-  //     );
-  //   }
+  if (currentStaff.staffType === 'Paramedics') {
+    Notification(
+      'Patient Details',
+      'Patient Details',
+      'Sensei',
+      'Paramedics',
+      '/dashboard/home/pendingregistration',
+      req.body.data.edrId,
+      '',
+      ''
+    );
+  }
 
-  //   Notification(
-  //     'careStream Assigned',
-  //     'careStream Assigned',
-  //     'Nurses',
-  //     'CareStream',
-  //     '/dashboard/home/notes',
-  //     req.body.data.edrId,
-  //     '',
-  //     'ED Nurse'
-  //   );
+  Notification(
+    'careStream Assigned',
+    'careStream Assigned',
+    'Nurses',
+    'CareStream',
+    '/dashboard/home/notes',
+    req.body.data.edrId,
+    '',
+    'ED Nurse'
+  );
 
-  //   Notification(
-  //     'careStream Assigned',
-  //     'Doctor assigned CareStream',
-  //     'Doctor',
-  //     'CareStream Assigned',
-  //     '/dashboard/home/notes',
-  //     req.body.data.edrId,
-  //     '',
-  //     'Rad Doctor'
-  //   );
+  Notification(
+    'careStream Assigned',
+    'Doctor assigned CareStream',
+    'Doctor',
+    'CareStream Assigned',
+    '/dashboard/home/notes',
+    req.body.data.edrId,
+    '',
+    'Rad Doctor'
+  );
 
   res.status(200).json({
     success: true,
