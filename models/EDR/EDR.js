@@ -219,6 +219,7 @@ const edrSchema = new mongoose.Schema({
               type: mongoose.Schema.ObjectId,
               ref: 'staff',
             },
+            selected: Boolean,
           },
         ],
         status: {

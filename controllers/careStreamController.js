@@ -204,18 +204,16 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     status: 'in_progress',
   };
 
-  const assignedCareStream = await EDR.findOneAndUpdate(
+  const edrCS = await EDR.findOneAndUpdate(
     { _id: req.body.data.edrId },
     { $push: { careStream } },
     { new: true }
   ).populate('careStream.careStreamId', 'identifier');
 
-  await EDR.findOneAndUpdate(
+  const assignedCareStream = await EDR.findOneAndUpdate(
     {
       _id: req.body.data.edrId,
-      'careStream._id':
-        assignedCareStream.careStream[assignedCareStream.careStream.length - 1]
-          ._id,
+      'careStream._id': edrCS.careStream[edrCS.careStream.length - 1]._id,
     },
     {
       $push: {
