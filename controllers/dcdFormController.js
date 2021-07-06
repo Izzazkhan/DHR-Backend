@@ -57,7 +57,7 @@ exports.addTriageAssessment = asyncHandler(async (req, res, next) => {
     doctors.forEach((doctor) => {
       Notification(
         'MD Notification',
-        'MD Notification for Heart Rate',
+        'MD Notification for SBP',
         '',
         'MD Notifications',
         '/dashboard/home/notes',
