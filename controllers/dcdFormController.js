@@ -53,19 +53,20 @@ exports.addTriageAssessment = asyncHandler(async (req, res, next) => {
   const hr = parseInt(req.body.data.heartRate, 10);
 
   if (hr < 60 || hr > 120) {
-	   doctors.forEach((doctor) => {
-    Notification(
-      'MD Notification',
-      'MD Notification for Heart Rate',
-      '',
-      'MD Notifications',
-      '/dashboard/home/notes',
-     req.body.data.edrId,
-      '',
-      '',
-	  doctor._id
-    );
- });
+    doctors.forEach((doctor) => {
+      Notification(
+        'MD Notification',
+        'MD Notification for Heart Rate',
+        '',
+        'MD Notifications',
+        '/dashboard/home/notes',
+        req.body.data.edrId,
+        '',
+        '',
+        doctor._id
+      );
+    });
+  }
 
   const edr = await EDR.findOne({ _id: req.body.data.edrId }).populate(
     'dcdForm'
