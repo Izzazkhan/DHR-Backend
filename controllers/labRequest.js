@@ -277,7 +277,7 @@ exports.updateLabRequest = asyncHandler(async (req, res, next) => {
     const test = await EDR.aggregate([
       {
         $match: {
-          _id: mongoose.Types.ObjectId(req.body.edrId),
+          _id: mongoose.Types.ObjectId(parsed.edrId),
         },
       },
       {
@@ -297,11 +297,11 @@ exports.updateLabRequest = asyncHandler(async (req, res, next) => {
     ]);
 
     // Completing CareStream Lab Test
-    if (test.labRequest.reqFromCareStream === true) {
+    if (test[0].labRequest.reqFromCareStream === true) {
       await EDR.findOneAndUpdate(
         {
           _id: parsed.edrId,
-          [`careStream.${latestCC}.investigations.data._id`]: test.labRequest
+          [`careStream.${latestCC}.investigations.data._id`]: test[0].labRequest
             .labTestId,
         },
         {
