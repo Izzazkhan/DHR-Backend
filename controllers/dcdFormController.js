@@ -32,7 +32,7 @@ exports.addTriageAssessment = asyncHandler(async (req, res, next) => {
     triageTime: Date.now(),
   };
 
-  //   MD Notifications For Heart Rate
+  //   MD Notifications
   const edrPA = await EDR.findById(req.body.data.edrId).select(
     'chiefComplaint'
   );
@@ -49,6 +49,27 @@ exports.addTriageAssessment = asyncHandler(async (req, res, next) => {
     shift: nurseShift.shift,
     'chiefComplaint.chiefComplaintId': chiefComplaintId,
   });
+
+  //   SBP Md Notifications
+  const SBP = parseInt(req.body.data.bloodPressureSys, 10);
+
+  if (SBP < 90 || SBP > 30) {
+    doctors.forEach((doctor) => {
+      Notification(
+        'MD Notification',
+        'MD Notification for Heart Rate',
+        '',
+        'MD Notifications',
+        '/dashboard/home/notes',
+        req.body.data.edrId,
+        '',
+        '',
+        doctor._id
+      );
+    });
+  }
+
+  // HR Md Notifications
 
   const hr = parseInt(req.body.data.heartRate, 10);
 
