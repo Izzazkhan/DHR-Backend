@@ -205,8 +205,8 @@ exports.searchCompletedLabEdr = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateLabRequest = asyncHandler(async (req, res, next) => {
-  //   const parsed = JSON.parse(req.body.data);
-  const parsed = req.body;
+  const parsed = JSON.parse(req.body.data);
+  //   const parsed = req.body;
 
   const arr = [];
   if (req.files) {
@@ -297,11 +297,11 @@ exports.updateLabRequest = asyncHandler(async (req, res, next) => {
     ]);
 
     // Completing CareStream Lab Test
-    if (test[0].labRequest.reqFromCareStream === true) {
+    if (test.labRequest.reqFromCareStream === true) {
       await EDR.findOneAndUpdate(
         {
           _id: parsed.edrId,
-          [`careStream.${latestCC}.investigations.data._id`]: test[0].labRequest
+          [`careStream.${latestCC}.investigations.data._id`]: test.labRequest
             .labTestId,
         },
         {
