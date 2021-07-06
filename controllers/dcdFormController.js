@@ -9,6 +9,7 @@ const CronFlag = require('../models/CronFlag');
 
 exports.addTriageAssessment = asyncHandler(async (req, res, next) => {
   const triageRequestNo = generateReqNo('TA');
+
   const triage = {
     triageRequestNo,
     requester: req.body.data.staffId,
@@ -30,6 +31,42 @@ exports.addTriageAssessment = asyncHandler(async (req, res, next) => {
     patientId: req.body.data.patientId,
     triageTime: Date.now(),
   };
+
+  //   MD Notifications For Heart Rate
+  const edrPA = await EDR.findById(req.body.data.edrId).select(
+    'chiefComplaint'
+  );
+  const latestCC = edrPA.chiefComplaint.length - 1;
+  const chiefComplaintId = edrPA.chiefComplaint[latestCC].chiefComplaintId._id;
+
+  const nurseShift = await Staff.findById(req.body.data.staffId).select(
+    'shift'
+  );
+
+  const doctors = await Staff.find({
+    staffType: 'Doctor',
+    subType: 'ED Doctor',
+    shift: nurseShift.shift,
+    'chiefComplaint.chiefComplaintId': chiefComplaintId,
+  });
+
+  const hr = parseInt(req.body.data.heartRate, 10);
+
+  if (hr < 60 || hr > 120) {
+	   doctors.forEach((doctor) => {
+    Notification(
+      'MD Notification',
+      'MD Notification for Heart Rate',
+      '',
+      'MD Notifications',
+      '/dashboard/home/notes',
+     req.body.data.edrId,
+      '',
+      '',
+	  doctor._id
+    );
+ });
+
   const edr = await EDR.findOne({ _id: req.body.data.edrId }).populate(
     'dcdForm'
   );
