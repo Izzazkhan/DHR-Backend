@@ -448,6 +448,11 @@ exports.completeRequest = asyncHandler(async (req, res, next) => {
 exports.completedEDNurseEdrRequest = asyncHandler(async (req, res, next) => {
   const unwindEdr = await EDR.aggregate([
     {
+      $match: {
+        status: 'pending',
+      },
+    },
+    {
       $project: {
         _id: 1,
         edNurseRequest: 1,
@@ -632,6 +637,18 @@ exports.updateMedicationStatus = asyncHandler(async (req, res, next) => {
         }
       );
     }
+
+    // * Flags
+
+    // Preventing from raising flag if task is completed
+    await CronFlag.findOneAndUpdate(
+      {
+        requestId: req.body.pharmacyRequest,
+        taskName: req.body.itemName,
+      },
+      { $set: { status: 'completed' } },
+      { new: true }
+    );
 
     const patientTreatmentsPending = await EDR.aggregate([
       {
