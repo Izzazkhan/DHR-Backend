@@ -228,84 +228,82 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     }
   ).populate('careStream.careStreamId', 'identifier');
 
-  //   const pharmacyRequest = edrCheck[0].pharmacyRequest;
-  //   const filteredMedications = req.body.data.medications.filter(
-  //     (t) => t.selected === true
-  //   );
+  const pharmacyRequest = edrCheck[0].pharmacyRequest;
+  const filteredMedications = req.body.data.medications.filter(
+    (t) => t.selected === true
+  );
 
-  //   const filteredFluids = req.body.data.fluidsIV.filter(
-  //     (t) => t.selected === true
-  //   );
+  const filteredFluids = req.body.data.fluidsIV.filter(
+    (t) => t.selected === true
+  );
 
-  //   const filteredItem = [...filteredMedications, ...filteredFluids];
+  const filteredItem = [...filteredMedications, ...filteredFluids];
 
-  //   if (filteredMedications.length > 0) {
-  //     for (let i = 0; i < filteredMedications.length; i++) {
-  //       const item = await Items.findOne({
-  //         name: filteredMedications[i].itemName,
-  //       });
+  if (filteredItem.length > 0) {
+    for (let i = 0; i < filteredItem.length; i++) {
+      const item = await Items.findOne({
+        name: filteredItem[i].itemName,
+      });
 
-  //       //   console.log('Item : ', item);
-  //       const pharmacyRequestNo = generateReqNo('PHR');
+      const pharmacyRequestNo = generateReqNo('PHR');
+      const pharmaObj = {
+        pharmacyRequestNo,
+        requestedBy: req.body.data.staffId,
+        reconciliationNotes: [],
+        generatedFrom: 'CareStream Request',
+        careStreamId: req.body.data.careStreamId,
+        pharmacyCSId: filteredItem[i]._id,
+        item: {
+          itemId: item._id,
+          itemType: item.medClass.toLowerCase(),
+          itemName: item.name,
+          requestedQty: filteredItem[i].requestedQty,
+          priority: '',
+          schedule: '',
+          dosage: filteredItem[i].dosage,
+          frequency: filteredItem[i].frequency,
+          duration: filteredItem[i].duration,
+          form: '',
+          size: '',
+          make_model: '',
+          additionalNotes: '',
+        },
+        status: 'pending',
+        secondStatus: 'pending',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      pharmacyRequest.push(pharmaObj);
+    }
 
-  //       const pharmaObj = {
-  //         pharmacyRequestNo,
-  //         requestedBy: req.body.data.staffId,
-  //         reconciliationNotes: [],
-  //         generatedFrom: 'CareStream Request',
-  //         careStreamId: req.body.data.careStreamId,
-  //         pharmacyCSId: filteredMedications[i]._id,
-  //         item: {
-  //           itemId: item._id,
-  //           itemType: item.medClass.toLowerCase(),
-  //           itemName: item.name,
-  //           requestedQty: req.body.data.medications[i].requestedQty,
-  //           priority: '',
-  //           schedule: '',
-  //           dosage: req.body.data.medications[i].dosage,
-  //           frequency: req.body.data.medications[i].frequency,
-  //           duration: req.body.data.medications[i].duration,
-  //           form: '',
-  //           size: '',
-  //           make_model: '',
-  //           additionalNotes: '',
-  //         },
-  //         status: 'pending',
-  //         secondStatus: 'pending',
-  //         createdAt: new Date(),
-  //         updatedAt: new Date(),
-  //       };
-  //       pharmacyRequest.push(pharmaObj);
-  //     }
+    await EDR.findOneAndUpdate(
+      { _id: req.body.data.edrId },
+      { $push: { pharmacyRequest: pharmacyRequest } },
+      { new: true }
+    );
+    //     Notification(
+    //       'Medication',
+    //       'Medication Of CareStream',
+    //       'Nurses',
+    //       'Pharmacist',
+    //       '/dashboard/home/patientmanagement/viewrequests/pharma/viewpharma',
+    //       req.body.data.edrId,
+    //       '',
+    //       'ED Nurse'
+    //     );
 
-  //     await EDR.findOneAndUpdate(
-  //       { _id: req.body.data.edrId },
-  //       { $push: { pharmacyRequest: pharmacyRequest } },
-  //       { new: true }
-  //     );
-  //     Notification(
-  //       'Medication',
-  //       'Medication Of CareStream',
-  //       'Nurses',
-  //       'Pharmacist',
-  //       '/dashboard/home/patientmanagement/viewrequests/pharma/viewpharma',
-  //       req.body.data.edrId,
-  //       '',
-  //       'ED Nurse'
-  //     );
-
-  //     // Clinical Pharmacist
-  //     Notification(
-  //       'Care Stream Medication Request',
-  //       'Care Stream Medication Request',
-  //       'Clinical Pharmacist',
-  //       'CareStream Assigned',
-  //       '/dashboard/home/pharmanotes',
-  //       req.body.edrId,
-  //       '',
-  //       ''
-  //     );
-  //   }
+    //     // Clinical Pharmacist
+    //     Notification(
+    //       'Care Stream Medication Request',
+    //       'Care Stream Medication Request',
+    //       'Clinical Pharmacist',
+    //       'CareStream Assigned',
+    //       '/dashboard/home/pharmanotes',
+    //       req.body.edrId,
+    //       '',
+    //       ''
+    //     );
+  }
 
   //   // * Assigning tests
   //   if (req.body.data.investigations) {
@@ -461,50 +459,107 @@ exports.updateCareStream = asyncHandler(async (req, res, next) => {
     }
   }
 
-  //   if (newMedications.length > 0) {
-  //     for (let i = 0; i < newMedications.length; i++) {
-  //       const item = await Items.findOne({
-  //         name: newMedications[i].itemName,
-  //       });
+  if (newMedications.length > 0) {
+    for (let i = 0; i < newMedications.length; i++) {
+      const item = await Items.findOne({
+        name: newMedications[i].itemName,
+      });
 
-  //       //   console.log('Item : ', item);
-  //       const pharmacyRequestNo = generateReqNo('PHR');
+      const pharmacyRequestNo = generateReqNo('PHR');
+      const pharmaObj = {
+        pharmacyRequestNo,
+        requestedBy: req.body.data.staffId,
+        reconciliationNotes: [],
+        generatedFrom: 'CareStream Request',
+        item: {
+          itemId: item._id,
+          itemType: item.medClass.toLowerCase(),
+          itemName: item.name,
+          requestedQty: medications.data[i].requestedQty,
+          priority: '',
+          schedule: '',
+          dosage: medications.data[i].dosage,
+          frequency: medications.data[i].frequency,
+          duration: medications.data[i].duration,
+          form: '',
+          size: '',
+          make_model: '',
+          additionalNotes: '',
+        },
+        status: 'pending',
+        secondStatus: 'pending',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      pharmacyRequest.push(pharmaObj);
+    }
 
-  //       const pharmaObj = {
-  //         pharmacyRequestNo,
-  //         requestedBy: req.body.data.staffId,
-  //         reconciliationNotes: [],
-  //         generatedFrom: 'CareStream Request',
-  //         item: {
-  //           itemId: item._id,
-  //           itemType: item.medClass.toLowerCase(),
-  //           itemName: item.name,
-  //           requestedQty: req.body.data.medications.data[i].requestedQty,
-  //           priority: '',
-  //           schedule: '',
-  //           dosage: req.body.data.medications.data[i].dosage,
-  //           frequency: req.body.data.medications.data[i].frequency,
-  //           duration: req.body.data.medications.data[i].duration,
-  //           form: '',
-  //           size: '',
-  //           make_model: '',
-  //           additionalNotes: '',
-  //         },
-  //         status: 'pending',
-  //         secondStatus: 'pending',
-  //         createdAt: new Date(),
-  //         updatedAt: new Date(),
-  //       };
-  //       pharmacyRequest.push(pharmaObj);
-  //     }
 
-  //     await EDR.findOneAndUpdate(
-  //       { _id: req.body.data.edrId },
-  //       { $push: { pharmacyRequest: pharmacyRequest } },
-  //       { new: true }
-  //     );
 
-  //   }
+    await EDR.findOneAndUpdate(
+      { _id: req.body.data.edrId },
+      { $push: { pharmacyRequest: pharmacyRequest } },
+      { new: true }
+    );
+
+  }
+
+  const newfluidsIV = [];
+  const CSFluids = CSData.careStream[0].fluidsIV.data;
+  for (let i = 0; i < fluidsIV.data.length; i++) {
+    for (let j = 0; j < CSFluids.length; j++) {
+      if (fluidsIV.data[i]._id === CSFluids[j]._id) {
+        if (
+          fluidsIV.data[i].selected === true &&
+          CSFluids[j].selected === false
+        ) {
+          newfluidsIV.push(investigations.data[i]);
+        }
+      }
+    }
+  }
+
+  if (newfluidsIV.length > 0) {
+    for (let i = 0; i < newfluidsIV.length; i++) {
+      const item = await Items.findOne({
+        name: newfluidsIV[i].itemName,
+      });
+
+      const pharmacyRequestNo = generateReqNo('PHR');
+      const pharmaObj = {
+        pharmacyRequestNo,
+        requestedBy: req.body.data.staffId,
+        reconciliationNotes: [],
+        generatedFrom: 'CareStream Request',
+        item: {
+          itemId: item._id,
+          itemType: item.medClass.toLowerCase(),
+          itemName: item.name,
+          requestedQty: fluidsIV.data[i].requestedQty,
+          priority: '',
+          schedule: '',
+          dosage: fluidsIV.data[i].dosage,
+          frequency: fluidsIV.data[i].frequency,
+          duration: fluidsIV.data[i].duration,
+          form: '',
+          size: '',
+          make_model: '',
+          additionalNotes: '',
+        },
+        status: 'pending',
+        secondStatus: 'pending',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      pharmacyRequest.push(pharmaObj);
+    }
+
+    await EDR.findOneAndUpdate(
+      { _id: req.body.data.edrId },
+      { $push: { pharmacyRequest: pharmacyRequest } },
+      { new: true }
+    );
+  }
 
   await EDR.findOneAndUpdate(
     {
