@@ -576,7 +576,7 @@ exports.updateCareStream = asyncHandler(async (req, res, next) => {
         'careStream.$.reassessments.data': req.body.data.reassessments.data,
       },
     }
-  );
+  ).populate('careStream.careStreamId', 'identifier');
 
   //   for (const test of tests) {
   //     if (test.testType === 'lab') {
