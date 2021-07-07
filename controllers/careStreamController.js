@@ -245,37 +245,38 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
         name: filteredItem[i].itemName,
       });
 
-      const pharmacyRequestNo = generateReqNo('PHR');
-      const pharmaObj = {
-        pharmacyRequestNo,
-        requestedBy: req.body.data.staffId,
-        reconciliationNotes: [],
-        generatedFrom: 'CareStream Request',
-        careStreamId: req.body.data.careStreamId,
-        pharmacyCSId: filteredItem[i]._id,
-        item: {
-          itemId: item._id,
-          itemType: item.medClass.toLowerCase(),
-          itemName: item.name,
-          requestedQty: filteredItem[i].requestedQty,
-          priority: '',
-          schedule: '',
-          dosage: filteredItem[i].dosage,
-          frequency: filteredItem[i].frequency,
-          duration: filteredItem[i].duration,
-          form: '',
-          size: '',
-          make_model: '',
-          additionalNotes: '',
-        },
-        status: 'pending',
-        secondStatus: 'pending',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-      pharmacyRequest.push(pharmaObj);
+      if (item) {
+        const pharmacyRequestNo = generateReqNo('PHR');
+        const pharmaObj = {
+          pharmacyRequestNo,
+          requestedBy: req.body.data.staffId,
+          reconciliationNotes: [],
+          generatedFrom: 'CareStream Request',
+          careStreamId: req.body.data.careStreamId,
+          pharmacyCSId: filteredItem[i]._id,
+          item: {
+            itemId: item._id,
+            itemType: item.medClass.toLowerCase(),
+            itemName: item.name,
+            requestedQty: filteredItem[i].requestedQty,
+            priority: '',
+            schedule: '',
+            dosage: filteredItem[i].dosage,
+            frequency: filteredItem[i].frequency,
+            duration: filteredItem[i].duration,
+            form: '',
+            size: '',
+            make_model: '',
+            additionalNotes: '',
+          },
+          status: 'pending',
+          secondStatus: 'pending',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+        pharmacyRequest.push(pharmaObj);
+      }
     }
-
     await EDR.findOneAndUpdate(
       { _id: req.body.data.edrId },
       { $push: { pharmacyRequest: pharmacyRequest } },
@@ -465,43 +466,41 @@ exports.updateCareStream = asyncHandler(async (req, res, next) => {
         name: newMedications[i].itemName,
       });
 
-      const pharmacyRequestNo = generateReqNo('PHR');
-      const pharmaObj = {
-        pharmacyRequestNo,
-        requestedBy: req.body.data.staffId,
-        reconciliationNotes: [],
-        generatedFrom: 'CareStream Request',
-        item: {
-          itemId: item._id,
-          itemType: item.medClass.toLowerCase(),
-          itemName: item.name,
-          requestedQty: medications.data[i].requestedQty,
-          priority: '',
-          schedule: '',
-          dosage: medications.data[i].dosage,
-          frequency: medications.data[i].frequency,
-          duration: medications.data[i].duration,
-          form: '',
-          size: '',
-          make_model: '',
-          additionalNotes: '',
-        },
-        status: 'pending',
-        secondStatus: 'pending',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-      pharmacyRequest.push(pharmaObj);
+      if (item) {
+        const pharmacyRequestNo = generateReqNo('PHR');
+        const pharmaObj = {
+          pharmacyRequestNo,
+          requestedBy: req.body.data.staffId,
+          reconciliationNotes: [],
+          generatedFrom: 'CareStream Request',
+          item: {
+            itemId: item._id,
+            itemType: item.medClass.toLowerCase(),
+            itemName: item.name,
+            requestedQty: medications.data[i].requestedQty,
+            priority: '',
+            schedule: '',
+            dosage: medications.data[i].dosage,
+            frequency: medications.data[i].frequency,
+            duration: medications.data[i].duration,
+            form: '',
+            size: '',
+            make_model: '',
+            additionalNotes: '',
+          },
+          status: 'pending',
+          secondStatus: 'pending',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+        pharmacyRequest.push(pharmaObj);
+      }
     }
-
-
-
     await EDR.findOneAndUpdate(
       { _id: req.body.data.edrId },
       { $push: { pharmacyRequest: pharmacyRequest } },
       { new: true }
     );
-
   }
 
   const newfluidsIV = [];
@@ -524,36 +523,36 @@ exports.updateCareStream = asyncHandler(async (req, res, next) => {
       const item = await Items.findOne({
         name: newfluidsIV[i].itemName,
       });
-
-      const pharmacyRequestNo = generateReqNo('PHR');
-      const pharmaObj = {
-        pharmacyRequestNo,
-        requestedBy: req.body.data.staffId,
-        reconciliationNotes: [],
-        generatedFrom: 'CareStream Request',
-        item: {
-          itemId: item._id,
-          itemType: item.medClass.toLowerCase(),
-          itemName: item.name,
-          requestedQty: fluidsIV.data[i].requestedQty,
-          priority: '',
-          schedule: '',
-          dosage: fluidsIV.data[i].dosage,
-          frequency: fluidsIV.data[i].frequency,
-          duration: fluidsIV.data[i].duration,
-          form: '',
-          size: '',
-          make_model: '',
-          additionalNotes: '',
-        },
-        status: 'pending',
-        secondStatus: 'pending',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-      pharmacyRequest.push(pharmaObj);
+      if (item) {
+        const pharmacyRequestNo = generateReqNo('PHR');
+        const pharmaObj = {
+          pharmacyRequestNo,
+          requestedBy: req.body.data.staffId,
+          reconciliationNotes: [],
+          generatedFrom: 'CareStream Request',
+          item: {
+            itemId: item._id,
+            itemType: item.medClass.toLowerCase(),
+            itemName: item.name,
+            requestedQty: fluidsIV.data[i].requestedQty,
+            priority: '',
+            schedule: '',
+            dosage: fluidsIV.data[i].dosage,
+            frequency: fluidsIV.data[i].frequency,
+            duration: fluidsIV.data[i].duration,
+            form: '',
+            size: '',
+            make_model: '',
+            additionalNotes: '',
+          },
+          status: 'pending',
+          secondStatus: 'pending',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+        pharmacyRequest.push(pharmaObj);
+      }
     }
-
     await EDR.findOneAndUpdate(
       { _id: req.body.data.edrId },
       { $push: { pharmacyRequest: pharmacyRequest } },
