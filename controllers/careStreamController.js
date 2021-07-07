@@ -560,7 +560,7 @@ exports.updateCareStream = asyncHandler(async (req, res, next) => {
     );
   }
 
-  await EDR.findOneAndUpdate(
+  const updatedCareStream = await EDR.findOneAndUpdate(
     {
       _id: req.body.data.edrId,
       'careStream._id': req.body.data.careStreamId,
@@ -605,6 +605,10 @@ exports.updateCareStream = asyncHandler(async (req, res, next) => {
   //       addRad(data);
   //     }
   //   }
+  res.status(200).json({
+    success: true,
+    data: updatedCareStream,
+  });
 });
 
 exports.getInProgressCS = asyncHandler(async (req, res, next) => {
