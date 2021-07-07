@@ -32,6 +32,11 @@ exports.addTriageAssessment = asyncHandler(async (req, res, next) => {
     triageTime: Date.now(),
   };
 
+  //   const edrCS = await EDR.findOne(
+  //     { _id: req.body.data.edrId },
+  //     { dcdForm: { $slice: -1 } }
+  //   ).select('dcdForm');
+  //   console.log(edrCS);
   //   MD Notifications
   const edrPA = await EDR.findById(req.body.data.edrId).select(
     'chiefComplaint'
@@ -49,6 +54,25 @@ exports.addTriageAssessment = asyncHandler(async (req, res, next) => {
     shift: nurseShift.shift,
     'chiefComplaint.chiefComplaintId': chiefComplaintId,
   });
+
+  //   Temperature Md Notifications
+  const temp = parseFloat(req.body.data.temperature);
+
+  if (temp < 35.5 || temp > 38) {
+    doctors.forEach((doctor) => {
+      Notification(
+        'MD Notification',
+        'MD Notification for Temperature',
+        '',
+        'MD Notifications',
+        '/dashboard/home/notes',
+        req.body.data.edrId,
+        '',
+        '',
+        doctor._id
+      );
+    });
+  }
 
   //   SBP Md Notifications
   const SBP = parseInt(req.body.data.bloodPressureSys, 10);
@@ -70,7 +94,6 @@ exports.addTriageAssessment = asyncHandler(async (req, res, next) => {
   }
 
   // HR Md Notifications
-
   const hr = parseInt(req.body.data.heartRate, 10);
 
   if (hr < 60 || hr > 120) {
@@ -273,6 +296,89 @@ exports.addROS = asyncHandler(async (req, res, next) => {
     updatedBy: req.body.staffId,
     date: Date.now(),
   };
+
+  // *  MD Notifications
+  const { details } = req.body;
+  const edrPA = await EDR.findById(req.body.edrId).select('chiefComplaint');
+  const latestCC = edrPA.chiefComplaint.length - 1;
+  const chiefComplaintId = edrPA.chiefComplaint[latestCC].chiefComplaintId._id;
+
+  const nurseShift = await Staff.findById(req.body.staffId).select('shift');
+
+  const doctors = await Staff.find({
+    staffType: 'Doctor',
+    subType: 'ED Doctor',
+    shift: nurseShift.shift,
+    'chiefComplaint.chiefComplaintId': chiefComplaintId,
+  });
+
+  for (let i = 0; i < details.length; i++) {
+    //   Noitfication For Chest Pain
+    if (details[i].name === 'CHEST/ CVS') {
+      for (let j = 0; j < details[i].chips.length; j++) {
+        if (details[i].chips[j].name === 'Chest Pain') {
+          console.log(details[i].chips[j].name);
+          doctors.forEach((doctor) => {
+            Notification(
+              'MD Notification',
+              'MD Notification for Chest Pain',
+              '',
+              'MD Notifications',
+              '/dashboard/home/notes',
+              req.body.edrId,
+              '',
+              '',
+              doctor._id
+            );
+          });
+        }
+      }
+    }
+    // Notification For Epigastric Pain
+    if (details[i].name === 'GI') {
+      for (let j = 0; j < details[i].chips.length; j++) {
+        if (details[i].chips[j].name === 'Abdominal Pain') {
+          if (
+            details[i].chips[j].dropdownSelectedValue.name === 'Epigastric pain'
+          ) {
+            doctors.forEach((doctor) => {
+              Notification(
+                'MD Notification',
+                'MD Notification for Epigastric Pain',
+                '',
+                'MD Notifications',
+                '/dashboard/home/notes',
+                req.body.edrId,
+                '',
+                '',
+                doctor._id
+              );
+            });
+          }
+        }
+      }
+    }
+    // Notification For Back Pain
+    if (details[i].name === 'SKIN / Musculoskeletol') {
+      for (let j = 0; j < details[i].chips.length; j++) {
+        if (details[i].chips[j].name === 'Back Pain') {
+          doctors.forEach((doctor) => {
+            Notification(
+              'MD Notification',
+              'MD Notification for Back Pain',
+              '',
+              'MD Notifications',
+              '/dashboard/home/notes',
+              req.body.edrId,
+              '',
+              '',
+              doctor._id
+            );
+          });
+        }
+      }
+    }
+  }
   const edrPatient = await EDR.findOneAndUpdate(
     { _id: req.body.edrId },
     {
@@ -384,6 +490,44 @@ exports.addInvestigation = asyncHandler(async (req, res, next) => {
     updatedBy: parsed.staffId,
     date: Date.now(),
   };
+
+  // *  MD Notifications
+  const { details } = req.body;
+  const edrPA = await EDR.findById(req.body.edrId).select('chiefComplaint');
+  const latestCC = edrPA.chiefComplaint.length - 1;
+  const chiefComplaintId = edrPA.chiefComplaint[latestCC].chiefComplaintId._id;
+
+  const nurseShift = await Staff.findById(req.body.staffId).select('shift');
+
+  const doctors = await Staff.find({
+    staffType: 'Doctor',
+    subType: 'ED Doctor',
+    shift: nurseShift.shift,
+    'chiefComplaint.chiefComplaintId': chiefComplaintId,
+  });
+
+  //   Notification For Lactate
+  for (let i = 0; i < details.length; i++) {
+    if (details[i].name === 'Chemistries') {
+      for (let j = 0; j < details[i].Texts.length; j++) {
+        if (details[i].Texts[j].name === 'Lactate') {
+          doctors.forEach((doctor) => {
+            Notification(
+              'MD Notification',
+              'MD Notification for Lactate',
+              '',
+              'MD Notifications',
+              '/dashboard/home/notes',
+              req.body.edrId,
+              '',
+              '',
+              doctor._id
+            );
+          });
+        }
+      }
+    }
+  }
   const edrPatient = await EDR.findOneAndUpdate(
     { _id: parsed.edrId },
     {
