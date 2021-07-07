@@ -112,7 +112,11 @@ exports.getItems = asyncHandler(async (req, res) => {
       parent: 'Laboratory Supplies',
     },
     { key: 'KT - Kits', value: 'KT - Kits', parent: 'Laboratory Supplies' },
-    { key: 'RG -Reagents', value: 'RG -Reagents', parent: 'Laboratory Supplies' },
+    {
+      key: 'RG -Reagents',
+      value: 'RG -Reagents',
+      parent: 'Laboratory Supplies',
+    },
     {
       key: 'MAC - Airconditioning',
       value: 'MAC - Airconditioning',
@@ -124,9 +128,21 @@ exports.getItems = asyncHandler(async (req, res) => {
       parent: 'Maintenance',
     },
     { key: 'MCK - Ceramic', value: 'MCK - Ceramic', parent: 'Maintenance' },
-    { key: 'MDL - Dubai Light', value: 'MDL - Dubai Light', parent: 'Maintenance' },
-    { key: 'MEC - Electronics', value: 'MEC - Electronics', parent: 'Maintenance' },
-    { key: 'MEL - Electricity', value: 'MEL - Electricity', parent: 'Maintenance' },
+    {
+      key: 'MDL - Dubai Light',
+      value: 'MDL - Dubai Light',
+      parent: 'Maintenance',
+    },
+    {
+      key: 'MEC - Electronics',
+      value: 'MEC - Electronics',
+      parent: 'Maintenance',
+    },
+    {
+      key: 'MEL - Electricity',
+      value: 'MEL - Electricity',
+      parent: 'Maintenance',
+    },
     {
       key: 'MGM - General Maintinace',
       value: 'MGM - General Maintinace',
@@ -141,7 +157,11 @@ exports.getItems = asyncHandler(async (req, res) => {
     { key: 'MSL - Singal', value: 'MSL - Singal', parent: 'Maintenance' },
     { key: 'MSN - Stain', value: 'MSN - Stain', parent: 'Maintenance' },
 
-    { key: 'CL - Cath. Supplies', value: 'CL - Cath. Supplies', parent: 'Medical Supplies & Instruments' },
+    {
+      key: 'CL - Cath. Supplies',
+      value: 'CL - Cath. Supplies',
+      parent: 'Medical Supplies & Instruments',
+    },
     {
       key: 'CLS - CATH STENTING SUPPLIES',
       value: 'CLS - CATH STENTING SUPPLIES',
@@ -152,7 +172,11 @@ exports.getItems = asyncHandler(async (req, res) => {
       value: 'CS -Cardiac Supplies',
       parent: 'Medical Supplies & Instruments',
     },
-    { key: 'IV - I.V.F Supplies', value: 'IV - I.V.F Supplies', parent: 'Medical Supplies & Instruments' },
+    {
+      key: 'IV - I.V.F Supplies',
+      value: 'IV - I.V.F Supplies',
+      parent: 'Medical Supplies & Instruments',
+    },
     {
       key: 'KS -Kidney Supplies',
       value: 'KS -Kidney Supplies',
@@ -202,7 +226,11 @@ exports.getItems = asyncHandler(async (req, res) => {
       value: 'MRI Contrast Media',
       parent: 'Radiology Medicine & Supplies',
     },
-    { key: 'XR-Supplies', value: 'XR-Supplies', parent: 'Radiology Medicine & Supplies' },
+    {
+      key: 'XR-Supplies',
+      value: 'XR-Supplies',
+      parent: 'Radiology Medicine & Supplies',
+    },
 
     { key: 'TE-TEXTILE', value: 'TE-TEXTILE', parent: 'Textile' },
   ];
@@ -223,11 +251,14 @@ exports.getItems = asyncHandler(async (req, res) => {
 exports.getSearchedItems = asyncHandler(async (req, res) => {
   const items = await Item.find({
     $or: [
-      { tradeName: { $regex: "^"+req.params.keyword, $options: 'i' } },
-      { scientificName: { $regex: "^"+req.params.keyword, $options: 'i' } },
-      { itemCode: { $regex: "^"+req.params.keyword, $options: 'i' } },
+      { tradeName: { $regex: '^' + req.params.keyword, $options: 'i' } },
+      { scientificName: { $regex: '^' + req.params.keyword, $options: 'i' } },
+      //   { name: { $regex: '^' + req.params.keyword, $options: 'i' } },
+      { itemCode: { $regex: '^' + req.params.keyword, $options: 'i' } },
     ],
-  }).limit(100).populate('vendorId');
+  })
+    .limit(100)
+    .populate('vendorId');
   const data = {
     items,
   };
@@ -236,12 +267,14 @@ exports.getSearchedItems = asyncHandler(async (req, res) => {
 exports.getSearchedItemsNM = asyncHandler(async (req, res) => {
   const items = await Item.find({
     $or: [
-      { tradeName: { $regex: "^"+req.params.keyword, $options: 'i' } },
-      { scientificName: { $regex: "^"+req.params.keyword, $options: 'i' } },
-      { itemCode: { $regex: "^"+req.params.keyword, $options: 'i' } },
+      { tradeName: { $regex: '^' + req.params.keyword, $options: 'i' } },
+      { scientificName: { $regex: '^' + req.params.keyword, $options: 'i' } },
+      { itemCode: { $regex: '^' + req.params.keyword, $options: 'i' } },
     ],
     cls: 'Non-Medical',
-  }).limit(100).populate('vendorId');
+  })
+    .limit(100)
+    .populate('vendorId');
   const data = {
     items,
   };
@@ -250,13 +283,15 @@ exports.getSearchedItemsNM = asyncHandler(async (req, res) => {
 exports.getSearchedItemsP = asyncHandler(async (req, res) => {
   const items = await Item.find({
     $or: [
-      { tradeName: { $regex: "^"+req.params.keyword, $options: 'i' } },
-      { scientificName: { $regex: "^"+req.params.keyword, $options: 'i' } },
-      { itemCode: { $regex: "^"+req.params.keyword, $options: 'i' } },
+      { tradeName: { $regex: '^' + req.params.keyword, $options: 'i' } },
+      { scientificName: { $regex: '^' + req.params.keyword, $options: 'i' } },
+      { itemCode: { $regex: '^' + req.params.keyword, $options: 'i' } },
     ],
     cls: 'Medical',
     medClass: 'Pharmaceutical',
-  }).limit(100).populate('vendorId');
+  })
+    .limit(100)
+    .populate('vendorId');
   const data = {
     items,
   };
@@ -265,13 +300,15 @@ exports.getSearchedItemsP = asyncHandler(async (req, res) => {
 exports.getSearchedItemsNP = asyncHandler(async (req, res) => {
   const items = await Item.find({
     $or: [
-      { tradeName: { $regex: "^"+req.params.keyword, $options: 'i' } },
-      { scientificName: { $regex: "^"+req.params.keyword, $options: 'i' } },
-      { itemCode: { $regex: "^"+req.params.keyword, $options: 'i' } },
+      { tradeName: { $regex: '^' + req.params.keyword, $options: 'i' } },
+      { scientificName: { $regex: '^' + req.params.keyword, $options: 'i' } },
+      { itemCode: { $regex: '^' + req.params.keyword, $options: 'i' } },
     ],
     cls: 'Medical',
     medClass: 'Non Pharmaceutical',
-  }).limit(100).populate('vendorId');
+  })
+    .limit(100)
+    .populate('vendorId');
   const data = {
     items,
   };

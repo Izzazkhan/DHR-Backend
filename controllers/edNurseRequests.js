@@ -208,6 +208,7 @@ exports.getRad = asyncHandler(async (req, res, next) => {
 
 exports.getPharmacy = asyncHandler(async (req, res, next) => {
   const pharmacyRequest = await EDR.find({
+    status: 'pending',
     pharmacyRequest: { $ne: [] },
   })
     .select('patientId pharmacyRequest chiefComplaint careStream doctorNotes')
@@ -250,6 +251,7 @@ exports.getPharmacy = asyncHandler(async (req, res, next) => {
 
 exports.searchGetPharmacy = asyncHandler(async (req, res, next) => {
   const patients = await EDR.find({
+    status: 'pending',
     pharmacyRequest: { $ne: [] },
   })
     .select('patientId')
@@ -446,6 +448,11 @@ exports.completeRequest = asyncHandler(async (req, res, next) => {
 exports.completedEDNurseEdrRequest = asyncHandler(async (req, res, next) => {
   const unwindEdr = await EDR.aggregate([
     {
+      $match: {
+        status: 'pending',
+      },
+    },
+    {
       $project: {
         _id: 1,
         edNurseRequest: 1,
@@ -483,23 +490,15 @@ exports.completedEDNurseEdrRequest = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateMedicationStatus = asyncHandler(async (req, res, next) => {
-  const edrMedication = await EDR.findOne({ _id: req.body.edrId });
-
-  let request;
-  for (let i = 0; i < edrMedication.pharmacyRequest.length; i++) {
-    if (edrMedication.pharmacyRequest[i]._id == req.body.requestId) {
-      request = i;
-    }
-  }
-
   let updatedRequest;
   if (req.body.status === 'delivered') {
     updatedRequest = await EDR.findOneAndUpdate(
-      { _id: req.body.edrId },
+      { _id: req.body.edrId, 'pharmacyRequest._id': req.body.requestId },
       {
         $set: {
-          [`pharmacyRequest.${request}.status`]: req.body.status,
-          [`pharmacyRequest.${request}.deliveredTime`]: Date.now(),
+          [`pharmacyRequest.$.status`]: req.body.status,
+          [`pharmacyRequest.$.deliveredTime`]: Date.now(),
+          [`pharmacyRequest.$.markDeliveredBy`]: req.body.nurseId,
         },
       },
       { new: true }
@@ -515,6 +514,9 @@ exports.updateMedicationStatus = asyncHandler(async (req, res, next) => {
     );
 
     const patientTreatmentsPending = await EDR.aggregate([
+      {
+        $match: { status: 'pending' },
+      },
       {
         $project: {
           pharmacyRequest: 1,
@@ -581,16 +583,17 @@ exports.updateMedicationStatus = asyncHandler(async (req, res, next) => {
 
   if (req.body.status === 'closed') {
     updatedRequest = await EDR.findOneAndUpdate(
-      { _id: req.body.edrId },
+      { _id: req.body.edrId, 'pharmacyRequest._id': req.body.requestId },
       {
         $set: {
-          [`pharmacyRequest.${request}.status`]: req.body.status,
-          [`pharmacyRequest.${request}.completedTime`]: Date.now(),
+          [`pharmacyRequest.$.status`]: req.body.status,
+          [`pharmacyRequest.$.completedTime`]: Date.now(),
+          [`pharmacyRequest.$.completedBy`]: req.body.nurseId,
         },
       },
       { new: true }
     )
-      .select('patientId pharmacyRequest')
+      .select('patientId pharmacyRequest careStream')
       .populate('patientId', 'Identifier');
 
     const latestCC = updatedRequest.careStream.length - 1;
@@ -629,13 +632,28 @@ exports.updateMedicationStatus = asyncHandler(async (req, res, next) => {
             [`careStream.${latestCC}.medications.data.$.completed`]: true,
             [`careStream.${latestCC}.medications.data.$.completedAt`]: Date.now(),
             [`careStream.${latestCC}.medications.data.$.completedBy`]: req.body
-              .staffId,
+              .nurseId,
           },
         }
       );
     }
 
+    // * Flags
+
+    // Preventing from raising flag if task is completed
+    await CronFlag.findOneAndUpdate(
+      {
+        requestId: req.body.pharmacyRequest,
+        taskName: req.body.itemName,
+      },
+      { $set: { status: 'completed' } },
+      { new: true }
+    );
+
     const patientTreatmentsPending = await EDR.aggregate([
+      {
+        $match: { status: 'pending' },
+      },
       {
         $project: {
           pharmacyRequest: 1,

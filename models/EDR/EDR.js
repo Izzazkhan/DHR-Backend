@@ -142,7 +142,35 @@ const edrSchema = new mongoose.Schema({
       fluidsIV: {
         data: [
           {
-            name: String,
+            // name: String,
+            // selected: Boolean,
+            itemName: {
+              type: String,
+            },
+            requestedQty: {
+              type: Number,
+            },
+            dosage: {
+              type: Number,
+            },
+            frequency: {
+              type: Number,
+            },
+            duration: {
+              type: Number,
+            },
+            price: {
+              type: Number,
+            },
+            completed: {
+              type: Boolean,
+              default: false,
+            },
+            completedAt: Date,
+            completedBy: {
+              type: mongoose.Schema.ObjectId,
+              ref: 'staff',
+            },
             selected: Boolean,
           },
         ],
@@ -1193,7 +1221,8 @@ const edrSchema = new mongoose.Schema({
       completedTime: {
         type: Date,
       },
-
+      markDeliveredBy: { type: mongoose.Schema.ObjectId, ref: 'staff' },
+      completedBy: { type: mongoose.Schema.ObjectId, ref: 'staff' },
       createdAt: {
         type: Date,
         default: Date.now,
