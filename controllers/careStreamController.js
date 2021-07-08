@@ -447,126 +447,128 @@ exports.updateCareStream = asyncHandler(async (req, res, next) => {
     }
   }
 
-  const newMedications = [];
-  const CSMedications = CSData.careStream[0].medications.data;
-  for (let i = 0; i < medications.data.length; i++) {
-    for (let j = 0; j < CSMedications.length; j++) {
-      if (
-        medications.data[i]._id.toString() === CSMedications[j]._id.toString()
-      ) {
-        if (
-          medications.data[i].selected === true &&
-          CSMedications[j].selected === false
-        ) {
-          newMedications.push(investigations.data[i]);
-        }
-      }
-    }
-  }
-  const edrCheck = await EDR.find({ _id: req.body.data.edrId }).populate(
-    'patientId'
-  );
-  const pharmacyRequest = edrCheck[0].pharmacyRequest;
+  //   console.log(tests);
 
-  if (newMedications.length > 0) {
-    for (let i = 0; i < newMedications.length; i++) {
-      const item = await Items.findOne({
-        name: newMedications[i].itemName,
-      });
+  //   const newMedications = [];
+  //   const CSMedications = CSData.careStream[0].medications.data;
+  //   for (let i = 0; i < medications.data.length; i++) {
+  //     for (let j = 0; j < CSMedications.length; j++) {
+  //       if (
+  //         medications.data[i]._id.toString() === CSMedications[j]._id.toString()
+  //       ) {
+  //         if (
+  //           medications.data[i].selected === true &&
+  //           CSMedications[j].selected === false
+  //         ) {
+  //           newMedications.push(investigations.data[i]);
+  //         }
+  //       }
+  //     }
+  //   }
+  //   const edrCheck = await EDR.find({ _id: req.body.data.edrId }).populate(
+  //     'patientId'
+  //   );
+  //   const pharmacyRequest = edrCheck[0].pharmacyRequest;
 
-      //   console.log('Item : ', item);
-      const pharmacyRequestNo = generateReqNo('PHR');
+  //   if (newMedications.length > 0) {
+  //     for (let i = 0; i < newMedications.length; i++) {
+  //       const item = await Items.findOne({
+  //         name: newMedications[i].itemName,
+  //       });
 
-      const pharmaObj = {
-        pharmacyRequestNo,
-        requestedBy: req.body.data.staffId,
-        reconciliationNotes: [],
-        generatedFrom: 'CareStream Request',
-        item: {
-          itemId: item._id,
-          itemType: item.medClass.toLowerCase(),
-          itemName: item.name,
-          requestedQty: req.body.data.medications.data[i].requestedQty,
-          priority: '',
-          schedule: '',
-          dosage: req.body.data.medications.data[i].dosage,
-          frequency: req.body.data.medications.data[i].frequency,
-          duration: req.body.data.medications.data[i].duration,
-          form: '',
-          size: '',
-          make_model: '',
-          additionalNotes: '',
-        },
-        status: 'pending',
-        secondStatus: 'pending',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-      pharmacyRequest.push(pharmaObj);
-    }
-    await EDR.findOneAndUpdate(
-      { _id: req.body.data.edrId },
-      { $push: { pharmacyRequest: pharmacyRequest } },
-      { new: true }
-    );
-  }
+  //       //   console.log('Item : ', item);
+  //       const pharmacyRequestNo = generateReqNo('PHR');
 
-  const newfluidsIV = [];
-  const CSFluids = CSData.careStream[0].fluidsIV.data;
-  for (let i = 0; i < fluidsIV.data.length; i++) {
-    for (let j = 0; j < CSFluids.length; j++) {
-      if (fluidsIV.data[i]._id.toString() === CSFluids[j]._id.toString()) {
-        if (
-          fluidsIV.data[i].selected === true &&
-          CSFluids[j].selected === false
-        ) {
-          newfluidsIV.push(investigations.data[i]);
-        }
-      }
-    }
-  }
+  //       const pharmaObj = {
+  //         pharmacyRequestNo,
+  //         requestedBy: req.body.data.staffId,
+  //         reconciliationNotes: [],
+  //         generatedFrom: 'CareStream Request',
+  //         item: {
+  //           itemId: item._id,
+  //           itemType: item.medClass.toLowerCase(),
+  //           itemName: item.name,
+  //           requestedQty: req.body.data.medications.data[i].requestedQty,
+  //           priority: '',
+  //           schedule: '',
+  //           dosage: req.body.data.medications.data[i].dosage,
+  //           frequency: req.body.data.medications.data[i].frequency,
+  //           duration: req.body.data.medications.data[i].duration,
+  //           form: '',
+  //           size: '',
+  //           make_model: '',
+  //           additionalNotes: '',
+  //         },
+  //         status: 'pending',
+  //         secondStatus: 'pending',
+  //         createdAt: new Date(),
+  //         updatedAt: new Date(),
+  //       };
+  //       pharmacyRequest.push(pharmaObj);
+  //     }
+  //     await EDR.findOneAndUpdate(
+  //       { _id: req.body.data.edrId },
+  //       { $push: { pharmacyRequest: pharmacyRequest } },
+  //       { new: true }
+  //     );
+  //   }
 
-  if (newfluidsIV.length > 0) {
-    for (let i = 0; i < newfluidsIV.length; i++) {
-      const item = await Items.findOne({
-        name: newfluidsIV[i].itemName,
-      });
-      if (item) {
-        const pharmacyRequestNo = generateReqNo('PHR');
-        const pharmaObj = {
-          pharmacyRequestNo,
-          requestedBy: req.body.data.staffId,
-          reconciliationNotes: [],
-          generatedFrom: 'CareStream Request',
-          item: {
-            itemId: item._id,
-            itemType: item.medClass.toLowerCase(),
-            itemName: item.name,
-            requestedQty: fluidsIV.data[i].requestedQty,
-            priority: '',
-            schedule: '',
-            dosage: fluidsIV.data[i].dosage,
-            frequency: fluidsIV.data[i].frequency,
-            duration: fluidsIV.data[i].duration,
-            form: '',
-            size: '',
-            make_model: '',
-            additionalNotes: '',
-          },
-          status: 'pending',
-          secondStatus: 'pending',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        };
-        pharmacyRequest.push(pharmaObj);
-      }
-    }
-    await EDR.findOneAndUpdate(
-      { _id: req.body.data.edrId },
-      { $push: { pharmacyRequest: pharmacyRequest } },
-      { new: true }
-    );
-  }
+  //   const newfluidsIV = [];
+  //   const CSFluids = CSData.careStream[0].fluidsIV.data;
+  //   for (let i = 0; i < fluidsIV.data.length; i++) {
+  //     for (let j = 0; j < CSFluids.length; j++) {
+  //       if (fluidsIV.data[i]._id.toString() === CSFluids[j]._id.toString()) {
+  //         if (
+  //           fluidsIV.data[i].selected === true &&
+  //           CSFluids[j].selected === false
+  //         ) {
+  //           newfluidsIV.push(investigations.data[i]);
+  //         }
+  //       }
+  //     }
+  //   }
+
+  //   if (newfluidsIV.length > 0) {
+  //     for (let i = 0; i < newfluidsIV.length; i++) {
+  //       const item = await Items.findOne({
+  //         name: newfluidsIV[i].itemName,
+  //       });
+  //       if (item) {
+  //         const pharmacyRequestNo = generateReqNo('PHR');
+  //         const pharmaObj = {
+  //           pharmacyRequestNo,
+  //           requestedBy: req.body.data.staffId,
+  //           reconciliationNotes: [],
+  //           generatedFrom: 'CareStream Request',
+  //           item: {
+  //             itemId: item._id,
+  //             itemType: item.medClass.toLowerCase(),
+  //             itemName: item.name,
+  //             requestedQty: fluidsIV.data[i].requestedQty,
+  //             priority: '',
+  //             schedule: '',
+  //             dosage: fluidsIV.data[i].dosage,
+  //             frequency: fluidsIV.data[i].frequency,
+  //             duration: fluidsIV.data[i].duration,
+  //             form: '',
+  //             size: '',
+  //             make_model: '',
+  //             additionalNotes: '',
+  //           },
+  //           status: 'pending',
+  //           secondStatus: 'pending',
+  //           createdAt: new Date(),
+  //           updatedAt: new Date(),
+  //         };
+  //         pharmacyRequest.push(pharmaObj);
+  //       }
+  //     }
+  //     await EDR.findOneAndUpdate(
+  //       { _id: req.body.data.edrId },
+  //       { $push: { pharmacyRequest: pharmacyRequest } },
+  //       { new: true }
+  //     );
+  //   }
 
   const updatedCareStream = await EDR.findOneAndUpdate(
     {
@@ -598,6 +600,7 @@ exports.updateCareStream = asyncHandler(async (req, res, next) => {
         type: lab.type,
         careStreamId: req.body.data.careStreamId,
       };
+
       addLab(data);
     } else if (test.testType === 'Rad') {
       const rad = await RadService.findOne({ name: test.name });
@@ -610,6 +613,7 @@ exports.updateCareStream = asyncHandler(async (req, res, next) => {
         type: rad.type,
         careStreamId: req.body.data.careStreamId,
       };
+
       addRad(data);
     }
   }
