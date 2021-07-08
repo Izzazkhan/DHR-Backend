@@ -142,6 +142,8 @@ const edrSchema = new mongoose.Schema({
       fluidsIV: {
         data: [
           {
+            // name: String,
+            // selected: Boolean,
             itemName: {
               type: String,
             },
