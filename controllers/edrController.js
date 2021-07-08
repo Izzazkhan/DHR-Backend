@@ -4957,6 +4957,28 @@ exports.getEDRsWithPharmacyRequest = asyncHandler(async (req, res) => {
     }
   }
   res.status(200).json({ success: true, data: response });
+
+  //   const edr = await EDR.aggregate([
+  //     {
+  //       $match: {
+  //         $and: [{ status: 'pending' }, { pharmacyRequest: { $ne: [] } }],
+  //       },
+  //     },
+  //     { $unwind: '$pharmacyRequest' },
+  //     {
+  //       $match: {
+  //         $and: [
+  //           { 'pharmacyRequest.status': 'pending' },
+  //           { 'pharmacyRequest.generatedFrom': req.params.requestType },
+  //         ],
+  //       },
+  //     },
+  //   ]);
+
+  //   res.status(200).json({
+  //     success: true,
+  //     data: edr,
+  //   });
 });
 // Search edr where edr status is not completed
 exports.getNurseEdrByKeyword = asyncHandler(async (req, res, next) => {
