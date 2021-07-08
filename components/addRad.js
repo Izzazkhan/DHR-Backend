@@ -1,8 +1,9 @@
+const requestNoFormat = require('dateformat');
+const generateReqNo = require('./requestNoGenerator');
 const asyncHandler = require('../middleware/async');
 const Staff = require('../models/staffFhir/staff');
 const Notification = require('./notification');
 const Flag = require('../models/flag/Flag');
-const generateReqNo = require('./requestNoGenerator');
 const EDR = require('../models/EDR/EDR');
 
 const addRadRequest = asyncHandler(async (data) => {
@@ -16,7 +17,20 @@ const addRadRequest = asyncHandler(async (data) => {
 
   const random = Math.floor(Math.random() * (radTechnicians.length - 1));
   const radTechnician = radTechnicians[random];
-  const requestId = generateReqNo('RR');
+  //   const requestId = generateReqNo('RR');
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const diff =
+    now -
+    start +
+    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
+  const oneDay = 1000 * 60 * 60 * 24;
+  const day = Math.floor(diff / oneDay);
+
+  const requestId = generateReqNo('LR')`${'LR'}${day}${requestNoFormat(
+    new Date(),
+    'yyHHMMssL'
+  )}`;
 
   const radRequest = {
     requestId,

@@ -233,79 +233,155 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     (t) => t.selected === true
   );
 
-  //   const filteredFluids = req.body.data.fluidsIV.filter(
-  //     (t) => t.selected === true
-  //   );
+  const filteredFluids = req.body.data.fluidsIV.filter(
+    (t) => t.selected === true
+  );
 
-  if (filteredMedications.length > 0) {
-    for (let i = 0; i < filteredMedications.length; i++) {
+  const filteredItem = [...filteredMedications, ...filteredFluids];
+
+  if (filteredItem.length > 0) {
+    for (let i = 0; i < filteredItem.length; i++) {
       const item = await Items.findOne({
-        name: filteredMedications[i].itemName,
+        name: filteredItem[i].itemName,
       });
 
-      //   console.log('Item : ', item);
-      const pharmacyRequestNo = generateReqNo('PHR');
-
-      const pharmaObj = {
-        pharmacyRequestNo,
-        requestedBy: req.body.data.staffId,
-        reconciliationNotes: [],
-        generatedFrom: 'CareStream Request',
-        careStreamId: req.body.data.careStreamId,
-        pharmacyCSId: filteredMedications[i]._id,
-        item: {
-          itemId: item._id,
-          itemType: item.medClass.toLowerCase(),
-          itemName: item.name,
-          requestedQty: req.body.data.medications[i].requestedQty,
-          priority: '',
-          schedule: '',
-          dosage: req.body.data.medications[i].dosage,
-          frequency: req.body.data.medications[i].frequency,
-          duration: req.body.data.medications[i].duration,
-          form: '',
-          size: '',
-          make_model: '',
-          additionalNotes: '',
-        },
-        status: 'pending',
-        secondStatus: 'pending',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-
-      pharmacyRequest.push(pharmaObj);
+      if (item) {
+        const pharmacyRequestNo = generateReqNo('PHR');
+        const pharmaObj = {
+          pharmacyRequestNo,
+          requestedBy: req.body.data.staffId,
+          reconciliationNotes: [],
+          generatedFrom: 'CareStream Request',
+          careStreamId: req.body.data.careStreamId,
+          pharmacyCSId: filteredItem[i]._id,
+          item: {
+            itemId: item._id,
+            itemType: item.medClass.toLowerCase(),
+            itemName: item.name,
+            requestedQty: filteredItem[i].requestedQty,
+            priority: '',
+            schedule: '',
+            dosage: filteredItem[i].dosage,
+            frequency: filteredItem[i].frequency,
+            duration: filteredItem[i].duration,
+            form: '',
+            size: '',
+            make_model: '',
+            additionalNotes: '',
+          },
+          status: 'pending',
+          secondStatus: 'pending',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+        pharmacyRequest.push(pharmaObj);
+      }
     }
-
     await EDR.findOneAndUpdate(
       { _id: req.body.data.edrId },
       { $push: { pharmacyRequest: pharmacyRequest } },
       { new: true }
     );
+    //     Notification(
+    //       'Medication',
+    //       'Medication Of CareStream',
+    //       'Nurses',
+    //       'Pharmacist',
+    //       '/dashboard/home/patientmanagement/viewrequests/pharma/viewpharma',
+    //       req.body.data.edrId,
+    //       '',
+    //       'ED Nurse'
+    //     );
 
-    Notification(
-      'Medication',
-      'Medication Of CareStream',
-      'Nurses',
-      'Pharmacist',
-      '/dashboard/home/patientmanagement/viewrequests/pharma/viewpharma',
-      req.body.data.edrId,
-      '',
-      'ED Nurse'
-    );
-
-    // Clinical Pharmacist
-    Notification(
-      'Care Stream Medication Request',
-      'Care Stream Medication Request',
-      'Clinical Pharmacist',
-      'CareStream Assigned',
-      '/dashboard/home/pharmanotes',
-      req.body.edrId,
-      '',
-      ''
-    );
+    //     // Clinical Pharmacist
+    //     Notification(
+    //       'Care Stream Medication Request',
+    //       'Care Stream Medication Request',
+    //       'Clinical Pharmacist',
+    //       'CareStream Assigned',
+    //       '/dashboard/home/pharmanotes',
+    //       req.body.edrId,
+    //       '',
+    //       ''
+    //     );
   }
+
+  //   // * Assigning tests
+  if (req.body.data.investigations) {
+    const { investigations } = req.body.data;
+
+    const tests = investigations.filter((t) => t.selected === true);
+    for (const test of tests) {
+      if (test.testType === 'lab') {
+        const lab = await LabService.findOne({ name: test.name });
+        const data = {
+          staffId: req.body.data.staffId,
+          edrId: req.body.data.edrId,
+          name: lab.name,
+          serviceId: lab._id,
+          price: lab.price,
+          type: lab.type,
+          careStreamId: req.body.data.careStreamId,
+          labTestId: test._id,
+        };
+        addLab(data);
+      } else if (test.testType === 'rad') {
+        const rad = await RadService.findOne({ name: test.name });
+        const data = {
+          staffId: req.body.data.staffId,
+          edrId: req.body.data.edrId,
+          name: rad.name,
+          serviceId: rad._id,
+          price: rad.price,
+          type: rad.type,
+          careStreamId: req.body.data.careStreamId,
+          radTestId: test._id,
+        };
+        addRad(data);
+      }
+    }
+  }
+
+  //   const decisionPending = await EDR.find({
+  //     careStream: { $eq: [] },
+  //     doctorNotes: { $ne: [] },
+  //   });
+
+  //   if (decisionPending.length > 5) {
+  //     await Flag.create({
+  //       edrId: req.body.data.edrId,
+  //       generatedFrom: 'Sensei',
+  //       card: '4th',
+  //       generatedFor: ['Sensei', 'Medical Director'],
+  //       reason: 'Patients pending for Doctor Decisions',
+  //       createdAt: Date.now(),
+  //     });
+  //     const flags = await Flag.find({
+  //       generatedFrom: 'Sensei',
+  //       status: 'pending',
+  //     });
+  //     globalVariable.io.emit('pendingSensei', flags);
+  //   }
+
+  //   if (decisionPending.length > 6) {
+  //     await Flag.create({
+  //       edrId: req.body.data.edrId,
+  //       generatedFrom: 'ED Doctor',
+  //       card: '2nd',
+  //       generatedFor: ['ED Doctor', 'Medical Director'],
+  //       reason: 'Patients pending for Doctor Decisions',
+  //       createdAt: Date.now(),
+  //     });
+  //     const flags = await Flag.find({
+  //       generatedFrom: ['ED Doctor', 'Medical Director'],
+  //       status: 'pending',
+  //     });
+  //     globalVariable.io.emit('pendingDoctor', flags);
+  //   }
+
+  //   const currentStaff = await Staff.findById(req.body.data.staffId).select(
+  //     'staffType'
+  //   );
 
   // Flags For Care Stream Medications
 
@@ -503,7 +579,6 @@ exports.updateCareStream = asyncHandler(async (req, res, next) => {
       };
       pharmacyRequest.push(pharmaObj);
     }
-
     await EDR.findOneAndUpdate(
       { _id: req.body.data.edrId },
       { $push: { pharmacyRequest: pharmacyRequest } },
@@ -511,7 +586,64 @@ exports.updateCareStream = asyncHandler(async (req, res, next) => {
     );
   }
 
-  await EDR.findOneAndUpdate(
+  const newfluidsIV = [];
+  const CSFluids = CSData.careStream[0].fluidsIV.data;
+  for (let i = 0; i < fluidsIV.data.length; i++) {
+    for (let j = 0; j < CSFluids.length; j++) {
+      if (fluidsIV.data[i]._id === CSFluids[j]._id) {
+        if (
+          fluidsIV.data[i].selected === true &&
+          CSFluids[j].selected === false
+        ) {
+          newfluidsIV.push(investigations.data[i]);
+        }
+      }
+    }
+  }
+
+  if (newfluidsIV.length > 0) {
+    for (let i = 0; i < newfluidsIV.length; i++) {
+      const item = await Items.findOne({
+        name: newfluidsIV[i].itemName,
+      });
+      if (item) {
+        const pharmacyRequestNo = generateReqNo('PHR');
+        const pharmaObj = {
+          pharmacyRequestNo,
+          requestedBy: req.body.data.staffId,
+          reconciliationNotes: [],
+          generatedFrom: 'CareStream Request',
+          item: {
+            itemId: item._id,
+            itemType: item.medClass.toLowerCase(),
+            itemName: item.name,
+            requestedQty: fluidsIV.data[i].requestedQty,
+            priority: '',
+            schedule: '',
+            dosage: fluidsIV.data[i].dosage,
+            frequency: fluidsIV.data[i].frequency,
+            duration: fluidsIV.data[i].duration,
+            form: '',
+            size: '',
+            make_model: '',
+            additionalNotes: '',
+          },
+          status: 'pending',
+          secondStatus: 'pending',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+        pharmacyRequest.push(pharmaObj);
+      }
+    }
+    await EDR.findOneAndUpdate(
+      { _id: req.body.data.edrId },
+      { $push: { pharmacyRequest: pharmacyRequest } },
+      { new: true }
+    );
+  }
+
+  const updatedCareStream = await EDR.findOneAndUpdate(
     {
       _id: req.body.data.edrId,
       'careStream._id': req.body.data.careStreamId,
@@ -527,7 +659,7 @@ exports.updateCareStream = asyncHandler(async (req, res, next) => {
         'careStream.$.reassessments.data': req.body.data.reassessments.data,
       },
     }
-  );
+  ).populate('careStream.careStreamId', 'identifier');
 
   for (const test of tests) {
     if (test.testType === 'lab') {
@@ -556,6 +688,10 @@ exports.updateCareStream = asyncHandler(async (req, res, next) => {
       addRad(data);
     }
   }
+  res.status(200).json({
+    success: true,
+    data: updatedCareStream,
+  });
 });
 
 exports.getInProgressCS = asyncHandler(async (req, res, next) => {
