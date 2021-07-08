@@ -464,10 +464,11 @@ exports.updateCareStream = asyncHandler(async (req, res, next) => {
     }
   }
 
-  const edrCheck = await EDR.find({ _id: req.body.data.edrId }).populate(
-    'patientId'
-  );
-  const pharmacyRequest = edrCheck[0].pharmacyRequest;
+  //   const edrCheck = await EDR.find({ _id: req.body.data.edrId }).populate(
+  //     'patientId'
+  //   );
+  //   const pharmacyRequest = edrCheck[0].pharmacyRequest;
+  const request = [];
 
   if (newMedications.length > 0) {
     for (let i = 0; i < newMedications.length; i++) {
@@ -502,11 +503,11 @@ exports.updateCareStream = asyncHandler(async (req, res, next) => {
         createdAt: new Date(),
         updatedAt: new Date(),
       };
-      pharmacyRequest.push(pharmaObj);
+      request.push(pharmaObj);
     }
     await EDR.findOneAndUpdate(
       { _id: req.body.data.edrId },
-      { $push: { pharmacyRequest: pharmacyRequest } },
+      { $push: { pharmacyRequest: request } },
       { new: true }
     );
   }
@@ -525,6 +526,7 @@ exports.updateCareStream = asyncHandler(async (req, res, next) => {
       }
     }
   }
+  const fluidRequest = [];
 
   if (newfluidsIV.length > 0) {
     for (let i = 0; i < newfluidsIV.length; i++) {
@@ -558,12 +560,12 @@ exports.updateCareStream = asyncHandler(async (req, res, next) => {
           createdAt: new Date(),
           updatedAt: new Date(),
         };
-        pharmacyRequest.push(pharmaObj);
+        fluidRequest.push(pharmaObj);
       }
     }
     await EDR.findOneAndUpdate(
       { _id: req.body.data.edrId },
-      { $push: { pharmacyRequest: pharmacyRequest } },
+      { $push: { pharmacyRequest: fluidRequest } },
       { new: true }
     );
   }
