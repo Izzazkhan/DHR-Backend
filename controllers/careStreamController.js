@@ -436,7 +436,7 @@ exports.updateCareStream = asyncHandler(async (req, res, next) => {
 
   for (let i = 0; i < investigations.data.length; i++) {
     for (let j = 0; j < CS.length; j++) {
-      if (investigations.data[i]._id === CS[j]._id) {
+      if (investigations.data[i]._id.toString() === CS[j]._id.toString()) {
         if (
           investigations.data[i].selected === true &&
           CS[j].selected === false
@@ -451,7 +451,9 @@ exports.updateCareStream = asyncHandler(async (req, res, next) => {
   const CSMedications = CSData.careStream[0].medications.data;
   for (let i = 0; i < medications.data.length; i++) {
     for (let j = 0; j < CSMedications.length; j++) {
-      if (medications.data[i]._id === CSMedications[j]._id) {
+      if (
+        medications.data[i]._id.toString() === CSMedications[j]._id.toString()
+      ) {
         if (
           medications.data[i].selected === true &&
           CSMedications[j].selected === false
@@ -513,7 +515,7 @@ exports.updateCareStream = asyncHandler(async (req, res, next) => {
   const CSFluids = CSData.careStream[0].fluidsIV.data;
   for (let i = 0; i < fluidsIV.data.length; i++) {
     for (let j = 0; j < CSFluids.length; j++) {
-      if (fluidsIV.data[i]._id === CSFluids[j]._id) {
+      if (fluidsIV.data[i]._id.toString() === CSFluids[j]._id.toString()) {
         if (
           fluidsIV.data[i].selected === true &&
           CSFluids[j].selected === false
