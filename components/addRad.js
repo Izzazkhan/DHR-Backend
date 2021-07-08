@@ -27,10 +27,7 @@ const addRadRequest = asyncHandler(async (data) => {
   const oneDay = 1000 * 60 * 60 * 24;
   const day = Math.floor(diff / oneDay);
 
-  const requestId = generateReqNo('LR')`${'LR'}${day}${requestNoFormat(
-    new Date(),
-    'yyHHMMssL'
-  )}`;
+  const requestId = `${'RR'}${day}${requestNoFormat(new Date(), 'yyHHMMssL')}`;
 
   const radRequest = {
     requestId,
