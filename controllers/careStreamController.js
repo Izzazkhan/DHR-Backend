@@ -210,24 +210,6 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
     { new: true }
   ).populate('careStream.careStreamId', 'identifier');
 
-  const assignedCareStream = await EDR.findOneAndUpdate(
-    {
-      _id: req.body.data.edrId,
-      'careStream._id': edrCS.careStream[edrCS.careStream.length - 1]._id,
-    },
-    {
-      $push: {
-        'careStream.$.investigations.data': req.body.data.investigations,
-        'careStream.$.precautions.data': req.body.data.precautions,
-        'careStream.$.treatmentOrders.data': req.body.data.treatmentOrders,
-        'careStream.$.fluidsIV.data': req.body.data.fluidsIV,
-        'careStream.$.medications.data': req.body.data.medications,
-        'careStream.$.mdNotification.data': req.body.data.mdNotification,
-        'careStream.$.reassessments.data': req.body.data.reassessments,
-      },
-    }
-  ).populate('careStream.careStreamId', 'identifier');
-
   const pharmacyRequest = edrCheck[0].pharmacyRequest;
   const filteredMedications = req.body.data.medications.filter(
     (t) => t.selected === true
@@ -282,37 +264,39 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
       { $push: { pharmacyRequest: pharmacyRequest } },
       { new: true }
     );
-    //     Notification(
-    //       'Medication',
-    //       'Medication Of CareStream',
-    //       'Nurses',
-    //       'Pharmacist',
-    //       '/dashboard/home/patientmanagement/viewrequests/pharma/viewpharma',
-    //       req.body.data.edrId,
-    //       '',
-    //       'ED Nurse'
-    //     );
+    //     //     Notification(
+    //     //       'Medication',
+    //     //       'Medication Of CareStream',
+    //     //       'Nurses',
+    //     //       'Pharmacist',
+    //     //       '/dashboard/home/patientmanagement/viewrequests/pharma/viewpharma',
+    //     //       req.body.data.edrId,
+    //     //       '',
+    //     //       'ED Nurse'
+    //     //     );
 
-    //     // Clinical Pharmacist
-    //     Notification(
-    //       'Care Stream Medication Request',
-    //       'Care Stream Medication Request',
-    //       'Clinical Pharmacist',
-    //       'CareStream Assigned',
-    //       '/dashboard/home/pharmanotes',
-    //       req.body.edrId,
-    //       '',
-    //       ''
-    //     );
+    //     //     // Clinical Pharmacist
+    //     //     Notification(
+    //     //       'Care Stream Medication Request',
+    //     //       'Care Stream Medication Request',
+    //     //       'Clinical Pharmacist',
+    //     //       'CareStream Assigned',
+    //     //       '/dashboard/home/pharmanotes',
+    //     //       req.body.edrId,
+    //     //       '',
+    //     //       ''
+    //     //     );
   }
 
   //   // * Assigning tests
   if (req.body.data.investigations) {
     const { investigations } = req.body.data;
 
+    // console.log(investigations);
+
     const tests = investigations.filter((t) => t.selected === true);
     for (const test of tests) {
-      if (test.testType === 'lab') {
+      if (test.testType === 'Lab') {
         const lab = await LabService.findOne({ name: test.name });
         const data = {
           staffId: req.body.data.staffId,
@@ -325,7 +309,7 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
           labTestId: test._id,
         };
         addLab(data);
-      } else if (test.testType === 'rad') {
+      } else if (test.testType === 'Rad') {
         const rad = await RadService.findOne({ name: test.name });
         const data = {
           staffId: req.body.data.staffId,
@@ -341,6 +325,24 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
       }
     }
   }
+
+  const assignedCareStream = await EDR.findOneAndUpdate(
+    {
+      _id: req.body.data.edrId,
+      'careStream._id': edrCS.careStream[edrCS.careStream.length - 1]._id,
+    },
+    {
+      $push: {
+        'careStream.$.investigations.data': req.body.data.investigations,
+        'careStream.$.precautions.data': req.body.data.precautions,
+        'careStream.$.treatmentOrders.data': req.body.data.treatmentOrders,
+        'careStream.$.fluidsIV.data': req.body.data.fluidsIV,
+        'careStream.$.medications.data': req.body.data.medications,
+        'careStream.$.mdNotification.data': req.body.data.mdNotification,
+        'careStream.$.reassessments.data': req.body.data.reassessments,
+      },
+    }
+  ).populate('careStream.careStreamId', 'identifier');
 
   //   const decisionPending = await EDR.find({
   //     careStream: { $eq: [] },
