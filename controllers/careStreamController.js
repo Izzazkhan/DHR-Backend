@@ -264,28 +264,28 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
       { $push: { pharmacyRequest: pharmacyRequest } },
       { new: true }
     );
-    //     Notification(
-    //       'Medication',
-    //       'Medication Of CareStream',
-    //       'Nurses',
-    //       'Pharmacist',
-    //       '/dashboard/home/patientmanagement/viewrequests/pharma/viewpharma',
-    //       req.body.data.edrId,
-    //       '',
-    //       'ED Nurse'
-    //     );
+    Notification(
+      'Medication',
+      'Medication Of CareStream',
+      'Nurses',
+      'Pharmacist',
+      '/dashboard/home/patientmanagement/viewrequests/pharma/viewpharma',
+      req.body.data.edrId,
+      '',
+      'ED Nurse'
+    );
 
-    //     // Clinical Pharmacist
-    //     Notification(
-    //       'Care Stream Medication Request',
-    //       'Care Stream Medication Request',
-    //       'Clinical Pharmacist',
-    //       'CareStream Assigned',
-    //       '/dashboard/home/pharmanotes',
-    //       req.body.edrId,
-    //       '',
-    //       ''
-    //     );
+    // Clinical Pharmacist
+    Notification(
+      'Care Stream Medication Request',
+      'Care Stream Medication Request',
+      'Clinical Pharmacist',
+      'CareStream Assigned',
+      '/dashboard/home/pharmanotes',
+      req.body.edrId,
+      '',
+      ''
+    );
   }
 
   // * Assigning tests
@@ -344,81 +344,81 @@ exports.asignCareStream = asyncHandler(async (req, res, next) => {
 
   // Flags For Care Stream Medications
 
-  //   const decisionPending = await EDR.find({
-  //     careStream: { $eq: [] },
-  //     doctorNotes: { $ne: [] },
-  //   });
+  const decisionPending = await EDR.find({
+    careStream: { $eq: [] },
+    doctorNotes: { $ne: [] },
+  });
 
-  //   if (decisionPending.length > 5) {
-  //     await Flag.create({
-  //       edrId: req.body.data.edrId,
-  //       generatedFrom: 'Sensei',
-  //       card: '4th',
-  //       generatedFor: ['Sensei', 'Medical Director'],
-  //       reason: 'Patients pending for Doctor Decisions',
-  //       createdAt: Date.now(),
-  //     });
-  //     const flags = await Flag.find({
-  //       generatedFrom: 'Sensei',
-  //       status: 'pending',
-  //     });
-  //     globalVariable.io.emit('pendingSensei', flags);
-  //   }
+  if (decisionPending.length > 5) {
+    await Flag.create({
+      edrId: req.body.data.edrId,
+      generatedFrom: 'Sensei',
+      card: '4th',
+      generatedFor: ['Sensei', 'Medical Director'],
+      reason: 'Patients pending for Doctor Decisions',
+      createdAt: Date.now(),
+    });
+    const flags = await Flag.find({
+      generatedFrom: 'Sensei',
+      status: 'pending',
+    });
+    globalVariable.io.emit('pendingSensei', flags);
+  }
 
-  //   if (decisionPending.length > 6) {
-  //     await Flag.create({
-  //       edrId: req.body.data.edrId,
-  //       generatedFrom: 'ED Doctor',
-  //       card: '2nd',
-  //       generatedFor: ['ED Doctor', 'Medical Director'],
-  //       reason: 'Patients pending for Doctor Decisions',
-  //       createdAt: Date.now(),
-  //     });
-  //     const flags = await Flag.find({
-  //       generatedFrom: ['ED Doctor', 'Medical Director'],
-  //       status: 'pending',
-  //     });
-  //     globalVariable.io.emit('pendingDoctor', flags);
-  //   }
+  if (decisionPending.length > 6) {
+    await Flag.create({
+      edrId: req.body.data.edrId,
+      generatedFrom: 'ED Doctor',
+      card: '2nd',
+      generatedFor: ['ED Doctor', 'Medical Director'],
+      reason: 'Patients pending for Doctor Decisions',
+      createdAt: Date.now(),
+    });
+    const flags = await Flag.find({
+      generatedFrom: ['ED Doctor', 'Medical Director'],
+      status: 'pending',
+    });
+    globalVariable.io.emit('pendingDoctor', flags);
+  }
 
-  //   const currentStaff = await Staff.findById(req.body.data.staffId).select(
-  //     'staffType'
-  //   );
+  const currentStaff = await Staff.findById(req.body.data.staffId).select(
+    'staffType'
+  );
 
-  //   if (currentStaff.staffType === 'Paramedics') {
-  //     Notification(
-  //       'Patient Details',
-  //       'Patient Details',
-  //       'Sensei',
-  //       'Paramedics',
-  //       '/dashboard/home/pendingregistration',
-  //       req.body.data.edrId,
-  //       '',
-  //       ''
-  //     );
-  //   }
+  if (currentStaff.staffType === 'Paramedics') {
+    Notification(
+      'Patient Details',
+      'Patient Details',
+      'Sensei',
+      'Paramedics',
+      '/dashboard/home/pendingregistration',
+      req.body.data.edrId,
+      '',
+      ''
+    );
+  }
 
-  //   Notification(
-  //     'careStream Assigned',
-  //     'careStream Assigned',
-  //     'Nurses',
-  //     'CareStream',
-  //     '/dashboard/home/notes',
-  //     req.body.data.edrId,
-  //     '',
-  //     'ED Nurse'
-  //   );
+  Notification(
+    'careStream Assigned',
+    'careStream Assigned',
+    'Nurses',
+    'CareStream',
+    '/dashboard/home/notes',
+    req.body.data.edrId,
+    '',
+    'ED Nurse'
+  );
 
-  //   Notification(
-  //     'careStream Assigned',
-  //     'Doctor assigned CareStream',
-  //     'Doctor',
-  //     'CareStream Assigned',
-  //     '/dashboard/home/notes',
-  //     req.body.data.edrId,
-  //     '',
-  //     'Rad Doctor'
-  //   );
+  Notification(
+    'careStream Assigned',
+    'Doctor assigned CareStream',
+    'Doctor',
+    'CareStream Assigned',
+    '/dashboard/home/notes',
+    req.body.data.edrId,
+    '',
+    'Rad Doctor'
+  );
 
   res.status(200).json({
     success: true,
@@ -577,6 +577,10 @@ exports.updateCareStream = asyncHandler(async (req, res, next) => {
     },
     {
       $set: {
+        'careStream.$.inclusionCriteria.data':
+          req.body.data.inclusionCriteria.data,
+        'careStream.$.exclusionCriteria.data':
+          req.body.data.exclusionCriteria.data,
         'careStream.$.investigations.data': req.body.data.investigations.data,
         'careStream.$.precautions.data': req.body.data.precautions.data,
         'careStream.$.treatmentOrders.data': req.body.data.treatmentOrders.data,
