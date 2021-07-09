@@ -577,10 +577,8 @@ exports.updateCareStream = asyncHandler(async (req, res, next) => {
     },
     {
       $set: {
-        'careStream.$.inclusionCriteria.data':
-          req.body.data.inclusionCriteria.data,
-        'careStream.$.exclusionCriteria.data':
-          req.body.data.exclusionCriteria.data,
+        'careStream.$.inclusionCriteria': req.body.data.inclusionCriteria,
+        'careStream.$.exclusionCriteria.': req.body.data.exclusionCriteria,
         'careStream.$.investigations.data': req.body.data.investigations.data,
         'careStream.$.precautions.data': req.body.data.precautions.data,
         'careStream.$.treatmentOrders.data': req.body.data.treatmentOrders.data,
