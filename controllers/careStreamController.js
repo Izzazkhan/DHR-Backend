@@ -1133,7 +1133,7 @@ exports.getEDRswithCS = asyncHandler(async (req, res, next) => {
     patients = await EDR.find({
       status: 'pending',
       // careStream: { $ne: [] },
-      room: { $ne: [] },
+      // room: { $ne: [] },
       'chiefComplaint.chiefComplaintId': chiefComplaintId,
     })
       .populate([

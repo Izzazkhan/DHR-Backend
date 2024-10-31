@@ -36,7 +36,7 @@ exports.getAvailableBeds = asyncHandler(async (req, res, next) => {
 });
 
 exports.disableBed = asyncHandler(async (req, res) => {
-  const bed = await Bed.findOne({ _id: req.body.bedId });
+  const bed = await Bed.findById(req.body.bedId);
   if (bed.availability === false) {
     res
       .status(200)
@@ -49,8 +49,8 @@ exports.disableBed = asyncHandler(async (req, res) => {
       updatedBy: req.body.staffId,
       reason: req.body.reason,
     };
-    await Bed.findOneAndUpdate(
-      { _id: req.body.bedId },
+    await Bed.findByIdAndUpdate(
+     req.body.bedId,
       {
         $set: { disabled: true },
         $push: { updateRecord: updateRecord },

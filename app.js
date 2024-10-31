@@ -12,6 +12,7 @@ const webRTCSocket = require('./lib/socket');
 // Router Files
 const patientRouter = require('./routes/patientRoutes');
 const edrRouter = require('./routes/edrRoutes');
+const ssrRouter = require('./routes/ssrRoutes');
 const pharmRouter = require('./routes/pharmRoutes');
 const room = require('./routes/room');
 const productionArea = require('./routes/productionArea');
@@ -63,6 +64,8 @@ const bed = require('./routes/bed');
 const transferOfCare = require('./routes/transferOfCare');
 const CronFlag = require('./models/CronFlag');
 const cronFlagRouter = require('./routes/CronFlag');
+const Product = require('./routes/product');
+const Student = require('./routes/student');
 
 const app = express();
 
@@ -129,6 +132,9 @@ app.use('/api/eou', EOU);
 app.use('/api/bed', bed);
 app.use('/api/transferOfCare', transferOfCare);
 app.use('/api/cronFlag', cronFlagRouter);
+app.use('/api/product', Product);
+app.use('/api/student', Student);
+app.use('/api/ssr', ssrRouter);
 
 app.use(errorHandler);
 

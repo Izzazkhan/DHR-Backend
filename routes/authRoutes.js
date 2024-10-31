@@ -12,7 +12,7 @@ const {
 router.post('/login', login);
 router.post('/logout', logout);
 router.put('/forgotPassword', forgotPassword);
-router.put('/resetPassword', resetPassword);
+router.post('/resetPassword', resetPassword);
 router.put('/updatePassword', updatePassword);
 
 module.exports = router;

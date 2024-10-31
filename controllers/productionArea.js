@@ -42,7 +42,6 @@ exports.createPA = asyncHandler(async (req, res) => {
     paName,
     chiefComplaintId: requestNo,
   });
-
   const productionArea = {
     assignedBy: req.body.staffId,
     productionAreaId: createPAs._id,

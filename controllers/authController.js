@@ -7,6 +7,14 @@ const Subscriber = require('../models/subscriber/subscriber');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 
+var transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'izazkhan2000@gmail.com',
+    pass: 'izaz1234',
+  },
+});
+
 const sendTokenResponse = (user, statusCode, res) => {
   const token = user.getSignedJwtToken();
   const options = {
@@ -30,6 +38,7 @@ const sendTokenResponse = (user, statusCode, res) => {
 };
 
 exports.login = asyncHandler(async (req, res, next) => {
+  
   const { email, password } = req.body;
   let data;
   let user;
@@ -106,13 +115,13 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: 'pmdevteam0@gmail.com',
+      user: 'izazkhan2000@gmail.com',
       pass: 'SysJunc1$',
     },
   });
   const mailOptions = {
-    from: 'pmdevteam0@gmail.com',
-    to: 'naeemtahir775@gmail.com',
+    from: 'izazkhan2000@gmail.com',
+    to: 'izazkhan2000@gmail.com',
     subject: 'Forgot Password',
     html: `<p>${message}<p>`,
   };
@@ -138,27 +147,57 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
 });
 
 // Reset Password
-exports.resetPassword = asyncHandler(async (req, res, next) => {
-  //  1) Get user based on token
-  const hashedToken = crypto
-    .createHash('sha256')
-    .update(req.params.token)
-    .digest('hex');
+// exports.resetPassword = asyncHandler(async (req, res, next) => {
+//   //  1) Get user based on token
+//   const hashedToken = crypto
+//     .createHash('sha256')
+//     .update(req.params.token)
+//     .digest('hex');
 
-  const user = await Staff.findOne({
-    resetPasswordToken: hashedToken,
-    resetPasswordExpire: { $gt: Date.now() },
-  });
+//   const user = await Staff.findOne({
+//     resetPasswordToken: hashedToken,
+//     resetPasswordExpire: { $gt: Date.now() },
+//   });
+//   if (!user) {
+//     return next(new ErrorResponse('Token is invalid or has expired', 401));
+//   }
+//   // 2) if token has not expired and there is user, set the new password
+//   user.password = req.body.password;
+//   user.resetPasswordToken = undefined;
+//   user.resetPasswordExpire = undefined;
+//   await user.save();
+//   // 3) Log the user in, Send jwt
+//   sendTokenResponse(user, 200, res);
+// });
+exports.resetPassword = asyncHandler(async (req, res, next) => {
+  const { email, content } = req.body;
+
+  // Check for user
+  const user = await Staff.findOne({ email });
+
+
   if (!user) {
-    return next(new ErrorResponse('Token is invalid or has expired', 401));
+    return next(new ErrorResponse('Invalid credentials', 401));
+  } else {
+    // var token = jwt.sign({ email_token: email }, 'email_token_secret_key', {
+    //   expiresIn: '1d', // expires in 24 hours
+    // });
+    var mailOptions = {
+      from: 'pmdevteam0@gmail.com',
+      to: user.email,
+      subject: 'Request for Reset password',
+      // html: `<p>${content}/${token}<p>`,
+      text: 'That was easy!'
+    };
+    transporter.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log('Email sent: ' + info.response);
+        res.status(200).json({ success: true, data: user });
+      }
+    });
   }
-  // 2) if token has not expired and there is user, set the new password
-  user.password = req.body.password;
-  user.resetPasswordToken = undefined;
-  user.resetPasswordExpire = undefined;
-  await user.save();
-  // 3) Log the user in, Send jwt
-  sendTokenResponse(user, 200, res);
 });
 
 // Update Password
@@ -187,3 +226,32 @@ exports.updatePassword = asyncHandler(async (req, res, next) => {
   // Log user in and send token
   sendTokenResponse(user, 200, res);
 });
+
+// exports.changePassword = asyncHandler(async (req, res, next) => {
+//   const password = req.body.password;
+//   const salt = await bcrypt.genSalt(12);
+//   const passwordhashed = await bcrypt.hash(password, salt);
+//   const staff = await Staff.findOneAndUpdate(
+//     { email: req.body.email },
+//     {
+//       $set: {
+//         password: passwordhashed,
+//       },
+//     },
+//     { new: true }
+//   );
+//   const user = await User.findOneAndUpdate(
+//     { email: req.body.email },
+//     {
+//       $set: {
+//         password: passwordhashed,
+//       },
+//     },
+//     { new: true }
+//   );
+//   if (!user && !staff) {
+//     return next(new ErrorResponse('Invalid credentials', 401));
+//   } else {
+//     res.status(200).json({ success: true, user: user, staff: staff });
+//   }
+// });
